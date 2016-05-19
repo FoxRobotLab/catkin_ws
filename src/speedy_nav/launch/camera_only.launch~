@@ -1,0 +1,10 @@
+<launch>
+
+  <node pkg="image_transport" type="republish" name="image_conversion_color" output="screen" args="theora in:=camera/rgb/image_color raw out:=camera/image_decompressed" />
+
+  <node pkg="image_transport" type="republish" name="image_conversion_depth" output="screen" args="compressedDepth in:=camera/depth/image_rect_raw raw out:=camera/depth_decompressed" />
+
+
+  <node pkg="speedy_nav" type="Planner.py" name="speedy_nav" output="screen" />
+
+</launch>

@@ -1,0 +1,22 @@
+<launch>
+
+  <!--
+  <include file="$(find turtlebot_bringup)/launch/3dsensor.launch/turtlebot-comp.machine">
+    <arg name="rgb_processing" value="false"/>
+    <arg name="depth_processing" value="true"/>
+    <arg name="depth_registered_processing" value="false"/>
+    <arg name="depth_registration" value="false"/>
+    <arg name="disparity_processing" value="false"/>
+    <arg name="disparity_registered_processing" value="false"/>
+    <arg name="scan_processing" value="false"/>
+  </include>
+  -->
+
+  <node pkg="image_transport" type="republish" name="image_conversion" output="screen" args="theora in:=camera/rgb/image_color raw out:=camera/image_decompressed" />
+
+  <node pkg="test_movement" type="CameraOnly.py" name="test_movement" output="screen">
+    <remap from="test_movement/imu" to="mobile_base/sensors/imu_data_raw"/>
+    <remap from="test_movement/cmd_vel" to="/mobile_base/commands/velocity"/>
+  </node>
+
+</launch>

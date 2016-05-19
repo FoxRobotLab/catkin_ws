@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "test_movement")
+set(test_movement_MAINTAINER "macalester <macalester@todo.todo>")
+set(test_movement_DEPRECATED "")
+set(test_movement_VERSION "0.0.0")
+set(test_movement_BUILD_DEPENDS "rospy" "std_msgs" "sensor_msgs" "geometry_msgs" "opencv2" "cv_bridges" "pcl")
+set(test_movement_RUN_DEPENDS "rospy" "std_msgs" "sensor_msgs" "geometry_msgs" "opencv2" "cv_bridges" "pcl")
+set(test_movement_BUILDTOOL_DEPENDS "catkin")
