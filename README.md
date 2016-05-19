@@ -21,9 +21,12 @@ __MultiCamShift__ is interested in colors that are placed horizontally in a patt
 
 
 #####Some useful tutorials:
-TurtleBot - http://wiki.ros.org/Robots/TurtleBot 
+TurtleBot - http://wiki.ros.org/Robots/TurtleBot
+
 ROS explanation- http://robohub.org/ros-101-intro-to-the-robot-operating-system/
+
 rospy - http://wiki.ros.org/rospy_tutorials
+
 CvBridge - http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython 
 
 
