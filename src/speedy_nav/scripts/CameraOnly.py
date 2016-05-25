@@ -69,8 +69,7 @@ class ImageSensor():
 		try:
 			cv_image = self.bridge.imgmsg_to_cv2(data, "passthrough")
 		except CvBridgeError, e:
-			print e
-
+			print(e)
 
 		############## Temporary ##############
 
