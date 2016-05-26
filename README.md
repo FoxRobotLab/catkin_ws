@@ -35,7 +35,7 @@ Connecting to the TurtleBot using the workstation Enterprise:
 
 First run though the necessary things to make sure the TurtleBot is started up correctly and the laptop is on. 
 
-Ensure the laptop is connected to the `Macalester` network, not `macalester-student`. The latter is outside the firewall and you won't be able to ssh in.
+Ensure the laptop is connected to the `Macalester` network, not `macalester-guest`. The latter is outside the firewall and you won't be able to ssh in.
 
 Open up a terminal on the laptop. Begin by getting the laptop's IP address with 
 ```
