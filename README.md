@@ -30,3 +30,40 @@ rospy - http://wiki.ros.org/rospy_tutorials
 CvBridge - http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython 
 
 
+
+Connecting to the TurtleBot using the workstation Enterprise:
+
+First run though the necessary things to make sure the TurtleBot is started up correctly and the laptop is on. 
+
+Ensure the laptop is connected to the `Macalester` network, not `macalester-student`. The latter is outside the firewall and you won't be able to ssh in.
+
+Open up a terminal on the laptop. Begin by getting the laptop's IP address with 
+```
+ifconfig
+```
+Then switch over to Enterprise and open a terminal. Run `ifconfig` again to get Enterprises's IP address and then run
+```
+python hostTurtlebotSetup.py
+```
+and enter both IPs when prompted. 
+
+Next run 
+```
+source turtleros.bash
+```
+which should complete immediately with no output. Then you're ready to SSH into the laptop, by running
+```
+ssh -X macalester@<ip-address>
+```
+where `<ip-address>` is the address of the laptop. You will need to enter the password of the laptop, which is posted on the main board in the robot lab underneath the Robot Navigation poster. (The ssh should not take long, if it does check and make sure the laptop isn't conencted to `macalester-guest`. If it fails it'll time out after a minute or so.)
+
+Then open a new terminal. In it, run 
+```
+roslaunch turtlebot_bringup minimal.launch
+```
+after which switch back to the first terminal and run 
+```
+roslaunch turtlebot_dashboard turtle_dashboard.launch
+```
+
+You should now have the create dashboard up. 
