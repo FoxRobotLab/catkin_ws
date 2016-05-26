@@ -31,7 +31,7 @@ CvBridge - http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAnd
 
 
 
-Connecting to the TurtleBot using the workstation Enterprise:
+###Connecting to the TurtleBot using the workstation Enterprise:
 
 First run though the necessary things to make sure the TurtleBot is started up correctly and the laptop is on. 
 
@@ -63,7 +63,11 @@ roslaunch turtlebot_bringup minimal.launch
 ```
 after which switch back to the first terminal and run 
 ```
-roslaunch turtlebot_dashboard turtle_dashboard.launch
+roslaunch turtlebot_dashboard turtle_dashboard.launch &
 ```
-
 You should now have the create dashboard up. 
+The "&" symbol runs the dashboard in the background. You can then use the current terminal window to run the scripts you want to. 
+
+#####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
+
+
