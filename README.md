@@ -68,7 +68,7 @@ roslaunch turtlebot_dashboard turtle_dashboard.launch &
 You should now have the create dashboard up. 
 The "&" symbol runs the dashboard in the background. You can then use the current terminal window to run the scripts you want to.
 
-If the makefile is not yet made properly go into the _catkin ws_ and then run 
+If the makefile is not yet made properly go into the _catkin ws_ folder and then run 
 ```
 catkin_make
 ```
