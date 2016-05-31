@@ -84,6 +84,16 @@ chmod ugo+x Planner.py
 or whatever file you need to change permissions on.
 u, g, o are the three groups; r, w, x for read write and execute; + for adding permissions and - for taking them away.
 
+To fix the issue with depth data, follow the advice from [this SO post](http://answers.ros.org/question/163551/no-depth-data-received-from-kinect-on-turtlebot/):
+
+>There is a conflict with having both the depthclound and registered depthcloud launching at the same time. To view the depthcloud, set the registered depthcloud arguments to false when launching 3dsensors.launch
+
+So run this instead of the usual bringup
+```
+roslaunch turtlebot_bringup 3dsensor.launch depth_registered_processing:=false depth_registration:=false
+```
+and it should work fine.
+
 
 #####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
 
