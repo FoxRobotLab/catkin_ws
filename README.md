@@ -70,4 +70,6 @@ The "&" symbol runs the dashboard in the background. You can then use the curren
 
 #####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
 
+Very helpful short textbook intro to ROS: https://cse.sc.edu/~jokane/agitr/
+
 
