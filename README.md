@@ -73,6 +73,18 @@ If the makefile is not yet made properly go into the _catkin ws_ folder and then
 catkin_make
 ```
 
+If you're getting an error something like 
+```
+can't locate node in package ros
+```
+then you can try changing the permissions by running
+```
+chmod ugo+x Planner.py
+```
+or whatever file you need to change permissions on.
+u, g, o are the three groups; r, w, x for read write and execute; + for adding permissions and - for taking them away.
+
+
 #####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
 
 Very helpful short textbook intro to ROS: https://cse.sc.edu/~jokane/agitr/
