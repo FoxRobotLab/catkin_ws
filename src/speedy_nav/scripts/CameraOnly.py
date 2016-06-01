@@ -69,7 +69,8 @@ class ImageSensor():
 		try:
 			cv_image = self.bridge.imgmsg_to_cv2(data, "passthrough")
 		except CvBridgeError, e:
-			print(e)
+			print e
+
 
 		############## Temporary ##############
 
@@ -87,7 +88,7 @@ class ImageSensor():
 
 		cv2.imshow("TurtleCam", cv_image)
 
-		code = chr(cv2.waitKey(1) & 255)
+		code = chr(cv2.waitKey(10) & 255)
 		if code == 'c':
 				cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-" + str(datetime.now()) + ".jpg", cv_image)
 

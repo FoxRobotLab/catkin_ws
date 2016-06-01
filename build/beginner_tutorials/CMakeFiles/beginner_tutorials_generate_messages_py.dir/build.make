@@ -31,6 +31,9 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
+# Escaping for special characters.
+EQUALS = =
+
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /home/macalester/catkin_ws/src
 
@@ -47,31 +50,31 @@ beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_py: /home/mac
 beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_py: /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/__init__.py
 beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_py: /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/__init__.py
 
-/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/_Num.py: /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/genmsg_py.py
+/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/_Num.py: /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/genmsg_py.py
 /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/_Num.py: /home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/macalester/catkin_ws/build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating Python from MSG beginner_tutorials/Num"
-	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/hydro/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg
+	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/indigo/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg
 
-/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/_AddTwoInts.py: /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/gensrv_py.py
+/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/_AddTwoInts.py: /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/gensrv_py.py
 /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/_AddTwoInts.py: /home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/macalester/catkin_ws/build/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating Python code from SRV beginner_tutorials/AddTwoInts"
-	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/gensrv_py.py /home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/hydro/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv
+	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/gensrv_py.py /home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/indigo/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv
 
-/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/__init__.py: /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/genmsg_py.py
+/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/__init__.py: /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/genmsg_py.py
 /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/__init__.py: /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/_Num.py
 /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/__init__.py: /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/_AddTwoInts.py
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/macalester/catkin_ws/build/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating Python msg __init__.py for beginner_tutorials"
-	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg --initpy
+	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg --initpy
 
-/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/__init__.py: /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/genmsg_py.py
+/home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/__init__.py: /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/genmsg_py.py
 /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/__init__.py: /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/_Num.py
 /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/__init__.py: /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv/_AddTwoInts.py
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/macalester/catkin_ws/build/CMakeFiles $(CMAKE_PROGRESS_4)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating Python srv __init__.py for beginner_tutorials"
-	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/hydro/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv --initpy
+	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/indigo/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/srv --initpy
 
 beginner_tutorials_generate_messages_py: beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_py
 beginner_tutorials_generate_messages_py: /home/macalester/catkin_ws/devel/lib/python2.7/dist-packages/beginner_tutorials/msg/_Num.py

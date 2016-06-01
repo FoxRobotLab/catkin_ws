@@ -2,7 +2,7 @@
 
 message(STATUS "beginner_tutorials: 1 messages, 1 services")
 
-set(MSG_I_FLAGS "-Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg;-Istd_msgs:/opt/ros/hydro/share/std_msgs/cmake/../msg")
+set(MSG_I_FLAGS "-Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg;-Istd_msgs:/opt/ros/indigo/share/std_msgs/cmake/../msg")
 
 # Find all generators
 find_package(gencpp REQUIRED)
@@ -10,6 +10,20 @@ find_package(genlisp REQUIRED)
 find_package(genpy REQUIRED)
 
 add_custom_target(beginner_tutorials_generate_messages ALL)
+
+# verify that message/service dependencies have not changed since configure
+
+
+
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg" NAME_WE)
+add_custom_target(_beginner_tutorials_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "beginner_tutorials" "/home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg" ""
+)
+
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv" NAME_WE)
+add_custom_target(_beginner_tutorials_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "beginner_tutorials" "/home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv" ""
+)
 
 #
 #  langs = gencpp;genlisp;genpy
@@ -42,6 +56,12 @@ add_custom_target(beginner_tutorials_generate_messages_cpp
   DEPENDS ${ALL_GEN_OUTPUT_FILES_cpp}
 )
 add_dependencies(beginner_tutorials_generate_messages beginner_tutorials_generate_messages_cpp)
+
+# add dependencies to all check dependencies targets
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg" NAME_WE)
+add_dependencies(beginner_tutorials_generate_messages_cpp _beginner_tutorials_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv" NAME_WE)
+add_dependencies(beginner_tutorials_generate_messages_cpp _beginner_tutorials_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(beginner_tutorials_gencpp)
@@ -78,6 +98,12 @@ add_custom_target(beginner_tutorials_generate_messages_lisp
 )
 add_dependencies(beginner_tutorials_generate_messages beginner_tutorials_generate_messages_lisp)
 
+# add dependencies to all check dependencies targets
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg" NAME_WE)
+add_dependencies(beginner_tutorials_generate_messages_lisp _beginner_tutorials_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv" NAME_WE)
+add_dependencies(beginner_tutorials_generate_messages_lisp _beginner_tutorials_generate_messages_check_deps_${_filename})
+
 # target for backward compatibility
 add_custom_target(beginner_tutorials_genlisp)
 add_dependencies(beginner_tutorials_genlisp beginner_tutorials_generate_messages_lisp)
@@ -113,6 +139,12 @@ add_custom_target(beginner_tutorials_generate_messages_py
 )
 add_dependencies(beginner_tutorials_generate_messages beginner_tutorials_generate_messages_py)
 
+# add dependencies to all check dependencies targets
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg" NAME_WE)
+add_dependencies(beginner_tutorials_generate_messages_py _beginner_tutorials_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv" NAME_WE)
+add_dependencies(beginner_tutorials_generate_messages_py _beginner_tutorials_generate_messages_check_deps_${_filename})
+
 # target for backward compatibility
 add_custom_target(beginner_tutorials_genpy)
 add_dependencies(beginner_tutorials_genpy beginner_tutorials_generate_messages_py)
@@ -120,8 +152,6 @@ add_dependencies(beginner_tutorials_genpy beginner_tutorials_generate_messages_p
 # register target for catkin_package(EXPORTED_TARGETS)
 list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS beginner_tutorials_generate_messages_py)
 
-
-debug_message(2 "beginner_tutorials: Iflags=${MSG_I_FLAGS}")
 
 
 if(gencpp_INSTALL_DIR AND EXISTS ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/beginner_tutorials)

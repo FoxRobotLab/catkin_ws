@@ -115,10 +115,11 @@ class Planner(object):
 		ignoreColorTime = 0
 		sweepTime = 0
 		sinceLastStall = 0
-
+                print "Planner.run starting while loop"
 		while time.time() < timeout and not rospy.is_shutdown():	
 
 			if not self.camera.isStalled():
+                                print " -------------------------------- camera not stalled"
 				sinceLastStall += 1
 				if 30 < sinceLastStall:
 					bumper = self.robot.getBumperStatus()
@@ -127,10 +128,11 @@ class Planner(object):
 							cv2.waitKey(300)
 							bumper = self.robot.getBumperStatus()
 						self.stopColorSearching()
-					
+					print " ---   inside if 30 < sinceLastStall"
 					iterationCount += 1
 #					print "======================================", '\titer: ', iterationCount 
-					if iterationCount > 250 or iterationCount == 1: 
+					if iterationCount > 250: 
+                                                print "STEPPING THE BRAIN"
 						self.brain.step()
 					else:
 						time.sleep(.01)

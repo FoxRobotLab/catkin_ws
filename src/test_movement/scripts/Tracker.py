@@ -9,7 +9,7 @@ class Tracker(object):
         self.found = found
         
         #Threshold Values
-        self.trackThreshold = 90
+        self.trackThreshold = 100
         self.splitThreshold = 60
         
         self.checkEvery = 3

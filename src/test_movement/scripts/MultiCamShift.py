@@ -11,10 +11,10 @@ class MultiCamShift(threading.Thread):
         """Creates the cam shift thread and sets up scanners for all objects listed in 'self.toScanFor'. Needs an example image to get the dimensions of the frame."""
 
         threading.Thread.__init__(self)
-        self.toScanFor = ["purple","green","blue"]
+        self.toScanFor = ["purple", "green"]
         self.scanners = {}        
         self.lock = threading.Lock()
-        self.locationAndArea = {"purple" : [], "green" : [], "blue" : []}
+        self.locationAndArea = {"purple" : [], "green" : []}
         
         if exampleImage == None:
             cap = cv2.VideoCapture(0)

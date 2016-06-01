@@ -90,7 +90,7 @@ class ImageSensor():
 
 		code = chr(cv2.waitKey(1) & 255)
 		if code == 'c':
-				cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-" + str(datetime.now()) + ".jpg", copy)
+				cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-" + str(datetime.now()) + ".jpg", cv_image)
 
 	def exit(self):
 		self.image_sub.unregister()

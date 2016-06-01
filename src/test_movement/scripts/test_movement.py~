@@ -210,6 +210,7 @@ class SensorThread( threading.Thread ):
             data = self.depth_array
         print " Done!"
       cv_image = self.bridge.imgmsg_to_cv2(data, "passthrough")
+      print type(cv_image)
     except CvBridgeError, e:
       print e
     numpy_array = numpy.asarray(cv_image)   
@@ -254,8 +255,8 @@ class TurtleBot:
     self.moveControl = MovementControlThread()
     self.moveControl.start()
     
-    #self.sensorControl = SensorThread()
-    #self.sensorControl.start()
+    self.sensorControl = SensorThread()
+    self.sensorControl.start()
 
     self.imageControl = ImageSensorThread()
     self.imageControl.start()

@@ -31,6 +31,9 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
+# Escaping for special characters.
+EQUALS = =
+
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /home/macalester/catkin_ws/src
 
@@ -45,20 +48,20 @@ include beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_cpp.d
 beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_cpp: /home/macalester/catkin_ws/devel/include/beginner_tutorials/Num.h
 beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_cpp: /home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h
 
-/home/macalester/catkin_ws/devel/include/beginner_tutorials/Num.h: /opt/ros/hydro/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py
+/home/macalester/catkin_ws/devel/include/beginner_tutorials/Num.h: /opt/ros/indigo/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py
 /home/macalester/catkin_ws/devel/include/beginner_tutorials/Num.h: /home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg
-/home/macalester/catkin_ws/devel/include/beginner_tutorials/Num.h: /opt/ros/hydro/share/gencpp/cmake/../msg.h.template
+/home/macalester/catkin_ws/devel/include/beginner_tutorials/Num.h: /opt/ros/indigo/share/gencpp/cmake/../msg.h.template
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/macalester/catkin_ws/build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating C++ code from beginner_tutorials/Num.msg"
-	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/hydro/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/hydro/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/include/beginner_tutorials -e /opt/ros/hydro/share/gencpp/cmake/..
+	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/indigo/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/macalester/catkin_ws/src/beginner_tutorials/msg/Num.msg -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/indigo/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/include/beginner_tutorials -e /opt/ros/indigo/share/gencpp/cmake/..
 
-/home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h: /opt/ros/hydro/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py
+/home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h: /opt/ros/indigo/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py
 /home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h: /home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv
-/home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h: /opt/ros/hydro/share/gencpp/cmake/../msg.h.template
-/home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h: /opt/ros/hydro/share/gencpp/cmake/../srv.h.template
+/home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h: /opt/ros/indigo/share/gencpp/cmake/../msg.h.template
+/home/macalester/catkin_ws/devel/include/beginner_tutorials/AddTwoInts.h: /opt/ros/indigo/share/gencpp/cmake/../srv.h.template
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/macalester/catkin_ws/build/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Generating C++ code from beginner_tutorials/AddTwoInts.srv"
-	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/hydro/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/hydro/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/include/beginner_tutorials -e /opt/ros/hydro/share/gencpp/cmake/..
+	cd /home/macalester/catkin_ws/build/beginner_tutorials && ../catkin_generated/env_cached.sh /usr/bin/python /opt/ros/indigo/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/macalester/catkin_ws/src/beginner_tutorials/srv/AddTwoInts.srv -Ibeginner_tutorials:/home/macalester/catkin_ws/src/beginner_tutorials/msg -Istd_msgs:/opt/ros/indigo/share/std_msgs/cmake/../msg -p beginner_tutorials -o /home/macalester/catkin_ws/devel/include/beginner_tutorials -e /opt/ros/indigo/share/gencpp/cmake/..
 
 beginner_tutorials_generate_messages_cpp: beginner_tutorials/CMakeFiles/beginner_tutorials_generate_messages_cpp
 beginner_tutorials_generate_messages_cpp: /home/macalester/catkin_ws/devel/include/beginner_tutorials/Num.h

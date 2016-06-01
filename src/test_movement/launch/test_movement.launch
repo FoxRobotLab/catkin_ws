@@ -14,7 +14,7 @@
 
   <node pkg="image_transport" type="republish" name="image_conversion" output="screen" args="theora in:=camera/rgb/image_color raw out:=camera/image_decompressed" />
 
-  <node pkg="test_movement" type="CameraOnly.py" name="test_movement" output="screen">
+  <node pkg="test_movement" type="TrackingField.py" name="test_movement" output="screen">
     <remap from="test_movement/imu" to="mobile_base/sensors/imu_data_raw"/>
     <remap from="test_movement/cmd_vel" to="/mobile_base/commands/velocity"/>
   </node>

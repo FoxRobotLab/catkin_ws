@@ -9,7 +9,7 @@ class Tracker(object):
         self.found = found
         
         #Threshold Values
-        self.trackThreshold = 80
+        self.trackThreshold = 100
         self.splitThreshold = 60
         
         self.checkEvery = 3
@@ -70,7 +70,7 @@ class Tracker(object):
         
     def getArea(self):
         c,r,w,h = self.track_window
-        return w*h
+        return w*h / 
     
     def getCenter(self):
         c,r,w,h = self.track_window

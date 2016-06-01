@@ -9,7 +9,6 @@ import MultiCamShift as MCS
 import cv2
 import numpy
 import time
-from datetime import datetime
 
 import math
 import random
@@ -40,7 +39,7 @@ class ObjectForce(PotentialFieldBrain.PotentialFieldBehavior):
         if len(objList) != 0:
             ((x, y), size) = objList[0]
             angle = -((x/640.0)-0.5)*60*2
-            speed = (self.targetSize-size)*3
+            speed = (self.targetSize-size)*2
             if angle < 0:
                 angle += 360
             if speed < 0:
@@ -57,19 +56,14 @@ class ObjectForce(PotentialFieldBrain.PotentialFieldBehavior):
 class UpdateCamera(PotentialFieldBrain.PotentialFieldBehavior):
 
     def __init__(self, camShift):
-        cv2.namedWindow("Turtlebot Camera", 1)
+        cv2.namedWindow("name", 1)
         self.multiCamShift = camShift
            
     def update(self):
         image = self.robot.getImage().copy()
         image2 = self.multiCamShift.update(image)
-        cv2.imshow("Turtlebot Camera", image2)
-        code = chr(cv2.waitKey(1) & 255)
-        if code == 'c':
-            cv2.imwrite("/home/macalester/catkin_ws/src/test_movement/scripts/images/captures/cap-"
-                         + str(datetime.now()) + ".jpg", image2)
-            print "Image saved!"
-
+        cv2.imshow("name", image2)
+        cv2.waitKey(1)
        
         self.setVector(0.0, 0.0)
 
@@ -83,8 +77,8 @@ def runDemo(runtime = 120):
     mcs = MCS.MultiCamShift(image)
 
     # brain.add( KeepMoving() )
-    #brain.add( ObjectForce("blue", 0.2, mcs) )
-    #brain.add( ObjectForce("purple", 0.2, mcs) )
+    # brain.add( ObjectForce("blue", 0.2, mcs) )
+    brain.add( ObjectForce("purple", 0.2, mcs) )
     brain.add( ObjectForce("green", 0.2, mcs) )
     brain.add( UpdateCamera(mcs) )   
  
@@ -109,5 +103,5 @@ def setupPot(robotCode = None):
 
 if __name__=="__main__":
   rospy.init_node('TrackingField')
-  runDemo(5000)
+  runDemo(120*6)
 

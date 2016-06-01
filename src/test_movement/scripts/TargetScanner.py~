@@ -5,13 +5,11 @@ from Tracker import *
 
 class TargetScanner(object):
     def __init__(self, object_name, frame_dims):
-        """Creates the object and generates the histogram for the object to be tracked (object_name)."""
+        """"""
         self.object_name = object_name
         self.fWidth, self.fHeight = frame_dims
         self.full_track_window = (0,0,self.fWidth,self.fHeight)
         
-
-        # Only direct references to the files seemed to work here
         try:
             self.object_image = cv2.imread("/home/macalester/catkin_ws/src/test_movement/scripts/images/" + object_name + ".jpg")
         except:
@@ -32,16 +30,15 @@ class TargetScanner(object):
         
     
     def calcAverageColor(self):
-            """Calculates the average color of the object to be tracked."""
             imgWidth, imgHeight, imgDepth = self.object_image.shape
             area = imgWidth * imgHeight
-            return (int(np.sum(self.object_image[:,:,0]) / area),
-                    int(np.sum(self.object_image[:,:,1]) / area),
-                    int(np.sum(self.object_image[:,:,2]) / area))     
+            return (0, 30, 200)
+#            return (np.sum(self.object_image[:,:,0]) // area,
+#                    np.sum(self.object_image[:,:,1]) // area,
+#                    np.sum(self.object_image[:,:,2]) // area)     
         
         
     def scan(self, frame, hsv_frame, mask):
-        """Updates all the of trackers for identified objects and updates the searcher which is looking for new objects."""
         bproj = cv2.calcBackProject([hsv_frame], [0], self.hist, [0,180], 1)        
         bproj &= mask
         
@@ -55,10 +52,10 @@ class TargetScanner(object):
                 bproj = original_bproj
 
             if tracker.hasFound():
-                print box
                 cv2.ellipse(frame, box, self.averageColor, 2)
             else:
                 del self.tracking[index]
+                
                 
         box, bproj, split = self.searcher.update(bproj.copy())
         
@@ -71,10 +68,8 @@ class TargetScanner(object):
             self.searcher = Tracker(self.full_track_window, found = False)
             
         return frame
-
     
     def getTrackingInfo(self):
-        """Returns the tracking info ((coords),area) about all the currently identified objects."""
         info = []
         area = 1.0 * self.fWidth * self.fHeight + 1.0
 
@@ -85,8 +80,8 @@ class TargetScanner(object):
         return info
         
     
+        
     def splitTracker(self, tracker):
-        """Using the info from tracker, it splits the tracker into 4 new trackers with each having a trackbox of the 4 quadrants of the original tracker."""
         c,r,w,h = tracker.getTrackWindow()
         
         w1 = w // 2
@@ -96,5 +91,3 @@ class TargetScanner(object):
         
         for newBox in [(c, r, w1, h1), (c+w1+1, r, w2, h1), (c, r+h1+1, w1, h2), (c+w1+1, r+h1+1, w2, h2)]:
             self.tracking.append(Tracker(newBox, True))
-
-

@@ -48,15 +48,13 @@ class TargetScanner(object):
         for index, tracker in enumerate(self.tracking):
             original_bproj = bproj.copy()
             box, bproj, split = tracker.update(bproj)
-            coords, dims, theta = box
-            w,h = dims
-
+            
             if split:
                 self.splitTracker(tracker)
                 del self.tracking[index]
                 bproj = original_bproj
 
-            if tracker.hasFound() and w > 0 and h > 0:
+            if tracker.hasFound():
                 cv2.ellipse(frame, box, self.averageColor, 2)
             else:
                 del self.tracking[index]
