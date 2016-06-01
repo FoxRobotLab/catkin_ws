@@ -23,12 +23,10 @@ class UpdateCamera( threading.Thread ):
 		self.frameAverageStallThreshold = 20
 
 	def scanImage(self, image):
-		print "hey-o"
-		print zbar.__version__
 		scanner = zbar.ImageScanner()
 		print(scanner)
 		scanner.parse_config('enable')
-		bwImg = cv2.cvtColor(image, cv2,COLOR_BGR2RGB)
+		bwImg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 		pil_im = Image.fromarray(bwImg)
 		pic2 = pil_im.convert("L")
 		wid, hgt = pic2.size
@@ -51,7 +49,6 @@ class UpdateCamera( threading.Thread ):
 		runFlag = True
 		cv2.namedWindow("TurtleCam", 1)
 		timesImageServed = 1
-		print("eta glupa")
 		while(runFlag):
 
 			image, timesImageServed = self.robot.getImage()
@@ -65,7 +62,6 @@ class UpdateCamera( threading.Thread ):
 					self.stalled = False
 			
 			cv2.imshow("TurtleCam", image)
-			print("this is ridiculous")
 			self.scanImage(image)
 
 			code = chr(cv2.waitKey(50) & 255)
