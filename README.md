@@ -63,7 +63,7 @@ roslaunch turtlebot_bringup minimal.launch
 ```
 after which switch back to the first terminal and run 
 ```
-roslaunch turtlebot_dashboard turtle_dashboard.launch &
+roslaunch turtlebot_dashboard turtlebot_dashboard.launch &
 ```
 You should now have the create dashboard up. 
 The "&" symbol runs the dashboard in the background. You can then use the current terminal window to run the scripts you want to.
