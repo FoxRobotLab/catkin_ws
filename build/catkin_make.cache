@@ -1,2 +1,2 @@
-beginner_tutorials:foxbeginner_tutorials:qr_seeker:speedy_nav:test_movement
--DCATKIN_DEVEL_PREFIX=/home/macalester/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/macalester/catkin_ws/install -G Unix Makefiles
+qr_seeker:speedy_nav:test_movement
+-DCATKIN_DEVEL_PREFIX=/home/macalester/Desktop/githubRepositories/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/macalester/Desktop/githubRepositories/catkin_ws/install -G Unix Makefiles

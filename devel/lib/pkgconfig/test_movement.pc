@@ -1,8 +1,8 @@
-prefix=/home/macalester/catkin_ws/devel
+prefix=/home/macalester/Desktop/githubRepositories/catkin_ws/devel
 
 Name: test_movement
 Description: Description of test_movement
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/macalester/catkin_ws/devel/lib 
+Libs: -L/home/macalester/Desktop/githubRepositories/catkin_ws/devel/lib 
 Requires: 

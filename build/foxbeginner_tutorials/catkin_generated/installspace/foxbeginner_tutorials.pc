@@ -1,8 +1,0 @@
-prefix=/home/macalester/catkin_ws/install
-
-Name: foxbeginner_tutorials
-Description: Description of foxbeginner_tutorials
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/macalester/catkin_ws/install/lib 
-Requires: 
