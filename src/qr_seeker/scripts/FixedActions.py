@@ -10,6 +10,7 @@ for in the center of its view.
 
 import cv2
 import OlinGraph
+import ORBrecognizer
 
 class FixedActions(object):
 
@@ -18,6 +19,7 @@ class FixedActions(object):
 		self.robot = turtleBot
 		self.camera = cameraThread
 		self.d2s = 0.046 # converts degrees to seconds
+		self.OR = ORBrecognizer
 
 
 	def align(self, targetRelativeArea, parent):
@@ -25,6 +27,7 @@ class FixedActions(object):
 		# TODO: find center of image seen with ORB to find QR imageMatch below
 		# centerX, centerY = self.mcs.getFrameCenter()
 		# width, height = self.mcs.getFrameDims()
+		self.OR.get
 
 		while True:
 			while self.camera.isStalled():
@@ -60,14 +63,14 @@ class FixedActions(object):
 				else:
 					self.turnByAngle(13)
 				self.robot.backward(0.2, 0.15)
-			else: 
+			else:
 				print "Forward"
 				adjustedSpeed = 0.06 - 0.04 * (relativeArea / adjustedTargetArea)
 				print adjustedSpeed
 				self.robot.forward(adjustedSpeed, 0.2)
 
 			cv2.waitKey(800)
-		
+
 
 	def findAdjustedTargetArea(self, targetArea, angle):
 		"""Calculates an appropriate new target size depending on the angle that the robot is viewing the imageMatch."""
@@ -88,7 +91,7 @@ class FixedActions(object):
 		#looking at the imageMatch (imageMatchOrientation) and the correct angle to the imageMatch
 		#(wallAngle)
 		actualAngle = (imageMatchOrientation - 90 + wallAngle) % 360
-		
+
 		angleToTurn = targetAngle - actualAngle
 		if angleToTurn < -180:
 			angleToTurn += 360
@@ -97,8 +100,6 @@ class FixedActions(object):
 
 		print "Turning from node " , str(currentNode) , " to node " , str(nextNode)
 		self.turnByAngle(angleToTurn)
-
-		
 
 
 	def turnByAngle(self, angle):

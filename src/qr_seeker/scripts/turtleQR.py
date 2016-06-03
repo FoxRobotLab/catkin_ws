@@ -271,16 +271,17 @@ class TurtleBot(object):
 
 	def __init__(self):
 
-		#self.moveControl = MovementControlThread()
-		#self.moveControl.start()
+		self.moveControl = MovementControlThread()
+		self.moveControl.start()
 		
-		#self.sensorControl = SensorThread()
-		#self.sensorControl.start()
+		self.sensorControl = SensorThread()
+		self.sensorControl.start()
 
 		self.imageControl = ImageSensorThread()
 		self.imageControl.start()
 
-		#rospy.on_shutdown(self.exit)
+		rospy.on_shutdown(self.exit)
+
 	def findAngleToWall(self):
 		width, height = self.sensorControl.getDims()
 		sectionWidth = width / 30.0
@@ -292,7 +293,6 @@ class TurtleBot(object):
 		leftDist = numpy.mean(self.sensorControl.getDepth(*leftBox))
 		rightDist = numpy.mean(self.sensorControl.getDepth(*rightBox))
 		return getMedianAngle(leftDist, rightDist, angleBetween = 11.0)
-
 
 	def forward(self, amount, seconds=None):
 		if seconds == None:
