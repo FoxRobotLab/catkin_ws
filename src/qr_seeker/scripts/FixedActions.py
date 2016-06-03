@@ -42,8 +42,8 @@ class FixedActions(object):
 			else:
 				return None
 
-			imageMatch, (x,y), relativeArea, angleToCode = imageMatchInfo
-			adjustedTargetArea = self.findAdjustedTargetArea(targetRelativeArea, angleToCode)
+			imageMatch, (x,y), relativeArea, angleToImage = imageMatchInfo
+			adjustedTargetArea = self.findAdjustedTargetArea(targetRelativeArea, angleToImage)
 			areaDiff = adjustedTargetArea - relativeArea
 			xDiff = x - centerX
 
@@ -70,13 +70,13 @@ class FixedActions(object):
 		
 
 	def findAdjustedTargetArea(self, targetArea, angle):
-		"""Calculates an appropriate new target size depending on the angle that the robot is viewing the code."""
+		"""Calculates an appropriate new target size depending on the angle that the robot is viewing the imageMatch."""
 		correction = 1 - angle / 90.0
 		return targetArea * correction
 
 
-	def turnToNextTarget(self, location, destination, codeOrientation):
-		"""Given a planned path and the orientation of the code in front of the robot, turns in the direction of the following node in the path."""
+	def turnToNextTarget(self, location, destination, imageMatchOrientation):
+		"""Given a planned path and the orientation of the imageMatch in front of the robot, turns in the direction of the following node in the path."""
 		if location == destination:
 			return
 		wallAngle = self.robot.findAngleToWall()
@@ -85,9 +85,9 @@ class FixedActions(object):
 		targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
 
 		#determines actual orientation given where the robot would face if it was directly
-		#looking at the code (codeOrientation) and the correct angle to the code
+		#looking at the imageMatch (imageMatchOrientation) and the correct angle to the imageMatch
 		#(wallAngle)
-		actualAngle = (codeOrientation - 90 + wallAngle) % 360
+		actualAngle = (imageMatchOrientation - 90 + wallAngle) % 360
 		
 		angleToTurn = targetAngle - actualAngle
 		if angleToTurn < -180:

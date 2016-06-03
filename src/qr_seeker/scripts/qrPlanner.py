@@ -77,13 +77,13 @@ class UpdateCamera( threading.Thread ):
 			cv2.imshow("TurtleCam", image)
 			self.scanImage(image)
 
-			code = chr(cv2.waitKey(50) & 255)
+			key = chr(cv2.waitKey(50) & 255)
 
-			if code == 't':
+			if key == 't':
 				cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-"
 					+ str(datetime.now()) + ".jpg", image)
 				print "Image saved!"
-			if code == 'q':
+			if key == 'q':
 				break
 
 			with self.lock:
@@ -156,10 +156,10 @@ class qrPlanner(object):
 
 					if self.imageMatching:
 						# TODO: Find image w/ ORB to locate QR code
-						# Prevents the robot from coming at the code from too sharp an angle
-						if code != None and abs(code[3]) < 45:
+						# Prevents the robot from coming at the imageMatch from too sharp an angle
+						if imageMatch != None and abs(imageMatch[3]) < 45:
 							sweepTime = 0
-							if self.locate(code[0]):
+							if self.locate(imageMatch[0]):
 								break
 					else:
 						if ignoreColorTime < 1000:
@@ -186,7 +186,7 @@ class qrPlanner(object):
 		"""Aligns the robot with the imageMatch in front of it, determines where it is using that imageMatch
 		by seeing the QR code below. Then aligns itself with the path it should take to the next node.
 		Returns True if the robot has arrived at it's destination, otherwise, False."""
-		location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(imageMatch, (None, None, 0))
+		location, imageMatchOrientation, targetRelativeArea = OlinGraph.codeLocations.get(imageMatch, (None, None, 0))
 		if location == None:
 			self.stopImageMatching()
 			return False
@@ -225,7 +225,7 @@ class qrPlanner(object):
 			return True
 		print ("Finished align, now starting turning to next target")
 
-		self.fixedActs.turnToNextTarget(location, self.destination, codeOrientation)
+		self.fixedActs.turnToNextTarget(location, self.destination, imageMatchOrientation)
 		self.stopImageMatching()
 		return False
 
