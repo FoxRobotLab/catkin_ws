@@ -143,7 +143,7 @@ class DepthSensor( threading.Thread):
 					sys.stdout.write(".")
 					sys.stdout.flush()
 					if rospy.is_shutdown():
-						return
+				ls		return
 					rospy.sleep(0.1)
 					with self.lock:
 						data = self.depth_array
@@ -175,8 +175,9 @@ class TurtleBot:
 
 	def __init__(self):
 		self.imageControl = ImageSensor()
-		self.depthSensor = DepthSensor()
-		self.depthSensor.start()
+		self.imageControl.start()
+		#self.depthSensor = DepthSensor()
+		#self.depthSensor.start()
 
 	def findAngleToWall(self):
 		width, height = self.depthSensor.getDims()
@@ -193,15 +194,15 @@ class TurtleBot:
 	def run(self):
 		while True:
 			cv2.waitKey(200)
-			cv2.imshow
-			self.depthSensor.showDepthImage()
-			print self.findAngleToWall()
+			#cv2.imshow
+			#self.depthSensor.showDepthImage()
+			#print self.findAngleToWall()
 
 	def exit(self):
 		print("************** RECEIVED ON SHUTDOWN **************")
 		cv2.destroyAllWindows()
-		self.imageControl.exit()
-		self.depthSensor.exit()
+		self.imageControl.exitS()
+		#self.depthSensor.exit()
 
 if __name__=="__main__":
 

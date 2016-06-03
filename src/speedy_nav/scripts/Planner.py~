@@ -87,7 +87,7 @@ class Planner(object):
 
 		self.camera = UpdateCamera(self.robot, self.mcs)
 
-		self.destination = 999999999
+		"""self.destination = 999999999
 		while self.destination > len(OlinGraph.nodeLocs):
 			self.destination = int(input("Enter destination index: "))
 
@@ -101,7 +101,7 @@ class Planner(object):
 		for i in range(10, 100, 10):
 			self.brain.add( FieldBehaviors.ObstacleForce(i/100.0, 50) )
 
-		self.pathTraveled = []
+		self.pathTraveled = []"""
 
 
 
@@ -122,16 +122,16 @@ class Planner(object):
                                 print " -------------------------------- camera not stalled"
 				sinceLastStall += 1
 				if 30 < sinceLastStall:
-					bumper = self.robot.getBumperStatus()
+					"""bumper = self.robot.getBumperStatus()
 					if bumper != 0:
 						while not self.bumperReact(bumper):
 							cv2.waitKey(300)
 							bumper = self.robot.getBumperStatus()
 						self.stopColorSearching()
-					print " ---   inside if 30 < sinceLastStall"
+					print " ---   inside if 30 < sinceLastStall""""
 					iterationCount += 1
 #					print "======================================", '\titer: ', iterationCount 
-					if iterationCount > 250: 
+					"""if iterationCount > 250: 
                                                 print "STEPPING THE BRAIN"
 						self.brain.step()
 					else:
@@ -142,7 +142,7 @@ class Planner(object):
 					else:
 						if self.sideSweep():
 							break
-						sweepTime = 0
+						sweepTime = 0"""
 	
 					if self.colorSearching:
 						pattern = self.mcs.getHorzPatterns()
