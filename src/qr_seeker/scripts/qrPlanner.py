@@ -183,9 +183,9 @@ class qrPlanner(object):
 
 
 	def locate(self, imageMatch):
-		"""Aligns the robot with the imageMatch in front of it, determines where it is using that imageMatch,
-		then aligns itself with the path it should take to the next node. Returns True if the robot has
-		arrived at it's destination, otherwise, False."""
+		"""Aligns the robot with the imageMatch in front of it, determines where it is using that imageMatch
+		by seeing the QR code below. Then aligns itself with the path it should take to the next node.
+		Returns True if the robot has arrived at it's destination, otherwise, False."""
 		location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(imageMatch, (None, None, 0))
 		if location == None:
 			self.stopImageMatching()
