@@ -22,18 +22,15 @@ import FoxQueue
 import OutputLogger
 from operator import itemgetter
 
-class ORBrecognizer(FeatureType.FeatureType):
+class ORBrecognizer():
     """Holds data about ORB keypoints found in the input picture."""
-    def __init__(self, image, logger):
-        """Takes in an image and a logger and builds keypoints and descriptions. 
-        Also initializes other instance variables that are needed"""
-	FeatureType.FeatureType.__init__(self, image, logger, 50.0, 100.0)
-        self.image = image
+    def __init__(self):
+        self.image = None
         self.orb = cv2.ORB_create()
         self.kp, self.des = self.orb.detectAndCompute(self.image, None)
         self.matches = None
-	self.goodMatches = None
-        
+        self.goodMatches = None
+
 
     def tryToMatchFeatures(orb, img1, pointInfo, img2):
         kp2, des2 = pointInfo
@@ -55,21 +52,21 @@ class ORBrecognizer(FeatureType.FeatureType):
         #for mat in matches:
         #    print mat.distance
         goodMatches = [mat for mat in matches if mat.distance < 300]
-        print "Good match number:", len(goodMatches)
-        
-        matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,  
+        #print "Good match number:", len(goodMatches)
+
+        matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,
             None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
-        #cv2.imshow("Match Image", matchImage)
+        cv2.imshow("Match Image", matchImage)
         cv2.waitKey(0)
-        
+
         return goodMatches, kp1, kp2
 
-        
+
     def findImage(img, properties, itemsSought, j):
-        
+
         colorImage = img
         answer = False
-        
+
         #properties[i][2] holds the list of good points and the two sets of keypoints (for drawing)
         orb = cv2.ORB_create()
         for i in range (0, len(itemsSought)):
@@ -77,7 +74,7 @@ class ORBrecognizer(FeatureType.FeatureType):
             properties[i][2].append(goodPoints)
             properties[i][2].append(targetKeypts)
             properties[i][2].append(refKeypts)
-        
+
             #properties[i][3] holds the len(goodPoints) - the number of good points of that item
             numGoodPoints = len(properties[i][2][0])
             properties[i][3] = numGoodPoints
@@ -86,14 +83,14 @@ class ORBrecognizer(FeatureType.FeatureType):
         scores = map(getcount, properties)
         print(scores)
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
-        
+
         if max_value > 70:
             print('Run ' + str(j) + ': The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
             answer = True
         else:
             print('No sign was detected')
             answer = False
-            
+
         #cleanup
         for i in range (0, len(itemsSought)):
             properties[i][2] = []
@@ -107,19 +104,19 @@ class ORBrecognizer(FeatureType.FeatureType):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)    # convert to HSV
         mask = cv2.inRange(hsv, np.array((0., 60., 32.)), np.array((180., 255., 255.)))   # eliminate low and high saturation and value values
 
-        hsv_roi = cv2.cvtColor(colorSample, cv2.COLOR_BGR2HSV) # access the currently selected region and make a histogram of its hue 
+        hsv_roi = cv2.cvtColor(colorSample, cv2.COLOR_BGR2HSV) # access the currently selected region and make a histogram of its hue
         #mask_roi = cv2.inRange(colorSample, np.array((0., 60., 32.)), np.array((180., 255., 255.)))
 
         hist = cv2.calcHist( [hsv_roi], [0], None, [16], [0, 180] )
         cv2.normalize(hist, hist, 0, 255, cv2.NORM_MINMAX)
         hist = hist.reshape(-1)
 
-        print cv2.countNonZero(hist)
+        #print cv2.countNonZero(hist)
 
         prob = cv2.calcBackProject([hsv], [0], hist, [0, 180], 1)
         #cv2.imshow("prob", prob)
         prob &= mask
-        
+
         #opening removes the remanants in the background
         size = 15
         kernel = np.ones((size,size),np.uint8)
@@ -127,7 +124,7 @@ class ORBrecognizer(FeatureType.FeatureType):
 
         #thresholding to black and white removes the grey areas of noise left in the image from opening
         ret,prob = cv2.threshold(prob,127,255,cv2.THRESH_BINARY)
-        
+
         #split into channels in order to apply the mask to each channel and merge - sure there's a better way to do this
         blue_channel, green_channel, red_channel = cv2.split(img)
         blue_channel &= prob
@@ -163,16 +160,16 @@ class ORBrecognizer(FeatureType.FeatureType):
 
         #cv2.imshow("returns", img2)
         return img2
-            
+
     def initRefs(itemsSought):
         properties = [] #2D array used to store info on each item: item i is properties[i]
-        
+
         orb = cv2.ORB_create()
-        
+
         #properties[i][0] holds the reference image for the item
         for i in range (0, len(itemsSought)):
             properties.append([None, [], [], 0])
-            
+
             filename = itemsSought[i] + '.jpg'
             path = os.path.join("refs", filename)
             properties[i][0] = cv2.imread(path, 0)
@@ -183,9 +180,9 @@ class ORBrecognizer(FeatureType.FeatureType):
             keypoints, descriptions = orb.detectAndCompute(properties[i][0], None)
             properties[i][1].append(keypoints)
             properties[i][1].append(descriptions)
-            
+
         return properties
-        
+
     #run this if you wanna test the feature recognition using still images
     def scanImages(image):
         itemsSought = ['sign']
@@ -194,7 +191,7 @@ class ORBrecognizer(FeatureType.FeatureType):
         filename = 'blue.jpg'
         path = os.path.join("refs", filename)
         colorSample = cv2.imread(path)
-        
+
         image2 = image.copy()
         img = colorPreprocessing(image2, colorSample)
         return findImage(image, properties, itemsSought, j)
@@ -210,24 +207,24 @@ class ORBrecognizer(FeatureType.FeatureType):
 
  #        # create BFMatcher object
  #        bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        
+
  #        # Match descriptors.
  #        self.matches = bf.match(self.des,otherFeature.des)
-	
+
 	# sortedMatches = sorted(self.matches, key = lambda x: x.distance)
 	# self.goodMatches = [mat for mat in self.matches if mat.distance < 25]
 	# #print "Good match number:", len(self.goodMatches)
-	
-	# #matchImage = cv2.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.goodMatches, 
+
+	# #matchImage = cv2.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.goodMatches,
 	#                              #None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
 	# #cv2.imshow("Match Image", matchImage)
 	# #cv2.waitKey(50)
 	# matchNum = min(100, len(self.goodMatches))
-	# return self._normalizeSimValue(100 - matchNum)		
+	# return self._normalizeSimValue(100 - matchNum)
 
 
 
-       
+
  #    def displayFeaturePics(self, windowName, startX, startY):
  #        """Given a window name and a starting location on the screen, it completely
  #        ignores them and proceeds to print the image representing the matches as it desires."""
@@ -237,4 +234,3 @@ class ORBrecognizer(FeatureType.FeatureType):
  #        cv2.namedWindow(windowName)
  #        cv2.moveWindow(windowName, startX, startY)
  #        cv2.imshow(windowName, img2)
-    

@@ -1,14 +1,12 @@
+#!/usr/bin/env python
+
 """ ========================================================================
 qrPlanner.py
-
 Created: June, 2016
-
 This file borrows code from the Planner.py in Speedy_nav. This file
 uses FixedActions.py and PotentialFieldBrain.py. This file imports zbar to
 read QR codes that are in the turtlebots view.
 ======================================================================== """
-
-#!/usr/bin/env python
 
 import turtleQR
 import cv2
@@ -23,7 +21,7 @@ import zbar
 from PIL import Image
 import FixedActions
 import PotentialFieldBrain
-import ORBrecognizer
+from ORBrecognizer import *
 import OlinGraph
 
 
@@ -37,9 +35,10 @@ class UpdateCamera( threading.Thread ):
 		self.robot = bot
 		self.frameAverageStallThreshold = 20
 		self.frame = None
+        self.stalled = False
 
 	def orbScan(self, image):
-		orbScanner = ORBrecognizer(image)
+		orbScanner = ORBrecognizer()
 		result = orbScanner.scanImages(image)
 		#if result is true it found the thing, else not
 
@@ -71,7 +70,7 @@ class UpdateCamera( threading.Thread ):
 		cv2.namedWindow("TurtleCam", 1)
 		timesImageServed = 1
 		while(runFlag):
-
+elf.robot.getImage().sh
 			image, timesImageServed = self.robot.getImage()
 			self.frame = image
 
@@ -114,7 +113,7 @@ class qrPlanner(object):
 	def __init__(self):
 		self.robot = turtleQR.TurtleBot()
 		self.brain = self.setupPot()
-		self.fHeight, self.fWidth, self.fDepth = self.robot.getImage().shape
+		self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 		image, times = self.robot.getImage()
 		self.imageMatching = True
 
@@ -137,10 +136,10 @@ class qrPlanner(object):
 		ignoreColorTime = 0
 		sweepTime = 0
 		sinceLastStall = 0
-		print ("Planner.run starting while loop")
+		#print ("Planner.run starting while loop")
 		while time.time() < timeout and not rospy.is_shutdown():
 			if not self.camera.isStalled():
-				print (" -------------------------------- camera not stalled")
+				#print (" -------------------------------- camera not stalled")
 				sinceLastStall += 1
 				if 30 < sinceLastStall:
 					bumper = self.robot.getBumperStatus()
@@ -149,11 +148,11 @@ class qrPlanner(object):
 							cv2.waitKey(300)
 							bumper = self.robot.getBumperStatus()
 						self.stopImageMatching()
-					print (" ---   inside if 30 < sinceLastStall")
+					#print (" ---   inside if 30 < sinceLastStall")
 					iterationCount += 1
 					#                   print "======================================", '\titer: ', iterationCount
 					if iterationCount > 250:
-						print ("STEPPING THE BRAIN")
+						#print ("STEPPING THE BRAIN")
 						self.brain.step()
 					else:
 						time.sleep(.01)
@@ -331,4 +330,3 @@ if __name__=="__main__":
 	plan.run(5000)
 	rospy.on_shutdown(plan.exit)
 	rospy.spin()
-
