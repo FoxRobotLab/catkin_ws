@@ -166,8 +166,8 @@ class qrPlanner(object):
 						sweepTime = 0
 
 					if self.imageMatching:
-						# TODO: Find image w/ ORB to locate QR code
-						imageMatch = self.orb.returnValues()
+						# TODO: Find image w/ ORB to locate QR code and make the below something real possibly
+						# imageMatch = self.orb.returnValues()
 
 						# TODO: have orb recognizer return the following values (around 137)?
 						# cnt = contours[0]
