@@ -126,7 +126,7 @@ class qrPlanner(object):
 		self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
 
 	def run(self,runtime = 120):
-		"""Runs the program for the duration of 'runtime'"""
+		#Runs the program for the duration of 'runtime'"""
 		timeout = time.time()+runtime
 		self.camera.start()
 		timeToWaitAfterStall = 30
