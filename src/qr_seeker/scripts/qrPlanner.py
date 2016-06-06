@@ -37,7 +37,7 @@ class UpdateCamera( threading.Thread ):
 
     def orbScan(self, image):
         orbScanner = ORBrecognizer(image)
-        result = orbScanner.scanImages()
+        result = orbScanner.scanImages(image)
         #if result is true it found the thing, else not
 
     def scanImage(self, image):   #TODO: Move this below with turning on QR search?

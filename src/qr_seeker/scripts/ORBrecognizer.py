@@ -68,6 +68,7 @@ class ORBrecognizer(FeatureType.FeatureType):
     def findImage(img, properties, itemsSought, j):
         
         colorImage = img
+        answer = False
         
         #properties[i][2] holds the list of good points and the two sets of keypoints (for drawing)
         orb = cv2.ORB_create()
@@ -88,13 +89,17 @@ class ORBrecognizer(FeatureType.FeatureType):
         
         if max_value > 70:
             print('Run ' + str(j) + ': The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
+            answer = True
         else:
             print('No sign was detected')
+            answer = False
             
         #cleanup
         for i in range (0, len(itemsSought)):
             properties[i][2] = []
             properties[i][3] = 0
+
+        return answer
 
     def colorPreprocessing(img, colorSample):
         img2 = img.copy()
@@ -182,23 +187,17 @@ class ORBrecognizer(FeatureType.FeatureType):
         return properties
         
     #run this if you wanna test the feature recognition using still images
-    def scanImages():
-        itemsSought = ['rassilon', 'flower', 'knot', 'sign', 'shield', 'emptyLetter', 'secondString', 'secondEmptyString', 'lastNames']
+    def scanImages(image):
+        itemsSought = ['sign']
         properties = initRefs(itemsSought)
 
         filename = 'blue.jpg'
         path = os.path.join("refs", filename)
         colorSample = cv2.imread(path)
         
-        for j in range (87, 104): #hard-coded for number of images you're checking
-            filename = 'cap' + str(j) + '.jpg'
-            path = os.path.join("caps", filename)
-            img = cv2.imread(path)
-            if img is None:
-                print("Target image", filename, "not found")
-            im2 = img.copy()
-            img = colorPreprocessing(im2, colorSample)
-            findImage(img, properties, itemsSought, j)
+        image2 = image.copy()
+        img = colorPreprocessing(image2, colorSample)
+        return findImage(image, properties, itemsSought, j)
 
 
  #    def evaluateSimilarity(self, otherFeature):
