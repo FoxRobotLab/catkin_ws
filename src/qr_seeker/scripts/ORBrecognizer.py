@@ -14,6 +14,7 @@
 import math
 import random
 import time
+import os
 import cv2
 import numpy as np
 import partitionAlg
@@ -32,7 +33,7 @@ class ORBrecognizer():
         self.goodMatches = None
 
 
-    def tryToMatchFeatures(orb, img1, pointInfo, img2):
+    def tryToMatchFeatures(self, orb, img1, pointInfo, img2):
         kp2, des2 = pointInfo
 
         # find the keypoints and descriptors with ORB
@@ -62,7 +63,7 @@ class ORBrecognizer():
         return goodMatches, kp1, kp2
 
 
-    def findImage(img, properties, itemsSought, j):
+    def findImage(self, img, properties, itemsSought):
 
         colorImage = img
         answer = False
@@ -70,7 +71,7 @@ class ORBrecognizer():
         #properties[i][2] holds the list of good points and the two sets of keypoints (for drawing)
         orb = cv2.ORB_create()
         for i in range (0, len(itemsSought)):
-            goodPoints, targetKeypts, refKeypts = tryToMatchFeatures(orb, img, properties[i][1], properties[i][0])
+            goodPoints, targetKeypts, refKeypts = self.tryToMatchFeatures(orb, img, properties[i][1], properties[i][0])
             properties[i][2].append(goodPoints)
             properties[i][2].append(targetKeypts)
             properties[i][2].append(refKeypts)
@@ -85,7 +86,7 @@ class ORBrecognizer():
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
 
         if max_value > 70:
-            print('Run ' + str(j) + ': The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
+            print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
             answer = True
         else:
             print('No sign was detected')
@@ -98,7 +99,7 @@ class ORBrecognizer():
 
         return answer
 
-    def colorPreprocessing(img, colorSample):
+    def colorPreprocessing(self, img, colorSample):
         img2 = img.copy()
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)    # convert to HSV
@@ -136,7 +137,7 @@ class ORBrecognizer():
         #Prob at this point has black outline around the letter themselves, which is why we need
         #to do all the stuff with the contours. Blobs don't work because the white areas are too large.
         _, contours, hierarchy = cv2.findContours(prob, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.contourArea(contours[0])
+        #cv2.contourArea(contours[0])
 
         #TODO make a black mask
         rows = img.shape[0]
@@ -161,7 +162,7 @@ class ORBrecognizer():
         #cv2.imshow("returns", img2)
         return img2
 
-    def initRefs(itemsSought):
+    def initRefs(self, itemsSought):
         properties = [] #2D array used to store info on each item: item i is properties[i]
 
         orb = cv2.ORB_create()
@@ -171,7 +172,7 @@ class ORBrecognizer():
             properties.append([None, [], [], 0])
 
             filename = itemsSought[i] + '.jpg'
-            path = os.path.join("refs", filename)
+            path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
             properties[i][0] = cv2.imread(path, 0)
             if properties[i][0] is None:
                 print("Reference image", itemsSought[i], "not found")
@@ -184,53 +185,17 @@ class ORBrecognizer():
         return properties
 
     #run this if you wanna test the feature recognition using still images
-    def scanImages(image):
+    def scanImages(self, image):
         itemsSought = ['sign']
-        properties = initRefs(itemsSought)
+        properties = self.initRefs(itemsSought)
 
         filename = 'blue.jpg'
-        path = os.path.join("refs", filename)
+	#print "PATH", os.getcwd()
+        path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
+	#print "PIC PATH", path
         colorSample = cv2.imread(path)
-
+	cv2.imshow("FOO", colorSample)
+	
         image2 = image.copy()
-        img = colorPreprocessing(image2, colorSample)
-        return findImage(image, properties, itemsSought, j)
-
-
- #    def evaluateSimilarity(self, otherFeature):
- #    	"""Given two images along with their features, calculates their similarity."""
-
- #    	if self.des is None and otherFeature.des is None:
-	#     return self._normalizeSimValue(0)
-	# elif self.des is None or otherFeature.des is None:
-	#     return  self._normalizeSimValue(100)
-
- #        # create BFMatcher object
- #        bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-
- #        # Match descriptors.
- #        self.matches = bf.match(self.des,otherFeature.des)
-
-	# sortedMatches = sorted(self.matches, key = lambda x: x.distance)
-	# self.goodMatches = [mat for mat in self.matches if mat.distance < 25]
-	# #print "Good match number:", len(self.goodMatches)
-
-	# #matchImage = cv2.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.goodMatches,
-	#                              #None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
-	# #cv2.imshow("Match Image", matchImage)
-	# #cv2.waitKey(50)
-	# matchNum = min(100, len(self.goodMatches))
-	# return self._normalizeSimValue(100 - matchNum)
-
-
-
-
- #    def displayFeaturePics(self, windowName, startX, startY):
- #        """Given a window name and a starting location on the screen, it completely
- #        ignores them and proceeds to print the image representing the matches as it desires."""
- #        outIm = self.image.copy()
- #        img2 = cv2.drawKeypoints(self.image,self.kp, outIm, color=(0,255,0), flags=0)
-
- #        cv2.namedWindow(windowName)
- #        cv2.moveWindow(windowName, startX, startY)
- #        cv2.imshow(windowName, img2)
+        img = self.colorPreprocessing(image2, colorSample)
+        return self.findImage(img, properties, itemsSought)

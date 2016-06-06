@@ -39,7 +39,7 @@ class FixedActions(object):
 
 			for i in xrange(5):
 				cv2.waitKey(300)
-				imageMatchInfo = "" #TODO: Make codeInfo a reality
+				imageMatchInfo = None #TODO: Make codeInfo a reality
 				if imageMatchInfo != None:
 					break
 			else:
