@@ -367,6 +367,6 @@ class qrPlanner(object):
 if __name__=="__main__":
     rospy.init_node('Planner')
     plan = qrPlanner()
-    plan.run(5000)
+    plan.run(100000)
     rospy.on_shutdown(plan.exit)
     rospy.spin()
