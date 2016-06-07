@@ -44,7 +44,8 @@ class UpdateCamera( threading.Thread ):
     def orbScan(self, image):
         result = self.scanner.scanImages(image)
         #if result is none then orbScanner did not find enough points
-        self.orbInfo =  result
+        with self.lock:
+            self.orbInfo = result
 
 
     def scanImage(self, image):   #TODO: Move this below with turning on QR search?
@@ -67,7 +68,7 @@ class UpdateCamera( threading.Thread ):
             del(img)
             result = symbol.data.decode(u'utf-8')
             print "Data found:", result
-            self.qrInfo = result
+            self.qrInfo = result   #TODO: implement self.lock here
 
     def run(self):
         time.sleep(.5)
@@ -162,20 +163,20 @@ class qrPlanner(object):
                 #print (" -------------------------------- camera not stalled")
                 sinceLastStall += 1
                 if 30 < sinceLastStall:
-                    bumper = self.robot.getBumperStatus()
-                    if bumper != 0:
-                        while not self.bumperReact(bumper):
-                            cv2.waitKey(300)
-                            bumper = self.robot.getBumperStatus()
-                        self.stopImageMatching()
+                    # bumper = self.robot.getBumperStatus()
+                    # if bumper != 0:
+                    #     while not self.bumperReact(bumper):
+                    #         cv2.waitKey(300)
+                    #         bumper = self.robot.getBumperStatus()
+                    #     self.stopImageMatching()
                     #print (" ---   inside if 30 < sinceLastStall")
                     iterationCount += 1
 
-                    if iterationCount > 250:
-                        #print ("STEPPING THE BRAIN")
-                        self.brain.step()
-                    else:
-                        time.sleep(.01)
+                    # if iterationCount > 250:
+                    #     #print ("STEPPING THE BRAIN")
+                    #     self.brain.step()
+                    # else:
+                    #     time.sleep(.01)
 
                     # if sweepTime < 5000:
                     #     sweepTime += 1
@@ -184,11 +185,10 @@ class qrPlanner(object):
                     #         break
                     #     sweepTime = 0
 
-                    print "Got to check self.ImageMatching"
                     if self.imageMatching:
                         print "YESS self.ImageMatching"
                         orbInfo, qrInfo = self.camera.getImageData()
-                        if orbInfo != None:
+                        if orbInfo is not None:
                             sweepTime = 0
                             if self.locate(orbInfo, qrInfo):
                                 break
@@ -200,6 +200,7 @@ class qrPlanner(object):
                             ignoreColorTime = 0
             else:
                 sinceLastStall = 0
+            print("I'm about to hit a ")
         self.camera.haltRun()
         self.camera.join()
         self.brain.stopAll()
@@ -367,6 +368,6 @@ class qrPlanner(object):
 if __name__=="__main__":
     rospy.init_node('Planner')
     plan = qrPlanner()
-    plan.run(100000)
+    plan.run(5000)
     rospy.on_shutdown(plan.exit)
     rospy.spin()
