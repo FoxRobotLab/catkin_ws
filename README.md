@@ -94,6 +94,13 @@ roslaunch turtlebot_bringup 3dsensor.launch depth_registered_processing:=false d
 ```
 and it should work fine.
 
+If you get an error something like "roslaunch: [ ] is neither a launch file in package [ ] nor is [ ] a launch file name" then you probably haven't sourced the setup file:
+```
+source devel/setup.bash
+```
+run when you're in the catkin directory.
+
+If you're getting an error saying the process is crashing and you may not have the #! line in your file, it's actually because the #! line isn't where the program wants it - it does need to be the VERY FIRST line, even if there's just a block comment above it.
 
 #####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
 
