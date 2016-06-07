@@ -103,10 +103,10 @@ class FixedActions(object):
         turnSec = 3
         if angle < 0:
             turnSec = abs(turnSec)
-            self.robot.turnLeft(0.8, turnSec)
+            self.robot.turnLeft(0.1)
             print("We are turning left now by: ", turnSec)
         else:
-            self.robot.turnRight(0.8, turnSec)
+            self.robot.turnRight(0.1)
             print("We are turning right now by: ", turnSec)
 
 
