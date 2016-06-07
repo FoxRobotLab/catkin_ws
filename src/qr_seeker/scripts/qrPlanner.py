@@ -257,14 +257,14 @@ class qrPlanner(object):
             # Get the matching keypoints for each of the images from the match struct DMatch
             img_idx = mat.queryIdx
             (x, y) = keypoints[img_idx].pt
-            
+
             #draw large-ish white circles around each of the keypoints
-            cv2.circle(black, (int(x), int(y)), 10, (255, 255, 255), -1)  
-        
+            cv2.circle(black, (int(x), int(y)), 10, (255, 255, 255), -1)
+
         #use closing to eliminate the white spots not in "clusters" - the noise keypoints
         kernel = np.ones((15,15),np.uint8)
         closing = cv2.morphologyEx(black, cv2.MORPH_CLOSE, kernel)
-        
+
         #find contour of the remaining white blob. There may be small noise blobs, but we're
         #pretty sure that the largest is the one we want.
         _, contours, hierarchy = cv2.findContours(closing, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -275,11 +275,11 @@ class qrPlanner(object):
 
         for i in range (0, len(contours)):
             contour = contours[i]
-            area = cv2.contourArea(contour) 
+            area = cv2.contourArea(contour)
             if area > maxArea:
                 maxArea = area
                 largestContour = contour
-        
+
         M = cv2.moments(largestContour)
         imageArea = cv2.contourArea(largestContour)
         relativeArea = imageArea / float(w*h)

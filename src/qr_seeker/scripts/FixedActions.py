@@ -22,7 +22,7 @@ class FixedActions(object):
         self.ORBrecog = ORBrecognizer
 
 
-    def align(self, orbInfo, parent):
+    def align(self, orbInfo):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
         centerX, centerY = self.ORBrecog.getFrameCenter()
         width, height = self.ORBrecog.getFrameDims()
@@ -31,12 +31,12 @@ class FixedActions(object):
             while self.camera.isStalled():
                 cv2.waitKey(500)
 
-            bumperStatus = self.robot.getBumperStatus()
-            if not parent.bumperReact(bumperStatus):
-                return None
-
-            else:
-                return None
+            # bumperStatus = self.robot.getBumperStatus()
+            # if not parent.bumperReact(bumperStatus):
+            #     return None
+            #
+            # else:
+            #     return None
 
             imageMatch, (x,y), relativeArea = orbInfo
             xDiff = x - centerX
