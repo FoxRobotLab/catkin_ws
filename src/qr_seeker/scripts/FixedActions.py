@@ -19,7 +19,7 @@ class FixedActions(object):
         self.robot = turtleBot
         self.camera = cameraThread
         self.d2s = 0.046 # converts degrees to seconds
-        self.ORBrecog = ORBrecognizer
+        self.ORBrecog = ORBrecognizer()
 
 
     def align(self, orbInfo):
