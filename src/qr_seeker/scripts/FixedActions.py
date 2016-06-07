@@ -99,13 +99,14 @@ class FixedActions(object):
         if self.camera.isStalled():
             return
         print 'Turning by an angle of: ', str(angle)
-        turnSec = angle * self.d2s
+        # turnSec = angle * self.d2s
+        turnSec = 3
         if angle < 0:
             turnSec = abs(turnSec)
-            self.robot.turnLeft(0.4, turnSec)
+            self.robot.turnLeft(0.8, turnSec)
             print("We are turning left now by: ", turnSec)
         else:
-            self.robot.turnRight(0.4, turnSec)
+            self.robot.turnRight(0.8, turnSec)
             print("We are turning right now by: ", turnSec)
 
 
