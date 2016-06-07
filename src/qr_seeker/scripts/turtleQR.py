@@ -196,7 +196,7 @@ class SensorThread( threading.Thread ):
 
 		self.depth_array = None
 		self.depth_sub = rospy.Subscriber("/camera/depth_decompressed", Image, self.depth_callback)
-		
+
 		self.sensor_state = None
 		self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", TurtlebotSensorState, self.sensor_callback)
 
@@ -206,7 +206,7 @@ class SensorThread( threading.Thread ):
 		with self.lock:
 			self.runFlag = True
 		runFlag = True
-			
+
 		while runFlag:
 			rospy.sleep(0.1)
 			with self.lock:
@@ -218,7 +218,7 @@ class SensorThread( threading.Thread ):
 	def sensor_callback(self, data):
 		with self.lock:
 			self.sensor_state = data
-	
+
 
 	def depth_callback(self, data):
 		with self.lock:
@@ -256,7 +256,7 @@ class SensorThread( threading.Thread ):
 			cv_image = self.bridge.imgmsg_to_cv2(data, "passthrough")
 		except CvBridgeError as e:
 			print e
-		numpy_array = numpy.asarray(cv_image)	 
+		numpy_array = numpy.asarray(cv_image)
 		retval = numpy_array[y:y+height, x:x+width]
 		return retval
 
@@ -273,7 +273,7 @@ class TurtleBot(object):
 
 		self.moveControl = MovementControlThread()
 		self.moveControl.start()
-		
+
 		self.sensorControl = SensorThread()
 		self.sensorControl.start()
 
@@ -289,7 +289,7 @@ class TurtleBot(object):
 		# box = c,r,w,h
 		leftBox = int(sectionWidth * 10), int(sectionHeight * 2), int(sectionWidth), int(sectionHeight)
 		rightBox = int(sectionWidth * 19), int(sectionHeight * 2), int(sectionWidth), int(sectionHeight)
-		
+
 		leftDist = numpy.mean(self.sensorControl.getDepth(*leftBox))
 		rightDist = numpy.mean(self.sensorControl.getDepth(*rightBox))
 		return getMedianAngle(leftDist, rightDist, angleBetween = 11.0)
@@ -300,19 +300,19 @@ class TurtleBot(object):
 		else:
 			self.moveControl.timedMovement(amount, 0.0, seconds)
 
-	def backward(self, amount, seconds):
+	def backward(self, amount, seconds=None):
 		if seconds == None:
 			self.moveControl.setMovement(-amount, 0.0)
 		else:
 			self.moveControl.timedMovement(-amount, 0.0, seconds)
 
-	def turnLeft(self, amount, seconds):
+	def turnLeft(self, amount, seconds=None):
 		if seconds == None:
 			self.moveControl.setMovement(0.0, amount)
 		else:
 			self.moveControl.timedMovement(0.0, amount, seconds)
 
-	def turnRight(self, amount, seconds):
+	def turnRight(self, amount, seconds=None):
 		if seconds == None:
 			self.moveControl.setMovement(0.0, amount)
 		else:
