@@ -61,8 +61,7 @@ class FixedActions(object):
                 # adjustedSpeed = 0.06 - 0.04 * (relativeArea / adjustedTargetArea)
                 print "I'm not sure what an adjusted speed is so we are just going to go super slow"
                 self.robot.forward(-.01, 0.2)
-
-            cv2.waitKey(800)
+            return
 
 
     # def findAdjustedTargetArea(self, targetArea, angle):
@@ -101,7 +100,7 @@ class FixedActions(object):
             return
         print 'Turning by an angle of: ', str(angle)
         turnSec = angle * self.d2s
-        turnSec = 3
+        turnSec = .99
         if angle < 0:
             turnSec = abs(turnSec)
             self.robot.turnLeft(0.4, turnSec)
