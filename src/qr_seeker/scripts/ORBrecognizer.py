@@ -204,12 +204,12 @@ class ORBrecognizer():
         img = self.colorPreprocessing(image2, colorSample)
         return self.findImage(img, properties, itemsSought)
 
-    # def getFrameDims(self):
-    #     """Returns the the dimmensions and depth of the camera frame"""
-    #     return self.fWidth, self.fHeight
+    def getFrameDims(self):
+        """Returns the the dimmensions and depth of the camera frame"""
+        return self.fWidth, self.fHeight
 
 
-    # def getFrameCenter(self):
-    #     """Returns the center coordinates of the camera frame"""
-    #     return self.fWidth / 2, self.fHeight / 2
+    def getFrameCenter(self):
+        """Returns the center coordinates of the camera frame"""
+        return self.fWidth / 2, self.fHeight / 2
 
