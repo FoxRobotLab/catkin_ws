@@ -280,7 +280,7 @@ class qrPlanner(object):
         
         M = cv2.moments(largestContour)
         imageArea = cv2.contourArea(largestContour)
-        relativeArea = imageArea / float(self.fWidth * self.fHeight)
+        relativeArea = imageArea / float(w*h)
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
 
