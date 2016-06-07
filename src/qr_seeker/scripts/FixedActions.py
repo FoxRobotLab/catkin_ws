@@ -40,13 +40,13 @@ class FixedActions(object):
 
             imageMatch, (x,y), relativeArea = orbInfo
             xDiff = x - centerX
+            print "In align"
 
             #Loop conditional#
             if abs(xDiff) <  width / 10:
                 print "Image Match found is:", imageMatch
                 return imageMatch
             #----------------#
-
             #Backing up has first priority, then turning, then advancing
             elif abs(xDiff) > width / 10:
                 if x < centerX:
@@ -54,6 +54,8 @@ class FixedActions(object):
                 else:
                     self.turnByAngle(13)
                 self.robot.backward(0.2, 0.15)
+                print "elif of align"
+
             else:
                 print "Forward"
                 # adjustedSpeed = 0.06 - 0.04 * (relativeArea / adjustedTargetArea)

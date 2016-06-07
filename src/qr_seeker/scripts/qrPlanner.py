@@ -177,12 +177,12 @@ class qrPlanner(object):
                     else:
                         time.sleep(.01)
 
-                    if sweepTime < 5000:
-                        sweepTime += 1
-                    else:
-                        if self.sideSweep():
-                            break
-                        sweepTime = 0
+                    # if sweepTime < 5000:
+                    #     sweepTime += 1
+                    # else:
+                    #     if self.sideSweep():
+                    #         break
+                    #     sweepTime = 0
 
                     print "Got to check self.ImageMatching"
                     if self.imageMatching:
@@ -226,6 +226,7 @@ class qrPlanner(object):
         # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
             return False
+
         momentInfo = self.findORBContours(orbInfo)
 
         self.fixedActs.align(momentInfo)
