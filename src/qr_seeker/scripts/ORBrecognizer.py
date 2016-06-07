@@ -66,7 +66,7 @@ class ORBrecognizer():
         return goodMatches, kp1, kp2
 
 
-    def findImage(self, img, properties, itemsSought, contours):
+    def findImage(self, img, properties, itemsSought):
 
         colorImage = img
         answer = False
@@ -87,14 +87,6 @@ class ORBrecognizer():
         scores = map(getcount, properties)
         print(scores)
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
-
-
-        cnt = contours[0]
-        M = cv2.moments(cnt)
-        imageArea = cv2.contourArea(cnt)
-        relativeArea = imageArea / float(self.fWidth * self.fHeight)
-        cx = int(M['m10'] / M['m00'])
-        cy = int(M['m01'] / M['m00'])
 
 
         if max_value > 70:
@@ -172,7 +164,7 @@ class ORBrecognizer():
         cv2.merge((blue_channel, green_channel, red_channel), img2)
 
         #cv2.imshow("returns", img2)
-        return img2, contours
+        return img2
 
     def initRefs(self, itemsSought):
         properties = [] #2D array used to store info on each item: item i is properties[i]
@@ -209,8 +201,8 @@ class ORBrecognizer():
         cv2.imshow("FOO", colorSample)
 
         image2 = image.copy()
-        img, contours = self.colorPreprocessing(image2, colorSample)
-        return self.findImage(img, properties, itemsSought, contours)
+        img = self.colorPreprocessing(image2, colorSample)
+        return self.findImage(img, properties, itemsSought)
 
 
     def getFrameDims(self):

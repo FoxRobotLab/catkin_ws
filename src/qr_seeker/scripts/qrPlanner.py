@@ -209,16 +209,20 @@ class qrPlanner(object):
         """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
-        location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(orbInfo, (None, None, 0))
+        location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(qrInfo, (None, None, 0))
         if qrInfo is not None:
             """Read things"""
-        if location == None:
-            self.stopImageMatching()
-            return False
+            if location is None:
+                """If we are lost and can not be found"""
+                self.stopImageMatching()
+                # return False
 
-        orbInfo = self.fixedActs.align(targetRelativeArea, self)
+        # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
             return False
+        momentInfo = self.findORBContours(orbInfo)
+
+        self.fixedActs.align(momentInfo)
 
         self.pathTraveled.append(location)
         print ("Path travelled so far:\n", self.pathTraveled)
@@ -231,6 +235,19 @@ class qrPlanner(object):
         self.fixedActs.turnToNextTarget(location, self.destination, codeOrientation)
         self.stopImageMatching()
         return False
+
+
+    def findORBContours(self, goodKeyPoints):
+        # Uses moments to calculate center of orb image matched and the relative area
+        # TODO: Find a home qrPlanner
+        _, contours, hierarchy = cv2.findContours(prob, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+        cnt = contours[0]
+        M = cv2.moments(cnt)
+        imageArea = cv2.contourArea(cnt)
+        relativeArea = imageArea / float(self.fWidth * self.fHeight)
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
 
 
     def bumperReact(self, bumper_state):

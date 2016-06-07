@@ -22,9 +22,8 @@ class FixedActions(object):
         self.ORBrecog = ORBrecognizer
 
 
-    def align(self, targetRelativeArea, parent):
+    def align(self, orbInfo, parent):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
-        imageMatch = self.ORBrecog.scanImages()
         centerX, centerY = self.ORBrecog.getFrameCenter()
         width, height = self.ORBrecog.getFrameDims()
 
@@ -38,13 +37,12 @@ class FixedActions(object):
 
             for i in xrange(5):
                 cv2.waitKey(300)
-                imageMatchInfo = self.ORBrecog.scanImages()
-                if imageMatchInfo != None:
+                if orbInfo is not None:
                     break
             else:
                 return None
 
-            imageMatch, (x,y), relativeArea = imageMatchInfo
+            imageMatch, (x,y), relativeArea = orbInfo
             # adjustedTargetArea = self.findAdjustedTargetArea(targetRelativeArea)
             # areaDiff = adjustedTargetArea - relativeArea
             xDiff = x - centerX
