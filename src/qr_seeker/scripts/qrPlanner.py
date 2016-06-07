@@ -240,8 +240,8 @@ class qrPlanner(object):
             return True
         print ("Finished align, now starting turning to next target")
 
-        self.fixedActs.turnToNextTarget(location, self.destination, codeOrientation)
-        self.stopImageMatching()
+        # self.fixedActs.turnToNextTarget(location, self.destination, codeOrientation)
+        # self.stopImageMatching()
         return False
 
 
