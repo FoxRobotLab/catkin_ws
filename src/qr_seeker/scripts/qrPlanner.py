@@ -74,12 +74,12 @@ class UpdateCamera( threading.Thread ):
             self.frame = image
 
             with self.lock:
-            if timesImageServed > 20:
-                if self.stalled == False:
-                print "Camera Stalled!"
-                self.stalled = True
-            else:
-                self.stalled = False
+                if timesImageServed > 20:
+                    if self.stalled == False:
+                        print "Camera Stalled!"
+                    self.stalled = True
+                else:
+                    self.stalled = False
 
             cv2.imshow("TurtleCam", image)
             #self.scanImage(image)
@@ -95,7 +95,7 @@ class UpdateCamera( threading.Thread ):
                 break
 
             with self.lock:
-            runFlag = self.runFlag
+                runFlag = self.runFlag
 
     def isStalled(self):
         """Returns the status of the camera stream"""
