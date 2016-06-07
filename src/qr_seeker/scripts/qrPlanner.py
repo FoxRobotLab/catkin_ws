@@ -277,7 +277,7 @@ class qrPlanner(object):
             for i in xrange(stepsFor180Degrees):
                 self.robot.moveControl.move_pub.publish(twist)
                 r.sleep()
-                imageMatch = self.ORBrecog.scanImages()
+                # imageMatch = self.ORBrecog.scanImages()
                 # Will ensure that the robot is not at too acute an angle with the code? Necessary?
                 imageMatch = None
                 if imageMatch != None:
