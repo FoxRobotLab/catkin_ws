@@ -39,10 +39,10 @@ class UpdateCamera( threading.Thread ):
         self.stalled = False
         self.qrInfo = None
         self.orbInfo = None
+        self.scanner = ORBrecognizer.ORBrecognizer()
 
     def orbScan(self, image):
-        orbScanner = ORBrecognizer.ORBrecognizer()
-        result = orbScanner.scanImages(image)
+        result = self.scanner.scanImages(image)
         #if result is none then orbScanner did not find enough points
         self.orbInfo =  result
 
