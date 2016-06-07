@@ -122,6 +122,11 @@ class UpdateCamera( threading.Thread ):
             qrInfo = self.qrInfo
         return orbInfo, qrInfo
 
+    def getImageDims(self):
+        with self.lock:
+            w, h = self.frame.shape()
+        return w, h
+
 class qrPlanner(object):
 
     def __init__(self):
@@ -164,7 +169,7 @@ class qrPlanner(object):
                         self.stopImageMatching()
                     #print (" ---   inside if 30 < sinceLastStall")
                     iterationCount += 1
-                    #                   print "======================================", '\titer: ', iterationCount
+
                     if iterationCount > 250:
                         #print ("STEPPING THE BRAIN")
                         self.brain.step()
@@ -198,9 +203,6 @@ class qrPlanner(object):
 
 
     def setupPot(self):
-        """Helpful function takes optional robot code (the six-digit Fluke board number). If code
-        is given, then this connects to the robot. Otherwise, it connects to a simulated robot, and
-        then creates a SubsumptionBrain object and returns it."""
         currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         return currBrain
 
@@ -237,14 +239,47 @@ class qrPlanner(object):
         return False
 
 
+    """Big idea: there may be multiple contours of blue areas in the image, so we need to
+    find contours of the good keypoints, taking into account that some of these may be noise."""
     def findORBContours(self, goodKeyPoints):
-        # Uses moments to calculate center of orb image matched and the relative area
-        # TODO: Find a home qrPlanner
-        _, contours, hierarchy = cv2.findContours(prob, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        #TODO: ensure that these shapes are right
+        w, h = camera.getImageDims()
+        black = np.zeros((w, h), dtype='uint8')
 
-        cnt = contours[0]
-        M = cv2.moments(cnt)
-        imageArea = cv2.contourArea(cnt)
+        #ALL the keypoints, the list of matched keypoints within some range
+        keypoints, goodMatches = goodKeyPoints
+
+        # For each pair of points we have between both images
+        for mat in goodMatches:
+
+            # Get the matching keypoints for each of the images from the match struct DMatch
+            img_idx = mat.queryIdx
+            (x, y) = keypoints[img_idx].pt
+            
+            #draw large-ish white circles around each of the keypoints
+            cv2.circle(black, (int(x), int(y)), 10, (255, 255, 255), -1)  
+        
+        #use closing to eliminate the white spots not in "clusters" - the noise keypoints
+        kernel = np.ones((15,15),np.uint8)
+        closing = cv2.morphologyEx(black, cv2.MORPH_CLOSE, kernel)
+        
+        #find contour of the remaining white blob. There may be small noise blobs, but we're
+        #pretty sure that the largest is the one we want.
+        _, contours, hierarchy = cv2.findContours(closing, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        cv2.contourArea(contours[0])
+
+        maxArea = 0
+        largestContour = 0
+
+        for i in range (0, len(contours)):
+            contour = contours[i]
+            area = cv2.contourArea(contour) 
+            if area > maxArea:
+                maxArea = area
+                largestContour = contour
+        
+        M = cv2.moments(largestContour)
+        imageArea = cv2.contourArea(largestContour)
         relativeArea = imageArea / float(self.fWidth * self.fHeight)
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])

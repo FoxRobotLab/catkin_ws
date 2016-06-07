@@ -5,8 +5,7 @@
  *  Author: mulmer
  *
  *  The ORBrecognizer object computes the similarity of objects using the ORB
- *  feature detector. Is its own class purely so that it can use the methods
- *  implemented in FeatureType.
+ *  feature detector.
  *
 ========================================================================="""
 
@@ -91,7 +90,8 @@ class ORBrecognizer():
 
         if max_value > 70:
             print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
-            retVal = (itemsSought[max_index], (cx, cy), relativeArea)
+            #retVal = (itemsSought[max_index], (cx, cy), relativeArea)
+            retVal = (properties[max_index][2][1], properties[max_index][2][0]) #set of good points for the sign with the most good points
         else:
             print('No sign was detected')
             retVal = None
@@ -194,23 +194,22 @@ class ORBrecognizer():
         properties = self.initRefs(itemsSought)
 
         filename = 'blue.jpg'
-        #print "PATH", os.getcwd()
         path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
-        #print "PIC PATH", path
-        colorSample = cv2.imread(path)
-        cv2.imshow("FOO", colorSample)
+        try:
+            colorSample = cv2.imread(path)
+        except:
+            print "Could not read the sample color image!"
 
         image2 = image.copy()
         img = self.colorPreprocessing(image2, colorSample)
         return self.findImage(img, properties, itemsSought)
 
+    # def getFrameDims(self):
+    #     """Returns the the dimmensions and depth of the camera frame"""
+    #     return self.fWidth, self.fHeight
 
-    def getFrameDims(self):
-        """Returns the the dimmensions and depth of the camera frame"""
-        return self.fWidth, self.fHeight
 
-
-    def getFrameCenter(self):
-        """Returns the center coordinates of the camera frame"""
-        return self.fWidth / 2, self.fHeight / 2
+    # def getFrameCenter(self):
+    #     """Returns the center coordinates of the camera frame"""
+    #     return self.fWidth / 2, self.fHeight / 2
 
