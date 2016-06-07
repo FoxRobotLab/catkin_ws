@@ -40,7 +40,9 @@ class UpdateCamera( threading.Thread ):
     def orbScan(self, image):
         orbScanner = ORBrecognizer()
         result = orbScanner.scanImages(image)
-        #if result is true it found the thing, else not
+        #if result is none then orbScanner did not find enough points
+        return result
+
 
     def scanImage(self, image):   #TODO: Move this below with turning on QR search?
         scanner = zbar.ImageScanner()
@@ -124,6 +126,9 @@ class qrPlanner(object):
 
         self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
         self.pathTraveled = []
+        self.ORBrecog = ORBrecognizer.ORBrecognizer(image)
+        UpdateCamera.scanImage(image)
+
 
 
     def run(self,runtime = 120):
@@ -164,23 +169,10 @@ class qrPlanner(object):
                         sweepTime = 0
 
                     if self.imageMatching:
-                        # TODO: Find image w/ ORB to locate QR code and make the below something real possibly
-                        # imageMatch = self.orb.returnValues()
-
-                        # TODO: have orb recognizer return the following values?
-                        # cnt = contours[0]
-                        # M = cv2.moments(cnt)
-                        # imageArea = cv2.contourArea(cnt)
-                        # relativeArea = imageArea / float(self.fWidth * self.fHeight)
-                        # cx = int(M['m10'] / M['m00'])
-                        # cy = int(M['m01'] / M['m00'])
-
-
-                        # Prevents the robot from coming at the code from too sharp an angle
-                        imageMatch = None
+                        imageMatch = self.ORBrecog.scanImages()
                         if imageMatch != None:
                             sweepTime = 0
-                            if self.locate(imageMatch[0]):
+                            if self.locate(imageMatch):
                                 break
                     else:
                         if ignoreColorTime < 1000:
@@ -216,9 +208,6 @@ class qrPlanner(object):
         if imageMatch == None:
             return False
 
-        #TODO working here
-        recognizer = ORBrecognizer(imageMatch, )
-
         self.pathTraveled.append(location)
         print ("Path travelled so far:\n", self.pathTraveled)
 
@@ -246,8 +235,7 @@ class qrPlanner(object):
 
         imageInfo = None
         for t in xrange(5):
-            # TODO: Use ORB to locate image and QR code can be read below
-            # imageInfo = orbThing
+            imageInfo = self.ORBrecog.scanImages()
             if imageInfo != None:
                 return self.locate(imageInfo[0])
             time.sleep(0.2)
@@ -277,8 +265,8 @@ class qrPlanner(object):
             for i in xrange(stepsFor180Degrees):
                 self.robot.moveControl.move_pub.publish(twist)
                 r.sleep()
-                # TODO: Use ORB to locate image and QR code below
-                # Will ensure that the robot is not at too acute an angle with the code
+                imageMatch = self.ORBrecog.scanImages()
+                # Will ensure that the robot is not at too acute an angle with the code? Necessary?
                 imageMatch = None
                 if imageMatch != None:
                     return self.locate(imageMatch[0])

@@ -4,8 +4,8 @@
  *  Created on: June 2016
  *  Author: mulmer
  *
- *  The ORBrecognizer object computes the similarity of objects using the ORB 
- *  feature detector. Is its own class purely so that it can use the methods 
+ *  The ORBrecognizer object computes the similarity of objects using the ORB
+ *  feature detector. Is its own class purely so that it can use the methods
  *  implemented in FeatureType.
  *
 ========================================================================="""
@@ -22,6 +22,8 @@ import FeatureType
 import FoxQueue
 import OutputLogger
 from operator import itemgetter
+import turtleQR
+
 
 class ORBrecognizer():
     """Holds data about ORB keypoints found in the input picture."""
@@ -31,6 +33,8 @@ class ORBrecognizer():
         self.kp, self.des = self.orb.detectAndCompute(self.image, None)
         self.matches = None
         self.goodMatches = None
+        self.robot = turtleQR.TurtleBot()
+        self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
 
     def tryToMatchFeatures(self, orb, img1, pointInfo, img2):
@@ -62,7 +66,7 @@ class ORBrecognizer():
         return goodMatches, kp1, kp2
 
 
-    def findImage(self, img, properties, itemsSought):
+    def findImage(self, img, properties, itemsSought, contours):
 
         colorImage = img
         answer = False
@@ -84,19 +88,28 @@ class ORBrecognizer():
         print(scores)
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
 
+
+        cnt = contours[0]
+        M = cv2.moments(cnt)
+        imageArea = cv2.contourArea(cnt)
+        relativeArea = imageArea / float(self.fWidth * self.fHeight)
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
+
+
         if max_value > 70:
             print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
-            answer = True
+            retVal = (itemsSought[max_index], (cx, cy), relativeArea)
         else:
             print('No sign was detected')
-            answer = False
+            retVal = None
 
         #cleanup
         for i in range (0, len(itemsSought)):
             properties[i][2] = []
             properties[i][3] = 0
 
-        return answer
+        return retVal
 
     def colorPreprocessing(self, img, colorSample):
         img2 = img.copy()
@@ -159,7 +172,7 @@ class ORBrecognizer():
         cv2.merge((blue_channel, green_channel, red_channel), img2)
 
         #cv2.imshow("returns", img2)
-        return img2
+        return img2, contours
 
     def initRefs(self, itemsSought):
         properties = [] #2D array used to store info on each item: item i is properties[i]
@@ -189,12 +202,23 @@ class ORBrecognizer():
         properties = self.initRefs(itemsSought)
 
         filename = 'blue.jpg'
-	#print "PATH", os.getcwd()
+        #print "PATH", os.getcwd()
         path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
-	#print "PIC PATH", path
+        #print "PIC PATH", path
         colorSample = cv2.imread(path)
-	cv2.imshow("FOO", colorSample)
-	
+        cv2.imshow("FOO", colorSample)
+
         image2 = image.copy()
-        img = self.colorPreprocessing(image2, colorSample)
-        return self.findImage(img, properties, itemsSought)
+        img, contours = self.colorPreprocessing(image2, colorSample)
+        return self.findImage(img, properties, itemsSought, contours)
+
+
+    def getFrameDims(self):
+        """Returns the the dimmensions and depth of the camera frame"""
+        return self.fWidth, self.fHeight
+
+
+    def getFrameCenter(self):
+        """Returns the center coordinates of the camera frame"""
+        return self.fWidth / 2, self.fHeight / 2
+
