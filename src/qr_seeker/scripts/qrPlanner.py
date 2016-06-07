@@ -115,7 +115,7 @@ class qrPlanner(object):
         self.robot = turtleQR.TurtleBot()
         self.brain = self.setupPot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
-        image, times = self.robot.getImage()
+        #self.image, times = self.robot.getImage()
         self.imageMatching = True
 
         self.camera = UpdateCamera(self.robot)
@@ -126,8 +126,7 @@ class qrPlanner(object):
 
         self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
         self.pathTraveled = []
-        self.ORBrecog = ORBrecognizer.ORBrecognizer(image)
-        UpdateCamera.scanImage(image)
+        self.ORBrecog = ORBrecognizer()
 
 
 
@@ -169,7 +168,7 @@ class qrPlanner(object):
                         sweepTime = 0
 
                     if self.imageMatching:
-                        imageMatch = self.ORBrecog.scanImages()
+                        imageMatch = self.ORBrecog.scanImages(self.image)
                         if imageMatch != None:
                             sweepTime = 0
                             if self.locate(imageMatch):
@@ -235,9 +234,9 @@ class qrPlanner(object):
 
         imageInfo = None
         for t in xrange(5):
-            imageInfo = self.ORBrecog.scanImages()
+            imageInfo = self.ORBrecog.scanImages(self.image)
             if imageInfo != None:
-                return self.locate(imageInfo[0])
+                return self.locate(imageInfo)
             time.sleep(0.2)
 
         # left side of the bumper was hit
@@ -265,11 +264,11 @@ class qrPlanner(object):
             for i in xrange(stepsFor180Degrees):
                 self.robot.moveControl.move_pub.publish(twist)
                 r.sleep()
-                imageMatch = self.ORBrecog.scanImages()
+                imageMatch = self.ORBrecog.scanImages(self.image)
                 # Will ensure that the robot is not at too acute an angle with the code? Necessary?
                 imageMatch = None
                 if imageMatch != None:
-                    return self.locate(imageMatch[0])
+                    return self.locate(imageMatch)
         except CvBridgeError as e:
             print (e)
         finally:
