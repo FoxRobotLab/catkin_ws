@@ -86,7 +86,7 @@ class UpdateCamera( threading.Thread ):
                     self.stalled = False
 
             cv2.imshow("TurtleCam", image)
-            self.scanImage(image)
+            #self.scanImage(image)
             self.orbScan(image)
             # if orb is not None:
             #     if qrCode is not None:
@@ -124,7 +124,7 @@ class UpdateCamera( threading.Thread ):
 
     def getImageDims(self):
         with self.lock:
-            w, h = self.frame.shape()
+            w, h, _ = self.frame.shape
         return w, h
 
 class qrPlanner(object):
@@ -183,7 +183,9 @@ class qrPlanner(object):
                             break
                         sweepTime = 0
 
+                    print "Got to check self.ImageMatching"
                     if self.imageMatching:
+                        print "YESS self.ImageMatching"
                         orbInfo, qrInfo = self.camera.getImageData()
                         if orbInfo != None:
                             sweepTime = 0
@@ -212,6 +214,7 @@ class qrPlanner(object):
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
         location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(qrInfo, (None, None, 0))
+        print "REACHED LOCATE"
         if qrInfo is not None:
             """Read things"""
             if location is None:
@@ -242,8 +245,7 @@ class qrPlanner(object):
     """Big idea: there may be multiple contours of blue areas in the image, so we need to
     find contours of the good keypoints, taking into account that some of these may be noise."""
     def findORBContours(self, goodKeyPoints):
-        #TODO: ensure that these shapes are right
-        w, h = camera.getImageDims()
+        w, h = self.camera.getImageDims()
         black = np.zeros((w, h), dtype='uint8')
 
         #ALL the keypoints, the list of matched keypoints within some range
