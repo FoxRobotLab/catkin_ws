@@ -17,69 +17,69 @@ from MapGraph import *
 # (0,0) is outside the building near the southeast entrance, and
 # distances are in meters.  The x axis runs north-south, the y
 # axis runs east-west
-nodeLocs = [(22.2, 4),  # Home lab   Node 0
-	    (22.2, 6.5),  # Lab hall   Node 1
-	    (20.0, 6.5),  # East T   Node 2
-	    (31.2,6.5),  # East L   Node 3
-	    (12.9, 6.5),  # Libby's lab hall   Node 4
-	    (8.7, 6.1),  # Right Angle door   Node 5
-	    (20.0, 9.9),  # Lab 258 hall   Node 6
-	    (17.3, 10.2),  # Lab 258  Node 7
-	    (20.0, 17.9),  # Lab 256 hall   Node 8
-	    (17.3, 18.2),  # Lab 256   Node 9
-	    (20.0, 22.4),  # 250 center hall   Node 10
-	    (20.0, 26.1),  # Reading room hall   Node 11
-	    (17.3, 26.3),  # Reading room   Node 12
-	    (20.0, 27.6),  # 205 center hall    Node 13
-	    (20.0, 40.1),  # Atrium center hall   Node 14
-	    (23.8, 21.2),  # 250 center   Node 15
-	    (28.1, 21.2),  # 250 north   Node 16
-	    (25.0, 29.5),  # 205 east   Node 17
-	    (23.2, 38.1),  # 205 west   Node 18
-	    (31.0, 10.6),  # 247 hall   Node 19
-	    (34.2, 10.0),  # 247 room   Node 20
-	    (31.0, 18.6),  # 245 hall   Node 21
-	    (35.0, 18.0),  # 245 room   Node 22
-	    (31.0, 22.6),  # 250 north hall   Node 23
-	    (31.0, 26.7),  # 243 hall   Node 24
-	    (35.0, 26.2),  # 243 room   Node 25
-	    (31.0, 28.6),  # 205 north hall   Node 26
-	    (31.0, 38.9),  # 241 hall   Node 27
-	    (35.1, 38.6),  # 241 room   Node 28
-	    (31.0, 40.1),  # Atrium north hall   Node 29
-	    (6.7, 10.1),  # Right Angle center   Node 30
-	    (3.2, 7.6),  # 233 room   Node 31
-	    (6.1, 8.5),  # 232-233 hall   Node 32
-	    (3.2, 9.4),  # 232 room   Node 33
-	    (3.2, 13.6),  # 231 room   Node 34
-	    (6.1, 14.5),  # 230-231 hall   Node 35
-	    (3.2, 15.4),  # 230 room   Node 36
-	    (3.2, 19.8),  # 229 room   Node 37
-	    (6.1, 20.7),  # 228-229 hall   Node 38
-	    (3.2, 21.6),  # 228 room   Node 39
-	    (3.2, 25.9),  # 227 room   Node 40
-	    (6.1, 26.8),  # 226-227 hall   Node 41
-	    (3.2, 27.7),  # 226 room   Node 42
-	    (3.2, 31.8),  # 225 room   Node 43
-	    (6.1, 32.7),  # 224-225 hall   Node 44
-	    (3.2, 33.6),  # 224 room   Node 45
-	    (3.2, 38.1),  # 223 room   Node 46
-	    (6.1, 39.0),  # 222-223 hall   Node 47
-	    (3.2, 39.9),  # 222 room   Node 48
-	    (6.3, 41.1),  # Atrium south hall   Node 49
-	    (31.1, 44.8),  # Atrium NE   Node 50
-	    (32.6, 50.6),  # North main doors   Node 51
-	    (31.2, 57.1),  # Atrium NW   Node 52
-	    (26.2, 50.7),  # Atrium NC   Node 53
-	    (23.0, 43.2),  # 205 west atrium   Node 54
-	    (20.1, 57.1),  # Atrium CW   Node 55
-	    (19.6, 50.7),  # Atrium CC   Node 56
-	    (21.0, 44.8),  # Atrium CE   Node 57
-	    (14.1, 50.6),  # Atrium SC   Node 58
-	    (10.1, 57.1),  # Atrium SW   Node 59
-	    (6.3, 57.1),  # Atrium SSW   Node 60
-	    (6.3, 50.7),  # South main doors   Node 61
-	    (6.3, 44.8)]  # Atrium SE   Node 62
+nodeLocs = [(22.2, 4),  # Home lab              Node 0
+	    (22.2, 6.5),    # Lab hall              Node 1
+	    (20.0, 6.5),    # East T                Node 2
+	    (31.2,6.5),     # East L                Node 3
+	    (12.9, 6.5),    # Libby's lab hall      Node 4
+	    (8.7, 6.1),     # Right Angle door      Node 5
+	    (20.0, 9.9),    # Lab 258 hall          Node 6
+	    (17.3, 10.2),   # Lab 258               Node 7
+	    (20.0, 17.9),   # Lab 256 hall          Node 8
+	    (17.3, 18.2),   # Lab 256               Node 9
+	    (20.0, 22.4),   # 250 center hall       Node 10
+	    (20.0, 26.1),   # Reading room hall     Node 11
+	    (17.3, 26.3),   # Reading room          Node 12
+	    (20.0, 27.6),   # 205 center hall       Node 13
+	    (20.0, 40.1),   # Atrium center hall    Node 14
+	    (23.8, 21.2),   # 250 center            Node 15
+	    (28.1, 21.2),   # 250 north             Node 16
+	    (25.0, 29.5),   # 205 east              Node 17
+	    (23.2, 38.1),   # 205 west              Node 18
+	    (31.0, 10.6),   # 247 hall              Node 19
+	    (34.2, 10.0),   # 247 room              Node 20
+	    (31.0, 18.6),   # 245 hall              Node 21
+	    (35.0, 18.0),   # 245 room              Node 22
+	    (31.0, 22.6),   # 250 north hall        Node 23
+	    (31.0, 26.7),   # 243 hall              Node 24
+	    (35.0, 26.2),   # 243 room              Node 25
+	    (31.0, 28.6),   # 205 north hall        Node 26
+	    (31.0, 38.9),   # 241 hall              Node 27
+	    (35.1, 38.6),   # 241 room              Node 28
+	    (31.0, 40.1),   # Atrium north hall     Node 29
+	    (6.7, 10.1),    # Right Angle center    Node 30
+	    (3.2, 7.6),     # 233 room              Node 31
+	    (6.1, 8.5),     # 232-233 hall          Node 32
+	    (3.2, 9.4),     # 232 room              Node 33
+	    (3.2, 13.6),    # 231 room              Node 34
+	    (6.1, 14.5),    # 230-231 hall          Node 35
+	    (3.2, 15.4),    # 230 room              Node 36
+	    (3.2, 19.8),    # 229 room              Node 37
+	    (6.1, 20.7),    # 228-229 hall          Node 38
+	    (3.2, 21.6),    # 228 room              Node 39
+	    (3.2, 25.9),    # 227 room              Node 40
+	    (6.1, 26.8),    # 226-227 hall          Node 41
+	    (3.2, 27.7),    # 226 room              Node 42
+	    (3.2, 31.8),    # 225 room              Node 43
+	    (6.1, 32.7),    # 224-225 hall          Node 44
+	    (3.2, 33.6),    # 224 room              Node 45
+	    (3.2, 38.1),    # 223 room              Node 46
+	    (6.1, 39.0),    # 222-223 hall          Node 47
+	    (3.2, 39.9),    # 222 room              Node 48
+	    (6.3, 41.1),    # Atrium south hall     Node 49
+	    (31.1, 44.8),   # Atrium NE             Node 50
+	    (32.6, 50.6),   # North main doors      Node 51
+	    (31.2, 57.1),   # Atrium NW             Node 52
+	    (26.2, 50.7),   # Atrium NC             Node 53
+	    (23.0, 43.2),   # 205 west atrium       Node 54
+	    (20.1, 57.1),   # Atrium CW             Node 55
+	    (19.6, 50.7),   # Atrium CC             Node 56
+	    (21.0, 44.8),   # Atrium CE             Node 57
+	    (14.1, 50.6),   # Atrium SC             Node 58
+	    (10.1, 57.1),   # Atrium SW             Node 59
+	    (6.3, 57.1),    # Atrium SSW            Node 60
+	    (6.3, 50.7),    # South main doors      Node 61
+	    (6.3, 44.8)]    # Atrium SE             Node 62
 
 
 
@@ -135,7 +135,7 @@ olin.addEdge(10, 11)
 olin.addEdge(10, 13)
 #olin.addEdge(10, 15)
 
-# 11) Reading room hall: Mac lab hall, 250 center hall, Reading room, 
+# 11) Reading room hall: Mac lab hall, 250 center hall, Reading room,
 #                        205 center hall, Atrium center hall
 olin.addEdge(11, 12)
 olin.addEdge(11, 13)
@@ -154,7 +154,7 @@ olin.addEdge(14, 57)
 # 15) 250 center: 250 center hall, 250 north
 #olin.addEdge(15, 16)
 
-# 16)  250 north:  250 center, 
+# 16)  250 north:  250 center,
 #olin.addEdge(16, 23)
 
 # 17) 205 east:  205 center hall, 205 north hall
@@ -207,7 +207,7 @@ olin.addEdge(30, 35)
 # 31) 233 room: 232-233 hall
 olin.addEdge(31, 32)
 
-# 32) 232-233 hall: Right angle door, Right angle center, 233 room, 232 room, 
+# 32) 232-233 hall: Right angle door, Right angle center, 233 room, 232 room,
 #                   230-231 haljyler@gmail.coml
 olin.addEdge(32, 33)
 olin.addEdge(32, 35)

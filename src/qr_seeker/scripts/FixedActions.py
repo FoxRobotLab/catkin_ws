@@ -35,16 +35,10 @@ class FixedActions(object):
             if not parent.bumperReact(bumperStatus):
                 return None
 
-            for i in xrange(5):
-                cv2.waitKey(300)
-                if orbInfo is not None:
-                    break
             else:
                 return None
 
             imageMatch, (x,y), relativeArea = orbInfo
-            # adjustedTargetArea = self.findAdjustedTargetArea(targetRelativeArea)
-            # areaDiff = adjustedTargetArea - relativeArea
             xDiff = x - centerX
 
             #Loop conditional#
