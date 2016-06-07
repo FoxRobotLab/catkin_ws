@@ -237,7 +237,7 @@ class qrPlanner(object):
         for t in xrange(5):
             imageInfo = self.ORBrecog.scanImages()
             if imageInfo != None:
-                return self.locate(imageInfo[0])
+                return self.locate(imageInfo)
             time.sleep(0.2)
 
         # left side of the bumper was hit
@@ -269,7 +269,7 @@ class qrPlanner(object):
                 # Will ensure that the robot is not at too acute an angle with the code? Necessary?
                 imageMatch = None
                 if imageMatch != None:
-                    return self.locate(imageMatch[0])
+                    return self.locate(imageMatch)
         except CvBridgeError as e:
             print (e)
         finally:
