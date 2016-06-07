@@ -219,28 +219,6 @@ class qrPlanner(object):
         #TODO working here
         recognizer = ORBrecognizer(imageMatch, )
 
-        # scanner = zbar.ImageScanner() #TODO: Move here?
-        # print(scanner)
-        # scanner.parse_config('enable')
-        # bwImg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # pil_im = Image.fromarray(bwImg)
-        # pic2 = pil_im.convert("L")
-        # wid, hgt = pic2.size
-        # raw = pic2.tobytes()
-        #
-        # img = zbar.Image(wid, hgt, 'Y800', raw)
-        # result = scanner.scan(img)
-        #
-        # if result == 0:
-        #   print
-        #   "Scan failed"
-        # else:
-        #   for symbol in img:
-        #       pass
-        #   del (img)
-        #   data = symbol.data.decode(u'utf-8')
-        #   print("Data found:", data)
-
         self.pathTraveled.append(location)
         print ("Path travelled so far:\n", self.pathTraveled)
 
@@ -267,8 +245,12 @@ class qrPlanner(object):
         cv2.waitKey(300)
 
         imageInfo = None
-        #for t in xrange(5):
+        for t in xrange(5):
             # TODO: Use ORB to locate image and QR code can be read below
+            # imageInfo = orbThing
+            if imageInfo != None:
+                return self.locate(imageInfo[0])
+            time.sleep(0.2)
 
         # left side of the bumper was hit
         if bumper_state == 2:
