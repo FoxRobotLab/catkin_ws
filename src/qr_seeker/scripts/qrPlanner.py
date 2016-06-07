@@ -186,7 +186,6 @@ class qrPlanner(object):
                     #     sweepTime = 0
 
                     if self.imageMatching:
-                        print "YESS self.ImageMatching"
                         orbInfo, qrInfo = self.camera.getImageData()
                         if orbInfo is not None:
                             sweepTime = 0
@@ -200,7 +199,6 @@ class qrPlanner(object):
                             ignoreColorTime = 0
             else:
                 sinceLastStall = 0
-            print("I'm about to hit a ")
         self.camera.haltRun()
         self.camera.join()
         self.brain.stopAll()
@@ -215,13 +213,13 @@ class qrPlanner(object):
         """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
-        location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(qrInfo, (None, None, 0))
+        # location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(qrInfo, (None, None, 0))
         print "REACHED LOCATE"
         if qrInfo is not None:
             """Read things"""
-            if location is None:
-                """If we are lost and can not be found"""
-                self.stopImageMatching()
+            # if location is None:
+            #     """If we are lost and can not be found"""
+            #     self.stopImageMatching()
                 # return False
 
         # orbInfo = self.fixedActs.align(targetRelativeArea, self)
@@ -232,9 +230,9 @@ class qrPlanner(object):
 
         self.fixedActs.align(momentInfo)
 
-        self.pathTraveled.append(location)
-        print ("Path travelled so far:\n", self.pathTraveled)
-
+        # self.pathTraveled.append(location)
+        # print ("Path travelled so far:\n", self.pathTraveled)
+        location = None
         if location == self.destination:
             print ("Arrived at destination.")
             return True
