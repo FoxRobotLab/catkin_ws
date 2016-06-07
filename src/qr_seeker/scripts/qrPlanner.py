@@ -21,7 +21,7 @@ import zbar
 from PIL import Image
 import FixedActions
 import PotentialFieldBrain
-from ORBrecognizer import *
+import ORBrecognizer
 import OlinGraph
 
 
@@ -40,7 +40,7 @@ class UpdateCamera( threading.Thread ):
         self.orbInfo = None
 
     def orbScan(self, image):
-        orbScanner = ORBrecognizer()
+        orbScanner = ORBrecognizer.ORBrecognizer()
         result = orbScanner.scanImages(image)
         #if result is none then orbScanner did not find enough points
         self.orbInfo =  result
