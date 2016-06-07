@@ -36,12 +36,14 @@ class UpdateCamera( threading.Thread ):
         self.frameAverageStallThreshold = 20
         self.frame = None
         self.stalled = False
+        self.qrInfo = None
+        self.orbInfo = None
 
     def orbScan(self, image):
         orbScanner = ORBrecognizer()
         result = orbScanner.scanImages(image)
         #if result is none then orbScanner did not find enough points
-        return result
+        self.orbInfo =  result
 
 
     def scanImage(self, image):   #TODO: Move this below with turning on QR search?
@@ -56,15 +58,15 @@ class UpdateCamera( threading.Thread ):
 
         img = zbar.Image(wid, hgt, 'Y800', raw)
         result = scanner.scan(img)
-
-        if result == 0:
+        if result is None:
             print "Scan failed"
         else:
             for symbol in img:
                 pass
             del(img)
-            data = symbol.data.decode(u'utf-8')
-            print "Data found:", data
+            result = symbol.data.decode(u'utf-8')
+            print "Data found:", result
+            self.qrInfo = result
 
     def run(self):
         time.sleep(.5)
@@ -84,8 +86,13 @@ class UpdateCamera( threading.Thread ):
                     self.stalled = False
 
             cv2.imshow("TurtleCam", image)
-            #self.scanImage(image)
+            self.scanImage(image)
             self.orbScan(image)
+            # if orb is not None:
+            #     if qrCode is not None:
+            #         """pass QR info to locate"""
+            #     else:
+            #         """Access Fixed FixedActions"""
 
             code = chr(cv2.waitKey(50) & 255)
 
@@ -109,6 +116,12 @@ class UpdateCamera( threading.Thread ):
         with self.lock:
             self.runFlag = False
 
+    def getImageData(self):
+        with self.lock:
+            orbInfo = self.orbInfo
+            qrInfo = self.qrInfo
+        return orbInfo, qrInfo
+
 class qrPlanner(object):
 
     def __init__(self):
@@ -126,8 +139,6 @@ class qrPlanner(object):
 
         self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
         self.pathTraveled = []
-        self.ORBrecog = ORBrecognizer()
-
 
 
     def run(self,runtime = 120):
@@ -168,10 +179,10 @@ class qrPlanner(object):
                         sweepTime = 0
 
                     if self.imageMatching:
-                        imageMatch = self.ORBrecog.scanImages(self.image)
-                        if imageMatch != None:
+                        orbInfo, qrInfo = self.camera.getImageData()
+                        if orbInfo != None:
                             sweepTime = 0
-                            if self.locate(imageMatch):
+                            if self.locate(orbInfo, qrInfo):
                                 break
                     else:
                         if ignoreColorTime < 1000:
@@ -194,17 +205,19 @@ class qrPlanner(object):
         return currBrain
 
 
-    def locate(self, imageMatch):
-        """Aligns the robot with the imageMatch in front of it, determines where it is using that imageMatch
+    def locate(self, orbInfo, qrInfo):
+        """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
-        location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(imageMatch, (None, None, 0))
+        location, codeOrientation, targetRelativeArea = OlinGraph.codeLocations.get(orbInfo, (None, None, 0))
+        if qrInfo is not None:
+            """Read things"""
         if location == None:
             self.stopImageMatching()
             return False
 
-        imageMatch = self.fixedActs.align(targetRelativeArea, self)
-        if imageMatch == None:
+        orbInfo = self.fixedActs.align(targetRelativeArea, self)
+        if orbInfo == None:
             return False
 
         self.pathTraveled.append(location)
@@ -234,7 +247,7 @@ class qrPlanner(object):
 
         imageInfo = None
         for t in xrange(5):
-            imageInfo = self.ORBrecog.scanImages(self.image)
+            imageInfo = self.ORBrecog.scanImages()
             if imageInfo != None:
                 return self.locate(imageInfo)
             time.sleep(0.2)
@@ -264,7 +277,7 @@ class qrPlanner(object):
             for i in xrange(stepsFor180Degrees):
                 self.robot.moveControl.move_pub.publish(twist)
                 r.sleep()
-                imageMatch = self.ORBrecog.scanImages(self.image)
+                imageMatch = self.ORBrecog.scanImages()
                 # Will ensure that the robot is not at too acute an angle with the code? Necessary?
                 imageMatch = None
                 if imageMatch != None:
