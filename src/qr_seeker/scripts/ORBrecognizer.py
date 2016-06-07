@@ -28,9 +28,9 @@ import turtleQR
 class ORBrecognizer():
     """Holds data about ORB keypoints found in the input picture."""
     def __init__(self):
-        self.image = None
+        #self.image = None
         self.orb = cv2.ORB_create()
-        self.kp, self.des = self.orb.detectAndCompute(self.image, None)
+        #self.kp, self.des = self.orb.detectAndCompute(self.image, None)
         self.matches = None
         self.goodMatches = None
         self.robot = turtleQR.TurtleBot()
