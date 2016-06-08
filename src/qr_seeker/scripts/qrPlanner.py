@@ -62,15 +62,15 @@ class qrPlanner(object):
         while time.time() < timeout and not rospy.is_shutdown():
             self.robot.turnLeft(0.4, 4.14)
             self.robot.turnRight(0.4, 4.14)
-            self.image, times = self.robot.getImage()
-            cv2.imshow("HI", self.image)
+            #self.image, times = self.robot.getImage()
+            #cv2.imshow("HI", self.image)
             cv2.waitKey()
 
             image = self.robot.getImage()[0]
 
             if self.imageMatching:
                 orbInfo = self.orbScanner.orbScan(image)
-                qrInfo = self.qrScanner.qrScan(image)
+                #qrInfo = self.qrScanner.qrScan(image)
                 if orbInfo is not None:
                     #sweepTime = 0
                     if self.locate(orbInfo, qrInfo):
