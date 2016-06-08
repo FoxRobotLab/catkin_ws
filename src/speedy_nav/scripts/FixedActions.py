@@ -50,14 +50,14 @@ class FixedActions(object):
 				else:
 					self.turnByAngle(13)
 				self.robot.backward(0.2, 0.15)
-			else: 
+			else:
 				print "Forward"
 				adjustedSpeed = 0.06 - 0.04 * (relativeArea / adjustedTargetArea)
 				print adjustedSpeed
 				self.robot.forward(adjustedSpeed, 0.2)
 
 			cv2.waitKey(800)
-		
+
 
 	def findAdjustedTargetArea(self, targetArea, angle):
 		"""Calculates an appropriate new target size depending on the angle that the robot is viewing the pattern."""
@@ -78,7 +78,7 @@ class FixedActions(object):
 		#looking at the pattern (patternOrientation) and the currect angle to the pattern
 		#(wallAngle)
 		actualAngle = (patternOrientation - 90 + wallAngle) % 360
-		
+
 		angleToTurn = targetAngle - actualAngle
 		if angleToTurn < -180:
 			angleToTurn += 360
@@ -88,7 +88,7 @@ class FixedActions(object):
 		print "Turning from node " , str(currentNode) , " to node " , str(nextNode)
 		self.turnByAngle(angleToTurn)
 
-		
+
 
 
 	def turnByAngle(self, angle):

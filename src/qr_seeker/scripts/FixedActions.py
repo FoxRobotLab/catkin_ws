@@ -11,7 +11,7 @@ for in the center of its view.
 import cv2
 import OlinGraph
 import ORBrecognizer
-import time
+import rospy
 
 class FixedActions(object):
 
@@ -35,14 +35,15 @@ class FixedActions(object):
             imageMatch, (x,y), relativeArea = orbInfo
             print("orbInfo", orbInfo)
 
+            rate = rospy.Rate(10)  # 10hz
+
             xScore = abs(x - centerX) / float(centerX) * 1.2
             areaScore = abs(max((1 - relativeArea / 100), -1))
 
-            time.sleep(1)
+            rate.sleep()
             self.robot.turnLeft(0.4, 3)
-            time.sleep(1)
             print("HEY I'M TURNING.... OR AT LEAST I SHOULD BE")
-
+            rate.sleep()
             scores = [("xScore", xScore), ("areaScore", areaScore)]
 
             print ("scores", scores)
@@ -66,7 +67,6 @@ class FixedActions(object):
                 else:
                     self.turnByAngle(90)
                     print("Turn right")
-                # time.sleep(0.10)
 
             elif bestName == "areaScore":
                 # If target area does not take up enough area of turtleBot's view (too far away/close-up)
@@ -76,8 +76,9 @@ class FixedActions(object):
                 else:
                     self.robot.backward(.05, 1)
                     print("Move backward")
-                time.sleep(0.10)
-            cv2.waitKey(800)
+
+            return
+
 
             # xDiff = x - centerX
             # # Loop conditional#
