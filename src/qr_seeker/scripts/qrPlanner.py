@@ -31,7 +31,7 @@ class qrPlanner(object):
         self.robot = turtleQR.TurtleBot()
         self.brain = self.setupPot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
-        #self.image, times = self.robot.getImage()
+        self.image, times = self.robot.getImage()
         self.imageMatching = True
 
         # self.camera = UpdateCamera.UpdateCamera(self.robot)
@@ -58,6 +58,8 @@ class qrPlanner(object):
         while time.time() < timeout and not rospy.is_shutdown():
             self.robot.turnLeft(0.4, 4.14)
             self.robot.turnRight(0.4, 4.14)
+            self.image, times = self.robot.getImage()
+
             # if not self.camera.isStalled():
             #     #print (" -------------------------------- camera not stalled")
             #     sinceLastStall += 1
