@@ -48,6 +48,8 @@ class FixedActions(object):
                 if num > bestScore:
                     bestName, bestScore = score
 
+            print("bestName", bestName)
+
             """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
              drone constantly trying to fix minute issues"""
             if bestScore < 0.3:
