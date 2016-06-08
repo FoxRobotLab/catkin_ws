@@ -4,8 +4,7 @@
 qrPlanner.py
 Created: June, 2016
 This file borrows code from the Planner.py in Speedy_nav. This file
-uses FixedActions.py and PotentialFieldBrain.py. This file imports zbar to
-read QR codes that are in the turtlebots view.
+uses FixedActions.py and PotentialFieldBrain.py.
 ======================================================================== """
 
 import turtleQR
@@ -17,119 +16,13 @@ import rospy
 import time
 import threading
 from geometry_msgs.msg import Twist
-import zbar
 from PIL import Image
 import FixedActions
 import PotentialFieldBrain
-import ORBrecognizer
 import OlinGraph
 import numpy as np
+import UpdateCamera
 
-
-
-class UpdateCamera( threading.Thread ):
-
-    def __init__(self, bot):
-        threading.Thread.__init__(self)
-        self.lock = threading.Lock()
-        self.runFlag = True
-        self.robot = bot
-        self.frameAverageStallThreshold = 20
-        self.frame = None
-        self.stalled = False
-        self.qrInfo = None
-        self.orbInfo = None
-        self.scanner = ORBrecognizer.ORBrecognizer()
-
-    def orbScan(self, image):
-        result = self.scanner.scanImages(image)
-        #if result is none then orbScanner did not find enough points
-        with self.lock:
-            self.orbInfo = result
-
-
-    def scanImage(self, image):   #TODO: Move this below with turning on QR search?
-        scanner = zbar.ImageScanner()
-        print(scanner)
-        scanner.parse_config('enable')
-        bwImg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        pil_im = Image.fromarray(bwImg)
-        pic2 = pil_im.convert("L")
-        wid, hgt = pic2.size
-        raw = pic2.tobytes()
-
-        img = zbar.Image(wid, hgt, 'Y800', raw)
-        result = scanner.scan(img)
-        if result is None:
-            print "Scan failed"
-        else:
-            for symbol in img:
-                pass
-            del(img)
-            codeData = symbol.data.decode(u'utf-8')
-            print "Data found:", codeData
-            nodeNum, nodeCoord, nodeName = string.split(codeData)
-            with self.lock:
-                self.qrInfo = (nodeNum, nodeCoord, nodeName)
-
-    def run(self):
-        time.sleep(.5)
-        runFlag = True
-        cv2.namedWindow("TurtleCam", 1)
-        timesImageServed = 1
-        while(runFlag):
-            image, timesImageServed = self.robot.getImage()
-            self.frame = image
-
-            with self.lock:
-                if timesImageServed > 20:
-                    if self.stalled == False:
-                        print "Camera Stalled!"
-                    self.stalled = True
-                else:
-                    self.stalled = False
-
-            cv2.imshow("TurtleCam", image)
-            #self.scanImage(image)
-            self.orbScan(image)
-            # if orb is not None:
-            #     if qrCode is not None:
-            #         """pass QR info to locate"""
-            #     else:
-            #         """Access Fixed FixedActions"""
-
-            code = chr(cv2.waitKey(50) & 255)
-
-            if code == 't':
-                cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-"
-                                + str(datetime.now()) + ".jpg", image)
-                print "Image saved!"
-            if code == 'q':
-                break
-
-            with self.lock:
-                runFlag = self.runFlag
-
-    def isStalled(self):
-        """Returns the status of the camera stream"""
-        with self.lock:
-            stalled = self.stalled
-        return stalled
-
-    def haltRun(self):
-        with self.lock:
-            self.runFlag = False
-
-    def getImageData(self):
-        with self.lock:
-            orbInfo = self.orbInfo
-            qrInfo = self.qrInfo
-        return orbInfo, qrInfo
-
-    def getImageDims(self):
-        with self.lock:
-            w, h, _ = self.frame.shape
-        return w, h
 
 class qrPlanner(object):
 
@@ -140,7 +33,7 @@ class qrPlanner(object):
         #self.image, times = self.robot.getImage()
         self.imageMatching = True
 
-        self.camera = UpdateCamera(self.robot)
+        self.camera = UpdateCamera.UpdateCamera(self.robot)
 
         self.destination = 999999999
         while self.destination > len(OlinGraph.nodeLocs):
@@ -307,12 +200,12 @@ class qrPlanner(object):
         self.robot.backward(0.2, 3)
         cv2.waitKey(300)
 
-        imageInfo = None
-        for t in xrange(5):
-            imageInfo = self.ORBrecog.scanImages()
-            if imageInfo != None:
-                return self.locate(imageInfo)
-            time.sleep(0.2)
+        # imageInfo = None
+        # for t in xrange(5):
+        #     imageInfo = self.ORBrecog.scanImages()
+        #     if imageInfo != None:
+        #         return self.locate(imageInfo)
+        #     time.sleep(0.2)
 
         # left side of the bumper was hit
         if bumper_state == 2:
