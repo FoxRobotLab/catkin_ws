@@ -156,9 +156,9 @@ class ListGraph(Graph):
             lst1 = self._adjList[node1]
             lst2 = self._adjList[node2]
             if node2 in lst1:
-            lst1.remove(node2)
+                lst1.remove(node2)
             if node1 in lst2:
-            lst2.remove(node1)
+                lst2.remove(node1)
             return True
         elif node1 >= self._numVerts:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node1)
