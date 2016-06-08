@@ -103,9 +103,9 @@ class UpdateCamera( threading.Thread ):
             list = string.split(codeData)
             #print(list)
             nodeNum = list[0]
-            nodeCoord = list[0] + ' ' + list[1]
+            nodeCoord = list[1] + ' ' + list[2]
             nodeName = ''
-            for i in range(2, len(list)):
+            for i in range(3, len(list)):
                 nodeName = nodeName + ' ' + list[i]
             
             #nodeNum, nodeCoord, nodeName = string.split(codeData)
