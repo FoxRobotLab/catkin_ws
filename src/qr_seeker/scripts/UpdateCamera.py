@@ -101,7 +101,7 @@ class UpdateCamera( threading.Thread ):
             codeData = symbol.data.decode(u'utf-8')
             print "Data found:", codeData
             list = string.split(codeData)
-            print(list)
+            #print(list)
             nodeNum = list[0]
             nodeCoord = list[0] + ' ' + list[1]
             nodeName = ''
@@ -110,7 +110,7 @@ class UpdateCamera( threading.Thread ):
             
             #nodeNum, nodeCoord, nodeName = string.split(codeData)
             with self.lock:
-                self.qrInfo = (nodeNum, nodeCoord, nodeName)
+                self.qrInfo = (int(nodeNum), nodeCoord, nodeName)
 
     def isStalled(self):
         """Returns the status of the camera stream"""
