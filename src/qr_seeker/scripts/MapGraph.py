@@ -110,7 +110,7 @@ def readMapFile(mapFile):
     try:
         filObj = open(mapFile, 'r')
     except:
-        print "ERROR READING FILE, ABORTING"
+        print("ERROR READING FILE, ABORTING")
         return
     readingIntro = True
     readingNodes = False
