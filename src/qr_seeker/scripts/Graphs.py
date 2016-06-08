@@ -251,8 +251,8 @@ class MatrixGraph(Graph):
         if node < self._numVerts:
             neighs = []
             for i in range(self._numVerts):
-            if self._adjMatrix[node][i] != None:
-                neighs.append(i)
+                if self._adjMatrix[node][i] != None:
+                    neighs.append(i)
             return neighs
         else:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node)
@@ -315,11 +315,11 @@ class WeightedListGraph(ListGraph):
             lst1 = self._adjList[node1]
             lst2 = self._adjList[node2]
             for (n, w) in lst1:
-            if node2 == n:
-                lst1.remove((n, w))
+                if node2 == n:
+                    lst1.remove((n, w))
             for (n, w) in lst2:
-            if node1 == n:
-                lst2.remove((n, w))
+                if node1 == n:
+                    lst2.remove((n, w))
             return True
         elif node1 >= self._numVerts:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node1)
@@ -332,8 +332,8 @@ class WeightedListGraph(ListGraph):
         and False if they are not."""
         if node1 < self._numVerts and node2 < self._numVerts:
             for (n, w) in self._adjList[node1]:
-            if n == node2:
-                return True
+                if n == node2:
+                    return True
             return False
         elif node1 >= self._numVerts:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node1)
@@ -346,8 +346,8 @@ class WeightedListGraph(ListGraph):
         or None if they are not connected."""
         if node1 < self._numVerts and node2 < self._numVerts:
             for (n, w) in self._adjList[node1]:
-            if n == node2:
-                return w
+                if n == node2:
+                    return w
             return None
         elif node1 >= self._numVerts:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node1)
@@ -451,9 +451,9 @@ class WeightedMatrixGraph(MatrixGraph):
         if node < self._numVerts:
             neighs = []
             for i in range(self._numVerts):
-            wgt = self._adjMatrix[node][i]
-            if wgt != None:
-                neighs.append((i, wgt))
+                wgt = self._adjMatrix[node][i]
+                if wgt != None:
+                    neighs.append((i, wgt))
             return neighs
         else:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node)
@@ -482,10 +482,10 @@ class NodeIndexOutOfRangeException(Exception):
         self.actual = actual
 
         def __str__(self):
-        s1 = "Expected node index in range " + str(self.low)
-        s2  = " to " + str(self.high)
-        s3 = "  Actual value was " + str(self.actual)
-        return s1 + s2 + s3
+            s1 = "Expected node index in range " + str(self.low)
+            s2  = " to " + str(self.high)
+            s3 = "  Actual value was " + str(self.actual)
+            return s1 + s2 + s3
 
 
 class GraphFullException(Exception):
