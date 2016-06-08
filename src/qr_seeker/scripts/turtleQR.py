@@ -47,7 +47,7 @@ class MovementControlThread( threading.Thread ):
 		self.rateLimiter = rospy.Rate(10) #10Hz
 		self.paused = False
 
-		self.move_pub = rospy.Publisher('mobile_base/commands/velocity', Twist)
+		self.move_pub = rospy.Publisher('mobile_base/commands/velocity', Twist, queue_size = 10)
 
 	def run(self):
 		twist = Twist()
@@ -351,10 +351,10 @@ class TurtleBot(object):
 
 	def exit(self):
 		print("************** RECEIVED ON SHUTDOWN **************")
-		#self.moveControl.haltRun()
-		#self.moveControl.join()
-		#self.sensorControl.exit()
-		#self.sensorControl.join()
+		self.moveControl.haltRun()
+		self.moveControl.join()
+		self.sensorControl.exit()
+		self.sensorControl.join()
 		self.imageControl.exit()
 		self.imageControl.join()
 

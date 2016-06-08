@@ -188,8 +188,8 @@ class ORBrecognizer():
 
         return properties
 
-    #run this if you wanna test the feature recognition using still images
-    def scanImages(self, image):
+    #run this if you wanna test the feature recognition using a still image
+    def scanImage(self, image):
         itemsSought = ['sign']
         properties = self.initRefs(itemsSought)
 
