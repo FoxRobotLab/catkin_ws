@@ -34,7 +34,7 @@ class qrPlanner(object):
         #self.image, times = self.robot.getImage()
         self.imageMatching = True
 
-        self.camera = UpdateCamera.UpdateCamera(self.robot)
+        # self.camera = UpdateCamera.UpdateCamera(self.robot)
 
         totalNumNodes = OlinGraph.olin._numVerts
         self.destination = 999999999
@@ -48,7 +48,7 @@ class qrPlanner(object):
     def run(self,runtime = 120):
         #Runs the program for the duration of 'runtime'"""
         timeout = time.time()+runtime
-        self.camera.start()
+        # self.camera.start()
         timeToWaitAfterStall = 30
         iterationCount = 0
         ignoreColorTime = 0
@@ -56,13 +56,14 @@ class qrPlanner(object):
         sinceLastStall = 0
         #print ("Planner.run starting while loop")
         while time.time() < timeout and not rospy.is_shutdown():
-            if not self.camera.isStalled():
-                #print (" -------------------------------- camera not stalled")
-                sinceLastStall += 1
-                if 30 < sinceLastStall:
+            self.robot.turnLeft(0.4, 4.14)
+            self.robot.turnRight(0.4, 4.14)
+            # if not self.camera.isStalled():
+            #     #print (" -------------------------------- camera not stalled")
+            #     sinceLastStall += 1
+            #     if 30 < sinceLastStall:
 
-                    self.robot.turnLeft(0.4, 4.14)
-                    self.robot.turnRight(0.4, 4.14)
+
                     # bumper = self.robot.getBumperStatus()
                     # if bumper != 0:
                     #     while not self.bumperReact(bumper):
