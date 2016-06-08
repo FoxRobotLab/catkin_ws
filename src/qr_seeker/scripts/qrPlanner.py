@@ -60,6 +60,9 @@ class qrPlanner(object):
                 #print (" -------------------------------- camera not stalled")
                 sinceLastStall += 1
                 if 30 < sinceLastStall:
+
+                    self.robot.turnLeft(0.4, 4.14)
+                    self.robot.turnRight(0.4, 4.14)
                     # bumper = self.robot.getBumperStatus()
                     # if bumper != 0:
                     #     while not self.bumperReact(bumper):
@@ -82,18 +85,18 @@ class qrPlanner(object):
                     #         break
                     #     sweepTime = 0
 
-                    if self.imageMatching:
-                        orbInfo, qrInfo = self.camera.getImageData()
-                        if orbInfo is not None:
-                            #sweepTime = 0
-                            if self.locate(orbInfo, qrInfo):
-                                break
-                    else:
-                        if ignoreColorTime < 1000:
-                            ignoreColorTime += 1
-                        else:
-                            self.startImageMatching()
-                            ignoreColorTime = 0
+                    # if self.imageMatching:
+                    #     orbInfo, qrInfo = self.camera.getImageData()
+                    #     if orbInfo is not None:
+                    #         #sweepTime = 0
+                    #         if self.locate(orbInfo, qrInfo):
+                    #             break
+                    # else:
+                    #     if ignoreColorTime < 1000:
+                    #         ignoreColorTime += 1
+                    #     else:
+                    #         self.startImageMatching()
+                    #         ignoreColorTime = 0
             else:
                 sinceLastStall = 0
         self.camera.haltRun()

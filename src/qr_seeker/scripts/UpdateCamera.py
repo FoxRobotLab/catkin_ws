@@ -55,7 +55,7 @@ class UpdateCamera( threading.Thread ):
             cv2.imshow("TurtleCam", image)
 
             if image is not None:
-                # self.qrScan(image)
+                self.qrScan(image)
                 self.orbScan(image)
 
             keypress = chr(cv2.waitKey(50) & 255)
