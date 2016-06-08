@@ -132,10 +132,10 @@ def readMapFile(mapFile):
             words = line.split()
             numNodes = int(words[-1])
             readingIntro = False
-    if (not readingIntro) and lowerLine.startswith('nodes:'):
-        # If have seen # of nodes and now see Nodes:, start reading node data
-        readingNodes = True
-        row = 0
+        elif (not readingIntro) and lowerLine.startswith('nodes:'):
+            # If have seen # of nodes and now see Nodes:, start reading node data
+            readingNodes = True
+            row = 0
         elif readingNodes and row < numNodes:
         # If reading nodes, and haven't finished (must be data for every node)
             try:
@@ -151,23 +151,23 @@ def readMapFile(mapFile):
                 nodeData = [part.strip("(),") for part in dataList]
                 allData.append( (float(nodeData[0]), float(nodeData[1])) )
             row += 1
-        if row == numNodes:
-        # If reading nodes, and should be done, then go on
-        readingNodes = False
-        graph = MapGraph(numNodes, allData)
-    elif (not readingNodes) and lowerLine.startswith('markers:'):
-        # If there are markers, then start reading them
-        readingMarkers = True
-    elif (not readingNodes) and lowerLine.startswith('edges:'):
-        # If you see "Edges:", then start reading edges
-        readingMarkers = False
-        readingEdges = True
-    elif readingMarkers:
-        # If reading a marker, data is node and heading facing marker
-        markerData = line.split()
-        node = int(markerData[0])
-        heading = float(markerData[1])
-        graph.addMarkerInfo(node, heading)
+            if row == numNodes:
+                # If reading nodes, and should be done, then go on
+                readingNodes = False
+                graph = MapGraph(numNodes, allData)
+        elif (not readingNodes) and lowerLine.startswith('markers:'):
+            # If there are markers, then start reading them
+            readingMarkers = True
+        elif (not readingNodes) and lowerLine.startswith('edges:'):
+            # If you see "Edges:", then start reading edges
+            readingMarkers = False
+            readingEdges = True
+        elif readingMarkers:
+            # If reading a marker, data is node and heading facing marker
+            markerData = line.split()
+            node = int(markerData[0])
+            heading = float(markerData[1])
+            graph.addMarkerInfo(node, heading)
         elif readingEdges:
         # If reading edges, then data is pair of nodes, add edge
             [fromNode, toNode] = [int(x) for x in line.split()]
