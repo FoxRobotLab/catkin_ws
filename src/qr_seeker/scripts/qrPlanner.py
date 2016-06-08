@@ -98,10 +98,10 @@ class qrPlanner(object):
                     #     else:
                     #         self.startImageMatching()
                     #         ignoreColorTime = 0
-            else:
-                sinceLastStall = 0
-        self.camera.haltRun()
-        self.camera.join()
+            # else:
+            #     sinceLastStall = 0
+        # self.camera.haltRun()
+        # self.camera.join()
         self.brain.stopAll()
 
 
