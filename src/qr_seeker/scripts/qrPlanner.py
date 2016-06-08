@@ -70,7 +70,7 @@ class qrPlanner(object):
 
             if self.imageMatching:
                 orbInfo = self.orbScanner.orbScan(image)
-                #qrInfo = self.qrScanner.qrScan(image)
+                qrInfo = self.qrScanner.qrScan(image)
                 if orbInfo is not None:
                     #sweepTime = 0
                     if self.locate(orbInfo, qrInfo):
