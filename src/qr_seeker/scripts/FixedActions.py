@@ -38,9 +38,7 @@ class FixedActions(object):
             xScore = abs(x - centerX) / float(centerX) * 1.1
             areaScore = abs(max((1 - relativeArea / 1200), -1))
 
-
             scores = [("xScore", xScore), ("areaScore", areaScore)]
-
 
             print ("scores", scores)
             bestName, bestScore = scores[0]
