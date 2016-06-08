@@ -52,7 +52,7 @@ class QRrecognizer():
             #print "RESULT", result
             if result == 0:
                 #print "Scan failed"
-                pass
+                return None
             else:
                 #print ("img is ", img)
                 for symbol in img:
@@ -71,4 +71,4 @@ class QRrecognizer():
                 
                 #nodeNum, nodeCoord, nodeName = string.split(codeData)
                 with self.lock:
-                    return = (int(nodeNum), nodeCoord, nodeName)
+                    return (int(nodeNum), nodeCoord, nodeName)
