@@ -102,21 +102,21 @@ class FixedActions(object):
     #     return targetArea * correction
 
 
-    def turnToNextTarget(self, location, destination, imageMatchOrientation):
+    def turnToNextTarget(self, location, destination, heading):
         """Given a planned path and the orientation of the imageMatch in front of the robot, turns in the direction of the following node in the path."""
         if location == destination:
             return
         wallAngle = self.robot.findAngleToWall()
         path = OlinGraph.olin.getShortestPath(location, destination)
         currentNode, nextNode = path[0], path[1]
-        targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
+        # targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
 
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (imageMatchOrientation) and the correct angle to the imageMatch
         #(wallAngle)
-        actualAngle = (imageMatchOrientation - 90 + wallAngle) % 360
+        actualAngle = (heading - 90 + wallAngle) % 360
 
-        angleToTurn = targetAngle - actualAngle
+        angleToTurn = heading - actualAngle
         if angleToTurn < -180:
             angleToTurn += 360
         elif 180 < angleToTurn:
