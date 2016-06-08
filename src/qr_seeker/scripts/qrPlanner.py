@@ -41,7 +41,7 @@ class qrPlanner(object):
         while self.destination > totalNumNodes:
             self.destination = int(input("Enter destination index: "))
 
-        self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
+        # self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
         self.pathTraveled = []
 
 
