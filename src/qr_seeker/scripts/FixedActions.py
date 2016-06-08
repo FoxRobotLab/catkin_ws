@@ -61,7 +61,7 @@ class FixedActions(object):
                 else:
                     self.turnByAngle(100)
                     print("Turn right")
-                time.sleep(0.10)
+                # time.sleep(0.10)
 
             elif bestName == "areaScore":
                 # If target area does not take up enough area of turtleBot's view (too far away/close-up)
@@ -131,7 +131,7 @@ class FixedActions(object):
         if self.camera.isStalled():
             return
         print 'Turning by an angle of: ', str(angle)
-        turnSec = angle * self.d2s
+        turnSec = angle
         # turnSec = 3
         if angle < 0:
             turnSec = abs(turnSec)
