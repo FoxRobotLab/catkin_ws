@@ -36,7 +36,7 @@ class FixedActions(object):
             print("orbInfo", orbInfo)
 
             xScore = abs(x - centerX) / float(centerX) * 1.1
-            areaScore = abs(max((1 - relativeArea / 200), -1))
+            areaScore = abs(max((1 - relativeArea / 1200), -1))
 
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
@@ -67,7 +67,7 @@ class FixedActions(object):
 
             elif bestName == "areaScore":
                 # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 200:
+                if relativeArea < 500:
                     self.robot.forward(.05, 1)
                     print("Move forward")
                 else:
