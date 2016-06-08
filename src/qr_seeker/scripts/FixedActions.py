@@ -36,7 +36,7 @@ class FixedActions(object):
             print("orbInfo", orbInfo)
 
             xScore = abs(x - centerX) / float(centerX) * 1.1
-            areaScore = abs(max((1 - relativeArea / 1200), -1))
+            areaScore = abs(max((1 - relativeArea / 120), -1))
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
 
