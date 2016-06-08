@@ -116,6 +116,8 @@ class qrPlanner(object):
             """Read things"""
             nodeNum, nodeCoord, nodeName = qrInfo
             heading = OlinGraph.olin.getMarkerInfo(qrInfo)
+            if heading is None:
+                heading = 0
             print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
             self.pathTraveled.append(nodeNum)
             print ("Path travelled so far:\n", self.pathTraveled)
