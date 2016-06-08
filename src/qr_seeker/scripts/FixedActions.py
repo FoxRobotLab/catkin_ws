@@ -64,7 +64,7 @@ class FixedActions(object):
 
             elif bestName == "areaScore":
                 # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 50:
+                if relativeArea < 30:
                     self.robot.forward(.05, 1)
                     print("Move forward")
                 else:
