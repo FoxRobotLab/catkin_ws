@@ -65,70 +65,25 @@ class qrPlanner(object):
             self.image, times = self.robot.getImage()
             cv2.imshow("HI", self.image)
             cv2.waitKey()
-            # if not self.camera.isStalled():
-            #     #print (" -------------------------------- camera not stalled")
-            #     sinceLastStall += 1
-            #     if 30 < sinceLastStall:
 
-            # iterationCount += 1
+            image = self.robot.getImage()[0]
 
-            # bumper = self.robot.getBumperStatus()
-                    # if bumper != 0:
-                    #     while not self.bumperReact(bumper):
-                    #         cv2.waitKey(300)
-                    #         bumper = self.robot.getBumperStatus()
-                    #     self.stopImageMatching()
-                    #print (" ---   inside if 30 < sinceLastStall")
-
-                    # if iterationCount > 250:
-                    #     #print ("STEPPING THE BRAIN")
-                    #     self.brain.step()
-                    # else:
-                    #     time.sleep(.01)
-
-                    # if sweepTime < 5000:
-                    #     sweepTime += 1
-                    # else:
-                    #     if self.sideSweep():
-                    #         break
-                    #     sweepTime = 0
-
-                    image = self.robot.getImage()[0]
-
-                    if self.imageMatching:
-                        orbInfo = self.orbScanner.orbScan(image)
-                        qrInfo = self.qrScanner.qrScan(iamge)
-                        if orbInfo is not None:
-                            #sweepTime = 0
-                            if self.locate(orbInfo, qrInfo):
-                                break
-                    else:
-                        if ignoreColorTime < 1000:
-                            ignoreColorTime += 1
-                        else:
-                            self.startImageMatching()
-                            ignoreColorTime = 0
+            if self.imageMatching:
+                orbInfo = self.orbScanner.orbScan(image)
+                qrInfo = self.qrScanner.qrScan(iamge)
+                if orbInfo is not None:
+                    #sweepTime = 0
+                    if self.locate(orbInfo, qrInfo):
+                        break
             else:
-                sinceLastStall = 0
+                if ignoreColorTime < 1000:
+                    ignoreColorTime += 1
+                else:
+                    self.startImageMatching()
+                    ignoreColorTime = 0
         self.camera.haltRun()
         self.camera.join()
 
-                    # if self.imageMatching:
-                    #     orbInfo, qrInfo = self.camera.getImageData()
-                    #     if orbInfo is not None:
-                    #         #sweepTime = 0
-                    #         if self.locate(orbInfo, qrInfo):
-                    #             break
-                    # else:
-                    #     if ignoreColorTime < 1000:
-                    #         ignoreColorTime += 1
-                    #     else:
-                    #         self.startImageMatching()
-                    #         ignoreColorTime = 0
-            # else:
-            #     sinceLastStall = 0
-        # self.camera.haltRun()
-        # self.camera.join()
         self.brain.stopAll()
 
 
