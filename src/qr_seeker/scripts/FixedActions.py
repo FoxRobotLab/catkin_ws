@@ -35,7 +35,7 @@ class FixedActions(object):
             imageMatch, (x,y), relativeArea = orbInfo
             print("orbInfo", orbInfo)
 
-            xScore = abs(x - centerX) / float(centerX) * 1.3
+            xScore = abs(x - centerX) / float(centerX) * 1.5
             areaScore = abs(max((1 - relativeArea / 100), -1))
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
@@ -109,14 +109,20 @@ class FixedActions(object):
         wallAngle = self.robot.findAngleToWall()
         path = OlinGraph.olin.getShortestPath(location, destination)
         currentNode, nextNode = path[0], path[1]
-        # targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
+
+        targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
+
         print("HEADING", heading)
+        print("WALL ANGLE", wallAngle)
+
+
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (imageMatchOrientation) and the correct angle to the imageMatch
         #(wallAngle)
+
         actualAngle = (heading - 90 + wallAngle) % 360
 
-        angleToTurn = heading - actualAngle
+        angleToTurn = targetAngle - actualAngle
         if angleToTurn < -180:
             angleToTurn += 360
         elif 180 < angleToTurn:
