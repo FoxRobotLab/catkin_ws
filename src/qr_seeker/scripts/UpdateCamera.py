@@ -16,6 +16,7 @@ import threading
 import zbar
 from PIL import Image
 import ORBrecognizer
+import string
 
 
 
@@ -52,9 +53,10 @@ class UpdateCamera( threading.Thread ):
                     self.stalled = False
 
             cv2.imshow("TurtleCam", image)
-
-            self.orbScan(image)
-            self.qrScan(image)
+            
+            if image is not None:
+                self.qrScan(image)
+                self.orbScan(image)
 
             keypress = chr(cv2.waitKey(50) & 255)
 
@@ -77,22 +79,36 @@ class UpdateCamera( threading.Thread ):
     def qrScan(self, image):
         self.qrScanner.parse_config('enable')
         bwImg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        #cv2.imshow("bwimg", bwImg)
+        #cv2.waitKey(0)
         pil_im = Image.fromarray(bwImg)
         pic2 = pil_im.convert("L")
         wid, hgt = pic2.size
+        #print("wid, hgt,", wid, hgt)
         raw = pic2.tobytes()
 
         img = zbar.Image(wid, hgt, 'Y800', raw)
         result = self.qrScanner.scan(img)
-        if result is None:
+        #print "RESULT", result
+        if result == 0:
             print "Scan failed"
         else:
+            #print ("img is ", img)
             for symbol in img:
+                #print "symbol did indeed get assigned"
                 pass
             del(img)
             codeData = symbol.data.decode(u'utf-8')
             print "Data found:", codeData
-            nodeNum, nodeCoord, nodeName = string.split(codeData)
+            list = string.split(codeData)
+            print(list)
+            nodeNum = list[0]
+            nodeCoord = list[0] + ' ' + list[1]
+            nodeName = ''
+            for i in range(2, len(list)):
+                nodeName = nodeName + ' ' + list[i]
+            
+            #nodeNum, nodeCoord, nodeName = string.split(codeData)
             with self.lock:
                 self.qrInfo = (nodeNum, nodeCoord, nodeName)
 
