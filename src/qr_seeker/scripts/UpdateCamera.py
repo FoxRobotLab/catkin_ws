@@ -53,9 +53,9 @@ class UpdateCamera( threading.Thread ):
                     self.stalled = False
 
             cv2.imshow("TurtleCam", image)
-            
+
             if image is not None:
-                self.qrScan(image)
+                # self.qrScan(image)
                 self.orbScan(image)
 
             keypress = chr(cv2.waitKey(50) & 255)
@@ -108,7 +108,7 @@ class UpdateCamera( threading.Thread ):
             nodeName = ''
             for i in range(3, len(list)):
                 nodeName = nodeName + ' ' + list[i]
-            
+
             #nodeNum, nodeCoord, nodeName = string.split(codeData)
             with self.lock:
                 self.qrInfo = (int(nodeNum), nodeCoord, nodeName)
