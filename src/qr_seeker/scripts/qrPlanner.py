@@ -93,7 +93,6 @@ class qrPlanner(object):
                     #         break
                     #     sweepTime = 0
 
-<<<<<<< HEAD
                     image = self.robot.getImage()[0]
 
                     if self.imageMatching:
@@ -113,7 +112,7 @@ class qrPlanner(object):
                 sinceLastStall = 0
         self.camera.haltRun()
         self.camera.join()
-=======
+
                     # if self.imageMatching:
                     #     orbInfo, qrInfo = self.camera.getImageData()
                     #     if orbInfo is not None:
@@ -130,7 +129,6 @@ class qrPlanner(object):
             #     sinceLastStall = 0
         # self.camera.haltRun()
         # self.camera.join()
->>>>>>> 249cfe24a22de747a3c854a1e65a8209038642e2
         self.brain.stopAll()
 
 
