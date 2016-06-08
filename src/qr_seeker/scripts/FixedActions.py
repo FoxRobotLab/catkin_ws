@@ -36,7 +36,7 @@ class FixedActions(object):
             print("orbInfo", orbInfo)
 
             xScore = abs(x - centerX) / float(centerX) * 1.1
-            areaScore = abs(max((1 - relativeArea / 120), -1))
+            areaScore = abs(max((1 - relativeArea / 140), -1))
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
 
@@ -56,16 +56,16 @@ class FixedActions(object):
 
             elif bestName == "xScore":
                 if x < centerX:
-                    self.turnByAngle(-12)
+                    self.turnByAngle(-100)
                     print("Turn left")
                 else:
-                    self.turnByAngle(13)
+                    self.turnByAngle(100)
                     print("Turn right")
                 time.sleep(0.10)
 
             elif bestName == "areaScore":
                 # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 500:
+                if relativeArea < 50:
                     self.robot.forward(.05, 1)
                     print("Move forward")
                 else:
@@ -132,7 +132,7 @@ class FixedActions(object):
             return
         print 'Turning by an angle of: ', str(angle)
         turnSec = angle * self.d2s
-        turnSec = 3
+        # turnSec = 3
         if angle < 0:
             turnSec = abs(turnSec)
             self.robot.turnLeft(0.4, turnSec)
