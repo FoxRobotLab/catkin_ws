@@ -59,7 +59,7 @@ class qrPlanner(object):
             self.robot.turnLeft(0.4, 4.14)
             self.robot.turnRight(0.4, 4.14)
             self.image, times = self.robot.getImage()
-
+            cv2.imshow("HI", self.image)
             # if not self.camera.isStalled():
             #     #print (" -------------------------------- camera not stalled")
             #     sinceLastStall += 1
