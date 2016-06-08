@@ -40,6 +40,7 @@ class FixedActions(object):
 
             self.robot.turnLeft(0.4, 3)
             print("HEY I'M TURNING.... OR AT LEAST I SHOULD BE")
+            time.sleep(1)
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
 
