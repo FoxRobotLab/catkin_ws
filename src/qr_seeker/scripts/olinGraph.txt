@@ -8,11 +8,10 @@
 # The x axis runs north-south, increasing in the north direction.
 # The y axis runs east-west, increase as you go west.
 
-# num Nodes:
-63
 
-# Nodes:
+Number of Nodes: 63
 
+Nodes:
 0   (22.2, 4.0)   Home lab
 1   (22.2, 6.5)   Lab hall
 2   (20.0, 6.5)   East T
@@ -77,7 +76,15 @@
 61   (6.3, 50.7)   South main doors 
 62   (6.3, 44.8)   Atrium SE 
 
-# Edges
+Markers:
+0 90.0
+1 270.0
+2 90.0
+3 0.0
+4 270.0
+
+
+Edges:
 # 0) Home lab:  Lab hall
 0 1
 # 1) Lab hall:  Home lab, East T, East L

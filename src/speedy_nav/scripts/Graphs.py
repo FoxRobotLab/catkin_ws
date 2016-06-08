@@ -11,7 +11,7 @@ and weighted subclasses"""
 # Improvements that could be made...
 # -- Make invalid indices raise an exception instead of returning -1...
 
-from FoxQueue import PriorityQueue
+import collections
 import sys
 
 # ======================================================================
@@ -273,7 +273,6 @@ class MatrixGraph(Graph):
 # End class MatrixGraph
 
 
-
 # ======================================================================
 class WeightedListGraph(ListGraph):
     """ A weighted graph, represented as an adjacency list"""
@@ -362,14 +361,12 @@ class WeightedListGraph(ListGraph):
 	it generates and stores the paths in the self.pathPreds dictionary."""
 	if startVert < self._numVerts and goalVert < self._numVerts:
 	    if goalVert == self.goalNode:
-		print "simple lookup"
 		path = self.reconstructPath(startVert)
 		path.reverse()
 		return path
 	    elif startVert == goalVert:
 		return []
 	    else:
-		print "rerunning dijkstra's"
 		self.goalNode = goalVert
 		q = PriorityQueue()
 		visited = set()
@@ -412,7 +409,7 @@ class WeightedListGraph(ListGraph):
 	p = self.pathPreds[currVert]
 	while p != None:
 	    path.insert(0, p)
-	    p = self.pathPreds[p]
+	    p = preds[p]
 	return path
 
 
@@ -513,3 +510,7 @@ class NoSuchNodeException(Exception):
 
 
 
+
+# Test code
+if __name__ == '__main__':
+    g = 
