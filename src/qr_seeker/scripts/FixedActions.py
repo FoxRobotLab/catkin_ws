@@ -35,7 +35,7 @@ class FixedActions(object):
             imageMatch, (x,y), relativeArea = orbInfo
             print("orbInfo", orbInfo)
 
-            xScore = abs(x - centerX) / float(centerX) * 1.2
+            xScore = abs(x - centerX) / float(centerX) * 1.3
             areaScore = abs(max((1 - relativeArea / 100), -1))
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
@@ -131,7 +131,7 @@ class FixedActions(object):
         if self.camera.isStalled():
             return
         print 'Turning by an angle of: ', str(angle)
-        turnSec = angle * self.d2s
+        turnSec = angle
         # turnSec = 3
         if angle < 0:
             turnSec = abs(turnSec)
