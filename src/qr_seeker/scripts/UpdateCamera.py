@@ -91,7 +91,8 @@ class UpdateCamera( threading.Thread ):
         result = self.qrScanner.scan(img)
         #print "RESULT", result
         if result == 0:
-            print "Scan failed"
+            #print "Scan failed"
+            pass
         else:
             #print ("img is ", img)
             for symbol in img:
@@ -99,7 +100,7 @@ class UpdateCamera( threading.Thread ):
                 pass
             del(img)
             codeData = symbol.data.decode(u'utf-8')
-            print "Data found:", codeData
+            #print "Data found:", codeData
             list = string.split(codeData)
             #print(list)
             nodeNum = list[0]
