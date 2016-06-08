@@ -182,11 +182,11 @@ class qrPlanner(object):
 
         M = cv2.moments(largestContour)
         imageArea = cv2.contourArea(largestContour)
-        relativeArea = imageArea / float(w*h)
+        # relativeArea = imageArea / float(w*h)
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
         # TODO: Dissappear that string
-        return ("", (cx,cy), relativeArea)
+        return ("", (cx,cy), imageArea)
 
     def bumperReact(self, bumper_state):
         "After the bumper is triggered, responds accordingly and return False if robot should stop"""
