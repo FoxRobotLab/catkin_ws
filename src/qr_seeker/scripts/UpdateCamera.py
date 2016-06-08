@@ -92,6 +92,7 @@ class UpdateCamera( threading.Thread ):
         #print "RESULT", result
         if result == 0:
             #print "Scan failed"
+            pass
         else:
             #print ("img is ", img)
             for symbol in img:
