@@ -115,7 +115,7 @@ class qrPlanner(object):
         if qrInfo is not None:
             """Read things"""
             nodeNum, nodeCoord, nodeName = qrInfo
-            heading = OlinGraph.olin.getMarkerInfo(qrInfo)
+            heading = OlinGraph.olin.getMarkerInfo(nodeNum)
             if heading is None:
                 heading = 0
             print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
