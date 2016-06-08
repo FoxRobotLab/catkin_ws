@@ -189,7 +189,7 @@ class ORBrecognizer():
         return properties
 
     #run this if you wanna test the feature recognition using a still image
-    def scanImage(self, image):
+    def orbScan(self, image):
         itemsSought = ['sign']
         properties = self.initRefs(itemsSought)
 

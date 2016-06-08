@@ -23,6 +23,8 @@ import OlinGraph
 import numpy as np
 import UpdateCamera
 import MapGraph
+import ORBrecognizer
+import QRrecognizer
 
 
 class qrPlanner(object):
@@ -33,6 +35,8 @@ class qrPlanner(object):
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
         #self.image, times = self.robot.getImage()
         self.imageMatching = True
+        self.orbScanner = ORBrecognizer.ORBrecognizer()
+        self.qrScanner = QRrecognizer.QRrecognizer()
 
         self.camera = UpdateCamera.UpdateCamera(self.robot)
 
@@ -82,8 +86,11 @@ class qrPlanner(object):
                     #         break
                     #     sweepTime = 0
 
+                    image = self.robot.getImage()[0]
+
                     if self.imageMatching:
-                        orbInfo, qrInfo = self.camera.getImageData()
+                        orbInfo = self.orbScanner.orbScan(image)
+                        qrInfo = self.qrScanner.qrScan(iamge)
                         if orbInfo is not None:
                             #sweepTime = 0
                             if self.locate(orbInfo, qrInfo):
