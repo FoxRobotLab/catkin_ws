@@ -35,7 +35,7 @@ class FixedActions(object):
             imageMatch, (x,y), relativeArea = orbInfo
             print("orbInfo", orbInfo)
 
-            xScore = abs(x - centerX) / float(centerX) * 1.3
+            xScore = abs(x - centerX) / float(centerX) * 1.5
             areaScore = abs(max((1 - relativeArea / 100), -1))
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
@@ -103,20 +103,24 @@ class FixedActions(object):
 
 
     def turnToNextTarget(self, location, destination, heading):
-        """Given a planned path and the orientation of the imageMatch in front of the robot, turns in the direction of the following node in the path."""
+        """Given a planned path and the orientation of the imageMatch in front of the robot, turns in the
+        direction of the following node in the path."""
         if location == destination:
             return
+
         wallAngle = self.robot.findAngleToWall()
         path = OlinGraph.olin.getShortestPath(location, destination)
         currentNode, nextNode = path[0], path[1]
-        # targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
-        print("HEADING", heading)
+        targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
+
         #determines actual orientation given where the robot would face if it was directly
-        #looking at the imageMatch (imageMatchOrientation) and the correct angle to the imageMatch
+        #looking at the imageMatch (heading) and the correct angle to the imageMatch
         #(wallAngle)
         actualAngle = (heading - 90 + wallAngle) % 360
 
-        angleToTurn = heading - actualAngle
+        angleToTurn = targetAngle - actualAngle
+
+        print("Angle to turn: ", angleToTurn)
         if angleToTurn < -180:
             angleToTurn += 360
         elif 180 < angleToTurn:
@@ -136,10 +140,8 @@ class FixedActions(object):
         if angle < 0:
             turnSec = abs(turnSec)
             self.robot.turnLeft(0.4, turnSec)
-            print("We are turning left now by: ", turnSec)
         else:
             self.robot.turnRight(0.4, turnSec)
-            print("We are turning right now by: ", turnSec)
 
 
 
