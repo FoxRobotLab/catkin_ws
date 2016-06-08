@@ -34,8 +34,8 @@ class MapGraph(WeightedListGraph):
             elif len(val) != 2:
                 return False
             else:
-            v1 = val[0]
-            v2 = val[1]
+                v1 = val[0]
+                v2 = val[1]
             if not (type(v1) in [int, float] and type(v2) in [int, float]):
                 return False
         # Only if every node value is right should we return True
