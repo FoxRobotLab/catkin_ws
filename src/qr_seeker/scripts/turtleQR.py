@@ -351,10 +351,10 @@ class TurtleBot(object):
 
 	def exit(self):
 		print("************** RECEIVED ON SHUTDOWN **************")
-		#self.moveControl.haltRun()
-		#self.moveControl.join()
-		#self.sensorControl.exit()
-		#self.sensorControl.join()
+		self.moveControl.haltRun()
+		self.moveControl.join()
+		self.sensorControl.exit()
+		self.sensorControl.join()
 		self.imageControl.exit()
 		self.imageControl.join()
 

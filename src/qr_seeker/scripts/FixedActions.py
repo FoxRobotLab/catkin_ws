@@ -35,8 +35,11 @@ class FixedActions(object):
             imageMatch, (x,y), relativeArea = orbInfo
             print("orbInfo", orbInfo)
 
-            xScore = abs(x - centerX) / float(centerX) * 1.1
+            xScore = abs(x - centerX) / float(centerX) * 1.2
             areaScore = abs(max((1 - relativeArea / 100), -1))
+
+            self.robot.turnLeft(0.4, 3)
+            print("HEY I'M TURNING.... OR AT LEAST I SHOULD BE")
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
 
@@ -56,10 +59,10 @@ class FixedActions(object):
 
             elif bestName == "xScore":
                 if x < centerX:
-                    self.turnByAngle(-100)
+                    self.turnByAngle(-90)
                     print("Turn left")
                 else:
-                    self.turnByAngle(100)
+                    self.turnByAngle(90)
                     print("Turn right")
                 # time.sleep(0.10)
 
@@ -131,7 +134,7 @@ class FixedActions(object):
         if self.camera.isStalled():
             return
         print 'Turning by an angle of: ', str(angle)
-        turnSec = angle
+        turnSec = angle * self.d2s
         # turnSec = 3
         if angle < 0:
             turnSec = abs(turnSec)
