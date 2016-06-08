@@ -30,9 +30,9 @@ class MapGraph(WeightedListGraph):
         They should be the location in the map of the node."""
         for val in nodeData:
             if not (type(val) == tuple or type(val) == list):
-            return False
+                return False
             elif len(val) != 2:
-            return False
+                return False
             else:
             v1 = val[0]
             v2 = val[1]
