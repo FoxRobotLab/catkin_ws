@@ -63,15 +63,15 @@ class qrPlanner(object):
             #     sinceLastStall += 1
             #     if 30 < sinceLastStall:
 
+            # iterationCount += 1
 
-                    # bumper = self.robot.getBumperStatus()
+            # bumper = self.robot.getBumperStatus()
                     # if bumper != 0:
                     #     while not self.bumperReact(bumper):
                     #         cv2.waitKey(300)
                     #         bumper = self.robot.getBumperStatus()
                     #     self.stopImageMatching()
                     #print (" ---   inside if 30 < sinceLastStall")
-                    iterationCount += 1
 
                     # if iterationCount > 250:
                     #     #print ("STEPPING THE BRAIN")
