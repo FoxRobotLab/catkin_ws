@@ -11,6 +11,7 @@ for in the center of its view.
 import cv2
 import OlinGraph
 import ORBrecognizer
+import time
 
 class FixedActions(object):
 
@@ -31,37 +32,67 @@ class FixedActions(object):
             while self.camera.isStalled():
                 cv2.waitKey(500)
 
-            # bumperStatus = self.robot.getBumperStatus()
-            # if not parent.bumperReact(bumperStatus):
-            #     return None
-            #
-            # else:
-            #     return None
-
             imageMatch, (x,y), relativeArea = orbInfo
-            xDiff = x - centerX
-            print "In align"
 
-            #Loop conditional#
-            if abs(xDiff) <  width / 10:
-                print "Image Match found is:", imageMatch
+            xScore = abs(x - centerX) / float(centerX)
+            yScore = abs(y - centerY) / float(centerY)
+            areaScore = abs(max((1 - relativeArea / 30), -1))
+
+            scores = [("xScore", xScore), ("yScore", yScore), ("areaScore", areaScore)]
+
+            bestName, bestScore = scores[0]
+
+            for score in scores:
+                name, num = score
+                if num > bestScore:
+                    bestName, bestScore = score
+
+            """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
+             drone constantly trying to fix minute issues"""
+            if bestScore < 0.3:
+                print("Image Match found is:", imageMatch)
                 return imageMatch
-            #----------------#
-            #Backing up has first priority, then turning, then advancing
-            elif abs(xDiff) > width / 10:
+
+            elif bestName == "xScore":
                 if x < centerX:
                     self.turnByAngle(-12)
+                    print("turn left")
                 else:
                     self.turnByAngle(13)
-                # self.robot.backward(0.2, 0.15)
-                print "elif of align"
+                    print("turn right")
+                time.sleep(0.10)
 
-            else:
-                print "Forward"
-                # adjustedSpeed = 0.06 - 0.04 * (relativeArea / adjustedTargetArea)
-                print "I'm not sure what an adjusted speed is so we are just going to go super slow"
-                self.robot.forward(.2, 0.2)
-            return
+            elif bestName == "areaScore":
+                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+                if relativeArea < 20:
+                    self.robot.forward(.2, 0.2)
+                    print("move_forward")
+                else:
+                    self.robot.backward(.2, 0.2)
+                    print("move_backward")
+                time.sleep(0.10)
+
+
+            # xDiff = x - centerX
+            # # Loop conditional#
+            # if abs(xDiff) < width / 10:
+            #     print("Image Match found is:", imageMatch)
+            #     return imageMatch
+            #----------------#
+            #Backing up has first priority, then turning, then advancing
+            # elif abs(xDiff) > width / 10:
+            #     if x < centerX:
+            #         self.turnByAngle(-12)
+            #     else:
+            #         self.turnByAngle(13)
+            #     # self.robot.backward(0.2, 0.15)
+            #     print("elif of align")
+            #
+            # else:
+            #     print("Forward")
+            #     # adjustedSpeed = 0.06 - 0.04 * (relativeArea / adjustedTargetArea)
+            #     print("I'm not sure what an adjusted speed is so we are just going to go super slow")
+            #     self.robot.forward(.2, 0.2)
 
 
     # def findAdjustedTargetArea(self, targetArea, angle):
