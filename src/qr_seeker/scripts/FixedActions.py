@@ -110,7 +110,7 @@ class FixedActions(object):
         path = OlinGraph.olin.getShortestPath(location, destination)
         currentNode, nextNode = path[0], path[1]
         # targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
-
+        print("HEADING", heading)
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (imageMatchOrientation) and the correct angle to the imageMatch
         #(wallAngle)
