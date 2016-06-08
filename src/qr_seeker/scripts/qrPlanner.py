@@ -22,6 +22,7 @@ import PotentialFieldBrain
 import OlinGraph
 import numpy as np
 import UpdateCamera
+import MapGraph
 
 
 class qrPlanner(object):
