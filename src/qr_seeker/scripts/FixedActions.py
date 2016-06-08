@@ -56,20 +56,20 @@ class FixedActions(object):
             elif bestName == "xScore":
                 if x < centerX:
                     self.turnByAngle(-12)
-                    print("turn left")
+                    print("Turn left")
                 else:
                     self.turnByAngle(13)
-                    print("turn right")
+                    print("Turn right")
                 time.sleep(0.10)
 
             elif bestName == "areaScore":
                 # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 20:
-                    self.robot.forward(.2, 0.2)
-                    print("move_forward")
+                if relativeArea < 50:
+                    self.robot.forward(.1, .5)
+                    print("Move forward")
                 else:
-                    self.robot.backward(.2, 0.2)
-                    print("move_backward")
+                    self.robot.backward(.1, 0.5)
+                    print("Move backward")
                 time.sleep(0.10)
 
 
