@@ -109,12 +109,12 @@ class qrPlanner(object):
         """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
-        
+
         print "REACHED LOCATE"
         if qrInfo is not None:
             """Read things"""
             nodeNum, nodeCoord, nodeName = qrInfo
-            heading = MapGraph.getMarkerInfo(qrInfo)
+            heading = OlinGraph.olin.getMarkerInfo(qrInfo)
             print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
             self.pathTraveled.append(nodeNum)
             print ("Path travelled so far:\n", self.pathTraveled)
@@ -140,7 +140,7 @@ class qrPlanner(object):
 
         self.fixedActs.align(momentInfo)
 
-        
+
         # self.stopImageMatching()
         return False
 
