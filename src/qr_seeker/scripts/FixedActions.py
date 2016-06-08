@@ -38,9 +38,10 @@ class FixedActions(object):
             xScore = abs(x - centerX) / float(centerX) * 1.2
             areaScore = abs(max((1 - relativeArea / 100), -1))
 
-            self.robot.turnLeft(0.4, 3)
-            print("HEY I'M TURNING.... OR AT LEAST I SHOULD BE")
             time.sleep(1)
+            self.robot.turnLeft(0.4, 3)
+            time.sleep(1)
+            print("HEY I'M TURNING.... OR AT LEAST I SHOULD BE")
 
             scores = [("xScore", xScore), ("areaScore", areaScore)]
 
@@ -76,7 +77,7 @@ class FixedActions(object):
                     self.robot.backward(.05, 1)
                     print("Move backward")
                 time.sleep(0.10)
-            return
+            cv2.waitKey(800)
 
             # xDiff = x - centerX
             # # Loop conditional#
