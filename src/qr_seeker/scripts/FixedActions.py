@@ -35,15 +35,9 @@ class FixedActions(object):
             imageMatch, (x,y), relativeArea = orbInfo
             print("orbInfo", orbInfo)
 
-
-
             xScore = abs(x - centerX) / float(centerX) * 1.2
             areaScore = abs(max((1 - relativeArea / 100), -1))
 
-            rospy.sleep(1)
-            self.robot.turnLeft(0.4, 3)
-            print("HEY I'M TURNING.... OR AT LEAST I SHOULD BE")
-            rospy.sleep(1)
             scores = [("xScore", xScore), ("areaScore", areaScore)]
 
             print ("scores", scores)
