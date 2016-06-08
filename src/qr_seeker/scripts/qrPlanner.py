@@ -36,8 +36,9 @@ class qrPlanner(object):
 
         self.camera = UpdateCamera.UpdateCamera(self.robot)
 
+        totalNumNodes = len(MapGraph.readMapFile("olinGraph.txt").markerMap)
         self.destination = 999999999
-        while self.destination > len(OlinGraph.nodeLocs):
+        while self.destination > totalNumNodes:
             self.destination = int(input("Enter destination index: "))
 
         self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
