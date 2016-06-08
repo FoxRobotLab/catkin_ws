@@ -4,8 +4,7 @@
  *  Created on: June 2016
  *  Author: mulmer
  *
- *  The ORBrecognizer object computes the similarity of objects using the ORB
- *  feature detector.
+ *  The QRrecognizer object tries to find a QR code in a given image.
  *
 ========================================================================="""
 
@@ -24,40 +23,52 @@ from operator import itemgetter
 import turtleQR
 import zbar
 
+class QRrecognizer():
+    """Holds data about ORB keypoints found in the input picture."""
+    def __init__(self):
+        #self.image = None
+        #self.orb = cv2.ORB_create()
+        #self.kp, self.des = self.orb.detectAndCompute(self.image, None)
+        self.matches = None
+        self.goodMatches = None
+        self.robot = turtleQR.TurtleBot()
+        self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+        self.qrScanner = zbar.ImageScanner()
 
-def qrScan(self, image):
-        self.qrScanner.parse_config('enable')
-        bwImg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #cv2.imshow("bwimg", bwImg)
-        #cv2.waitKey(0)
-        pil_im = Image.fromarray(bwImg)
-        pic2 = pil_im.convert("L")
-        wid, hgt = pic2.size
-        #print("wid, hgt,", wid, hgt)
-        raw = pic2.tobytes()
 
-        img = zbar.Image(wid, hgt, 'Y800', raw)
-        result = self.qrScanner.scan(img)
-        #print "RESULT", result
-        if result == 0:
-            #print "Scan failed"
-            pass
-        else:
-            #print ("img is ", img)
-            for symbol in img:
-                #print "symbol did indeed get assigned"
+    def qrScan(self, image):
+            self.qrScanner.parse_config('enable')
+            bwImg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            #cv2.imshow("bwimg", bwImg)
+            #cv2.waitKey(0)
+            pil_im = Image.fromarray(bwImg)
+            pic2 = pil_im.convert("L")
+            wid, hgt = pic2.size
+            #print("wid, hgt,", wid, hgt)
+            raw = pic2.tobytes()
+
+            img = zbar.Image(wid, hgt, 'Y800', raw)
+            result = self.qrScanner.scan(img)
+            #print "RESULT", result
+            if result == 0:
+                #print "Scan failed"
                 pass
-            del(img)
-            codeData = symbol.data.decode(u'utf-8')
-            #print "Data found:", codeData
-            list = string.split(codeData)
-            #print(list)
-            nodeNum = list[0]
-            nodeCoord = list[1] + ' ' + list[2]
-            nodeName = ''
-            for i in range(3, len(list)):
-                nodeName = nodeName + ' ' + list[i]
-            
-            #nodeNum, nodeCoord, nodeName = string.split(codeData)
-            with self.lock:
-                self.qrInfo = (int(nodeNum), nodeCoord, nodeName)
+            else:
+                #print ("img is ", img)
+                for symbol in img:
+                    #print "symbol did indeed get assigned"
+                    pass
+                del(img)
+                codeData = symbol.data.decode(u'utf-8')
+                #print "Data found:", codeData
+                list = string.split(codeData)
+                #print(list)
+                nodeNum = list[0]
+                nodeCoord = list[1] + ' ' + list[2]
+                nodeName = ''
+                for i in range(3, len(list)):
+                    nodeName = nodeName + ' ' + list[i]
+                
+                #nodeNum, nodeCoord, nodeName = string.split(codeData)
+                with self.lock:
+                    return = (int(nodeNum), nodeCoord, nodeName)
