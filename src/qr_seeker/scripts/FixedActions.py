@@ -33,13 +33,13 @@ class FixedActions(object):
                 cv2.waitKey(500)
 
             imageMatch, (x,y), relativeArea = orbInfo
+            print("orbInfo", orbInfo)
 
-            xScore = abs(x - centerX) / float(centerX)
-            yScore = abs(y - centerY) / float(centerY)
-            areaScore = abs(max((1 - relativeArea / 100), -1))
+            xScore = abs(x - centerX) / float(centerX) * 1.1
+            areaScore = abs(max((1 - relativeArea / 200), -1))
 
 
-            scores = [("xScore", xScore), ("yScore", yScore), ("areaScore", areaScore)]
+            scores = [("xScore", xScore), ("areaScore", areaScore)]
 
 
             print ("scores", scores)
