@@ -66,9 +66,11 @@ class UpdateCamera( threading.Thread ):
             for symbol in img:
                 pass
             del(img)
-            result = symbol.data.decode(u'utf-8')
-            print "Data found:", result
-            self.qrInfo = result   #TODO: implement self.lock here
+            codeData = symbol.data.decode(u'utf-8')
+            print "Data found:", codeData
+            nodeNum, nodeCoord, nodeName = string.split(codeData)
+            with self.lock:
+                self.qrInfo = (nodeNum, nodeCoord, nodeName)
 
     def run(self):
         time.sleep(.5)
@@ -155,7 +157,7 @@ class qrPlanner(object):
         timeToWaitAfterStall = 30
         iterationCount = 0
         ignoreColorTime = 0
-        sweepTime = 0
+        #sweepTime = 0
         sinceLastStall = 0
         #print ("Planner.run starting while loop")
         while time.time() < timeout and not rospy.is_shutdown():
@@ -188,7 +190,7 @@ class qrPlanner(object):
                     if self.imageMatching:
                         orbInfo, qrInfo = self.camera.getImageData()
                         if orbInfo is not None:
-                            sweepTime = 0
+                            #sweepTime = 0
                             if self.locate(orbInfo, qrInfo):
                                 break
                     else:
@@ -217,10 +219,22 @@ class qrPlanner(object):
         print "REACHED LOCATE"
         if qrInfo is not None:
             """Read things"""
+            nodeNum, nodeCoord, nodeName = qrInfo
+            print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
+            self.pathTraveled.append(nodeNum)
+            print ("Path travelled so far:\n", self.pathTraveled)
             # if location is None:
             #     """If we are lost and can not be found"""
             #     self.stopImageMatching()
                 # return False
+            if nodeNum == self.destination:
+                print ("Arrived at destination.")
+                return True
+            print ("Finished align, now starting turning to next target")
+
+            #TODO: make sure it doesn't see the same QR code and add it to the list loads of times
+            #because it's still on screen - maybe check that the one you're seeing isn't the last one
+            #you saw.
 
         # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
@@ -229,14 +243,6 @@ class qrPlanner(object):
         momentInfo = self.findORBContours(orbInfo)
 
         self.fixedActs.align(momentInfo)
-
-        # self.pathTraveled.append(location)
-        # print ("Path travelled so far:\n", self.pathTraveled)
-        location = None
-        if location == self.destination:
-            print ("Arrived at destination.")
-            return True
-        print ("Finished align, now starting turning to next target")
 
         # self.fixedActs.turnToNextTarget(location, self.destination, codeOrientation)
         # self.stopImageMatching()
