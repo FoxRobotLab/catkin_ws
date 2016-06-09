@@ -23,18 +23,14 @@ class FixedActions(object):
     def align(self, orbInfo):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
         centerX, centerY = self.ORBrecog.getFrameCenter()
-        width, height = self.ORBrecog.getFrameDims()
-
 
         imageMatch, (x,y), relativeArea = orbInfo
-        #print("orbInfo", orbInfo)
 
         xScore = abs(x - centerX) / float(centerX) * 1.5
         areaScore = abs(max((1 - relativeArea / 100), -1))
 
         scores = [("xScore", xScore), ("areaScore", areaScore)]
 
-        #print ("scores", scores)
         bestName, bestScore = scores[0]
 
         for score in scores:
@@ -42,13 +38,10 @@ class FixedActions(object):
             if num > bestScore:
                 bestName, bestScore = score
 
-        #print("bestName", bestName)
-
         """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
          drone constantly trying to fix minute issues"""
         if bestScore < 0.4:
-            #print("Image Match found is:", imageMatch)
-            return imageMatch
+            return True
 
         elif bestName == "xScore":
             if x < centerX:
@@ -67,6 +60,7 @@ class FixedActions(object):
                 self.robot.backward(.05, 1)
                 print("Move backward")
 
+        return False
 
     def turnToNextTarget(self, location, destination, heading):
         """Given a planned path and the orientation of the imageMatch in front of the robot, turns in the

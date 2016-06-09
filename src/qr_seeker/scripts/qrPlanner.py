@@ -38,6 +38,7 @@ class qrPlanner(object):
         self.image, times = self.robot.getImage()
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
+        self.aligned = False
 
         #self.camera = UpdateCamera.UpdateCamera(self.robot)
 
@@ -62,8 +63,9 @@ class qrPlanner(object):
 
             iterationCount += 1
             if iterationCount > 100:
-                #print "STEPPING THE BRAIN"
-                self.brain.step()
+                if not self.aligned:
+                    #print "STEPPING THE BRAIN"
+                    self.brain.step()
             #else:
             #    time.sleep(.01)
 
@@ -101,6 +103,7 @@ class qrPlanner(object):
 
         print "REACHED LOCATE"
         if qrInfo is not None:
+            self.aligned = False
             """Read things"""
             nodeNum, nodeCoord, nodeName = qrInfo
             heading = OlinGraph.olin.getMarkerInfo(nodeNum)
@@ -124,10 +127,10 @@ class qrPlanner(object):
 
         # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
-            return False
+            self.aligned = False
 
         momentInfo = self.findORBContours(orbInfo)
-        self.fixedActs.align(momentInfo)
+        self.aligned = self.fixedActs.align(momentInfo)
 
         return False
 
