@@ -38,8 +38,8 @@ class UpdateCamera( threading.Thread ):
 					self.stalled = True
 				else:
 					self.stalled = False
-					
-				
+
+
 			frame = self.mcs.update(image.copy())
 			cv2.imshow("TurtleCam 9000", frame)
 
@@ -70,7 +70,7 @@ class Planner(object):
 
 	def __init__(self):
 		self.robot = TurtleBot.TurtleBot()
-		self.brain = self.setupPot()		
+		self.brain = self.setupPot()
 
 		image, timesImageServed = self.robot.getImage()
 		self.mcs = MCS.MultiCamShift(image)
@@ -84,7 +84,7 @@ class Planner(object):
 		self.camera = UpdateCamera(self.robot, self.mcs)
 
 		self.colorInv = FieldBehaviors.ColorInvestigate(self.mcs)
-		#self.brain.add( self.colorInv )	
+		#self.brain.add( self.colorInv )
 		self.brain.add( FieldBehaviors.KeepMoving() )
 		# self.brain.add( FieldBehaviors.RandomWander(1000) )
 		for i in range(10, 100, 10):
@@ -108,7 +108,7 @@ class Planner(object):
 
 			if not self.camera.isStalled():
 				iterationCount += 1
-#				print "======================================", '\titer: ', iterationCount  
+#				print "======================================", '\titer: ', iterationCount
 				self.brain.step()
 
 				if sweepTime < 5000:
@@ -131,17 +131,17 @@ class Planner(object):
 #				else:
 #					self.startColorSearching()
 #					ignoreColorTime = 0
-			
+
 		self.camera.haltRun()
 		self.camera.join()
 		self.brain.stopAll()
-	
 
-					
+
+
 	def setupPot(self):
 		"""Helpful function takes optional robot code (the six-digit Fluke board number). If code
 		is given, then this connects to the robot. Otherwise, it connects to a simulated robot, and
-		then creates a SubsumptionBrain object and returns it."""		
+		then creates a SubsumptionBrain object and returns it."""
 		currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
 		return currBrain
 
@@ -184,21 +184,21 @@ class Planner(object):
 			twist = Twist() # default to no motion
 			self.robot.moveControl.move_pub.publish(twist)
 			with self.robot.moveControl.lock:
-				self.robot.moveControl.paused = False # start up the continuous motion loop again	
+				self.robot.moveControl.paused = False # start up the continuous motion loop again
 		self.fixedActs.turnByAngle(-90)
 		return False
 
-#		self.fixedActs.turnByAngle(-90)
+#		self.moveHandle.turnByAngle(-90)
 #		for x in xrange(18):
-#			self.fixedActs.turnByAngle(10)
+#			self.moveHandle.turnByAngle(10)
 #			cv2.waitKey(300)
 #			pattern = self.mcs.getHorzPatterns()
 #			if pattern != None:
 #				return self.locate(pattern)
-#		self.fixedActs.turnByAngle(-90)
+#		self.moveHandle.turnByAngle(-90)
 #		return False
 
-	
+
 
 	def startColorSearching(self):
 		"""Turn on MCS functions"""
@@ -209,7 +209,7 @@ class Planner(object):
 		"""Turn off MCS functions"""
 		self.colorSearching = False
 		self.colorInv.disable()
-	
+
 if __name__=="__main__":
   rospy.init_node('Planner')
   Planner().run(5000)
