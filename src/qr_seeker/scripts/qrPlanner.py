@@ -104,14 +104,14 @@ class qrPlanner(object):
 
         # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
-            time.sleep(3)
+            # time.sleep(3)
             return False
 
         momentInfo = self.findORBContours(orbInfo)
 
         self.fixedActs.align(momentInfo)
 
-        time.sleep(3)
+        # time.sleep(3)
         # self.stopImageMatching()
         return False
 

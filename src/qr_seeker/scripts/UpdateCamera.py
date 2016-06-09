@@ -52,6 +52,7 @@ class UpdateCamera( threading.Thread ):
                     self.stalled = False
 
             cv2.imshow("TurtleCam", image)
+            cv2.waitKey(0)
 
             keypress = chr(cv2.waitKey(50) & 255)
 
