@@ -9,20 +9,12 @@ uses FixedActions.py and PotentialFieldBrain.py.
 
 import turtleQR
 import cv2
-from datetime import datetime
-from collections import deque
-from cv_bridge import CvBridge, CvBridgeError
 import rospy
 import time
-import threading
-from geometry_msgs.msg import Twist
-from PIL import Image
 import FixedActions
 import PotentialFieldBrain
 import OlinGraph
 import numpy as np
-import UpdateCamera
-import MapGraph
 import ORBrecognizer
 import QRrecognizer
 import FieldBehaviors
@@ -34,13 +26,11 @@ class qrPlanner(object):
     def __init__(self):
         self.robot = turtleQR.TurtleBot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+
         self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
-        self.aligned = False
-
-        #self.camera = UpdateCamera.UpdateCamera(self.robot)
 
         totalNumNodes = OlinGraph.olin._numVerts
         self.destination = 999999999
@@ -49,6 +39,8 @@ class qrPlanner(object):
 
         self.fixedActs = FixedActions.FixedActions(self.robot)
         self.pathTraveled = []
+        self.aligned = False
+
 
 
     def run(self,runtime = 120):
@@ -175,68 +167,7 @@ class qrPlanner(object):
         return ("", (cx,cy), relativeArea)
 
 
-    # def bumperReact(self, bumper_state):
-    #     "After the bumper is triggered, responds accordingly and return False if robot should stop"""
-    #     if bumper_state == 0:
-    #         return True
-    #
-    #     # These codes correspond to the wheels dropping
-    #     if bumper_state == 16 or bumper_state == 28:
-    #         return False
-    #
-    #     self.robot.backward(0.2, 3)
-    #     #cv2.waitKey(300)
-    #
-    #     # imageInfo = None
-    #     # for t in xrange(5):
-    #     #     imageInfo = self.ORBrecog.scanImages()
-    #     #     if imageInfo != None:
-    #     #         return self.locate(imageInfo)
-    #     #     time.sleep(0.2)
-    #
-    #     # left side of the bumper was hit
-    #     if bumper_state == 2:
-    #         self.fixedActs.turnByAngle(45)
-    #     # right side of the bumper was hit
-    #     if bumper_state == 1 or bumper_state == 3:
-    #         self.fixedActs.turnByAngle(-45)
-    #     return True
-    #
-    #
-    # def sideSweep(self):
-    #     """Turns the robot left and right in order to check for codes at its sides. Trying to minimize need for
-    #     this because this slows down the navigation process."""
-    #     stepsFor180Degrees = 82
-    #
-    #     self.fixedActs.turnByAngle(-90)
-    #     with self.robot.moveControl.lock:
-    #         self.robot.moveControl.paused = True
-    #     try:
-    #         twist = Twist()
-    #         twist.linear.x = 0.0
-    #         twist.angular.z = -0.4
-    #         r = rospy.Rate(10)
-    #         for i in xrange(stepsFor180Degrees):
-    #             self.robot.moveControl.move_pub.publish(twist)
-    #             r.sleep()
-    #             # imageMatch = self.ORBrecog.scanImages()
-    #             # Will ensure that the robot is not at too acute an angle with the code? Necessary?
-    #             imageMatch = None
-    #             if imageMatch != None:
-    #                 return self.locate(imageMatch)
-    #     except CvBridgeError as e:
-    #         print (e)
-    #     finally:
-    #         twist = Twist()  # default to no motion
-    #         self.robot.moveControl.move_pub.publish(twist)
-    #         with self.robot.moveControl.lock:
-    #             self.robot.moveControl.paused = False  # start up the continuous motion loop again
-    #     self.fixedActs.turnByAngle(-90)
-    #     return False
-
-
     def exit(self):
-        #self.camera.haltRun()
         pass
 
 
