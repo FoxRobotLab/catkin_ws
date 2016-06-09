@@ -35,10 +35,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/macalester/Desktop/githubRepositories/catkin_ws/src
+CMAKE_SOURCE_DIR = /home/macalester/catkin_ws/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/macalester/Desktop/githubRepositories/catkin_ws/build
+CMAKE_BINARY_DIR = /home/macalester/catkin_ws/build
 
 # Utility rule file for tests.
 
@@ -60,6 +60,6 @@ CMakeFiles/tests.dir/clean:
 .PHONY : CMakeFiles/tests.dir/clean
 
 CMakeFiles/tests.dir/depend:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/macalester/Desktop/githubRepositories/catkin_ws/src /home/macalester/Desktop/githubRepositories/catkin_ws/src /home/macalester/Desktop/githubRepositories/catkin_ws/build /home/macalester/Desktop/githubRepositories/catkin_ws/build /home/macalester/Desktop/githubRepositories/catkin_ws/build/CMakeFiles/tests.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/macalester/catkin_ws/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/macalester/catkin_ws/src /home/macalester/catkin_ws/src /home/macalester/catkin_ws/build /home/macalester/catkin_ws/build /home/macalester/catkin_ws/build/CMakeFiles/tests.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/tests.dir/depend
 

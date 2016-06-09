@@ -1,8 +1,8 @@
-# Install script for directory: /home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker
+# Install script for directory: /home/macalester/catkin_ws/src/qr_seeker
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_INSTALL_PREFIX "/home/macalester/Desktop/githubRepositories/catkin_ws/install")
+  SET(CMAKE_INSTALL_PREFIX "/home/macalester/catkin_ws/install")
 ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -33,17 +33,17 @@ IF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/macalester/Desktop/githubRepositories/catkin_ws/build/qr_seeker/catkin_generated/installspace/qr_seeker.pc")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/macalester/catkin_ws/build/qr_seeker/catkin_generated/installspace/qr_seeker.pc")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/qr_seeker/cmake" TYPE FILE FILES
-    "/home/macalester/Desktop/githubRepositories/catkin_ws/build/qr_seeker/catkin_generated/installspace/qr_seekerConfig.cmake"
-    "/home/macalester/Desktop/githubRepositories/catkin_ws/build/qr_seeker/catkin_generated/installspace/qr_seekerConfig-version.cmake"
+    "/home/macalester/catkin_ws/build/qr_seeker/catkin_generated/installspace/qr_seekerConfig.cmake"
+    "/home/macalester/catkin_ws/build/qr_seeker/catkin_generated/installspace/qr_seekerConfig-version.cmake"
     )
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/qr_seeker" TYPE FILE FILES "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/package.xml")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/qr_seeker" TYPE FILE FILES "/home/macalester/catkin_ws/src/qr_seeker/package.xml")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 

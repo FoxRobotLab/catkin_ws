@@ -15,12 +15,12 @@ import rospy
 
 class FixedActions(object):
 
-    def __init__(self, turtleBot, cameraThread):
+    def __init__(self, bot):
         """Needs the turtleBot, and cameraThread objects """
-        self.robot = turtleBot
-        self.camera = cameraThread
+        self.robot = bot
+        #self.camera = cameraThread
         self.d2s = 0.046 # converts degrees to seconds
-        self.ORBrecog = ORBrecognizer.ORBrecognizer()
+        self.ORBrecog = ORBrecognizer.ORBrecognizer(self.robot)
 
 
     def align(self, orbInfo):
@@ -29,8 +29,8 @@ class FixedActions(object):
         width, height = self.ORBrecog.getFrameDims()
 
         while True:
-            while self.camera.isStalled():
-                cv2.waitKey(500)
+            #while self.camera.isStalled():
+            #    cv2.waitKey(500)
 
             imageMatch, (x,y), relativeArea = orbInfo
             print("orbInfo", orbInfo)
@@ -58,15 +58,15 @@ class FixedActions(object):
 
             elif bestName == "xScore":
                 if x < centerX:
-                    self.turnByAngle(-90)
+                    self.turnByAngle(-12)
                     print("Turn left")
                 else:
-                    self.turnByAngle(90)
+                    self.turnByAngle(12)
                     print("Turn right")
 
             elif bestName == "areaScore":
                 # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 40:
+                if relativeArea < 30:
                     self.robot.forward(.05, 1)
                     print("Move forward")
                 else:
@@ -134,8 +134,8 @@ class FixedActions(object):
 
     def turnByAngle(self, angle):
         """Turns the robot by the given angle, where negative is left and positive is right"""
-        if self.camera.isStalled():
-            return
+        #if self.camera.isStalled():
+        #    return
         print 'Turning by an angle of: ', str(angle)
         turnSec = angle * self.d2s
         # turnSec = 3

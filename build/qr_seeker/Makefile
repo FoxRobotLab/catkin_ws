@@ -39,10 +39,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/macalester/Desktop/githubRepositories/catkin_ws/src
+CMAKE_SOURCE_DIR = /home/macalester/catkin_ws/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/macalester/Desktop/githubRepositories/catkin_ws/build
+CMAKE_BINARY_DIR = /home/macalester/catkin_ws/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -120,14 +120,14 @@ test/fast: test
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/macalester/Desktop/githubRepositories/catkin_ws/build/CMakeFiles /home/macalester/Desktop/githubRepositories/catkin_ws/build/qr_seeker/CMakeFiles/progress.marks
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/macalester/Desktop/githubRepositories/catkin_ws/build/CMakeFiles 0
+	cd /home/macalester/catkin_ws/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/macalester/catkin_ws/build/CMakeFiles /home/macalester/catkin_ws/build/qr_seeker/CMakeFiles/progress.marks
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/macalester/catkin_ws/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/clean
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/clean
 .PHONY : clean
 
 # The main clean target
@@ -136,22 +136,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/preinstall
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/preinstall
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/macalester/catkin_ws/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule
 .PHONY : qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule
 
 # Convenience name for target.
@@ -160,12 +160,12 @@ std_msgs_generate_messages_cpp: qr_seeker/CMakeFiles/std_msgs_generate_messages_
 
 # fast build rule for target.
 std_msgs_generate_messages_cpp/fast:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/build.make qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/build
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/build.make qr_seeker/CMakeFiles/std_msgs_generate_messages_cpp.dir/build
 .PHONY : std_msgs_generate_messages_cpp/fast
 
 # Convenience name for target.
 qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
 .PHONY : qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
 
 # Convenience name for target.
@@ -174,12 +174,12 @@ std_msgs_generate_messages_lisp: qr_seeker/CMakeFiles/std_msgs_generate_messages
 
 # fast build rule for target.
 std_msgs_generate_messages_lisp/fast:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/build.make qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/build
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/build.make qr_seeker/CMakeFiles/std_msgs_generate_messages_lisp.dir/build
 .PHONY : std_msgs_generate_messages_lisp/fast
 
 # Convenience name for target.
 qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/rule:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/rule
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/rule
 .PHONY : qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/rule
 
 # Convenience name for target.
@@ -188,7 +188,7 @@ std_msgs_generate_messages_py: qr_seeker/CMakeFiles/std_msgs_generate_messages_p
 
 # fast build rule for target.
 std_msgs_generate_messages_py/fast:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(MAKE) -f qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/build.make qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/build
+	cd /home/macalester/catkin_ws/build && $(MAKE) -f qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/build.make qr_seeker/CMakeFiles/std_msgs_generate_messages_py.dir/build
 .PHONY : std_msgs_generate_messages_py/fast
 
 # Help Target
@@ -218,6 +218,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/macalester/Desktop/githubRepositories/catkin_ws/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/macalester/catkin_ws/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

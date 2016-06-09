@@ -1,8 +1,8 @@
-prefix=/home/macalester/Desktop/githubRepositories/catkin_ws/install
+prefix=/home/macalester/catkin_ws/install
 
 Name: speedy_nav
 Description: Description of speedy_nav
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/macalester/Desktop/githubRepositories/catkin_ws/install/lib 
+Libs: -L/home/macalester/catkin_ws/install/lib 
 Requires: 
