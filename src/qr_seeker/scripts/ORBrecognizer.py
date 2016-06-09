@@ -61,7 +61,7 @@ class ORBrecognizer():
         matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,
             None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
         cv2.imshow("Match Image", matchImage)
-        cv2.waitKey(300)
+        # cv2.waitKey(300)
 
         return goodMatches, kp1, kp2
 
