@@ -29,8 +29,8 @@ class UpdateCamera( threading.Thread ):
         self.frameAverageStallThreshold = 20
         self.frame = None
         self.stalled = False
-        self.qrInfo = None
-        self.orbInfo = None
+        #self.qrInfo = None
+        #self.orbInfo = None
         #self.orbScanner = ORBrecognizer.ORBrecognizer()
         #self.qrScanner = zbar.ImageScanner()
 
@@ -53,10 +53,6 @@ class UpdateCamera( threading.Thread ):
 
             cv2.imshow("TurtleCam", image)
 
-            if image is not None:
-                self.qrScan(image)
-                self.orbScan(image)
-
             keypress = chr(cv2.waitKey(50) & 255)
 
             if keypress == 't':
@@ -69,12 +65,6 @@ class UpdateCamera( threading.Thread ):
             with self.lock:
                 runFlag = self.runFlag
 
-    # def orbScan(self, image):
-    #     result = self.orbScanner.scanImage(image)
-    #     #if result is none then orbScanner did not find enough points
-    #     with self.lock:
-    #         self.orbInfo = result
-
     def isStalled(self):
         """Returns the status of the camera stream"""
         with self.lock:
@@ -84,12 +74,6 @@ class UpdateCamera( threading.Thread ):
     def haltRun(self):
         with self.lock:
             self.runFlag = False
-
-    # def getImageData(self):
-    #     with self.lock:
-    #         orbInfo = self.orbInfo
-    #         qrInfo = self.qrInfo
-    #     return orbInfo, qrInfo
 
     def getImageDims(self):
         with self.lock:

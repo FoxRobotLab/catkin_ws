@@ -31,60 +31,41 @@ class qrPlanner(object):
 
     def __init__(self):
         self.robot = turtleQR.TurtleBot()
-        self.brain = self.setupPot()
+        #self.brain = self.setupPot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
         self.image, times = self.robot.getImage()
-        self.imageMatching = True
-        self.orbScanner = ORBrecognizer.ORBrecognizer()
-        self.qrScanner = QRrecognizer.QRrecognizer()
+        self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
+        self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
 
-        # self.camera = UpdateCamera.UpdateCamera(self.robot)
+        self.camera = UpdateCamera.UpdateCamera(self.robot)
 
         totalNumNodes = OlinGraph.olin._numVerts
         self.destination = 999999999
         while self.destination > totalNumNodes:
             self.destination = int(input("Enter destination index: "))
 
-        # self.fixedActs = FixedActions.FixedActions(self.robot, self.camera)
+        self.fixedActs = FixedActions.FixedActions(self.robot)
         self.pathTraveled = []
 
 
     def run(self,runtime = 120):
         #Runs the program for the duration of 'runtime'"""
         timeout = time.time()+runtime
-        # self.camera.start()
-        timeToWaitAfterStall = 30
-        iterationCount = 0
-        ignoreColorTime = 0
-        #sweepTime = 0
-        sinceLastStall = 0
-        #print ("Planner.run starting while loop")
+        self.camera.start()
         while time.time() < timeout and not rospy.is_shutdown():
-            self.robot.turnLeft(0.4, 4.14)
-            self.robot.turnRight(0.4, 4.14)
-            #self.image, times = self.robot.getImage()
-            #cv2.imshow("HI", self.image)
-            cv2.waitKey()
-
             image = self.robot.getImage()[0]
+            #cv2.imshow("hi", image)
+            #cv2.waitKey(0)
+            orbInfo = self.orbScanner.orbScan(image)
+            qrInfo = self.qrScanner.qrScan(image)
+            if orbInfo is not None:
+                if self.locate(orbInfo, qrInfo):
+                    break
 
-            if self.imageMatching:
-                orbInfo = self.orbScanner.orbScan(image)
-                qrInfo = self.qrScanner.qrScan(image)
-                if orbInfo is not None:
-                    #sweepTime = 0
-                    if self.locate(orbInfo, qrInfo):
-                        break
-            else:
-                if ignoreColorTime < 1000:
-                    ignoreColorTime += 1
-                else:
-                    self.startImageMatching()
-                    ignoreColorTime = 0
         self.camera.haltRun()
         self.camera.join()
 
-        self.brain.stopAll()
+        #self.brain.stopAll()
 
 
     def setupPot(self):
@@ -123,13 +104,14 @@ class qrPlanner(object):
 
         # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
+            time.sleep(3)
             return False
 
         momentInfo = self.findORBContours(orbInfo)
 
         self.fixedActs.align(momentInfo)
 
-
+        time.sleep(3)
         # self.stopImageMatching()
         return False
 
@@ -137,7 +119,7 @@ class qrPlanner(object):
     """Big idea: there may be multiple contours of blue areas in the image, so we need to
     find contours of the good keypoints, taking into account that some of these may be noise."""
     def findORBContours(self, goodKeyPoints):
-        w, h = self.camera.getImageDims()
+        w, h, _ = self.image.shape
         black = np.zeros((w, h), dtype='uint8')
 
         #ALL the keypoints, the list of matched keypoints within some range
@@ -190,7 +172,7 @@ class qrPlanner(object):
             return False
 
         self.robot.backward(0.2, 3)
-        cv2.waitKey(300)
+        #cv2.waitKey(300)
 
         # imageInfo = None
         # for t in xrange(5):
@@ -238,16 +220,6 @@ class qrPlanner(object):
                 self.robot.moveControl.paused = False  # start up the continuous motion loop again
         self.fixedActs.turnByAngle(-90)
         return False
-
-
-    def startImageMatching(self):
-        """Turn on searching functions"""
-        self.imageMatching = True
-
-
-    def stopImageMatching(self):
-        """Turn off searching functions"""
-        self.imageMatching = False
 
 
     def exit(self):
