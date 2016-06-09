@@ -105,6 +105,16 @@ run when you're in the catkin directory.
 
 If you're getting an error saying the process is crashing and you may not have the #! line in your file, it's actually because the #! line isn't where the program wants it - it does need to be the VERY FIRST line, even if there's just a block comment above it.
 
+If you are on Enterprise trying to run programs on the TurtleBot try checking the host:
+```
+echo $ROS_MASTER_URI
+```
+If this returns some localhost path then you need to set the ros variables. Run
+```
+source turtleros.bash
+```
+Then you should be able to go back to happily running programs on the laptop from Enterprise. 
+
 #####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
 
 Very helpful short textbook intro to ROS: https://cse.sc.edu/~jokane/agitr/
