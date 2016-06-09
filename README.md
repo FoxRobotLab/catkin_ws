@@ -120,6 +120,23 @@ source turtleros.bash
 ```
 Then you should be able to go back to happily running programs on the laptop from Enterprise. 
 
+####Check ROS Variables on Workstation and Laptop
+To check the envirionment variables on the workstation, run 
+```
+echo $ROS_IP
+```
+You should get the IP address of the workstation back. 
+
+Ensure that on the laptop the ROS HOSTNAME and the ROS IP are set to the laptop. To do this run the above command and:
+```
+echo $ROS_HOSTNAME
+```
+If they are not set, run:
+```
+source .bashrc
+```
+The laptop should then set the necessary variables. 
+
 #####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
 
 Very helpful short textbook intro to ROS: https://cse.sc.edu/~jokane/agitr/
