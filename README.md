@@ -135,7 +135,7 @@ If they are not set, run:
 ```
 source .bashrc
 ```
-The laptop should then set the necessary variables. 
+The laptop should then set the necessary variables.  You can also look at tips at http://wiki.ros.org/Robots/TurtleBot/Network%20Setup. 
 
 #####For a demo on how to work with ROS scripts: http://learn.turtlebot.com/
 
