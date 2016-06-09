@@ -49,16 +49,14 @@ class qrPlanner(object):
         iterationCount = 0
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            cv2.imshow("hi", image)
+            cv2.imshow("TurtleBot View", image)
             cv2.waitKey(20)
 
             iterationCount += 1
             if iterationCount > 100:
                 if not self.aligned:
-                    #print "STEPPING THE BRAIN"
                     self.brain.step()
 
-            #print "I finished the waitkey in qrPlanner after hi"
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is not None:
@@ -97,9 +95,6 @@ class qrPlanner(object):
             print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
             self.pathTraveled.append(nodeNum)
             print ("Path travelled so far: \n", self.pathTraveled)
-            # if location is None:
-            #     """If we are lost and can not be found"""
-                # return False
             if nodeNum == self.destination:
                 print ("Arrived at destination.")
                 return True
@@ -110,7 +105,6 @@ class qrPlanner(object):
             #because it's still on screen - maybe check that the one you're seeing isn't the last one
             #you saw.
 
-        # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
             self.aligned = False
 
