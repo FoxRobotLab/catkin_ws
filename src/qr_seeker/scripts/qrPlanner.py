@@ -37,7 +37,7 @@ class qrPlanner(object):
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
 
-        self.camera = UpdateCamera.UpdateCamera(self.robot)
+        #self.camera = UpdateCamera.UpdateCamera(self.robot)
 
         totalNumNodes = OlinGraph.olin._numVerts
         self.destination = 999999999
@@ -51,11 +51,11 @@ class qrPlanner(object):
     def run(self,runtime = 120):
         #Runs the program for the duration of 'runtime'"""
         timeout = time.time()+runtime
-        self.camera.start()
+        #self.camera.start()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            #cv2.imshow("hi", image)
-            #cv2.waitKey(300)
+            cv2.imshow("hi", image)
+            cv2.waitKey(20)
             #print "I finished the waitkey in qrPlanner after hi"
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
@@ -63,8 +63,8 @@ class qrPlanner(object):
                 if self.locate(orbInfo, qrInfo):
                     break
 
-        self.camera.haltRun()
-        self.camera.join()
+        #self.camera.haltRun()
+        #self.camera.join()
 
         #self.brain.stopAll()
 
@@ -220,7 +220,8 @@ class qrPlanner(object):
 
 
     def exit(self):
-        self.camera.haltRun()
+        #self.camera.haltRun()
+        pass    
 
 
 if __name__=="__main__":

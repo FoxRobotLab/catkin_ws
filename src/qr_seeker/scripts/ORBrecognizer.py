@@ -60,8 +60,8 @@ class ORBrecognizer():
 
         matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,
             None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
-        #cv2.imshow("Match Image", matchImage)
-        #cv2.waitKey(20)
+        cv2.imshow("Match Image", matchImage)
+        cv2.waitKey(20)
         #print "I reached the waitkey in ORB"
 
         return goodMatches, kp1, kp2
@@ -178,7 +178,8 @@ class ORBrecognizer():
             properties.append([None, [], [], 0])
 
             filename = itemsSought[i] + '.jpg'
-            path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
+            #path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
+            path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
             properties[i][0] = cv2.imread(path, 0)
             if properties[i][0] is None:
                 print("Reference image", itemsSought[i], "not found")
@@ -196,7 +197,8 @@ class ORBrecognizer():
         properties = self.initRefs(itemsSought)
 
         filename = 'blue.jpg'
-        path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
+        #path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
+        path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
         try:
             colorSample = cv2.imread(path)
         except:
