@@ -54,8 +54,9 @@ class qrPlanner(object):
         self.camera.start()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            cv2.imshow("hi", image)
-            cv2.waitKey(0)
+            #cv2.imshow("hi", image)
+            #cv2.waitKey(300)
+            #print "I finished the waitkey in qrPlanner after hi"
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is not None:

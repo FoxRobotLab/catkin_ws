@@ -64,6 +64,8 @@ class UpdateCamera( threading.Thread ):
 
             with self.lock:
                 runFlag = self.runFlag
+            #cv2.waitKey(20)
+            #print "I got past the waitkey in UpdateCamera!"
 
     def isStalled(self):
         """Returns the status of the camera stream"""
