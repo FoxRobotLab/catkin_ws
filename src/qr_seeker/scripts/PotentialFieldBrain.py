@@ -65,7 +65,7 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
 	#		# if scaled speed is too low, set to 0.2
 	#		scaledSpeed = min(-0.2, scaledSpeed)
 
-#		print transValue, scaledSpeed
+		print ("Values from potfield: trans, scaled", transValue, scaledSpeed)
 		
 		self.myRobot.move(transValue, scaledSpeed)
 

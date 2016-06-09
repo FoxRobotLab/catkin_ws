@@ -25,49 +25,47 @@ class FixedActions(object):
         centerX, centerY = self.ORBrecog.getFrameCenter()
         width, height = self.ORBrecog.getFrameDims()
 
-        while True:
-            imageMatch, (x,y), relativeArea = orbInfo
-            print("orbInfo", orbInfo)
 
-            xScore = abs(x - centerX) / float(centerX) * 1.5
-            areaScore = abs(max((1 - relativeArea / 100), -1))
+        imageMatch, (x,y), relativeArea = orbInfo
+        #print("orbInfo", orbInfo)
 
-            scores = [("xScore", xScore), ("areaScore", areaScore)]
+        xScore = abs(x - centerX) / float(centerX) * 1.5
+        areaScore = abs(max((1 - relativeArea / 100), -1))
 
-            print ("scores", scores)
-            bestName, bestScore = scores[0]
+        scores = [("xScore", xScore), ("areaScore", areaScore)]
 
-            for score in scores:
-                name, num = score
-                if num > bestScore:
-                    bestName, bestScore = score
+        #print ("scores", scores)
+        bestName, bestScore = scores[0]
 
-            print("bestName", bestName)
+        for score in scores:
+            name, num = score
+            if num > bestScore:
+                bestName, bestScore = score
 
-            """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
-             drone constantly trying to fix minute issues"""
-            if bestScore < 0.3:
-                print("Image Match found is:", imageMatch)
-                return imageMatch
+        #print("bestName", bestName)
 
-            elif bestName == "xScore":
-                if x < centerX:
-                    self.turnByAngle(-12)
-                    print("Turn left")
-                else:
-                    self.turnByAngle(12)
-                    print("Turn right")
+        """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
+         drone constantly trying to fix minute issues"""
+        if bestScore < 0.4:
+            #print("Image Match found is:", imageMatch)
+            return imageMatch
 
-            elif bestName == "areaScore":
-                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 60:
-                    self.robot.forward(.05, 1)
-                    print("Move forward")
-                else:
-                    self.robot.backward(.05, 1)
-                    print("Move backward")
+        elif bestName == "xScore":
+            if x < centerX:
+                self.turnByAngle(-8)
+                print("Turn left")
+            else:
+                self.turnByAngle(8)
+                print("Turn right")
 
-            return
+        elif bestName == "areaScore":
+            # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+            if relativeArea < 60:
+                self.robot.forward(.05, 1)
+                print("Move forward")
+            else:
+                self.robot.backward(.05, 1)
+                print("Move backward")
 
 
     def turnToNextTarget(self, location, destination, heading):

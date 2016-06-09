@@ -25,14 +25,16 @@ import UpdateCamera
 import MapGraph
 import ORBrecognizer
 import QRrecognizer
+import FieldBehaviors
+import math
 
 
 class qrPlanner(object):
 
     def __init__(self):
         self.robot = turtleQR.TurtleBot()
-        self.brain = self.setupPot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+        self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
@@ -51,11 +53,21 @@ class qrPlanner(object):
     def run(self,runtime = 120):
         #Runs the program for the duration of 'runtime'"""
         timeout = time.time()+runtime
+        iterationCount = 0
         #self.camera.start()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
             cv2.imshow("hi", image)
             cv2.waitKey(20)
+
+            iterationCount += 1
+            if iterationCount > 100:
+                #print "STEPPING THE BRAIN"
+                self.brain.step()
+            #else:
+            #    time.sleep(.01)
+
+
             #print "I finished the waitkey in qrPlanner after hi"
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
@@ -71,7 +83,14 @@ class qrPlanner(object):
 
     def setupPot(self):
         currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
-        # TODO: ADD BRAIN THINGS
+        currBrain.add(FieldBehaviors.KeepMoving())
+
+        numPieces = 6
+        widthPieces = int(math.floor(self.fWidth/float(numPieces)))
+        speedMultiplier = 50
+        for i in range (0, numPieces):
+            currBrain.add(FieldBehaviors.ObstacleForce(self.robot, i*widthPieces, widthPieces, speedMultiplier))
+
         return currBrain
 
 
