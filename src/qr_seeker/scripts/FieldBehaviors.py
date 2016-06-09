@@ -70,7 +70,7 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
 
 
 class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
-    def __init__(self, startCol, sampWid, speedMult, imWid = 640, imHgt = 480):
+    def __init__(self, robot, startCol, sampWid, speedMult, imWid = 640, imHgt = 480):
         """Takes in starting column and section width in the depth image to look at,
         a speed multiplier, and optionally a setting for the size of the depth
         image, width and height. Sets up the section of the depth image to use."""

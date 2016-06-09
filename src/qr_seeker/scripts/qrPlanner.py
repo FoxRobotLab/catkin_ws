@@ -31,7 +31,7 @@ class qrPlanner(object):
 
     def __init__(self):
         self.robot = turtleQR.TurtleBot()
-        #self.brain = self.setupPot()
+        self.brain = self.setupPot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
         self.image, times = self.robot.getImage()
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
@@ -66,11 +66,12 @@ class qrPlanner(object):
         #self.camera.haltRun()
         #self.camera.join()
 
-        #self.brain.stopAll()
+        self.brain.stopAll()
 
 
     def setupPot(self):
         currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+        # TODO: ADD BRAIN THINGS
         return currBrain
 
 
@@ -221,7 +222,7 @@ class qrPlanner(object):
 
     def exit(self):
         #self.camera.haltRun()
-        pass    
+        pass
 
 
 if __name__=="__main__":
