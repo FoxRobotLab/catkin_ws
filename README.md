@@ -71,6 +71,7 @@ The "&" symbol runs the dashboard in the background. You can then use the curren
 
 ###Tips and Troubleshooting
 
+####Makefiles
 If the makefile is not yet made properly go into the _catkin ws_ folder and then run 
 ```
 catkin_make
@@ -87,6 +88,7 @@ chmod ugo+x Planner.py
 or whatever file you need to change permissions on.
 u, g, o are the three groups; r, w, x for read write and execute; + for adding permissions and - for taking them away.
 
+####Depth Data
 To fix the issue with depth data, follow the advice from [this SO post](http://answers.ros.org/question/163551/no-depth-data-received-from-kinect-on-turtlebot/):
 
 >There is a conflict with having both the depthclound and registered depthcloud launching at the same time. To view the depthcloud, set the registered depthcloud arguments to false when launching 3dsensors.launch
@@ -97,14 +99,17 @@ roslaunch turtlebot_bringup 3dsensor.launch depth_registered_processing:=false d
 ```
 and it should work fine.
 
+####Source
 If you get an error something like "roslaunch: [ ] is neither a launch file in package [ ] nor is [ ] a launch file name" then you probably haven't sourced the setup file:
 ```
 source devel/setup.bash
 ```
 run when you're in the catkin directory.
 
+####Need #! in Line
 If you're getting an error saying the process is crashing and you may not have the #! line in your file, it's actually because the #! line isn't where the program wants it - it does need to be the VERY FIRST line, even if there's just a block comment above it.
 
+####Running Programs from Enterprise 
 If you are on Enterprise trying to run programs on the TurtleBot try checking the host:
 ```
 echo $ROS_MASTER_URI
