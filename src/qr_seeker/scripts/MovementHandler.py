@@ -137,7 +137,7 @@ class MovementHandler(object):
 
         M = cv2.moments(largestContour)
         imageArea = cv2.contourArea(largestContour)
-        relativeArea = float(w * h) / imageArea
+        relativeArea = float(self.width * self.height) / imageArea
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
         # TODO: Dissappear that string
