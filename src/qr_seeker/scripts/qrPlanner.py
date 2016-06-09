@@ -54,8 +54,8 @@ class qrPlanner(object):
         self.camera.start()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            #cv2.imshow("hi", image)
-            #cv2.waitKey(0)
+            cv2.imshow("hi", image)
+            cv2.waitKey(0)
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is not None:
@@ -87,10 +87,9 @@ class qrPlanner(object):
                 heading = 0
             print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
             self.pathTraveled.append(nodeNum)
-            print ("Path travelled so far:\n", self.pathTraveled)
+            print ("Path travelled so far: \n", self.pathTraveled)
             # if location is None:
             #     """If we are lost and can not be found"""
-            #     self.stopImageMatching()
                 # return False
             if nodeNum == self.destination:
                 print ("Arrived at destination.")
@@ -104,15 +103,11 @@ class qrPlanner(object):
 
         # orbInfo = self.fixedActs.align(targetRelativeArea, self)
         if orbInfo == None:
-            # time.sleep(3)
             return False
 
         momentInfo = self.findORBContours(orbInfo)
-
         self.fixedActs.align(momentInfo)
 
-        # time.sleep(3)
-        # self.stopImageMatching()
         return False
 
 
@@ -162,64 +157,65 @@ class qrPlanner(object):
         # TODO: Dissappear that string
         return ("", (cx,cy), relativeArea)
 
-    def bumperReact(self, bumper_state):
-        "After the bumper is triggered, responds accordingly and return False if robot should stop"""
-        if bumper_state == 0:
-            return True
 
-        # These codes correspond to the wheels dropping
-        if bumper_state == 16 or bumper_state == 28:
-            return False
-
-        self.robot.backward(0.2, 3)
-        #cv2.waitKey(300)
-
-        # imageInfo = None
-        # for t in xrange(5):
-        #     imageInfo = self.ORBrecog.scanImages()
-        #     if imageInfo != None:
-        #         return self.locate(imageInfo)
-        #     time.sleep(0.2)
-
-        # left side of the bumper was hit
-        if bumper_state == 2:
-            self.fixedActs.turnByAngle(45)
-        # right side of the bumper was hit
-        if bumper_state == 1 or bumper_state == 3:
-            self.fixedActs.turnByAngle(-45)
-        return True
-
-
-    def sideSweep(self):
-        """Turns the robot left and right in order to check for codes at its sides. Trying to minimize need for
-        this because this slows down the navigation process."""
-        stepsFor180Degrees = 82
-
-        self.fixedActs.turnByAngle(-90)
-        with self.robot.moveControl.lock:
-            self.robot.moveControl.paused = True
-        try:
-            twist = Twist()
-            twist.linear.x = 0.0
-            twist.angular.z = -0.4
-            r = rospy.Rate(10)
-            for i in xrange(stepsFor180Degrees):
-                self.robot.moveControl.move_pub.publish(twist)
-                r.sleep()
-                # imageMatch = self.ORBrecog.scanImages()
-                # Will ensure that the robot is not at too acute an angle with the code? Necessary?
-                imageMatch = None
-                if imageMatch != None:
-                    return self.locate(imageMatch)
-        except CvBridgeError as e:
-            print (e)
-        finally:
-            twist = Twist()  # default to no motion
-            self.robot.moveControl.move_pub.publish(twist)
-            with self.robot.moveControl.lock:
-                self.robot.moveControl.paused = False  # start up the continuous motion loop again
-        self.fixedActs.turnByAngle(-90)
-        return False
+    # def bumperReact(self, bumper_state):
+    #     "After the bumper is triggered, responds accordingly and return False if robot should stop"""
+    #     if bumper_state == 0:
+    #         return True
+    #
+    #     # These codes correspond to the wheels dropping
+    #     if bumper_state == 16 or bumper_state == 28:
+    #         return False
+    #
+    #     self.robot.backward(0.2, 3)
+    #     #cv2.waitKey(300)
+    #
+    #     # imageInfo = None
+    #     # for t in xrange(5):
+    #     #     imageInfo = self.ORBrecog.scanImages()
+    #     #     if imageInfo != None:
+    #     #         return self.locate(imageInfo)
+    #     #     time.sleep(0.2)
+    #
+    #     # left side of the bumper was hit
+    #     if bumper_state == 2:
+    #         self.fixedActs.turnByAngle(45)
+    #     # right side of the bumper was hit
+    #     if bumper_state == 1 or bumper_state == 3:
+    #         self.fixedActs.turnByAngle(-45)
+    #     return True
+    #
+    #
+    # def sideSweep(self):
+    #     """Turns the robot left and right in order to check for codes at its sides. Trying to minimize need for
+    #     this because this slows down the navigation process."""
+    #     stepsFor180Degrees = 82
+    #
+    #     self.fixedActs.turnByAngle(-90)
+    #     with self.robot.moveControl.lock:
+    #         self.robot.moveControl.paused = True
+    #     try:
+    #         twist = Twist()
+    #         twist.linear.x = 0.0
+    #         twist.angular.z = -0.4
+    #         r = rospy.Rate(10)
+    #         for i in xrange(stepsFor180Degrees):
+    #             self.robot.moveControl.move_pub.publish(twist)
+    #             r.sleep()
+    #             # imageMatch = self.ORBrecog.scanImages()
+    #             # Will ensure that the robot is not at too acute an angle with the code? Necessary?
+    #             imageMatch = None
+    #             if imageMatch != None:
+    #                 return self.locate(imageMatch)
+    #     except CvBridgeError as e:
+    #         print (e)
+    #     finally:
+    #         twist = Twist()  # default to no motion
+    #         self.robot.moveControl.move_pub.publish(twist)
+    #         with self.robot.moveControl.lock:
+    #             self.robot.moveControl.paused = False  # start up the continuous motion loop again
+    #     self.fixedActs.turnByAngle(-90)
+    #     return False
 
 
     def exit(self):
