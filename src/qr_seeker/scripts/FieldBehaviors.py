@@ -10,13 +10,18 @@ import random
 
 
 class ColorInvestigate(PotentialFieldBrain.PotentialFieldBehavior):
+    """Attempt at a Potential Field behavior to approach a color pattern, didn't work and is
+    now defunct."""
+
     def __init__(self, multiCamShift):
+        """Sets up Behavior, stores MultiCamShift."""
         super(ColorInvestigate, self).__init__()
         self.mcs = multiCamShift
         self.framex, framey = self.mcs.getFrameDims()
         self.xWidth = self.framex / 6.5
 
     def update(self):
+        """Gets matches from MultiCamShift and chooses move based on where it is."""
         match = self.mcs.getPotentialMatches()
         if match is None:
             self.setVector(0.0, 0.0)
@@ -45,7 +50,10 @@ class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
 
 
 class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
+    """Simple behavior tht wanders, turning with some randomness each time."""
+
     def __init__(self, rate):
+        """Sets up the behavior with all rates set to zero."""
         super(RandomWander, self).__init__()
         self.iteration = 0
         self.rate = rate
@@ -53,7 +61,7 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
         self.heading = 0
 
     def update(self):
-        """wanders with a random heading"""
+        """wanders with a random heading."""
         if self.iteration > self.rate:
             self.iteration = 0
             heading = (random.random() * 180) - 90
