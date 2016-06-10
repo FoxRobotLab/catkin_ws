@@ -88,7 +88,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         self.depthImHgt = imHgt
         self.startCol = startCol
         self.sampleWidth = sampWid
-        posPercent = (self.startCol + (self.sampleWidth / 2)) / self.depthImWid
+        posPercent = (self.startCol + (self.sampleWidth / 2.0)) / self.depthImWid
 
         self.speedMult = speedMult
         self.angle = (posPercent - 0.5) * 60
