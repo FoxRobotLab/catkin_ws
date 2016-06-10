@@ -50,7 +50,7 @@ class qrPlanner(object):
             cv2.waitKey(20)
 
             iterationCount += 1
-            if iterationCount > 100:
+            if iterationCount > 50:
                 if not self.aligned and not self.ignoreBrain:
                     self.brain.step()
             dImage = self.robot.getDepth()
@@ -106,6 +106,7 @@ class qrPlanner(object):
         else:
             self.ignoreBrain = True
             self.aligned = self.moveHandle.align(orbInfo)
+            time.sleep(0.1)
 
         return False
 

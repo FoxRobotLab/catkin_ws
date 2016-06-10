@@ -41,6 +41,8 @@ class MovementHandler(object):
             if num > bestScore:
                 bestName, bestScore = score
 
+        print("area", relativeArea)
+
         """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
          drone constantly trying to fix minute issues"""
         if bestScore < 0.4:
@@ -56,7 +58,7 @@ class MovementHandler(object):
 
         elif bestName == "areaScore":
             # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-            if relativeArea < 70:
+            if relativeArea < 80:
                 self.robot.forward(.05, 1)
                 print("Move forward")
             else:
