@@ -128,6 +128,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
             print("========================================================")
             print("Start col", self.startCol)
             print("angle", self.angle)
+            print("meanDistance", meanDistance)
             print("========================================================")
         else:
             self.setVector(0.0, 0.0)
