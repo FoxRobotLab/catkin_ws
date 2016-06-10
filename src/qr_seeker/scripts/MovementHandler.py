@@ -43,8 +43,8 @@ class MovementHandler(object):
 
         print("area", relativeArea)
 
-        """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
-         drone constantly trying to fix minute issues"""
+        """ If none of the scores are big enough to return any issues with the target in the turtlebot's view to avoid
+         bot constantly trying to fix minute issues"""
         if bestScore < 0.4:
             return True
 
