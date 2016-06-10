@@ -68,9 +68,8 @@ class qrPlanner(object):
         numPieces = 6
         widthPieces = int(math.floor(self.fWidth / float(numPieces)))
         speedMultiplier = 25
-        startCol = 0
         for i in range(0, numPieces):
-            currBrain.add(FieldBehaviors.ObstacleForce(startCol, i * widthPieces, widthPieces, speedMultiplier))
+            currBrain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces, speedMultiplier))
 
         return currBrain
 
