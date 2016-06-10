@@ -18,6 +18,7 @@ import QRrecognizer
 import FieldBehaviors
 import math
 import PathLocation
+import numpy as np
 
 
 class qrPlanner(object):
@@ -52,13 +53,16 @@ class qrPlanner(object):
                 if not self.aligned:
                     self.brain.step()
             dImage = self.robot.getDepth()
+            # print("dImage", type(dImage))
+            print("np.dtype(dImage)", np.dtype(dImage))
+
 
             cv2.imshow("Depth View", dImage)
             cv2.waitKey(20)
             # orbInfo = self.orbScanner.orbScan(image)
             # qrInfo = self.qrScanner.qrScan(image)
             # if orbInfo is not None:
-            #     if self.locate(orbInfo, qrInfo):
+            #     if self.locate(orbInfo, qrInfo):s
             #         break
 
         self.brain.stopAll()
