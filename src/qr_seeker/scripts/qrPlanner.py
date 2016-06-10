@@ -52,6 +52,7 @@ class qrPlanner(object):
             iterationCount += 1
             if iterationCount > 50:
                 if not self.aligned and not self.ignoreBrain:
+                    print "Potential Field Reacting"
                     self.brain.step()
             dImage = self.robot.getDepth()
             dImageInt8 = dImage.astype(np.uint8)
