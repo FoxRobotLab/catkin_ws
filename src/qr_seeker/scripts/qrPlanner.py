@@ -38,6 +38,11 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
+        self.rightCam = cv2.VideoCapture(0) #laptop faces right
+        self.leftCam = cv2.VideoCapture(1) #other cam faces left
+        #ret, frame = cam.read()
+        #ret, frame2 = cam2.read()
+
 
     def run(self,runtime = 120):
         #Runs the program for the duration of 'runtime'"""
@@ -46,7 +51,11 @@ class qrPlanner(object):
         self.pathLoc.beginJourney()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
+            leftImage = getNextFrame(self.leftCam)
+            rightImage = getNextFrame(self.rightCam)
             cv2.imshow("TurtleBot View", image)
+            cv2.imshow("Left Camera", leftImage)
+            cv2.imshow("Right Camera", rightImage)
             cv2.waitKey(20)
 
             iterationCount += 1
@@ -59,10 +68,24 @@ class qrPlanner(object):
             cv2.imshow("Depth View", 255 - dImageInt8)
             cv2.waitKey(20)
 
+            whichCam = "center" #data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
+            if orbInfo is None:
+                orbLeft = self.orbScanner.orbScan(leftImage)
+                orbRight = self.orbScanner.orbScan(rightImage)
+                if orbLeft is not None and orbRight is None:
+                    whichCam = "left"
+                    orbInfo = orbLeft
+                    qrInfo = self.qrScanner.qrScan(leftImage)
+                elif orbLeft is None and orbRight is not None:
+                    whichCam = "right"
+                    orbInfo = orbRight
+                    qrInfo = self.qrScanner.qrScan(rightImage)
+                #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
+
             if orbInfo is not None:
-                if self.locate(orbInfo, qrInfo):
+                if self.locate(orbInfo, qrInfo, whichCam):
                     break
 
         self.brain.stopAll()
@@ -112,6 +135,9 @@ class qrPlanner(object):
 
         return False
 
+    def getNextFrame(vidObj):
+        ret, frame = vidObj.read()
+        return frame
 
     def exit(self):
         pass
