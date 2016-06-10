@@ -105,7 +105,7 @@ class qrPlanner(object):
         return currBrain
 
 
-    def locate(self, orbInfo, qrInfo):
+    def locate(self, orbInfo, qrInfo, whichCam):
         """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
@@ -120,7 +120,7 @@ class qrPlanner(object):
                 return True
 
             # We know where we are and need to turn
-            self.moveHandle.turnToNextTarget(heading, targetAngle)
+            self.moveHandle.turnToNextTarget(heading, targetAngle, whichCam)
             self.ignoreBrain = False
         #TODO: make sure it doesn't see the same QR code and add it to the list loads of times
             #because it's still on screen - maybe check that the one you're seeing isn't the last one
@@ -130,7 +130,7 @@ class qrPlanner(object):
             self.aligned = False
         else:
             self.ignoreBrain = True
-            self.aligned = self.moveHandle.align(orbInfo)
+            self.aligned = self.moveHandle.align(orbInfo, whichCam)
             time.sleep(0.1)
 
         return False
