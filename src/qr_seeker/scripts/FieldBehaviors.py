@@ -99,14 +99,6 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         self.startRow = self.depthImHgt / 4
         self.sampleHeight = self.depthImHgt / 2
 
-        # self.imageLeft = (640*posPercent)-(self.sampleWidth/2)
-        # self.imageRight = self.imageLeft+self.sampleWidth
-        # if self.imageRight > 640:
-        # self.imageLeft -= self.imageRight-640
-        # self.imageRight = 640
-        # elif self.imageLeft < 0:
-        # self.imageRight += 0-self.imageLeft
-        # self.imageLeft = 0
 
     def update(self):
         """Gets depth data in a band as wide as suggested and some height or other,
@@ -117,14 +109,8 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
                                        self.sampleWidth, self.sampleHeight)
 
         masked_obstVals = numpy.ma.masked_array(obstVals, obstVals == 0)
-        # print numpy.ma.masked_array(obstVals, obstVals==0)
 
         meanDistance = numpy.mean(masked_obstVals)
-
-        # print "--------"
-        # print masked_obstVals
-        # print meanDistance
-        # print (50/meanDistance, 180-(self.angle))
 
         if meanDistance < 1500:
             print(self.startCol, meanDistance)
