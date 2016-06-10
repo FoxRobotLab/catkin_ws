@@ -40,9 +40,13 @@ class qrPlanner(object):
 
         self.rightCam = cv2.VideoCapture(0) #laptop faces right
         self.leftCam = cv2.VideoCapture(1) #other cam faces left
-        #ret, frame = cam.read()
-        #ret, frame2 = cam2.read()
-
+        ret, frame = self.rightCam.read()
+        ret, frame2 = self.leftCam.read()
+        if self.rightCam is not None:
+            cv2.imshow("rightCam", frame)
+        if self.leftCam is not None:
+            cv2.imshow("leftCam", frame2)
+        cv2.waitKey(20)
 
     def run(self,runtime = 120):
         #Runs the program for the duration of 'runtime'"""
