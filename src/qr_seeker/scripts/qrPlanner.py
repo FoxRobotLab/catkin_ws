@@ -54,8 +54,10 @@ class qrPlanner(object):
             leftImage = self.getNextFrame(self.leftCam)
             rightImage = self.getNextFrame(self.rightCam)
             cv2.imshow("TurtleBot View", image)
-            cv2.imshow("Left Camera", leftImage)
-            cv2.imshow("Right Camera", rightImage)
+            if leftImage is not None:
+                cv2.imshow("Left Camera", leftImage)
+            if rightImage is not None:
+                cv2.imshow("Right Camera", rightImage)
             cv2.waitKey(20)
 
             iterationCount += 1
@@ -71,7 +73,7 @@ class qrPlanner(object):
             whichCam = "center" #data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
-            if orbInfo is None:
+            if orbInfo is None and leftImage is not None and rightImage is not None:
                 orbLeft = self.orbScanner.orbScan(leftImage)
                 orbRight = self.orbScanner.orbScan(rightImage)
                 if orbLeft is not None and orbRight is None:
