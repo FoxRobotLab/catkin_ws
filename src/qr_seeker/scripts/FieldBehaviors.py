@@ -124,12 +124,10 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         if meanDistance < 1500:
             if meanDistance < 500:
                 meanDistance = 500
-            self.setVector(self.speedMult / meanDistance, 180 + self.angle)
+            self.setVector(self.speedMult / meanDistance, 180 - self.angle)
             print("========================================================")
             print("Start col", self.startCol)
             print("angle", self.angle)
-            print("180 + angle", 180 + self.angle)
-            print("180 - angle", 180 - self.angle)
             print("========================================================")
         else:
             self.setVector(0.0, 0.0)
