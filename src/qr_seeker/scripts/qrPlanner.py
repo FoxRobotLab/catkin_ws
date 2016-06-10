@@ -24,7 +24,6 @@ class qrPlanner(object):
 
     def __init__(self):
         self.robot = turtleQR.TurtleBot()
-        # TODO: check if height and width are in the right order
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
         self.brain = self.setupPot()
@@ -43,7 +42,6 @@ class qrPlanner(object):
         timeout = time.time()+runtime
         iterationCount = 0
         self.pathLoc.beginJourney()
-        print("height", "width", self.fHeight, self.fWidth)
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
             cv2.imshow("TurtleBot View", image)
@@ -68,7 +66,7 @@ class qrPlanner(object):
         currBrain.add(FieldBehaviors.KeepMoving())
 
         numPieces = 6
-        widthPieces = int(math.floor(self.fWidth/float(numPieces)))
+        widthPieces = int(math.floor(self.fWidth / float(numPieces)))
         speedMultiplier = 50
         startCol = 0
         for i in range(0, numPieces):
