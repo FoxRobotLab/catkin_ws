@@ -56,7 +56,7 @@ class MovementHandler(object):
 
         elif bestName == "areaScore":
             # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-            if relativeArea < 60:
+            if relativeArea < 70:
                 self.robot.forward(.05, 1)
                 print("Move forward")
             else:
