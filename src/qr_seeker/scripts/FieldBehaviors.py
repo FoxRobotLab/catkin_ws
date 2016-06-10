@@ -3,7 +3,6 @@
 import rospy
 
 import PotentialFieldBrain
-import TurtleBot
 
 import cv2
 import numpy
@@ -71,7 +70,7 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
 
 
 class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
-    def __init__(self, startCol, sampWid, speedMult, imWid = 640, imHgt = 480):
+    def __init__(self, robot, startCol, sampWid, speedMult, imWid = 640, imHgt = 480):
         """Takes in starting column and section width in the depth image to look at,
         a speed multiplier, and optionally a setting for the size of the depth
         image, width and height. Sets up the section of the depth image to use."""
@@ -87,7 +86,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         self.angle = (posPercent - 0.5) * 60
 
         if self.startCol + self.sampleWidth >= self.depthImWid:
-            self.sampleWidth = self.depthImWidth - 1
+            self.sampleWidth = self.depthImWid - 1
 
         self.startRow = self.depthImHgt / 4
         self.sampleHeight = self.depthImHgt / 2
@@ -106,7 +105,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         and computes the mean of the non-zero parts, and uses that to decide how
         fast/far to turn."""
 
-        obstVals = self.robot.getDepth(self.self.startCol, self.startRow,
+        obstVals = self.robot.getDepth(self.startCol, self.startRow,
                                        self.sampleWidth, self.sampleHeight)
 
         masked_obstVals = numpy.ma.masked_array(obstVals, obstVals == 0)

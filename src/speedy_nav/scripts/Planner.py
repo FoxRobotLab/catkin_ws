@@ -46,14 +46,14 @@ class UpdateCamera( threading.Thread ):
 					self.stalled = True
 				else:
 					self.stalled = False
-			
+
 			frame = self.mcs.update(image.copy())
 			cv2.imshow("TurtleCam", frame)
 
 			code = chr(cv2.waitKey(50) & 255)
 
 			if code == 't':
-				cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-" 
+				cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-"
 					+ time.strftime("%b%d%a-%H%M%S.jpg"), image)
 				print "Image saved!"
 			if code == 'q':
@@ -81,7 +81,7 @@ class Planner(object):
 		self.robot = TurtleBot.TurtleBot()
 		self.brain = self.setupPot()
 
-		image, times = self.robot.getImage()		
+		image, times = self.robot.getImage()
 		self.mcs = MCS.MultiCamShift(image.shape)
 		self.colorSearching = True
 
@@ -91,11 +91,11 @@ class Planner(object):
 		while self.destination > len(OlinGraph.nodeLocs):
 			self.destination = int(input("Enter destination index: "))
 
-		self.fixedActs = FixedActions.FixedActions(self.robot, self.mcs, self.camera)
+		self.moveHandle = FixedActions.FixedActions(self.robot, self.mcs, self.camera)
 
 
 		self.colorInv = FieldBehaviors.ColorInvestigate(self.mcs)
-		#self.brain.add( self.colorInv )	
+		#self.brain.add( self.colorInv )
 		self.brain.add( FieldBehaviors.KeepMoving() )
 		# self.brain.add( FieldBehaviors.RandomWander(1000) )
 		for i in range(10, 100, 10):
@@ -116,7 +116,7 @@ class Planner(object):
 		sweepTime = 0
 		sinceLastStall = 0
                 print "Planner.run starting while loop"
-		while time.time() < timeout and not rospy.is_shutdown():	
+		while time.time() < timeout and not rospy.is_shutdown():
 
 			if not self.camera.isStalled():
                                 print " -------------------------------- camera not stalled"
@@ -130,8 +130,8 @@ class Planner(object):
 						self.stopColorSearching()
 					print " ---   inside if 30 < sinceLastStall""""
 					iterationCount += 1
-#					print "======================================", '\titer: ', iterationCount 
-					"""if iterationCount > 250: 
+#					print "======================================", '\titer: ', iterationCount
+					"""if iterationCount > 250:
                                                 print "STEPPING THE BRAIN"
 						self.brain.step()
 					else:
@@ -143,7 +143,7 @@ class Planner(object):
 						if self.sideSweep():
 							break
 						sweepTime = 0"""
-	
+
 					if self.colorSearching:
 						pattern = self.mcs.getHorzPatterns()
 						# Prevents the robot from coming at the pattern from too sharp an angle
@@ -162,9 +162,9 @@ class Planner(object):
 		self.camera.haltRun()
 		self.camera.join()
 		self.brain.stopAll()
-	
 
-					
+
+
 	def setupPot(self):
 		"""Helpful function takes optional robot code (the six-digit Fluke board number). If code
 		is given, then this connects to the robot. Otherwise, it connects to a simulated robot, and
@@ -175,7 +175,7 @@ class Planner(object):
 
 	def locate(self, pattern):
 		"""Aligns the robot with the patttern in front of it, determines where it is using that pattern,
-		then aligns itself with the path it should take to the next node. Returns True if the robot has 
+		then aligns itself with the path it should take to the next node. Returns True if the robot has
 		arrived at it's destination, otherwise, False."""
 		location, patternOrientation, targetRelativeArea = OlinGraph.patternLocations.get(pattern, (None, None, 0))
 		if location == None:
@@ -188,7 +188,7 @@ class Planner(object):
 
 		self.pathTraveled.append(location)
 		print "Path travelled so far:\n", self.pathTraveled
-				
+
 		if location == self.destination:
 			print "Arrived at destination."
 			return True
@@ -204,7 +204,7 @@ class Planner(object):
 		if bumper_state == 0:
 			return True
 
-		
+
 		#These codes correspond to the wheels dropping
 		if bumper_state == 16 or bumper_state == 28:
 			return False
@@ -254,11 +254,11 @@ class Planner(object):
 			twist = Twist() # default to no motion
 			self.robot.moveControl.move_pub.publish(twist)
 			with self.robot.moveControl.lock:
-				self.robot.moveControl.paused = False # start up the continuous motion loop again	
+				self.robot.moveControl.paused = False # start up the continuous motion loop again
 		self.fixedActs.turnByAngle(-90)
 		return False
 
-	
+
 
 	def startColorSearching(self):
 		"""Turn on MCS functions"""
@@ -273,7 +273,7 @@ class Planner(object):
 	def exit(self):
 		self.camera.haltRun()
 		self.mcs.exit()
-	
+
 if __name__=="__main__":
 	rospy.init_node('Planner')
 	plan = Planner()

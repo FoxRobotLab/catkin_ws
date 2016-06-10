@@ -51,19 +51,21 @@ class UpdateCamera( threading.Thread ):
                 else:
                     self.stalled = False
 
-            cv2.imshow("TurtleCam", image)
+            #cv2.imshow("TurtleCam", image)
 
-            keypress = chr(cv2.waitKey(50) & 255)
+            #keypress = chr(cv2.waitKey(50) & 255)
 
-            if keypress == 't':
-                cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-"
-                                + str(datetime.now()) + ".jpg", image)
-                print "Image saved!"
-            if keypress == 'q':
-                break
+            #if keypress == 't':
+                #cv2.imwrite("/home/macalester/catkin_ws/src/speedy_nav/res/captures/cap-"
+               #                 + str(datetime.now()) + ".jpg", image)
+               # print "Image saved!"
+            #if keypress == 'q':
+                #break
 
             with self.lock:
                 runFlag = self.runFlag
+            #cv2.waitKey(20)
+            #print "I got past the waitkey in UpdateCamera!"
 
     def isStalled(self):
         """Returns the status of the camera stream"""
