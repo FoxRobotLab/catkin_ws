@@ -51,8 +51,8 @@ class qrPlanner(object):
         self.pathLoc.beginJourney()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            leftImage = getNextFrame(self.leftCam)
-            rightImage = getNextFrame(self.rightCam)
+            leftImage = self.getNextFrame(self.leftCam)
+            rightImage = self.getNextFrame(self.rightCam)
             cv2.imshow("TurtleBot View", image)
             cv2.imshow("Left Camera", leftImage)
             cv2.imshow("Right Camera", rightImage)
@@ -135,7 +135,7 @@ class qrPlanner(object):
 
         return False
 
-    def getNextFrame(vidObj):
+    def getNextFrame(self, vidObj):
         ret, frame = vidObj.read()
         return frame
 
