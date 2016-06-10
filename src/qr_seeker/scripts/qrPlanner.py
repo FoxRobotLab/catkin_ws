@@ -58,11 +58,11 @@ class qrPlanner(object):
             cv2.imshow("Depth View", 255 - dImageInt8)
             cv2.waitKey(20)
 
-            # orbInfo = self.orbScanner.orbScan(image)
-            # qrInfo = self.qrScanner.qrScan(image)
-            # if orbInfo is not None:
-            #     if self.locate(orbInfo, qrInfo):s
-            #         break
+            orbInfo = self.orbScanner.orbScan(image)
+            qrInfo = self.qrScanner.qrScan(image)
+            if orbInfo is not None:
+                if self.locate(orbInfo, qrInfo):
+                    break
 
         self.brain.stopAll()
 
