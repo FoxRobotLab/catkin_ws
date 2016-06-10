@@ -71,6 +71,7 @@ class qrPlanner(object):
     def setupPot(self):
         currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         currBrain.add(FieldBehaviors.KeepMoving())
+        currBrain.add(FieldBehaviors.BumperReact())
 
         numPieces = 6
         widthPieces = int(math.floor(self.fWidth / float(numPieces)))

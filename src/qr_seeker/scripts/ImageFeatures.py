@@ -21,15 +21,15 @@ similarity below 1000.0
 
 import cv2
 
-#import HoughLines
-#import ImageSegmentation
-#import ColorSignature
+# import HoughLines
+# import ImageSegmentation
+# import ColorSignature
 import OutputLogger
 import ORBrecognizer
 
 
 class ImageFeatures:
-    
+    """Collects up different features of the image and can display the results, or compare to another for similarity."""
     
     def __init__(self, image, idNum, logger):
         """Initializes the ImageFeatures object with the image and output logger.
@@ -39,8 +39,8 @@ class ImageFeatures:
         self.height, self.width, self.depth = self.image.shape
         self.idNum = idNum
         self.logger = logger
-        #self.houghLines = HoughLines.HoughLines(self.image, logger)
-        #self.colorSignature = ColorSignature.ColorSignature(self.image, logger)
+        # self.houghLines = HoughLines.HoughLines(self.image, logger)
+        # self.colorSignature = ColorSignature.ColorSignature(self.image, logger)
         self.ORBrecognizer = ORBrecognizer.ORBrecognizer(self.image, logger)
         
         

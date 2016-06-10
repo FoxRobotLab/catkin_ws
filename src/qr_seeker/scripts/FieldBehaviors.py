@@ -75,6 +75,21 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
             self.setVector(self.speed, self.heading)
 
 
+class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
+    """TODO: write this docstring"""
+
+    def update(self):
+        """set zero magnitude and current heading"""
+
+        bumperCode = self.robot.getBumperStatus()
+        if bumperCode == 2:  # Left side of bumpr was hit
+            self.setVector(0.4, 160)
+        elif bumperCode == 1 or bumperCode == 3: # Right side of bumper or both
+            self.setVector(0.4, 200)
+        else:
+            self.setVector(0.2, 0.0)
+
+
 class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
     """Defines a Potential Field behavior for depth image-based obstacle reactions."""
 
