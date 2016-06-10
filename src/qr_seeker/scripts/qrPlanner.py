@@ -53,11 +53,8 @@ class qrPlanner(object):
                 if not self.aligned:
                     self.brain.step()
             dImage = self.robot.getDepth()
-            # print("dImage", type(dImage))
-            print("dImage.dtype)", dImage.dtype)
-
-
-            cv2.imshow("Depth View", dImage)
+            dImageInt8 = dImage.astype(np.uint8)
+            cv2.imshow("Depth View", 255 - dImageInt8)
             cv2.waitKey(20)
             # orbInfo = self.orbScanner.orbScan(image)
             # qrInfo = self.qrScanner.qrScan(image)
