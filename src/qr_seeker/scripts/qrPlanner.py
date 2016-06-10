@@ -42,9 +42,9 @@ class qrPlanner(object):
         self.leftCam = cv2.VideoCapture(1) #other cam faces left
         ret, frame = self.rightCam.read()
         ret, frame2 = self.leftCam.read()
-        if self.rightCam is not None:
+        if frame is not None:
             cv2.imshow("rightCam", frame)
-        if self.leftCam is not None:
+        if frame2 is not None:
             cv2.imshow("leftCam", frame2)
         cv2.waitKey(20)
 
