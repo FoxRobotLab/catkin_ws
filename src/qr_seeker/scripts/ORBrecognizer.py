@@ -197,8 +197,8 @@ class ORBrecognizer():
         properties = self.initRefs(itemsSought)
 
         filename = 'blue.jpg'
-        path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
-        #path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
+        # path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
+        path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
         try:
             colorSample = cv2.imread(path)
         except:
