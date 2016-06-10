@@ -47,24 +47,15 @@ class qrPlanner(object):
         timeout = time.time()+runtime
         iterationCount = 0
         self.pathLoc.beginJourney()
-        ret, frame = self.rightCam.read()
-        ret, frame2 = self.leftCam.read()
-        if frame is not None:
-            cv2.imshow("rightCam", frame)
-        if frame2 is not None:
-            cv2.imshow("leftCam", frame2)
-        cv2.waitKey(20)
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
             leftImage = self.getNextFrame(self.leftCam)
             rightImage = self.getNextFrame(self.rightCam)
             cv2.imshow("TurtleBot View", image)
             if leftImage is not None and rightImage is not None:
-                cv2.imshow("Turtlebot view", np.hstack([leftImage, image, rightImage]))
-            # if leftImage is not None:
-            #     cv2.imshow("Left Camera", leftImage)
-            # if rightImage is not None:
-            #     cv2.imshow("Right Camera", rightImage)
+                cv2.namedWindow("TurtleBot View")
+                cv2.resizeWindow("TurtleBot View", 900, 480)
+                cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
             cv2.waitKey(20)
 
             # iterationCount += 1
@@ -81,10 +72,11 @@ class qrPlanner(object):
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is None and leftImage is not None and rightImage is not None:
-                print("orbInfo is None and leftImage is not None and rightImage is not None")
                 orbLeft = self.orbScanner.orbScan(leftImage)
+                print("orbLeft", orbLeft)
                 orbRight = self.orbScanner.orbScan(rightImage)
                 if orbLeft is not None and orbRight is None:
+                    print("one of the images found things but isn't doing anythin... bad robot")
                     whichCam = "left"
                     orbInfo = orbLeft
                     qrInfo = self.qrScanner.qrScan(leftImage)
