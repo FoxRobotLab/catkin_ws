@@ -54,8 +54,8 @@ class qrPlanner(object):
             cv2.imshow("TurtleBot View", image)
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", 0)
-                cv2.resizeWindow("TurtleBot View", 200, 100)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
+                cv2.resizeWindow("TurtleBot View", 200, 100)
             cv2.waitKey(20)
             print("Kinect", image.shape)
             print("Left", leftImage.shape)
@@ -74,21 +74,21 @@ class qrPlanner(object):
             whichCam = "center" #data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
-            if orbInfo is None and leftImage is not None and rightImage is not None:
-                orbLeft = self.orbScanner.orbScan(leftImage)
-                print("orbLeft", orbLeft)
-                orbRight = self.orbScanner.orbScan(rightImage)
-                print("orbLeft", orbRight)
-                if orbLeft is not None and orbRight is None:
-                    print("one of the images found things but isn't doing anything... bad robot")
-                    whichCam = "left"
-                    orbInfo = orbLeft
-                    qrInfo = self.qrScanner.qrScan(leftImage)
-                elif orbLeft is None and orbRight is not None:
-                    whichCam = "right"
-                    orbInfo = orbRight
-                    qrInfo = self.qrScanner.qrScan(rightImage)
-                #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
+            # if orbInfo is None and leftImage is not None and rightImage is not None:
+            #     orbLeft = self.orbScanner.orbScan(leftImage)
+            #     print("orbLeft", orbLeft)
+            #     orbRight = self.orbScanner.orbScan(rightImage)
+            #     print("orbRight", orbRight)
+            #     if orbLeft is not None and orbRight is None:
+            #         print("one of the images found things but isn't doing anything... bad robot")
+            #         whichCam = "left"
+            #         orbInfo = orbLeft
+            #         qrInfo = self.qrScanner.qrScan(leftImage)
+            #     elif orbLeft is None and orbRight is not None:
+            #         whichCam = "right"
+            #         orbInfo = orbRight
+            #         qrInfo = self.qrScanner.qrScan(rightImage)
+            #     #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
 
             if orbInfo is not None:
                 if self.locate(orbInfo, qrInfo, whichCam):
