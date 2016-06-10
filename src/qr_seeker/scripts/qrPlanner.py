@@ -40,6 +40,13 @@ class qrPlanner(object):
 
         self.rightCam = cv2.VideoCapture(0) #laptop faces right
         self.leftCam = cv2.VideoCapture(1) #other cam faces left
+
+
+    def run(self,runtime = 120):
+        #Runs the program for the duration of 'runtime'"""
+        timeout = time.time()+runtime
+        iterationCount = 0
+        self.pathLoc.beginJourney()
         ret, frame = self.rightCam.read()
         ret, frame2 = self.leftCam.read()
         if frame is not None:
@@ -47,12 +54,6 @@ class qrPlanner(object):
         if frame2 is not None:
             cv2.imshow("leftCam", frame2)
         cv2.waitKey(20)
-
-    def run(self,runtime = 120):
-        #Runs the program for the duration of 'runtime'"""
-        timeout = time.time()+runtime
-        iterationCount = 0
-        self.pathLoc.beginJourney()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
             leftImage = self.getNextFrame(self.leftCam)
@@ -64,11 +65,11 @@ class qrPlanner(object):
                 cv2.imshow("Right Camera", rightImage)
             cv2.waitKey(20)
 
-            iterationCount += 1
-            if iterationCount > 50:
-                if not self.aligned and not self.ignoreBrain:
-                    print "Potential Field Reacting"
-                    self.brain.step()
+            # iterationCount += 1
+            # if iterationCount > 50:
+            #     if not self.aligned and not self.ignoreBrain:
+            #         print "Potential Field Reacting"
+            #         self.brain.step()
             dImage = self.robot.getDepth()
             dImageInt8 = dImage.astype(np.uint8)
             cv2.imshow("Depth View", 255 - dImageInt8)
