@@ -118,10 +118,10 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
             if meanDistance < 500:
                 meanDistance = 500
 
-        print("============================")
-        print("Start col", self.startCol)
-        print("meanDistance", meanDistance)
-        print("============================")
+        # print("============================")
+        # print("Start col", self.startCol)
+        # print("meanDistance", meanDistance)
+        # print("============================")
 
 
         if meanDistance < 1500:

@@ -51,7 +51,6 @@ class qrPlanner(object):
             iterationCount += 1
             if iterationCount > 100:
                 if not self.aligned:
-                    print("------------------------------------------------------------------------------------------")
                     self.brain.step()
             dImage = self.robot.getDepth()
             dImageInt8 = dImage.astype(np.uint8)
