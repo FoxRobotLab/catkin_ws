@@ -311,10 +311,7 @@ class TurtleBot(object):
     def findAngleToWall(self):
         """This looks at the depth data and compares the left edge of the depth image with the right edge of the depth image,
         computing the angle of the robot to the wall (probably not that accurate, but it's something)."""
-        thing = self.depthControl.getDims
-        print("THING LINE 314 tturtleQR is ", thing)
-        width, height = thing
-        #width, height = self.depthControl.getDims
+        width, height = self.depthControl.getDims()
         sectionWidth = width / 30.0
         sectionHeight = height / 5.0
         # box = c,r,w,h
