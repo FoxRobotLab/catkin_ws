@@ -98,6 +98,13 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 
         self.startRow = self.depthImHgt / 4
         self.sampleHeight = self.depthImHgt / 2
+        print("========================================================")
+        print("Start col", startCol)
+        print("angle", self.angle)
+        print("180 + angle", 180 + self.angle)
+        print("180 - angle", 180 - self.angle)
+        print("========================================================")
+
 
 
     def update(self):
@@ -112,7 +119,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 
         meanDistance = numpy.mean(masked_obstVals)
 
-        print("startCol, meanDistance", self.startCol, meanDistance)
+        # print("startCol, meanDistance", self.startCol, meanDistance)
 
         if meanDistance < 1500:
             if meanDistance < 500:
