@@ -36,6 +36,7 @@ class qrPlanner(object):
         self.pathLoc = PathLocation.PathLocation()
         self.pathTraveled = []
         self.aligned = False
+        self.ignoreBrain = False
 
 
     def run(self,runtime = 120):
@@ -50,7 +51,7 @@ class qrPlanner(object):
 
             iterationCount += 1
             if iterationCount > 100:
-                if not self.aligned:
+                if not self.aligned and not self.ignoreBrain:
                     self.brain.step()
             dImage = self.robot.getDepth()
             dImageInt8 = dImage.astype(np.uint8)
@@ -95,7 +96,7 @@ class qrPlanner(object):
 
             # We know where we are and need to turn
             self.moveHandle.turnToNextTarget(heading, targetAngle)
-
+            self.ignoreBrain = False
         #TODO: make sure it doesn't see the same QR code and add it to the list loads of times
             #because it's still on screen - maybe check that the one you're seeing isn't the last one
             #you saw.
@@ -103,6 +104,7 @@ class qrPlanner(object):
         if orbInfo is None:
             self.aligned = False
         else:
+            self.ignoreBrain = True
             self.aligned = self.moveHandle.align(orbInfo)
 
         return False
