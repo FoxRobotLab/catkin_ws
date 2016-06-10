@@ -59,10 +59,12 @@ class qrPlanner(object):
             leftImage = self.getNextFrame(self.leftCam)
             rightImage = self.getNextFrame(self.rightCam)
             cv2.imshow("TurtleBot View", image)
-            if leftImage is not None:
-                cv2.imshow("Left Camera", leftImage)
-            if rightImage is not None:
-                cv2.imshow("Right Camera", rightImage)
+            if leftImage is not None and rightImage is not None:
+                cv2.imshow("Turtlebot view", np.hstack([leftImage, image, rightImage]))
+            # if leftImage is not None:
+            #     cv2.imshow("Left Camera", leftImage)
+            # if rightImage is not None:
+            #     cv2.imshow("Right Camera", rightImage)
             cv2.waitKey(20)
 
             # iterationCount += 1
@@ -70,15 +72,16 @@ class qrPlanner(object):
             #     if not self.aligned and not self.ignoreBrain:
             #         print "Potential Field Reacting"
             #         self.brain.step()
-            dImage = self.robot.getDepth()
-            dImageInt8 = dImage.astype(np.uint8)
-            cv2.imshow("Depth View", 255 - dImageInt8)
-            cv2.waitKey(20)
+            # dImage = self.robot.getDepth()
+            # dImageInt8 = dImage.astype(np.uint8)
+            # cv2.imshow("Depth View", 255 - dImageInt8)
+            # cv2.waitKey(20)
 
             whichCam = "center" #data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is None and leftImage is not None and rightImage is not None:
+                print("orbInfo is None and leftImage is not None and rightImage is not None")
                 orbLeft = self.orbScanner.orbScan(leftImage)
                 orbRight = self.orbScanner.orbScan(rightImage)
                 if orbLeft is not None and orbRight is None:
