@@ -1,7 +1,9 @@
-# A Potential Field control system
+"""Contains a potential field reactive "brain" class, and a generic
+potential field behavior class that are used to implement a reactive potential field system."""
 
 import ReactiveBrain
 import math
+
 
 # -------------------------------------------
 #
@@ -14,6 +16,7 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
     robot. The brain does vector addition to combine those vectors, and then
     transforms the resulting force on the robot into a movement direction and
     speed"""
+
 
     # ----------------------------------------
     # Initialization and destruction routines
@@ -108,24 +111,13 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
         return (totalMag, degAngle)
 
 
-# ----------------------------------------------------------------------
-# A behavior in this model has access to the robot as an instance variable,
-# so that it can access the sensors.  It also has access to the brain class
-# itself, for getting things like current goals that might be stored there.
-# When its update method is called, it examines the world, and determines
-# a source of force on the robot, returning the force as a tuple containing
-# the force's magnitude and its direction.  The direction should be in terms
-# of some global angle, either set by the heading of the robot when it starts up
-# (when using a purely reactive robot like PyrobotRobot or PlayerRobot), or
-# using the global angle (as WorldlyRobot uses).  Note that angles are assumed
-# to be in degrees.
 
 class PotentialFieldBehavior(ReactiveBrain.ReactiveBehavior):
-    """A behavior in this model has access to the robot, so that it can
-    access the sensors. When its update method is called, it examines the
-    world, and determines a source of force on the robot, returning the force
-    as a tuple containing the force's magnitude and its direction. The
-    direction should be given assuming that zero degrees is always the
+    """A behavior in this model has access to the robot (set when the behavior is added
+    to the PotentialFieldBrain, so that it can access the sensors. When its update method
+    is called, it examines the world, and determines a source of force on the robot,
+    returning the force as a tuple containing the force's magnitude and its direction.
+    The direction should be given assuming that zero degrees is always the
     direction the robot is facing. Note that angles are assumed to be in
     degrees."""
 
@@ -142,24 +134,27 @@ class PotentialFieldBehavior(ReactiveBrain.ReactiveBehavior):
 
     # ---------------------
     # Accessors to avoid direct access to instance variables
+
     def getMagnitude(self):
+        """Returns the magnitude set by the current behavior."""
         return self._magnitude
 
 
     def getAngle(self):
+        """Returns the current angle set by the behavior."""
         return self._angle
 
 
     def getVector(self):
+        """Returns a tuple of magnitude and angle."""
         return (self._magnitude, self._angle)
 
 
     def setVector(self, mag, ang):
+        """Sets the current vector to a given magnitude and angle."""
         self._magnitude = mag
         self._angle = ang
 
-
-    # ---------------------
 
     def update(self):
         """Reads the sensor data and determines what force is on the robot from its
