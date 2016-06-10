@@ -91,7 +91,7 @@ class ORBrecognizer():
 
 
         if max_value > 25:
-            #print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
+            print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
             #retVal = (itemsSought[max_index], (cx, cy), relativeArea)
             retVal = (properties[max_index][2][1], properties[max_index][2][0]) #set of good points for the sign with the most good points
         else:
