@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-import rospy
+# import rospy
+# import cv2
+# import math
 
 import PotentialFieldBrain
-
-import cv2
 import numpy
-
-import math
 import random
 
 
