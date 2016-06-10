@@ -54,7 +54,7 @@ class qrPlanner(object):
                     self.brain.step()
             dImage = self.robot.getDepth()
             # print("dImage", type(dImage))
-            print("np.dtype(dImage)", np.dtype(dImage))
+            print("dImage.dtype)", dImage.dtype)
 
 
             cv2.imshow("Depth View", dImage)
