@@ -34,7 +34,7 @@ class PathLocation(object):
         print ("Path travelled so far: \n", self.pathTraveled)
         if nodeNum == self.destination:
             print ("Arrived at destination.")
-            return None
+            return None, None
 
         path = OlinGraph.olin.getShortestPath(nodeNum, self.destination)
         currentNode, nextNode = path[0], path[1]
