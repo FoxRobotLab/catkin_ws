@@ -23,7 +23,7 @@ class MovementHandler(object):
         self.width, self.height = dims
 
 
-    def align(self, orbInfo):
+    def align(self, orbInfo, camera):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
         (x, y), relativeArea = self.findORBContours(orbInfo)
 
@@ -35,7 +35,7 @@ class MovementHandler(object):
         scores = [("xScore", xScore), ("areaScore", areaScore)]
 
         bestName, bestScore = scores[0]
-        # Picks score that is the highest to solve most pressing issue
+        # Picks score that is the biggest to solve most pressing issue
         for score in scores:
             name, num = score
             if num > bestScore:
@@ -48,27 +48,78 @@ class MovementHandler(object):
         if bestScore < 0.4:
             return True
 
-        elif bestName == "xScore":
-            if x < centerX:
-                self.turnByAngle(-8)
-                print("Turn left")
-            else:
-                self.turnByAngle(8)
-                print("Turn right")
+        # TODO: Clean this up. Possibly separate into different align functions for each camera?
+        # If camera found sign using Kinect
+        if camera == "center":
+            if bestName == "xScore":
+                # If target area is not centered
+                if x < centerX:
+                    self.turnByAngle(-8)
+                    print("Turn left")
+                else:
+                    self.turnByAngle(8)
+                    print("Turn right")
+            elif bestName == "areaScore":
+                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+                if relativeArea < 80:
+                    self.robot.forward(.05, 1)
+                    print("Move forward")
+                else:
+                    self.robot.backward(.05, 1)
+                    print("Move backward")
 
-        elif bestName == "areaScore":
-            # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-            if relativeArea < 80:
-                self.robot.forward(.05, 1)
-                print("Move forward")
-            else:
-                self.robot.backward(.05, 1)
-                print("Move backward")
+        # If camera found sign using camera facing left
+        elif camera == "left":
+            if bestName =="xScore":
+                # If target area is not centered
+                if x < centerX:
+                    self.robot.forward(.05, 1)
+                    print("Sign too far right")
+                else:
+                    self.robot.backward(.05, 1)
+                    print("sign too far left")
+            elif bestName == "areaScore":
+                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+                if relativeArea < 80:
+                    self.turnByAngle(-90)
+                    self.robot.forward(.05, 1)
+                    self.turnByAngle(90)
+                    print("move closer to sign")
+                else:
+                    self.turnByAngle(90)
+                    self.robot.forward(.05, 1)
+                    self.turnByAngle(-90)
+                    print("move farther from sign")
+
+        # If camera found sign using camera facing right
+        elif camera == "right":
+            if bestName == "xScore":
+                # If target area is not centered
+                if x < centerX:
+                    self.robot.backward(.05, 1)
+                    print("sign too far left")
+
+                else:
+                    self.robot.forward(.05, 1)
+                    print("Sign too far right")
+            elif bestName == "areaScore":
+                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+                if relativeArea < 80:
+                    self.turnByAngle(90)
+                    self.robot.forward(.05, 1)
+                    self.turnByAngle(-90)
+                    print("move farther from sign")
+                else:
+                    self.turnByAngle(-90)
+                    self.robot.forward(.05, 1)
+                    self.turnByAngle(90)
+                    print("move closer to sign")
+
 
         return False
 
 
-    def turnToNextTarget(self, heading, targetAngle):
+    def turnToNextTarget(self, heading, targetAngle, camera):
         """Given a planned path and the orientation of the imageMatch in front of the robot, turns in the
         direction of the following node in the path."""
 
@@ -80,6 +131,10 @@ class MovementHandler(object):
         actualAngle = (heading - 90 + wallAngle) % 360
 
         angleToTurn = targetAngle - actualAngle
+        if camera == "left":
+            angleToTurn -= 90
+        elif camera == "right":
+            angleToTurn += 90
 
         print("Angle to turn: ", angleToTurn)
         if angleToTurn < -180:
