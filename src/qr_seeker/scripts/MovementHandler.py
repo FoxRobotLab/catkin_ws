@@ -125,7 +125,6 @@ class MovementHandler(object):
         # find contour of the remaining white blob. There may be small noise blobs, but we're
         # pretty sure that the largest is the one we want.
         _, contours, hierarchy = cv2.findContours(closing, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.contourArea(contours[0])
 
         maxArea = 0
         largestContour = 0
