@@ -25,7 +25,7 @@ class MovementHandler(object):
 
     def align(self, orbInfo):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
-        imageMatch, (x, y), relativeArea = self.findORBContours(orbInfo)
+        (x, y), relativeArea = self.findORBContours(orbInfo)
 
         centerX, centerY = self.ORBrecog.getFrameCenter()
 
@@ -141,8 +141,7 @@ class MovementHandler(object):
         relativeArea = float(self.width * self.height) / imageArea
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
-        # TODO: Dissappear that string
-        return ("", (cx, cy), relativeArea)
+        return (cx, cy), relativeArea
 
 
 
