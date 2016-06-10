@@ -111,7 +111,11 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 
         masked_obstVals = numpy.ma.masked_array(obstVals, obstVals == 0)
 
-        meanDistance = numpy.mean(masked_obstVals)
+        if numpy.ma.count(masked_obstVals) == 0:
+            meanDistance = 0
+        else:
+            meanDistance = numpy.mean(masked_obstVals)
+
         print("============================")
         print("Start col", self.startCol)
         print("meanDistance", meanDistance)
