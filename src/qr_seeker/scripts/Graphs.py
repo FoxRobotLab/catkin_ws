@@ -12,7 +12,8 @@ and weighted subclasses"""
 # -- Make invalid indices raise an exception instead of returning -1...
 
 from FoxQueue import PriorityQueue
-import sys
+
+
 
 # ======================================================================
 
@@ -20,17 +21,16 @@ class Graph:
     """A graph contains vertices and edges -- This is an abstract
     class from which others inherit"""
 
-
     def __init__(self, n, nodeData = []):
         """Takes the number of nodes in the graph, and optionally
         a list of data to associate with each node.  The data is assigned
         to nodes in numeric order, starting with node 0.
         NOTE:  This is just a base class, either adjacency list or
         matrix classes should be instantiated, not this one."""
+
         self._numVerts = n
         self._nodeData = nodeData
         self._lastNode = len(self._nodeData)
-        # end __init__
 
 
     # -------------------------
@@ -71,6 +71,13 @@ class Graph:
     # ---------------------------------------------------------
     # Next, accessors of different sorts
 
+    def getSize(self):
+        """returns the number of nodes in the graph"""
+        return self._numVerts
+
+    def getVertices(self):
+        """Returns a range containing the node numbers for the graph"""
+        return range(self._numVerts)
 
     def getData(self, node):
         """Takes in a node index, and returns the data associated with
@@ -105,8 +112,6 @@ class Graph:
         NOTE:  This method does nothing in this class, and must be instantiated
         in subclasses."""
         pass
-
-# End class Graph
 
 
 # ======================================================================
@@ -185,6 +190,7 @@ class ListGraph(Graph):
             raise NodeIndexOutOfRangeException(0, self._numVerts, node1)
         else:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node2)
+
 
 # End class ListGraph
 
@@ -269,8 +275,6 @@ class MatrixGraph(Graph):
             raise NodeIndexOutOfRangeException(0, self._numVerts, node1)
         else:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node2)
-
-# End class MatrixGraph
 
 
 
@@ -471,7 +475,6 @@ class WeightedMatrixGraph(MatrixGraph):
             raise NodeIndexOutOfRangeException(0, self._numVerts, node2)
 
 
-
 # ======================================================================
 class NodeIndexOutOfRangeException(Exception):
     """A special exception for catching when a node reference is invalid"""
@@ -481,11 +484,11 @@ class NodeIndexOutOfRangeException(Exception):
         self.high = high
         self.actual = actual
 
-        def __str__(self):
-            s1 = "Expected node index in range " + str(self.low)
-            s2  = " to " + str(self.high)
-            s3 = "  Actual value was " + str(self.actual)
-            return s1 + s2 + s3
+    def __str__(self):
+        s1 = "Expected node index in range " + str(self.low)
+        s2  = " to " + str(self.high)
+        s3 = "  Actual value was " + str(self.actual)
+        return s1 + s2 + s3
 
 
 class GraphFullException(Exception):

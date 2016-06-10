@@ -6,6 +6,7 @@
 from Graphs import WeightedListGraph
 import math
 
+
 class MapGraph(WeightedListGraph):
     """The purpose of this subclass is to require the user to provide
     the required data for each node, which must be a coordinate pair,
@@ -22,7 +23,6 @@ class MapGraph(WeightedListGraph):
         else:
             WeightedListGraph.__init__(self, n, nodeData)
             self.markerMap = {}
-
 
     def _goodNodeData(self, nodeData):
         """Checks if the data given is valid, namely if the data for each node
@@ -89,7 +89,6 @@ class MapGraph(WeightedListGraph):
         return degAngle
 
 
-
 class BadNodeDataException(Exception):
     """A special exception for catching when node data is incomplete or badly
     formed"""
@@ -125,10 +124,10 @@ def readMapFile(mapFile):
         lowerLine = line.lower()
 
         if line == "" or line[0] == '#':
-        # ignore blank lines or lines that start with #
+            # ignore blank lines or lines that start with #
             continue
         elif readingIntro and lowerLine.startswith("number"):
-        # If at the start and line starts with number, then last value is # of nodes
+            # If at the start and line starts with number, then last value is # of nodes
             words = line.split()
             numNodes = int(words[-1])
             readingIntro = False
@@ -137,7 +136,7 @@ def readMapFile(mapFile):
             readingNodes = True
             row = 0
         elif readingNodes and row < numNodes:
-        # If reading nodes, and haven't finished (must be data for every node)
+            # If reading nodes, and haven't finished (must be data for every node)
             try:
                 [nodeNumStr, locStr, descr] = line.split("   ")
             except:
@@ -149,7 +148,7 @@ def readMapFile(mapFile):
             else:
                 dataList = locStr.split()
                 nodeData = [part.strip("(),") for part in dataList]
-                allData.append( (float(nodeData[0]), float(nodeData[1])) )
+                allData.append((float(nodeData[0]), float(nodeData[1])))
             row += 1
             if row == numNodes:
                 # If reading nodes, and should be done, then go on
@@ -169,7 +168,7 @@ def readMapFile(mapFile):
             heading = float(markerData[1])
             graph.addMarkerInfo(node, heading)
         elif readingEdges:
-        # If reading edges, then data is pair of nodes, add edge
+            # If reading edges, then data is pair of nodes, add edge
             [fromNode, toNode] = [int(x) for x in line.split()]
             graph.addEdge(fromNode, toNode)
         else:

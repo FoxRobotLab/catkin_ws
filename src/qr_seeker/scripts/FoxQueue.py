@@ -6,6 +6,7 @@ Updated Spring 2014 to fix comment style
 Updated Spring 2016 to add methods to priority queue for
 removing data from the queue."""
 
+
 class Queue:
     """A queue is a linear collection used to hold data that is waiting
     for some purpose.  The first to enter the queue is the first to
@@ -20,11 +21,10 @@ class Queue:
     def getSize(self):
         """Return the size of the queue."""
         return self.size
-    
+
     def isEmpty(self):
         "Returns true if the queue is empty, or false otherwise."""
         return self.size == 0
-
 
     def firstElement(self):
         """Returns the first value in the queue, without removing it."""
@@ -33,16 +33,14 @@ class Queue:
         else:
             return self.data[0]
 
-
     def insert(self, val):
         """Inserts a new value at the end of the queue."""
         self.data.append(val)
-        self.size = self.size + 1 
+        self.size = self.size + 1
 
     def enqueue(self, val):
         """Another name for inserting."""
         self.insert(val)
-
 
     def delete(self):
         """Removes the first element from the queue."""
@@ -53,7 +51,6 @@ class Queue:
         """Another name for deleting"""
         self.delete()
 
-        
     def __str__(self):
         """Creates a string containing the data, just for debugging."""
         qstr = "Queue: <- "
@@ -75,19 +72,18 @@ class PriorityQueue(Queue):
     """A priority queue puts lowest-cost elements first.
     Implemented with a MinHeap, which is internal to the class"""
 
-
-
     def __init__(self, vallist=[], compareFn = None):
         """When creating the queue, you an give a list of values
         to insert in the queue at the start, they must be tuples of the form
         (priority, value)"""
-        if compareFn == None:
+        Queue.__init__(self, vallist)
+        if compareFn is None:
             self.comesBefore = self._defaultCompare
         else:
             self.comesBefore = compareFn
         self.heap = []
         self.size = 0
-        for (p,v) in vallist:
+        for (p, v) in vallist:
             self.insert(p, v)
 
     def firstElement(self):
@@ -96,7 +92,6 @@ class PriorityQueue(Queue):
             return None
         else:
             return self.heap[0]
-
 
     def insert(self, priority, val):
         """Inserts a new value at the end of the queue."""
@@ -108,13 +103,12 @@ class PriorityQueue(Queue):
         """Another name for inserting"""
         self.insert(priority, val)
 
-
     def _walkUp(self, index):
         """Walk a value up the heap until it is larger than its parent
-        This is really a *private* method, no one outside should call it. 
+        This is really a *private* method, no one outside should call it.
         Thus the underscore leading the name."""
         inPlace = 0
-        while (not(index == 0) and not(inPlace)):
+        while not(index == 0) and not inPlace:
             parentIndex = self._parent(index)
             curr = self.heap[index]
             par = self.heap[parentIndex]
@@ -124,8 +118,6 @@ class PriorityQueue(Queue):
                 self.heap[index] = par
                 self.heap[parentIndex] = curr
                 index = parentIndex
-
-
 
     def delete(self):
         """Removes the first element from the queue."""
@@ -144,23 +136,22 @@ class PriorityQueue(Queue):
         """Another name for deleting"""
         self.delete()
 
-
     def _walkDown(self, index):
         """A private method, walks a value down the tree until it is
         smaller than both its children."""
         inPlace = 0
         leftInd = self._leftChild(index)
         rightInd = self._rightChild(index)
-        while (not(leftInd >= self.size) and not(inPlace)):
+        while not(leftInd >= self.size) and not inPlace:
             if (rightInd >= self.size) or \
                (self.heap[leftInd] < self.heap[rightInd]):
                 minInd = leftInd
             else:
                 minInd = rightInd
-                
+
             curr = self.heap[index]
             minVal = self.heap[minInd]
-            if self.comesBefore(curr[0], minVal[0]):      
+            if self.comesBefore(curr[0], minVal[0]):
                 inPlace = 1
             else:
                 self.heap[minInd] = curr
@@ -168,7 +159,6 @@ class PriorityQueue(Queue):
                 index = minInd
                 leftInd = self._leftChild(index)
                 rightInd = self._rightChild(index)
-
 
     def update(self, newP, value):
         """Update finds the given value in the queue, changes its
@@ -182,15 +172,13 @@ class PriorityQueue(Queue):
         else:
             self._walkDown(pos)
 
-
     def contains(self, value):
         """Takes in a value and searches for it in the priority queue. If
         it is there, it returns True, otherwise False."""
-        return (self._findValue(value) >= 0)
-    
-    
+        return self._findValue(value) >= 0
+
     def removeValue(self, value):
-        """Takes in a value and searches for it, and then removes 
+        """Takes in a value and searches for it, and then removes
         it from the queue, wherever it is."""
         pos = self._findValue(value)
         if self.size == 1:
@@ -206,9 +194,6 @@ class PriorityQueue(Queue):
             lastItem = self.heap.pop(self.size)
             self.heap[pos] = lastItem
             self._walkDown(pos)
-        
-
-
 
     def _findValue(self, value):
         """Find the position of a value in the priority queue."""
@@ -218,16 +203,15 @@ class PriorityQueue(Queue):
                 return i
             i = i + 1
         return -1
-    
+
     def _defaultCompare(self, key1, key2):
         """Default compares is less than on numbers."""
         return key1 < key2
-    
-    
+
     # The following helpers allow us to figure out
     # which value is the parent of a given value, and which
     # is the right child or left child.
-        
+
     def _parent(self, index):
         """Private: find position of parent given position of heap node."""
         return (index - 1) // 2
@@ -249,5 +233,5 @@ class PriorityQueue(Queue):
             p, v = self.firstElement()
             val = val + "priority: " + str(p) + ", value: " + str(v)
         return val
-# End of class PQueue
+
 

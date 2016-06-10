@@ -1,11 +1,10 @@
 # A Potential Field control system
 
-# from Myro import *
 import ReactiveBrain
 import math
 
 #-------------------------------------------
-# 
+#
 
 class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
 	""" This class represents a brain for a potential field reactive system.
@@ -18,7 +17,7 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
 
 	#----------------------------------------
 	#Initialization and destruction routines
-	
+
 	def __init__(self, robot, maxMagnitude = 100.0):
 		"""Initializes the brain with the robot it controls. Also takes
 		an optional input to define the maximum magnitude of any vector."""
@@ -26,9 +25,9 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
 
 		# set maximum possible magnitude
 		self.maxMagnitude = maxMagnitude
-		
 
-	# 
+
+	#
 	def step(self):
 		"""one step means figuring out the vectors for each of the behaviors, and performing
 		vector addition to combine them.  Then the resulting vector is the action taken."""
@@ -66,11 +65,11 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
 	#		scaledSpeed = min(-0.2, scaledSpeed)
 
 #		print transValue, scaledSpeed
-		
+
 		self.myRobot.move(transValue, scaledSpeed)
 
 
-	
+
 	def _updateBehaviors(self):
 		"""Run through all behaviors, and ask them to calculate the force
 		they detect. Return the forces as a list. Note: forces are given as a
@@ -133,7 +132,7 @@ class PotentialFieldBehavior(ReactiveBrain.ReactiveBehavior):
 	direction should be given assuming that zero degrees is always the
 	direction the robot is facing. Note that angles are assumed to be in
 	degrees."""
-	
+
 	# ---------------------
 	def __init__(self):
 		"""Initializes the motor recommendations to zero, and the flag to false.
@@ -143,15 +142,15 @@ class PotentialFieldBehavior(ReactiveBrain.ReactiveBehavior):
 		self._magnitude = 0
 		self._angle = 0
 
-   
-   
-	   
+
+
+
 	# ---------------------
 	# Accessors to avoid direct access to instance variables
 	def getMagnitude(self):
 		return self._magnitude
 	def getAngle(self):
-		return self._angle	
+		return self._angle
 
 	def getVector(self):
 		return (self._magnitude, self._angle)
@@ -160,9 +159,9 @@ class PotentialFieldBehavior(ReactiveBrain.ReactiveBehavior):
 		self._magnitude = mag
 		self._angle = ang
 
-		   
+
 	# ---------------------
-	
+
 	def update(self):
 		"""Reads the sensor data and determines what force is on the robot from its
 		sources, and reports that as the value.  Every behavior should always

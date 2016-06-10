@@ -19,14 +19,13 @@ import OutputLogger
 
 class FeatureType:
     """Abstract class, parent of individual features like Hough lines or color signature."""
+
     def __init__(self, image, logger, thresh = 0.0, maxVal = 0.0):
         """Takes in an image and the logger and sets up instance variables"""
         self.logger = logger
         self.image = image
         self.goodThresh = thresh
         self.maxValue = maxVal
-
-
 
     def displayFeaturePics(self, windowName, startX, startY):
         """Given a window name and a starting location on the screen, this creates
@@ -35,8 +34,6 @@ class FeatureType:
         displayPic = self.image.copy()
         cv2.imshow(windowName, displayPic)
         cv2.moveWindow(windowName, startX, startY)
-
-
 
     def evaluateSimilarity(self, otherHL):
         """Given another HoughLines object, evaluate the similarity.
@@ -47,7 +44,6 @@ class FeatureType:
 
         # Override this in the child class
         return self.maxValue
-
 
     def _normalizeSimValue(self, simValue):
         """Takes in a similarity value and normalizes it to be between
@@ -64,9 +60,3 @@ class FeatureType:
             ratio = distFromBottom / rangeSize
             normedVal = 50.0 + (ratio * 50.0)
         return normedVal
-
-
-
-
-
-
