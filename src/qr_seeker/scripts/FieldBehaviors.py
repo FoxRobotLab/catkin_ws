@@ -112,9 +112,11 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         masked_obstVals = numpy.ma.masked_array(obstVals, obstVals == 0)
 
         if numpy.ma.count(masked_obstVals) == 0:
-            meanDistance = 0
+            meanDistance = 500
         else:
             meanDistance = numpy.mean(masked_obstVals)
+            if meanDistance < 500:
+                meanDistance = 500
 
         print("============================")
         print("Start col", self.startCol)
@@ -123,8 +125,6 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 
 
         if meanDistance < 1500:
-            if meanDistance < 500:
-                meanDistance = 500
             self.setVector(self.speedMult / meanDistance, 180 - self.angle)
         else:
             self.setVector(0.0, 0.0)
