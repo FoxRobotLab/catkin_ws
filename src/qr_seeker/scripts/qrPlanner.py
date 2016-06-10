@@ -57,6 +57,9 @@ class qrPlanner(object):
                 cv2.resizeWindow("TurtleBot View", 200, 100)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
             cv2.waitKey(20)
+            print("Kinect", image.shape)
+            print("Left", leftImage.shape)
+            print("Right", rightImage.shape)
 
             # iterationCount += 1
             # if iterationCount > 50:
@@ -69,13 +72,13 @@ class qrPlanner(object):
             # cv2.waitKey(20)
 
             whichCam = "center" #data is from kinect camera
-            print("im looking for orb info!")
             orbInfo = self.orbScanner.orbScan(image)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is None and leftImage is not None and rightImage is not None:
                 orbLeft = self.orbScanner.orbScan(leftImage)
                 print("orbLeft", orbLeft)
                 orbRight = self.orbScanner.orbScan(rightImage)
+                print("orbLeft", orbRight)
                 if orbLeft is not None and orbRight is None:
                     print("one of the images found things but isn't doing anything... bad robot")
                     whichCam = "left"
