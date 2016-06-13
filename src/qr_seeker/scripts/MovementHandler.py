@@ -26,6 +26,8 @@ class MovementHandler(object):
     def align(self, orbInfo, camera):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
         (x, y), relativeArea = self.findORBContours(orbInfo)
+        if relativeArea is None:
+            return False
 
         centerX, centerY = self.ORBrecog.getFrameCenter()
 
@@ -190,6 +192,9 @@ class MovementHandler(object):
             if area > maxArea:
                 maxArea = area
                 largestContour = contour
+
+        if largestContour == 0:
+            return (0, 0), None
 
         M = cv2.moments(largestContour)
         imageArea = cv2.contourArea(largestContour)
