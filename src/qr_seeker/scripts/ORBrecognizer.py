@@ -33,7 +33,6 @@ class ORBrecognizer():
         self.matches = None
         self.goodMatches = None
         self.robot = bot
-        self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
 
     def tryToMatchFeatures(self, orb, img1, pointInfo, img2):
@@ -213,13 +212,3 @@ class ORBrecognizer():
         image2 = image.copy()
         img = self.colorPreprocessing(image2, colorSample)
         return self.findImage(img, properties, itemsSought, whichCam)
-
-    def getFrameDims(self):
-        """Returns the the dimmensions and depth of the camera frame"""
-        return self.fWidth, self.fHeight
-
-
-    def getFrameCenter(self):
-        """Returns the center coordinates of the camera frame"""
-        return self.fWidth / 2, self.fHeight / 2
-

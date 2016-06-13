@@ -21,19 +21,21 @@ class MovementHandler(object):
         self.d2s = 0.046 # converts degrees to seconds
         self.ORBrecog = ORBrecognizer.ORBrecognizer(self.robot)
         self.width, self.height = dims
+        self.webCamHeight = 240
+        self.webCamWidth = 320
 
 
     def align(self, orbInfo, camera):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
 
-        orbReturn = self.findORBContours(orbInfo)
+        orbReturn = self.findORBContours(orbInfo, camera)
         (x, y), relativeArea = orbReturn
         print("orbReturn", orbReturn)
 
         if relativeArea is None:
             return False
 
-        centerX, centerY = self.ORBrecog.getFrameCenter()
+        centerX, centerY = self.getFrameCenter(camera)
 
         xScore = abs(x - centerX) / float(centerX) * 1.5
         areaScore = abs(max((1 - relativeArea / 100), -1))
@@ -162,8 +164,9 @@ class MovementHandler(object):
 
     """Big idea: there may be multiple contours of blue areas in the image, so we need to
     find contours of the good keypoints, taking into account that some of these may be noise."""
-    def findORBContours(self, goodKeyPoints):
-        black = np.zeros((self.width, self.height), dtype='uint8')
+    def findORBContours(self, goodKeyPoints, camera):
+        w, h = self.getFrameDims(camera)
+        black = np.zeros((w, h), dtype='uint8')
 
         # ALL the keypoints, the list of matched keypoints within some range
         keypoints, goodMatches = goodKeyPoints
@@ -200,14 +203,26 @@ class MovementHandler(object):
 
         M = cv2.moments(largestContour)
         imageArea = cv2.contourArea(largestContour)
-        relativeArea = float(self.width * self.height) / imageArea
+        relativeArea = float(w*h) / imageArea
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
         return (cx, cy), relativeArea
 
 
+    def getFrameDims(self, cam):
+        """Returns the the dimmensions and depth of the camera frame"""
+        if cam == "center":
+            return self.width, self.height
+        else:
+            return self.webCamWidth, self.webCamHeight
 
 
+    def getFrameCenter(self, cam):
+        """Returns the center coordinates of the camera frame"""
+        if cam == "center":
+            return self.width / 2, self.height / 2
+        else:
+            return self.webCamWidth / 2, self.webCamHeight / 2
 
 
 
