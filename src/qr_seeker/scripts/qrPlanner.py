@@ -94,6 +94,7 @@ class qrPlanner(object):
                     break
             else:
                 self.ignoreBrain = False
+                self.aligned = False
         self.brain.stopAll()
 
 
