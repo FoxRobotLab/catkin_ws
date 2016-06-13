@@ -64,7 +64,7 @@ class qrPlanner(object):
             iterationCount += 1
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
-                    espeak.synth("Brain on")
+                    # espeak.synth("Brain on")
                     print "Potential Field Reacting"
                     self.brain.step()
 
@@ -142,7 +142,7 @@ class qrPlanner(object):
 
         else:
             self.ignoreBrain = True
-            espeak.synth("Brain Off")
+            # espeak.synth("Brain Off")
             self.aligned = self.moveHandle.align(orbInfo, whichCam)
 
         return False
