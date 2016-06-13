@@ -58,7 +58,7 @@ class qrPlanner(object):
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
-                cv2.resizeWindow("TurtleBot View", 300, 400)
+                cv2.resizeWindow("TurtleBot View", 200, 600)
             cv2.waitKey(20)
 
             iterationCount += 1
