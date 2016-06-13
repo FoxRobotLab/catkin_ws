@@ -58,11 +58,12 @@ class qrPlanner(object):
                 cv2.resizeWindow("TurtleBot View", 200, 100)
             cv2.waitKey(20)
 
-            # iterationCount += 1
-            # if iterationCount > 50:
-            #     if not self.aligned and not self.ignoreBrain:
-            #         print "Potential Field Reacting"
-            #         self.brain.step()
+            iterationCount += 1
+            if iterationCount > 50:
+                if not self.aligned and not self.ignoreBrain:
+                    print "Potential Field Reacting"
+                    self.brain.step()
+
             # dImage = self.robot.getDepth()
             # dImageInt8 = dImage.astype(np.uint8)
             # cv2.imshow("Depth View", 255 - dImageInt8)
