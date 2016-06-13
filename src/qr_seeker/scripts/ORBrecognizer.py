@@ -191,17 +191,23 @@ class ORBrecognizer():
         return properties
 
     #run this if you wanna test the feature recognition using a still image
-    def orbScan(self, image):
+    def orbScan(self, image, whichCam):
         itemsSought = ['sign']
         properties = self.initRefs(itemsSought)
 
-        filename = 'blue.jpg'
+        filenames = ['blue.jpg', 'blue_laptop.jpg', 'blue_webcam.jpg']
+        if whichCam == 'center':
+            filename = filenames[0]
+        elif whichCam == 'right':
+            filename = filenames[1]
+        elif whichCam == 'left':
+            filename = filenames[2]
         # path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
         path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
         try:
             colorSample = cv2.imread(path)
         except:
-            print "Could not read the sample color image!"
+            print "Could not read the sample color image " + filename + "!"
 
         #cv2.imshow("reference", colorSample)
         image2 = image.copy()

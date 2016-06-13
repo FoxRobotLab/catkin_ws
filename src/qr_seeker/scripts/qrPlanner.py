@@ -72,11 +72,8 @@ class qrPlanner(object):
             orbInfo = self.orbScanner.orbScan(image, whichCam)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is None and leftImage is not None and rightImage is not None:
-                #print "orb info none, both images not none"
                 orbLeft = self.orbScanner.orbScan(leftImage, whichCam)
-                #print("orbLeft", orbLeft)
                 orbRight = self.orbScanner.orbScan(rightImage, whichCam)
-                #print("orbRight", orbRight)
                 if orbLeft is not None and orbRight is None:
                     whichCam = "left"
                     orbInfo = orbLeft
