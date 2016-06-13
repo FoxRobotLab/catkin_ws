@@ -25,7 +25,11 @@ class MovementHandler(object):
 
     def align(self, orbInfo, camera):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
-        (x, y), relativeArea = self.findORBContours(orbInfo)
+
+        orbReturn = self.findORBContours(orbInfo)
+        (x, y), relativeArea = orbReturn
+        print("orbReturn", orbReturn)
+
         if relativeArea is None:
             return False
 

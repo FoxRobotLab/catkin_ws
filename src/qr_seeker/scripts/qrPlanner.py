@@ -19,7 +19,7 @@ import FieldBehaviors
 import math
 import PathLocation
 import numpy as np
-# from espeak import espeak
+from espeak import espeak
 
 
 class qrPlanner(object):
@@ -54,7 +54,6 @@ class qrPlanner(object):
             image = self.robot.getImage()[0]
             leftImage = self.getNextFrame(self.leftCam)
             rightImage = self.getNextFrame(self.rightCam)
-            cv2.imshow("TurtleBot View", image)
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
@@ -123,7 +122,7 @@ class qrPlanner(object):
         if qrInfo is not None:
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
             nodeNum, nodeCoord, nodeName = qrInfo
-            # espeak.synth("Seen node " + str(nodeNum))
+            espeak.synth("Seen node " + str(nodeNum))
 
             if heading is None:
                 # We have reached our destination
