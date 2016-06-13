@@ -76,18 +76,18 @@ class qrPlanner(object):
             orbInfo = self.orbScanner.orbScan(image, whichCam)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is None and leftImage is not None and rightImage is not None:
-                orbLeft = self.orbScanner.orbScan(leftImage, whichCam)
-                orbRight = self.orbScanner.orbScan(rightImage, whichCam)
+                orbLeft = self.orbScanner.orbScan(leftImage, 'left')
+                orbRight = self.orbScanner.orbScan(rightImage, 'right')
                 if orbLeft is not None and orbRight is None:
                     whichCam = "left"
                     orbInfo = orbLeft
                     qrInfo = self.qrScanner.qrScan(leftImage)
-                    print("I'm seeing things from the webcam")
+                    print("I'm seeing things from the left webcam")
                 elif orbLeft is None and orbRight is not None:
                     whichCam = "right"
                     orbInfo = orbRight
                     qrInfo = self.qrScanner.qrScan(rightImage)
-                    print("I'm seeing things from the laptop")
+                    print("I'm seeing things from the right webcam")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
             espeak.synth(whichCam)
             if orbInfo is not None:
