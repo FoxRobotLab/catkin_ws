@@ -33,10 +33,8 @@ class qrPlanner(object):
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
 
-        self.frameMultiplier = 0.75
-
-        self.webCamWidth = self.fWidth * self.frameMultiplier
-        self.webCamHeight = self.fHeight * self.frameMultiplier
+        self.webCamWidth = 480
+        self.webCamHeight = 360
 
         self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
                                                                                                     self.webCamHeight))
@@ -68,7 +66,7 @@ class qrPlanner(object):
             rightImage = self.getNextFrame(self.rightCam)
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
-                image2 = cv2.resize(image, (0,0), None, self.frameMultiplier, self.frameMultiplier)
+                image2 = cv2.resize(image, (0, 0), None, self.webCamWidth / self.fWidth, self.webCamHeight / self.fHeight)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image2, rightImage]))
                 cv2.resizeWindow("TurtleBot View", 600, 200)
             cv2.waitKey(20)
