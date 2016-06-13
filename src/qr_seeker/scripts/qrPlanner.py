@@ -64,6 +64,7 @@ class qrPlanner(object):
             iterationCount += 1
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
+                    espeak.synth("Brain on")
                     print "Potential Field Reacting"
                     self.brain.step()
 
@@ -75,6 +76,7 @@ class qrPlanner(object):
             whichCam = "center"  # data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image, whichCam)
             qrInfo = self.qrScanner.qrScan(image)
+            self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
             if orbInfo is None and leftImage is not None and rightImage is not None:
                 orbLeft = self.orbScanner.orbScan(leftImage, "left")
                 orbRight = self.orbScanner.orbScan(rightImage, "right")
@@ -89,7 +91,7 @@ class qrPlanner(object):
                     qrInfo = self.qrScanner.qrScan(rightImage)
                     print("I'm seeing things from the right webcam")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            espeak.synth(whichCam)
+            # espeak.synth(whichCam)
             if orbInfo is not None:
                 if self.locate(orbInfo, qrInfo, whichCam):
                     break
@@ -120,7 +122,6 @@ class qrPlanner(object):
 
         print "REACHED LOCATE"
         path = self.pathLoc.getPath()
-        self.ignoreSignTime += 1      # Incrementing "time" to avoid reading the same sign before moving away
         if qrInfo is not None and (not path or qrInfo[0] != path[-1]) and self.ignoreSignTime > 20:
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
