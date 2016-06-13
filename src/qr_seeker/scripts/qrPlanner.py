@@ -60,7 +60,7 @@ class qrPlanner(object):
             cv2.waitKey(20)
 
             iterationCount += 1
-            if iterationCount > 50:
+            if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     print "Potential Field Reacting"
                     espeak.synth("Stepping the brain")
@@ -92,7 +92,8 @@ class qrPlanner(object):
             if orbInfo is not None:
                 if self.locate(orbInfo, qrInfo, whichCam):
                     break
-
+            else:
+                self.ignoreBrain = False
         self.brain.stopAll()
 
 
@@ -133,9 +134,6 @@ class qrPlanner(object):
             #because it's still on screen - maybe check that the one you're seeing isn't the last one
             #you saw.
 
-        if orbInfo is None:
-            self.aligned = False
-            self.ignoreBrain = False
         else:
             self.ignoreBrain = True
             self.aligned = self.moveHandle.align(orbInfo, whichCam)
