@@ -19,6 +19,7 @@ import FieldBehaviors
 import math
 import PathLocation
 import numpy as np
+from espeak import espeak
 
 
 class qrPlanner(object):
@@ -62,6 +63,7 @@ class qrPlanner(object):
             if iterationCount > 50:
                 if not self.aligned and not self.ignoreBrain:
                     print "Potential Field Reacting"
+                    espeak.synth("Stepping the brain")
                     self.brain.step()
 
             # dImage = self.robot.getDepth()
@@ -116,6 +118,8 @@ class qrPlanner(object):
         print "REACHED LOCATE"
         if qrInfo is not None:
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
+            nodeNum, nodeCoord, nodeName = qrInfo
+            espeak.synth("I have seen node " + str(nodeNum))
 
             if heading is None:
                 # We have reached our destination
