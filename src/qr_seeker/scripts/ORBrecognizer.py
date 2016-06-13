@@ -195,13 +195,11 @@ class ORBrecognizer():
         itemsSought = ['sign']
         properties = self.initRefs(itemsSought)
 
-        filenames = ['blue.jpg', 'blue_laptop.jpg', 'blue_webcam.jpg']
+        filenames = ['blue.jpg','blue_webcam.jpg']
         if whichCam == 'center':
             filename = filenames[0]
-        elif whichCam == 'right':
-            filename = filenames[2]
-        elif whichCam == 'left':
-            filename = filenames[2]
+        elif whichCam == 'right' or whichCam == 'left':
+            filename = filenames[1]
         # path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
         path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
         try:
