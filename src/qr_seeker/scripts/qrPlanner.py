@@ -84,14 +84,13 @@ class qrPlanner(object):
             # cv2.imshow("Depth View", 255 - dImageInt8)
             # cv2.waitKey(20)
 
-            whichCam = ""  # data is from kinect camera
+            whichCam = "center"  # data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image, whichCam)
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
 
-            if orbInfo is not None:
-                whichCam = "center"
-            elif orbInfo is None and leftImage is not None and rightImage is not None:
+            if orbInfo is None and leftImage is not None and rightImage is not None:
+                whichCam = "no cam"
                 orbLeft = self.orbScanner.orbScan(leftImage, "left")
                 orbRight = self.orbScanner.orbScan(rightImage, "right")
                 if orbLeft is not None and orbRight is None:
