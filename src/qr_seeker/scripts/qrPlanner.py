@@ -39,14 +39,14 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
-        self.rightCam = cv2.VideoCapture(1)     # laptop faces right
-        self.leftCam = cv2.VideoCapture(2)      # other cam faces left
+        self.rightCam = cv2.VideoCapture(1)     # both are webcams
+        self.leftCam = cv2.VideoCapture(2)
         self.rightCam.set(cv2.CAP_PROP_FPS, 10)
         self.leftCam.set(cv2.CAP_PROP_FPS, 10)
         self.ignoreSignTime = 0
 
 
-    def run(self, runtime = 120):
+    def run(self, runtime=120):
         #Runs the program for the duration of 'runtime'"""
         timeout = time.time() + runtime
         iterationCount = 0
@@ -72,12 +72,12 @@ class qrPlanner(object):
             # cv2.imshow("Depth View", 255 - dImageInt8)
             # cv2.waitKey(20)
 
-            whichCam = "center" #data is from kinect camera
+            whichCam = "center"  # data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image, whichCam)
             qrInfo = self.qrScanner.qrScan(image)
             if orbInfo is None and leftImage is not None and rightImage is not None:
-                orbLeft = self.orbScanner.orbScan(leftImage, 'left')
-                orbRight = self.orbScanner.orbScan(rightImage, 'right')
+                orbLeft = self.orbScanner.orbScan(leftImage, "left")
+                orbRight = self.orbScanner.orbScan(rightImage, "right")
                 if orbLeft is not None and orbRight is None:
                     whichCam = "left"
                     orbInfo = orbLeft
@@ -109,7 +109,7 @@ class qrPlanner(object):
         widthPieces = int(math.floor(self.fWidth / float(numPieces)))
         speedMultiplier = 50
         for i in range(0, numPieces):
-            currBrain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces/2, speedMultiplier))
+            currBrain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces / 2, speedMultiplier))
 
         return currBrain
 
