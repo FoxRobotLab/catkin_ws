@@ -39,15 +39,16 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
-        self.rightCam = cv2.VideoCapture(1) #laptop faces right
-        self.leftCam = cv2.VideoCapture(2) #other cam faces left
+        self.rightCam = cv2.VideoCapture(1)     # laptop faces right
+        self.leftCam = cv2.VideoCapture(2)      # other cam faces left
         self.rightCam.set(cv2.CAP_PROP_FPS, 10)
         self.leftCam.set(cv2.CAP_PROP_FPS, 10)
+        self.ignoreSignTime = 0
 
 
-    def run(self,runtime = 120):
+    def run(self, runtime = 120):
         #Runs the program for the duration of 'runtime'"""
-        timeout = time.time()+runtime
+        timeout = time.time() + runtime
         iterationCount = 0
         self.pathLoc.beginJourney()
         while time.time() < timeout and not rospy.is_shutdown():
@@ -57,7 +58,7 @@ class qrPlanner(object):
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
-                # cv2.resizeWindow("TurtleBot View", 200, 100)
+                cv2.resizeWindow("TurtleBot View", 300, 400)
             cv2.waitKey(20)
 
             iterationCount += 1
@@ -119,10 +120,13 @@ class qrPlanner(object):
         Returns True if the robot has arrived at it's destination, otherwise, False."""
 
         print "REACHED LOCATE"
-        if qrInfo is not None:
+        path = self.pathLoc.getPath()
+        self.ignoreSignTime += 1      # Incrementing "time" to avoid reading the same sign before moving away
+        if qrInfo is not None and qrInfo[0] != path[-1] and self.ignoreSignTime > 20:
+            self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
-            nodeNum, nodeCoord, nodeName = qrInfo
-            espeak.synth("Seen node " + str(nodeNum))
+            # nodeNum, nodeCoord, nodeName = qrInfo
+            espeak.synth("Seen node " + str(qrInfo[0]))
 
             if heading is None:
                 # We have reached our destination
