@@ -83,11 +83,14 @@ class qrPlanner(object):
             # cv2.imshow("Depth View", 255 - dImageInt8)
             # cv2.waitKey(20)
 
-            whichCam = "center"  # data is from kinect camera
+            whichCam = ""  # data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image, whichCam)
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
-            if orbInfo is None and leftImage is not None and rightImage is not None:
+
+            if orbInfo is not None:
+                whichCam = "center"
+            elif orbInfo is None and leftImage is not None and rightImage is not None:
                 orbLeft = self.orbScanner.orbScan(leftImage, "left")
                 orbRight = self.orbScanner.orbScan(rightImage, "right")
                 if orbLeft is not None and orbRight is None:
@@ -101,7 +104,7 @@ class qrPlanner(object):
                     qrInfo = self.qrScanner.qrScan(rightImage)
                     print("I'm seeing things from the right webcam")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            # espeak.synth(whichCam)
+            espeak.synth(whichCam)
             if orbInfo is not None:
                 if self.locate(orbInfo, qrInfo, whichCam):
                     break
