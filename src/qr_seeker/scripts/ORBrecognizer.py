@@ -60,8 +60,8 @@ class ORBrecognizer():
 
         matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,
             None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
-        # cv2.imshow("Match Image", matchImage)
-        # cv2.waitKey(20)
+        cv2.imshow("Match Image", matchImage)
+        cv2.waitKey(20)
         #print "I reached the waitkey in ORB"
 
         return goodMatches, kp1, kp2
@@ -199,7 +199,7 @@ class ORBrecognizer():
         if whichCam == 'center':
             filename = filenames[0]
         elif whichCam == 'right':
-            filename = filenames[1]
+            filename = filenames[2]
         elif whichCam == 'left':
             filename = filenames[2]
         # path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename

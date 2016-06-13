@@ -39,8 +39,10 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
-        self.rightCam = cv2.VideoCapture(0) #laptop faces right
+        self.rightCam = cv2.VideoCapture(1) #laptop faces right
         self.leftCam = cv2.VideoCapture(2) #other cam faces left
+        self.rightCam.set(cv2.CAP_PROP_FPS, 10)
+        self.leftCam.set(cv2.CAP_PROP_FPS, 10)
 
 
     def run(self,runtime = 120):
@@ -52,10 +54,10 @@ class qrPlanner(object):
             image = self.robot.getImage()[0]
             leftImage = self.getNextFrame(self.leftCam)
             rightImage = self.getNextFrame(self.rightCam)
-            # cv2.imshow("TurtleBot View", image)
-            # if leftImage is not None and rightImage is not None:
-                # cv2.namedWindow("TurtleBot View", 0)
-                # cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
+            cv2.imshow("TurtleBot View", image)
+            if leftImage is not None and rightImage is not None:
+                cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
+                cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
                 # cv2.resizeWindow("TurtleBot View", 200, 100)
             cv2.waitKey(20)
 
