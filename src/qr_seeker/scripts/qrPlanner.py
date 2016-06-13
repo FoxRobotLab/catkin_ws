@@ -89,14 +89,14 @@ class qrPlanner(object):
                     qrInfo = self.qrScanner.qrScan(rightImage)
                     print("I'm seeing things from the laptop")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            # espeak.synth(whichCam)
+            espeak.synth(whichCam)
             if orbInfo is not None:
                 if self.locate(orbInfo, qrInfo, whichCam):
                     break
             else:
                 self.ignoreBrain = False
                 self.aligned = False
-                # espeak.synth("Brain Off")
+                espeak.synth("Brain Off")
         self.brain.stopAll()
 
 

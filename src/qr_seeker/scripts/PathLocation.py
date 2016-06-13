@@ -46,5 +46,5 @@ class PathLocation(object):
 
 
     def getPath(self):
-        print("I'm serious. You actually did it. Here is your path again so you can see how far you have come.")
+        # print("I'm serious. You actually did it. Here is your path again so you can see how far you have come.")
         return self.pathTraveled
