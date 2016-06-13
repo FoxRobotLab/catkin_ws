@@ -87,7 +87,7 @@ class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
         elif bumperCode == 1 or bumperCode == 3: # Right side of bumper or both
             self.setVector(0.4, 200)
         else:
-            self.setVector(0.2, 0.0)
+            self.setVector(0.0, 0.0)
 
 
 class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
