@@ -107,6 +107,7 @@ class ORBrecognizer():
 
     def colorPreprocessing(self, img, colorSample):
         img2 = img.copy()
+        #cv2.imshow("to begin", img)
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)    # convert to HSV
         mask = cv2.inRange(hsv, np.array((0., 60., 32.)), np.array((180., 255., 255.)))   # eliminate low and high saturation and value values
@@ -139,7 +140,8 @@ class ORBrecognizer():
         red_channel &= prob
         cv2.merge((blue_channel, green_channel, red_channel), img)
         #cv2.imshow("prob", prob)
-
+        #cv2.imshow("image", img)
+#
         #Prob at this point has black outline around the letter themselves, which is why we need
         #to do all the stuff with the contours. Blobs don't work because the white areas are too large.
         _, contours, hierarchy = cv2.findContours(prob, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -178,8 +180,8 @@ class ORBrecognizer():
             properties.append([None, [], [], 0])
 
             filename = itemsSought[i] + '.jpg'
-            path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
-            #path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
+            #path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
+            path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
             properties[i][0] = cv2.imread(path, 0)
             if properties[i][0] is None:
                 print("Reference image", itemsSought[i], "not found")
@@ -204,6 +206,7 @@ class ORBrecognizer():
         except:
             print "Could not read the sample color image!"
 
+        #cv2.imshow("reference", colorSample)
         image2 = image.copy()
         img = self.colorPreprocessing(image2, colorSample)
         return self.findImage(img, properties, itemsSought)
