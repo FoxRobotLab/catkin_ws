@@ -78,10 +78,12 @@ class qrPlanner(object):
                     whichCam = "left"
                     orbInfo = orbLeft
                     qrInfo = self.qrScanner.qrScan(leftImage)
+                    print("I'm seeing things from the webcam")
                 elif orbLeft is None and orbRight is not None:
                     whichCam = "right"
                     orbInfo = orbRight
                     qrInfo = self.qrScanner.qrScan(rightImage)
+                    print("I'm seeing things from the laptop")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
 
             if orbInfo is not None:
