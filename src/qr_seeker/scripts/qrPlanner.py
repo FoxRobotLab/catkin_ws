@@ -41,8 +41,8 @@ class qrPlanner(object):
 
         self.rightCam = cv2.VideoCapture(1)     # both are webcams
         self.leftCam = cv2.VideoCapture(2)
-        self.rightCam.set(cv2.CAP_PROP_FPS, 10)
-        self.leftCam.set(cv2.CAP_PROP_FPS, 10)
+        self.rightCam.set(cv2.CAP_PROP_FPS, 12)
+        self.leftCam.set(cv2.CAP_PROP_FPS, 12)
         self.ignoreSignTime = 0
 
 
@@ -58,7 +58,7 @@ class qrPlanner(object):
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image, rightImage]))
-                cv2.resizeWindow("TurtleBot View", 200, 600)
+                cv2.resizeWindow("TurtleBot View", 600, 200)
             cv2.waitKey(20)
 
             iterationCount += 1
