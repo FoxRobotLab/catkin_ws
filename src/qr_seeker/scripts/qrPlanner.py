@@ -63,7 +63,7 @@ class qrPlanner(object):
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     print "Potential Field Reacting"
-                    espeak.synth("Stepping the brain")
+                    espeak.synth("Brain")
                     self.brain.step()
 
             # dImage = self.robot.getDepth()
@@ -88,7 +88,7 @@ class qrPlanner(object):
                     qrInfo = self.qrScanner.qrScan(rightImage)
                     print("I'm seeing things from the laptop")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            espeak.synth("I am working with camera" + whichCam)
+            espeak.synth(whichCam)
             if orbInfo is not None:
                 if self.locate(orbInfo, qrInfo, whichCam):
                     break
