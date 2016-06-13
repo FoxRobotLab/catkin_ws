@@ -15,14 +15,13 @@ import numpy as np
 
 class MovementHandler(object):
 
-    def __init__(self, bot, dims):
+    def __init__(self, bot, botDims, webCamDims):
         """Needs the turtleBot, and cameraThread objects """
         self.robot = bot
         self.d2s = 0.046 # converts degrees to seconds
         self.ORBrecog = ORBrecognizer.ORBrecognizer(self.robot)
-        self.width, self.height = dims
-        self.webCamHeight = 240
-        self.webCamWidth = 320
+        self.width, self.height = botDims
+        self.webCamWidth, self.webCamHeight = webCamDims
 
 
     def align(self, orbInfo, camera):

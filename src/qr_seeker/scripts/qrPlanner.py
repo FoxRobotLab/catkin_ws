@@ -33,7 +33,13 @@ class qrPlanner(object):
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
 
-        self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight))
+        self.frameMultiplier = 0.75
+
+        self.webCamWidth = self.fWidth * self.frameMultiplier
+        self.webCamHeight = self.fHeight * self.frameMultiplier
+
+        self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
+                                                                                                    self.webCamHeight))
         self.pathLoc = PathLocation.PathLocation()
         self.pathTraveled = []
         self.aligned = False
@@ -41,12 +47,12 @@ class qrPlanner(object):
 
         self.rightCam = cv2.VideoCapture(1)     # both are webcams
         self.leftCam = cv2.VideoCapture(2)
-        # self.rightCam.set(cv2.CAP_PROP_FPS, 30)
-        self.rightCam.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-        self.rightCam.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-        # self.leftCam.set(cv2.CAP_PROP_FPS, 30)
-        self.leftCam.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-        self.leftCam.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+        self.rightCam.set(cv2.CAP_PROP_FPS, 30)
+        self.rightCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
+        self.rightCam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.webCamHeight)
+        self.leftCam.set(cv2.CAP_PROP_FPS, 30)
+        self.leftCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
+        self.leftCam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.webCamHeight)
 
         self.ignoreSignTime = 0
 
@@ -62,7 +68,7 @@ class qrPlanner(object):
             rightImage = self.getNextFrame(self.rightCam)
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
-                image2 = cv2.resize(image, (0,0), None, 0.5, 0.5)
+                image2 = cv2.resize(image, (0,0), None, self.frameMultiplier, self.frameMultiplier)
                 cv2.imshow("TurtleBot View", np.hstack([leftImage, image2, rightImage]))
                 cv2.resizeWindow("TurtleBot View", 600, 200)
             cv2.waitKey(20)
