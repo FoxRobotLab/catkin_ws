@@ -184,7 +184,7 @@ class MovementHandler(object):
         _, contours, hierarchy = cv2.findContours(closing, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
         maxArea = 0
-        largestContour = 0
+        largestContour = None
 
         for i in range(0, len(contours)):
             contour = contours[i]
@@ -193,7 +193,7 @@ class MovementHandler(object):
                 maxArea = area
                 largestContour = contour
 
-        if largestContour == 0:
+        if largestContour is None:
             return (0, 0), None
 
         M = cv2.moments(largestContour)
