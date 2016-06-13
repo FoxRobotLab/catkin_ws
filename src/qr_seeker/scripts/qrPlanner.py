@@ -19,7 +19,7 @@ import FieldBehaviors
 import math
 import PathLocation
 import numpy as np
-from espeak import espeak
+# from espeak import espeak
 
 
 class qrPlanner(object):
@@ -87,14 +87,14 @@ class qrPlanner(object):
                     qrInfo = self.qrScanner.qrScan(rightImage)
                     print("I'm seeing things from the laptop")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            espeak.synth(whichCam)
+            # espeak.synth(whichCam)
             if orbInfo is not None:
                 if self.locate(orbInfo, qrInfo, whichCam):
                     break
             else:
                 self.ignoreBrain = False
                 self.aligned = False
-                espeak.synth("Brain Off")
+                # espeak.synth("Brain Off")
         self.brain.stopAll()
 
 
@@ -121,7 +121,7 @@ class qrPlanner(object):
         if qrInfo is not None:
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
             nodeNum, nodeCoord, nodeName = qrInfo
-            espeak.synth("Seen node " + str(nodeNum))
+            # espeak.synth("Seen node " + str(nodeNum))
 
             if heading is None:
                 # We have reached our destination
