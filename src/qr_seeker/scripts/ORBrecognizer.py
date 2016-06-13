@@ -67,7 +67,7 @@ class ORBrecognizer():
         return goodMatches, kp1, kp2
 
 
-    def findImage(self, img, properties, itemsSought):
+    def findImage(self, img, properties, itemsSought, whichCam):
 
         colorImage = img
         answer = False
@@ -89,7 +89,7 @@ class ORBrecognizer():
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
 
 
-        if max_value > 25:
+        if (max_value > 25 and whichCam != 'left') or max_value > 70:
             print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
             #retVal = (itemsSought[max_index], (cx, cy), relativeArea)
             retVal = (properties[max_index][2][1], properties[max_index][2][0]) #set of good points for the sign with the most good points
@@ -140,7 +140,7 @@ class ORBrecognizer():
         cv2.merge((blue_channel, green_channel, red_channel), img)
         #cv2.imshow("prob", prob)
         #cv2.imshow("image", img)
-#
+
         #Prob at this point has black outline around the letter themselves, which is why we need
         #to do all the stuff with the contours. Blobs don't work because the white areas are too large.
         _, contours, hierarchy = cv2.findContours(prob, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -212,7 +212,7 @@ class ORBrecognizer():
         #cv2.imshow("reference", colorSample)
         image2 = image.copy()
         img = self.colorPreprocessing(image2, colorSample)
-        return self.findImage(img, properties, itemsSought)
+        return self.findImage(img, properties, itemsSought, whichCam)
 
     def getFrameDims(self):
         """Returns the the dimmensions and depth of the camera frame"""
