@@ -8,8 +8,6 @@ handles the actions the turtlebot completes to see the image it is looking
 for in the center of its view.
 ======================================================================== """
 
-import OlinGraph
-import ORBrecognizer
 import cv2
 import numpy as np
 
@@ -19,7 +17,6 @@ class MovementHandler(object):
         """Needs the turtleBot, and cameraThread objects """
         self.robot = bot
         self.d2s = 0.046 # converts degrees to seconds
-        self.ORBrecog = ORBrecognizer.ORBrecognizer(self.robot)
         self.width, self.height = botDims
         self.webCamWidth, self.webCamHeight = webCamDims
 
