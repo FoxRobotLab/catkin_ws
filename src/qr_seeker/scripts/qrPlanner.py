@@ -121,7 +121,7 @@ class qrPlanner(object):
         if qrInfo is not None:
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
             nodeNum, nodeCoord, nodeName = qrInfo
-            espeak.synth("I have seen node " + str(nodeNum))
+            espeak.synth("Seen node " + str(nodeNum))
 
             if heading is None:
                 # We have reached our destination
