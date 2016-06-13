@@ -137,7 +137,6 @@ class qrPlanner(object):
         else:
             self.ignoreBrain = True
             self.aligned = self.moveHandle.align(orbInfo, whichCam)
-            time.sleep(0.1)
 
         return False
 
