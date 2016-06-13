@@ -73,9 +73,8 @@ class ORBrecognizer():
         answer = False
 
         #properties[i][2] holds the list of good points and the two sets of keypoints (for drawing)
-        orb = cv2.ORB_create()
         for i in range (0, len(itemsSought)):
-            goodPoints, targetKeypts, refKeypts = self.tryToMatchFeatures(orb, img, properties[i][1], properties[i][0])
+            goodPoints, targetKeypts, refKeypts = self.tryToMatchFeatures(self.orb, img, properties[i][1], properties[i][0])
             properties[i][2].append(goodPoints)
             properties[i][2].append(targetKeypts)
             properties[i][2].append(refKeypts)
@@ -173,8 +172,6 @@ class ORBrecognizer():
     def initRefs(self, itemsSought):
         properties = [] #2D array used to store info on each item: item i is properties[i]
 
-        orb = cv2.ORB_create()
-
         #properties[i][0] holds the reference image for the item
         for i in range (0, len(itemsSought)):
             properties.append([None, [], [], 0])
@@ -187,7 +184,7 @@ class ORBrecognizer():
                 print("Reference image", itemsSought[i], "not found")
 
             #properties[i][1] holds the keypoints and their descriptions for the reference image
-            keypoints, descriptions = orb.detectAndCompute(properties[i][0], None)
+            keypoints, descriptions = self.orb.detectAndCompute(properties[i][0], None)
             properties[i][1].append(keypoints)
             properties[i][1].append(descriptions)
 
