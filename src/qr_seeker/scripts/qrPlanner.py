@@ -122,7 +122,11 @@ class qrPlanner(object):
 
         print "REACHED LOCATE"
         path = self.pathLoc.getPath()
-        if qrInfo is not None and (not path or qrInfo[0] != path[-1]) and self.ignoreSignTime > 20:
+        if path is None:
+            last = -1
+        else:
+            last = path[-1]
+        if qrInfo is not None and (last != qrInfo[1] and self.ignoreSignTime > 20):
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
             # nodeNum, nodeCoord, nodeName = qrInfo
