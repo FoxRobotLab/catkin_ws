@@ -90,7 +90,6 @@ class qrPlanner(object):
             self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
 
             if orbInfo is None and leftImage is not None and rightImage is not None:
-                whichCam = "no cam"
                 orbLeft = self.orbScanner.orbScan(leftImage, "left")
                 orbRight = self.orbScanner.orbScan(rightImage, "right")
                 if orbLeft is not None and orbRight is None:
@@ -104,8 +103,8 @@ class qrPlanner(object):
                     qrInfo = self.qrScanner.qrScan(rightImage)
                     print("I'm seeing things from the right webcam")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            espeak.synth(whichCam)
             if orbInfo is not None:
+                espeak.synth(whichCam)
                 if self.locate(orbInfo, qrInfo, whichCam):
                     break
             else:
@@ -159,7 +158,6 @@ class qrPlanner(object):
 
         elif qrInfo is None:
             self.ignoreBrain = True
-            # espeak.synth("Brain Off")
             self.aligned = self.moveHandle.align(orbInfo, whichCam)
 
         return False

@@ -35,6 +35,7 @@ class MovementHandler(object):
 
         xScore = abs(x - centerX) / float(centerX) * 1.5
         areaScore = abs(max((1 - relativeArea / 80), -1))
+        print("relative Area", relativeArea)
 
         scores = [("xScore", xScore), ("areaScore", areaScore)]
 
@@ -86,11 +87,13 @@ class MovementHandler(object):
                     self.turnByAngle(-90)
                     self.robot.forward(.05, 1)
                     self.turnByAngle(90)
+                    self.robot.stop()
                     print("move closer to sign")
                 else:
                     self.turnByAngle(90)
                     self.robot.forward(.05, 1)
                     self.turnByAngle(-90)
+                    self.robot.stop()
                     print("move farther from sign")
 
         # If camera found sign using camera facing right
@@ -110,11 +113,13 @@ class MovementHandler(object):
                     self.turnByAngle(90)
                     self.robot.forward(.05, 1)
                     self.turnByAngle(-90)
+                    self.robot.stop()
                     print("move farther from sign")
                 else:
                     self.turnByAngle(-90)
                     self.robot.forward(.05, 1)
                     self.turnByAngle(90)
+                    self.robot.stop()
                     print("move closer to sign")
 
 
