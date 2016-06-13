@@ -43,8 +43,6 @@ class MovementHandler(object):
             if num > bestScore:
                 bestName, bestScore = score
 
-        print("area", relativeArea)
-
         """ If none of the scores are big enough to return any issues with the target in the turtlebot's view to avoid
          bot constantly trying to fix minute issues"""
         if bestScore < 0.4:
