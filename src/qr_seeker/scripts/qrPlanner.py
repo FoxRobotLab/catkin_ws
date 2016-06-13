@@ -144,7 +144,7 @@ class qrPlanner(object):
             #because it's still on screen - maybe check that the one you're seeing isn't the last one
             #you saw.
 
-        else:
+        elif qrInfo is None:
             self.ignoreBrain = True
             # espeak.synth("Brain Off")
             self.aligned = self.moveHandle.align(orbInfo, whichCam)
