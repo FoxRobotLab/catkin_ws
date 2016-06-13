@@ -39,7 +39,7 @@ class qrPlanner(object):
         self.ignoreBrain = False
 
         self.rightCam = cv2.VideoCapture(0) #laptop faces right
-        self.leftCam = cv2.VideoCapture(1) #other cam faces left
+        self.leftCam = cv2.VideoCapture(2) #other cam faces left
 
 
     def run(self,runtime = 120):
