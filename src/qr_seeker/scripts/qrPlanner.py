@@ -96,7 +96,6 @@ class qrPlanner(object):
             else:
                 self.ignoreBrain = False
                 self.aligned = False
-                espeak.synth("Brain Off")
         self.brain.stopAll()
 
 
@@ -122,7 +121,7 @@ class qrPlanner(object):
         print "REACHED LOCATE"
         path = self.pathLoc.getPath()
         self.ignoreSignTime += 1      # Incrementing "time" to avoid reading the same sign before moving away
-        if qrInfo is not None and qrInfo[0] != path[-1] and self.ignoreSignTime > 20:
+        if qrInfo is not None and (not path or qrInfo[0] != path[-1]) and self.ignoreSignTime > 20:
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
             # nodeNum, nodeCoord, nodeName = qrInfo
@@ -142,6 +141,7 @@ class qrPlanner(object):
 
         else:
             self.ignoreBrain = True
+            espeak.synth("Brain Off")
             self.aligned = self.moveHandle.align(orbInfo, whichCam)
 
         return False
