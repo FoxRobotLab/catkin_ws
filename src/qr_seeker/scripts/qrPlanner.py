@@ -63,7 +63,6 @@ class qrPlanner(object):
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     print "Potential Field Reacting"
-                    espeak.synth("Brain")
                     self.brain.step()
 
             # dImage = self.robot.getDepth()
@@ -95,6 +94,7 @@ class qrPlanner(object):
             else:
                 self.ignoreBrain = False
                 self.aligned = False
+                espeak.synth("Brain Off")
         self.brain.stopAll()
 
 
