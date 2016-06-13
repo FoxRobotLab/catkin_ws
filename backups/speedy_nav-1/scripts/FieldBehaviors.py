@@ -75,7 +75,7 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
 class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 
 	def __init__(self, posPercent, speedMult):
-		# posPercent is distance from left side of camera image, in percent of width (from 0 to 1)
+		# posPercent is distance from left side of camera image, in percent of botWidth (from 0 to 1)
 		super(ObstacleForce, self).__init__()
 		self.speedMult = speedMult
 		self.imageWidth = 30
@@ -88,10 +88,10 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 		elif self.imageLeft < 0:
 			self.imageRight += 0-self.imageLeft
 			self.imageLeft = 0
-			
+
 	def update(self):
-		# width = 640
-		# height = 480
+		# botWidth = 640
+		# botHeight = 480
 
 		obstVals = self.robot.getDepth(self.imageLeft,
 									   240-(self.imageWidth/2),
@@ -102,7 +102,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 		# print numpy.ma.masked_array(obstVals, obstVals==0)
 
 		meanDistance = numpy.mean(masked_obstVals)
-		
+
 		#print "--------"
 		#print masked_obstVals
 		#print meanDistance

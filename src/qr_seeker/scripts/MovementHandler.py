@@ -17,7 +17,7 @@ class MovementHandler(object):
         """Needs the turtleBot, and cameraThread objects """
         self.robot = bot
         self.d2s = 0.046 # converts degrees to seconds
-        self.width, self.height = botDims
+        self.botWidth, self.botHeight = botDims
         self.webCamWidth, self.webCamHeight = webCamDims
 
 
@@ -34,7 +34,7 @@ class MovementHandler(object):
         centerX, centerY = self.getFrameCenter(camera)
 
         xScore = abs(x - centerX) / float(centerX) * 1.5
-        areaScore = abs(max((1 - relativeArea / 100), -1))
+        areaScore = abs(max((1 - relativeArea / 80), -1))
 
         scores = [("xScore", xScore), ("areaScore", areaScore)]
 
@@ -208,7 +208,7 @@ class MovementHandler(object):
     def getFrameDims(self, cam):
         """Returns the the dimmensions and depth of the camera frame"""
         if cam == "center":
-            return self.width, self.height
+            return self.botWidth, self.botHeight
         else:
             return self.webCamWidth, self.webCamHeight
 
@@ -216,7 +216,7 @@ class MovementHandler(object):
     def getFrameCenter(self, cam):
         """Returns the center coordinates of the camera frame"""
         if cam == "center":
-            return self.width / 2, self.height / 2
+            return self.botWidth / 2, self.botHeight / 2
         else:
             return self.webCamWidth / 2, self.webCamHeight / 2
 

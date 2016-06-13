@@ -7,7 +7,7 @@ import itertools
 from TargetScanner import *
 
 class MultiCamShift(threading.Thread):
-	
+
 	def __init__(self, frameShape, toScanFor = ["indigo", "green", "red", "blue", "violet"]):
 		"""Creates the cam shift thread and sets up scanners for all objects listed in 'self.toScanFor'. Needs an example image to get the dimensions of the frame."""
 
@@ -17,15 +17,15 @@ class MultiCamShift(threading.Thread):
 		self.lock = threading.Lock()
 		self.locationAndArea = {}
 		self.fHeight, self.fWidth, self.fDepth = frameShape
-		self.initialized = False		
+		self.initialized = False
 		self.horzPatternYSpacing = self.fHeight / 8.0
 		for object_name in self.toScanFor:
 			self.scanners[object_name] = TargetScanner(object_name, (self.fWidth, self.fHeight))
 		# determines how uniform the distances between the colors in a pattern must be
 		self.horzPatternXRatio = 2
 		self.runFlag = True
-		
-		
+
+
 	def run(self, vid_src):
 		"""Will run the tracking program on the video from vid_src."""
 		runFlag = True
@@ -47,31 +47,31 @@ class MultiCamShift(threading.Thread):
 			# determines how close together in the y direction the colors of a horizontal pattern must be.
 
 #			self.intialized = True
-		
+
 		hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-		mask = cv2.inRange(hsv_image, np.array((0., 50., 30.)), np.array((255., 255., 255.)))	   
+		mask = cv2.inRange(hsv_image, np.array((0., 50., 30.)), np.array((255., 255., 255.)))
 
 		objects = {}
-		
+
 		for object_name in self.scanners:
 			scanner = self.scanners[object_name]
 			image = scanner.scan(image, hsv_image, mask)
 			objects[object_name] = scanner.getTrackingInfo()
-		
+
 		with self.lock:
 			self.locationAndArea = objects
 
 		return image
-		
-		
+
+
 	def getObjectsOfColor(self, color_name):
 		"""Returns a list of objects locations and area of all identified objects of type 'color_name'."""
 
 		with self.lock:
 			locationAndArea = self.locationAndArea[color_name]
 		return locationAndArea
-	
-	
+
+
 	def getAverageOfColor(self, color_name):
 		"""Returns the average location and sum of area of all identified objects of type 'color_name'."""
 		with self.lock:
@@ -114,7 +114,7 @@ class MultiCamShift(threading.Thread):
 						c3_obj_tup = c3_obj, c3
 						xCoords = (c1_obj[0], c2_obj[0], c3_obj[0])
 						yCoords = (c1_obj[1], c2_obj[1], c3_obj[1])
-						
+
 						# Actually determines if the colors form a pattern
 						if self.checkXCoords(xCoords) and self.checkYCoords(yCoords):
 							sort = sorted((c1_obj_tup, c2_obj_tup, c3_obj_tup))
@@ -125,9 +125,9 @@ class MultiCamShift(threading.Thread):
 							rx,ry,rw,rh = rightColor[0]
 							lArea = lw * lh
 							cArea = cw * ch
-							rArea = rw * rh							
+							rArea = rw * rh
 							dxList = [cx - lx, rx - cx]
-							dxRatio = max(dxList) / float(min(dxList))							
+							dxRatio = max(dxList) / float(min(dxList))
 							averageRatio = (lw / float(lh) + cw / float(ch) + rw / float(rh)) / 3.0
 							centerRatio = (cw / float(ch))
 							centerRatio = max(0, min(centerRatio, 2)) # ratio between 0 and -2
@@ -136,7 +136,7 @@ class MultiCamShift(threading.Thread):
 							angle = 90 - averageRatio * 45
 #							angle = 90 - (cw / float(ch)) * 45
 
-							#eliptical graph of height 90 and width 2
+							#eliptical graph of botHeight 90 and botWidth 2
 #							angle = 45 * math.sqrt(4 - x^2)
 
 							if lArea > rArea:
@@ -146,7 +146,7 @@ class MultiCamShift(threading.Thread):
 							relativeArea = totalArea / float(self.fWidth * self.fHeight)
 							if retVal == None or dxRatio < retVal[1]:
  								retVal = ((sortedCombo, (cx, cy), relativeArea, angle),
-										dxRatio)								
+										dxRatio)
 		return None if not retVal else retVal[0]
 
 
@@ -166,7 +166,7 @@ class MultiCamShift(threading.Thread):
 			return True
 		return False
 
-	
+
 	def close(self):
 		"""Closes the program."""
 		cv2.destroyAllWindows()
@@ -203,8 +203,8 @@ class MultiCamShift(threading.Thread):
 			ySum += y
 		numElems = len(potMatches)
 		return None if numElems == 0 else (xSum / numElems, ySum / numElems)
-						
-						
+
+
 	def getFrameDims(self):
 			"""Returns the the dimmensions and depth of the camera frame"""
 			return self.fWidth, self.fHeight
@@ -212,7 +212,7 @@ class MultiCamShift(threading.Thread):
 	def getFrameCenter(self):
 			"""Returns the center coordinates of the camera frame"""
 			return self.fWidth/2, self.fHeight/2
-				
+
 
 
 

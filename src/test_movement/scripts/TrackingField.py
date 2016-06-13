@@ -29,10 +29,10 @@ class ObjectForce(PotentialFieldBrain.PotentialFieldBehavior):
         self.speedMult = speedMult
         self.multiCamShift = camShift
         self.targetSize = 0.25
-            
+
     def update(self):
-        # width = 640
-        # height = 480
+        # botWidth = 640
+        # botHeight = 480
         # objList size will be 0 if nothing is found, 1 otherwise
 
         objList = self.multiCamShift.getAverageOfColor(self.color)
@@ -58,13 +58,13 @@ class UpdateCamera(PotentialFieldBrain.PotentialFieldBehavior):
     def __init__(self, camShift):
         cv2.namedWindow("name", 1)
         self.multiCamShift = camShift
-           
+
     def update(self):
         image = self.robot.getImage().copy()
         image2 = self.multiCamShift.update(image)
         cv2.imshow("name", image2)
         cv2.waitKey(1)
-       
+
         self.setVector(0.0, 0.0)
 
 # -----------------------------------------------------
@@ -80,8 +80,8 @@ def runDemo(runtime = 120):
     # brain.add( ObjectForce("blue", 0.2, mcs) )
     brain.add( ObjectForce("purple", 0.2, mcs) )
     brain.add( ObjectForce("green", 0.2, mcs) )
-    brain.add( UpdateCamera(mcs) )   
- 
+    brain.add( UpdateCamera(mcs) )
+
     timeout = time.time()+runtime
     while time.time() < timeout and not rospy.is_shutdown():
         #rospy.sleep(0.1)
@@ -91,7 +91,7 @@ def runDemo(runtime = 120):
     brain.stopAll()
 
 
-                    
+
 def setupPot(robotCode = None):
     """Helpful function takes optional robot code (the six-digit Fluke board number). If code
     is given, then this connects to the robot. Otherwise, it connects to a simulated robot, and

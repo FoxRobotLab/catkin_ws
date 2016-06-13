@@ -243,7 +243,7 @@ class DepthSensorThread(threading.Thread):
             self.depth_array = data
 
     def getDims(self):
-        """Method typically called by another thread, it returns the width and height of the depth data, if available,
+        """Method typically called by another thread, it returns the botWidth and botHeight of the depth data, if available,
         or (0, 0) if it is not yet ready."""
         with self.lock:
             data = self.depth_array
@@ -258,7 +258,7 @@ class DepthSensorThread(threading.Thread):
         return state
 
     def getDepth(self, x, y, width, height):
-        """Method typically called by another thread, it takes in integers x, y, width, and height, which specify a
+        """Method typically called by another thread, it takes in integers x, y, botWidth, and botHeight, which specify a
         rectangular region of the depth image, and it returns a depth image or the specified portion of it.
         If no depth image data is available, this method blocks until the data becomes available."""
         with self.lock:
@@ -378,13 +378,13 @@ class TurtleBot(object):
         self.moveControl.setMovement(translate, rotate)
 
     def getDepth(self, x = 0, y = 0, width = 640, height = 480):
-        """Takes in (x, y), the upper left corner of a rectangle, and the rectangle's width and height, all optional
+        """Takes in (x, y), the upper left corner of a rectangle, and the rectangle's botWidth and botHeight, all optional
         inputs. It access the depth image and returns the specified section of the depth image. The default values are
         to return the entire depth image for the Kinect's sensor."""
         return self.depthControl.getDepth(x, y, width, height)
 
     def getImage(self, x = 0, y = 0, width = 640, height = 480):
-        """Takes in (x, y), the upper left corner of a rectangle, and the rectangle's width and height, all optional
+        """Takes in (x, y), the upper left corner of a rectangle, and the rectangle's botWidth and botHeight, all optional
         inputs. It access the camera image and returns the specified section of the camera image. The default values are
         to return the entire camera image for the Kinect's sensor."""
         return self.imageControl.getImage(x, y, width, height)

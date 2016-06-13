@@ -26,7 +26,7 @@ def getMedianAngle(leftDist, rightDist, angleBetween):
 		shorter, longer = leftDist, rightDist
 	else:
 		shorter, longer = rightDist, leftDist
-	
+
 	shorter = float(shorter)
 	longer = float(longer)
 	angleBetween = float(math.radians(angleBetween))
@@ -37,7 +37,7 @@ def getMedianAngle(leftDist, rightDist, angleBetween):
 
 	if wallDist <= 0:
 		return 90
-	
+
 	#Uses law of sines to determine angle between wall and the shorter distance
 	angleShort = math.asin(math.sin(angleBetween) * longer / wallDist)
 
@@ -77,7 +77,7 @@ class ImageSensor():
 		height, width, depth = cv_image.shape
 		sectionWidth = width / 20
 		# box = c,r,w,h
-		
+
 		copy = cv_image.copy()
 		for x in range(21):
 			cv2.rectangle(cv_image, (x * sectionWidth, 0),(sectionWidth, height),(20,20,200))
@@ -112,7 +112,7 @@ class DepthSensor( threading.Thread):
 		with self.lock:
 			self.runFlag = True
 		runFlag = True
-			
+
 		while runFlag:
 			rospy.sleep(0.1)
 			with self.lock:
@@ -129,7 +129,7 @@ class DepthSensor( threading.Thread):
 			data = self.depth_array
 		if data == None:
 			return 0,0
-		#print "Width: ", width, " Height: ", height
+		#print "Width: ", botWidth, " Height: ", botHeight
 		return data.width, data.height
 
 
@@ -151,7 +151,7 @@ class DepthSensor( threading.Thread):
 			cv_image = self.bridge.imgmsg_to_cv2(data, "passthrough")
 		except CvBridgeError, e:
 			print e
-		numpy_array = numpy.asarray(cv_image)	 
+		numpy_array = numpy.asarray(cv_image)
 		retval = numpy_array[y:y+height, x:x+width]
 		return retval
 
@@ -169,8 +169,8 @@ class DepthSensor( threading.Thread):
 		with self.lock:
 			self.runFlag = False
 
-		
-	
+
+
 class TurtleBot:
 
 	def __init__(self):
@@ -186,7 +186,7 @@ class TurtleBot:
 		# box = c,r,w,h
 		leftBox = int(sectionWidth * 10), int(sectionHeight * 2), int(sectionWidth), int(sectionHeight)
 		rightBox = int(sectionWidth * 19), int(sectionHeight * 2), int(sectionWidth), int(sectionHeight)
-		
+
 		leftDist = numpy.mean(self.depthSensor.getDepth(*leftBox))
 		rightDist = numpy.mean(self.depthSensor.getDepth(*rightBox))
 		return getMedianAngle(leftDist, rightDist, angleBetween = 11.0)

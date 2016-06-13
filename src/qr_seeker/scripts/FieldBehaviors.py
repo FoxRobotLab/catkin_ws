@@ -94,9 +94,9 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
     """Defines a Potential Field behavior for depth image-based obstacle reactions."""
 
     def __init__(self, startCol, sampWid, speedMult, imWid = 640, imHgt = 480):
-        """Takes in starting column and section width in the depth image to look at,
+        """Takes in starting column and section botWidth in the depth image to look at,
         a speed multiplier, and optionally a setting for the size of the depth
-        image, width and height. Sets up the section of the depth image to use."""
+        image, botWidth and botHeight. Sets up the section of the depth image to use."""
         super(ObstacleForce, self).__init__()
 
         self.depthImWid = imWid
@@ -117,7 +117,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 
 
     def update(self):
-        """Gets depth data in a band as wide as suggested and some height or other,
+        """Gets depth data in a band as wide as suggested and some botHeight or other,
         and computes the mean of the non-zero parts, and uses that to decide how
         fast/far to turn."""
 

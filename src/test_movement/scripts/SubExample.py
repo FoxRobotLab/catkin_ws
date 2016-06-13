@@ -21,12 +21,12 @@ class Straight(SubsumptionBrain.SubsumptionBehavior):
 
 
 class AvoidWalls(SubsumptionBrain.SubsumptionBehavior):
-    
+
     def update(self):
         """This behavior turns when an obstacle is detected"""
 
-        # width = 640
-        # height = 480
+        # botWidth = 640
+        # botHeight = 480
         obstVals = self.robot.getDepth(70, 220, 500, 40)
 
         print obstVals[20, 250] # y, x
@@ -36,7 +36,7 @@ class AvoidWalls(SubsumptionBrain.SubsumptionBehavior):
 
         left_side = numpy.mean(masked_obstVals[0:40, 0:40])
         right_side = numpy.mean(masked_obstVals[0:40, -40:])
-        
+
         if left_side < 850 and right_side < 850:
             speed = -0.1
         else:
@@ -56,8 +56,8 @@ class SensorDebug(SubsumptionBrain.SubsumptionBehavior):
         """This behavior stops movement, displays sensor info"""
         self.setSpeeds(0.0, 0.0)
 
-	# width = 640
-        # height = 480
+	# botWidth = 640
+        # botHeight = 480
         obstVals = self.robot.getDepth(70, 220, 500, 40)
 
         print obstVals[249:251, 19:21]
@@ -85,7 +85,7 @@ def runDemo(runtime = 120):
     brain.stopAll()
 
 
-                   
+
 def setupSubsumption(robotCode = None):
     """Helpful function takes optional robot code (the six-digit Fluke board number). If code
     is given, then this connects to the robot. Otherwise, it connects to a simulated robot, and
