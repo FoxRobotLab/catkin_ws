@@ -132,7 +132,8 @@ class qrPlanner(object):
         speedMultiplier = 50
         for i in range(0, numPieces):
             currBrain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces / 2, speedMultiplier))
-
+        #     The way these pieces are made leads to the being slightly more responsive to its left side
+        #     further investigation into this could lead to a more uniform obstacle reacting
         return currBrain
 
 
@@ -152,8 +153,7 @@ class qrPlanner(object):
         if qrInfo is not None and (last != qrInfo[0] or self.ignoreSignTime > 50):
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
-            # nodeNum, nodeCoord, nodeName = qrInfo
-            espeak.synth("Seen node " + str(qrInfo[0]))
+            espeak.synth("Seen node " + str(qrInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
 
             if heading is None:
                 # We have reached our destination
@@ -170,13 +170,13 @@ class qrPlanner(object):
         ret, frame = vidObj.read()
         return frame
 
-    def exit(self):
-        pass
+    # def exit(self):
+    #     pass
 
 
 if __name__=="__main__":
     rospy.init_node('Planner')
     plan = qrPlanner()
     plan.run(5000)
-    rospy.on_shutdown(plan.exit)
+    # rospy.on_shutdown(plan.exit)
     rospy.spin()

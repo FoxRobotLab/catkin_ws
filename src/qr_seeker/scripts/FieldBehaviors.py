@@ -80,7 +80,6 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         self.sampleHeight = self.depthImHgt / 2
 
 
-
     def update(self):
         """Gets depth data in a band as wide as suggested and some botHeight or other,
         and computes the mean of the non-zero parts, and uses that to decide how
@@ -98,12 +97,7 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
             if meanDistance < 500:
                 meanDistance = 500
 
-        # print("============================")
-        # print("Start col", self.startCol)
-        # print("meanDistance", meanDistance)
-        # print("============================")
-
-        if meanDistance < 1200:
+        if meanDistance < 1200:       # Changing this value will change how sensitive robot is to walls
             self.setVector(self.speedMult / meanDistance, 180 - self.angle)
         else:
             self.setVector(0.0, 0.0)
