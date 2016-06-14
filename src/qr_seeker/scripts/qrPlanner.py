@@ -43,6 +43,7 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
+        """the two webcams won't both run on Linux unless we turn down their quality"""
         self.rightCam = cv2.VideoCapture(1)     # both are webcams
         self.leftCam = cv2.VideoCapture(2)
         framerate = 30
@@ -57,7 +58,7 @@ class qrPlanner(object):
 
 
     def run(self, runtime=120):
-        #Runs the program for the duration of 'runtime'"""
+        #Runs the program for the duration of 'runtime'
         timeout = time.time() + runtime
         iterationCount = 0
         self.pathLoc.beginJourney()
@@ -65,6 +66,7 @@ class qrPlanner(object):
             image = self.robot.getImage()[0]
             leftImage = self.getNextFrame(self.leftCam)
             rightImage = self.getNextFrame(self.rightCam)
+            #if we have all three images, disply them in the same window
             if leftImage is not None and rightImage is not None:
                 cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
                 image2 = cv2.resize(image, (leftImage.shape[1], leftImage.shape[0]), None)
@@ -75,42 +77,32 @@ class qrPlanner(object):
             iterationCount += 1
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
-                    # espeak.synth("Brain on")
-                    print "Potential Field Reacting"
                     self.brain.step()
 
-            # dImage = self.robot.getDepth()
-            # dImageInt8 = dImage.astype(np.uint8)
-            # cv2.imshow("Depth View", 255 - dImageInt8)
-            # cv2.waitKey(20)
-
-            whichCam = "center"  # data is from kinect camera
-
+            whichCam = "center"  #assume data is from kinect camera unless told otherwise
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
 
-            if qrInfo is None and leftImage is not None and rightImage is not None:
-                #print "I'm scanning the left and right cameras for QR codes"
-                #cv2.imshow("left", leftImage)
-                #cv2.imshow("right", rightImage)
+            #we didn't see a QR code from the kinect, but we have other images to check...
+            if qrInfo is None and leftImage is not None and rightImage is not None: 
                 qrLeft = self.qrScanner.qrScan(leftImage)
                 qrRight = self.qrScanner.qrScan(rightImage)
                 if qrLeft is not None and qrRight is None:
                     whichCam = "left"
                     qrInfo = self.qrScanner.qrScan(leftImage)
-                    print("I'm seeing things from the left webcam")
+                    print("I'm seeing a QR code from the left webcam")
                 elif qrLeft is None and qrRight is not None:
                     whichCam = "right"
                     qrInfo = self.qrScanner.qrScan(rightImage)
-                    print("I'm seeing things from the right webcam")
+                    print("I'm seeing a QR code from the right webcam")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            if qrInfo is not None:
-                #espeak.synth(whichCam)
+            if qrInfo is not None: #saw a QR code from one of the three images
                 if self.locate(qrInfo, whichCam):
                     break
             else: #no qr code was seen, so check orb
                 orbInfo = self.orbScanner.orbScan(image, whichCam)
-                if orbInfo is None:
+                #didn't see a sign from the kinect, check the side images
+                if orbInfo is None and leftImage is not None and rightImage is not None:
                     orbLeft = self.orbScanner.orbScan(leftImage,  "left")
                     orbRight = self.orbScanner.orbScan(leftImage, "right")
                     if orbLeft is not None and orbRight is None:
@@ -121,7 +113,7 @@ class qrPlanner(object):
                         whichCam = "right"
                         orbInfo = orbRight
                         print("I'm seeing ORB from the right webcam")
-                if orbInfo is not None:
+                if orbInfo is not None: #the program thinks some image had a sign in it 
                     self.ignoreBrain = True
                     self.aligned = self.moveHandle.align(orbInfo, whichCam)
                 else: #orb is none, so continue on as you were
@@ -150,6 +142,8 @@ class qrPlanner(object):
         Returns True if the robot has arrived at it's destination, otherwise, False."""
 
         print "REACHED LOCATE"
+        """Check if the QR code is the same as the last one you saw. If it is, and if it's not been a 
+        while since you saw it, then disregard."""
         path = self.pathLoc.getPath()
         if not path:
             last = -1
@@ -169,9 +163,6 @@ class qrPlanner(object):
             # We know where we are and need to turn
             self.moveHandle.turnToNextTarget(heading, targetAngle, whichCam)
             self.ignoreBrain = False
-        #TODO: make sure it doesn't see the same QR code and add it to the list loads of times
-            #because it's still on screen - maybe check that the one you're seeing isn't the last one
-            #you saw.
 
         return False
 
