@@ -34,7 +34,7 @@ class MovementHandler(object):
         centerX, centerY = self.getFrameCenter(camera)
 
         xScore = abs(x - centerX) / float(centerX) * 1.5
-        areaScore = abs(max((1 - relativeArea / 80), -1))
+        areaScore = abs(max((1 - relativeArea / 100), -1))
         print("relative Area", relativeArea)
 
         scores = [("xScore", xScore), ("areaScore", areaScore)]
