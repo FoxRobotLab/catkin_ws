@@ -83,16 +83,21 @@ class qrPlanner(object):
             # dImageInt8 = dImage.astype(np.uint8)
             # cv2.imshow("Depth View", 255 - dImageInt8)
             # cv2.waitKey(20)
+            ''' 
+            elif qrInfo is None:
+            self.ignoreBrain = True
+            self.aligned = self.moveHandle.align(orbInfo, whichCam)'''
+
 
             whichCam = "center"  # data is from kinect camera
             orbInfo = self.orbScanner.orbScan(image, whichCam)
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
 
-            if orbInfo is None and leftImage is not None and rightImage is not None:
-                orbLeft = self.orbScanner.orbScan(leftImage, "left")
-                orbRight = self.orbScanner.orbScan(rightImage, "right")
-                if orbLeft is not None and orbRight is None:
+            if qrInfo is None and leftImage is not None and rightImage is not None:
+                qrLeft = self.qrScanner.qrScan(leftImage)
+                qrRight = self.qrScanner.qrScan(rightImage)
+                if qrLeft is not None and qrRight is None:
                     whichCam = "left"
                     orbInfo = orbLeft
                     qrInfo = self.qrScanner.qrScan(leftImage)
@@ -127,7 +132,7 @@ class qrPlanner(object):
         return currBrain
 
 
-    def locate(self, orbInfo, qrInfo, whichCam):
+    def locate(self, qrInfo, whichCam):
         """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
@@ -155,10 +160,6 @@ class qrPlanner(object):
         #TODO: make sure it doesn't see the same QR code and add it to the list loads of times
             #because it's still on screen - maybe check that the one you're seeing isn't the last one
             #you saw.
-
-        elif qrInfo is None:
-            self.ignoreBrain = True
-            self.aligned = self.moveHandle.align(orbInfo, whichCam)
 
         return False
 
