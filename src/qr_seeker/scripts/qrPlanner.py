@@ -92,7 +92,7 @@ class qrPlanner(object):
             if qrInfo is None and leftImage is not None and rightImage is not None:
                 print "I'm scanning the left and right cameras for QR codes"
                 cv2.imshow("left", leftImage)
-                cv2.imshow("right", leftRight)
+                cv2.imshow("right", rightImage)
                 qrLeft = self.qrScanner.qrScan(leftImage)
                 qrRight = self.qrScanner.qrScan(rightImage)
                 if qrLeft is not None and qrRight is None:
