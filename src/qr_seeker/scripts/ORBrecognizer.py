@@ -41,16 +41,12 @@ class ORBrecognizer():
         matches = bf.match(des1,des2)
 
         sortedMatches = sorted(matches, key = lambda x: x.distance)
-        #for mat in matches:
-        #    print mat.distance
         goodMatches = [mat for mat in matches if mat.distance < 300]
-        #print "Good match number:", len(goodMatches)
 
         matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,
             None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
         cv2.imshow("Match Image", matchImage)
         cv2.waitKey(20)
-        #print "I reached the waitkey in ORB"
 
         return goodMatches, kp1, kp2
 
@@ -63,27 +59,24 @@ class ORBrecognizer():
         #properties[i][2] holds the list of good points and the two sets of keypoints (for drawing)
         for i in range (0, len(itemsSought)):
             goodPoints, targetKeypts, refKeypts = self.tryToMatchFeatures(self.orb, img, properties[i][1], properties[i][0])
-            properties[i][2].append(goodPoints)
-            properties[i][2].append(targetKeypts)
-            properties[i][2].append(refKeypts)
+            properties[i][2].append(goodPoints)    #[i][2][0]
+            properties[i][2].append(targetKeypts)  #[i][2][1]
+            properties[i][2].append(refKeypts)     #[i][2][2]
 
             #properties[i][3] holds the len(goodPoints) - the number of good points of that item
             numGoodPoints = len(properties[i][2][0])
             properties[i][3] = numGoodPoints
 
+        #find the index and value of the image (which i) with the greatest number of good keypoints
         getcount = itemgetter(3)
         scores = map(getcount, properties)
-        #print(scores)
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
 
-
-        # if (max_value > 25 and whichCam == 'center'):
         if (max_value > 25 and whichCam == 'center') or max_value > 40:
             print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
-            #retVal = (itemsSought[max_index], (cx, cy), relativeArea)
-            retVal = (properties[max_index][2][1], properties[max_index][2][0]) #set of good points for the sign with the most good points
+            #returns the best set of good points (for the image and reference) 
+            retVal = (properties[max_index][2][1], properties[max_index][2][0]) 
         else:
-            #print('No sign was detected')
             retVal = None
 
         #cleanup
@@ -94,23 +87,23 @@ class ORBrecognizer():
         return retVal
 
     def colorPreprocessing(self, img, colorSample):
-        img2 = img.copy()
-        #cv2.imshow("to begin", img)
+        """Takes an image and a sample of the color it wants to look at, and then masks out everything
+        but that color. Includes in the image anything surrounded by said color - i.e. the letters on
+        our signs."""
+
+        img2 = img.copy() #used to apply the final mask to, later - img is destroyed, I think
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)    # convert to HSV
         mask = cv2.inRange(hsv, np.array((0., 60., 32.)), np.array((180., 255., 255.)))   # eliminate low and high saturation and value values
 
-        hsv_roi = cv2.cvtColor(colorSample, cv2.COLOR_BGR2HSV) # access the currently selected region and make a histogram of its hue
-        #mask_roi = cv2.inRange(colorSample, np.array((0., 60., 32.)), np.array((180., 255., 255.)))
-
+        # access the currently selected region and make a histogram of its hue
+        hsv_roi = cv2.cvtColor(colorSample, cv2.COLOR_BGR2HSV) 
         hist = cv2.calcHist( [hsv_roi], [0], None, [16], [0, 180] )
         cv2.normalize(hist, hist, 0, 255, cv2.NORM_MINMAX)
         hist = hist.reshape(-1)
 
-        #print cv2.countNonZero(hist)
-
+        #masks out everything but the color
         prob = cv2.calcBackProject([hsv], [0], hist, [0, 180], 1)
-        #cv2.imshow("prob", prob)
         prob &= mask
 
         #opening removes the remanants in the background
@@ -127,19 +120,19 @@ class ORBrecognizer():
         green_channel &= prob
         red_channel &= prob
         cv2.merge((blue_channel, green_channel, red_channel), img)
-        #cv2.imshow("prob", prob)
-        #cv2.imshow("image", img)
 
-        #Prob at this point has black outline around the letter themselves, which is why we need
-        #to do all the stuff with the contours. Blobs don't work because the white areas are too large.
+
+        """Prob at this point has black outline around the letter themselves, which is why we need
+        to do all the stuff with the contours. Blobs don't work because the white areas are too large.
+        Instead, find contours, draw boxes around them, and fill in the boxes."""
         _, contours, hierarchy = cv2.findContours(prob, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        #cv2.contourArea(contours[0])
 
-        #TODO make a black mask
+        #make an all-black mask
         rows = img.shape[0]
         cols = img.shape[1]
         black = np.zeros((rows, cols), dtype='uint8')
 
+        #draw a white box on the black mask around the location of all contours in the image
         for i in range (0, len(contours)):
             contour = contours[i]
             rect = cv2.minAreaRect(contour)
@@ -147,15 +140,13 @@ class ORBrecognizer():
             box = np.int0(box)
             cv2.drawContours(black, [box], 0, (255,0,0), -1)
 
-        white = cv2.countNonZero(black)
-
+        #apply the white-boxes mask to the original image
         blue_channel, green_channel, red_channel = cv2.split(img2)
         blue_channel &= black
         green_channel &= black
         red_channel &= black
         cv2.merge((blue_channel, green_channel, red_channel), img2)
 
-        #cv2.imshow("returns", img2)
         return img2
 
     def initRefs(self, itemsSought):
@@ -165,8 +156,8 @@ class ORBrecognizer():
         for i in range (0, len(itemsSought)):
             properties.append([None, [], [], 0])
 
+            #see note on hardcoded paths in orbScan().
             filename = itemsSought[i] + '.jpg'
-            #path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
             path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
             properties[i][0] = cv2.imread(path, 0)
             if properties[i][0] is None:
@@ -180,6 +171,11 @@ class ORBrecognizer():
         return properties
 
     #run this if you wanna test the feature recognition using a still image
+    """This code is built so that you can check an image against multiple features.
+    However, qrPlanner really only wants you to look for one, the Fox Robotics Lab sign. As 
+    a result, all of this code is a lot more complicated than it needs to be. It's more flexible
+    this way -- just remember than anytime you see something like 'properties[i]', i is just 
+    which image you're checking against, which is always the same - the Fox Robot Lab sign. """
     def orbScan(self, image, whichCam):
         itemsSought = ['sign']
         properties = self.initRefs(itemsSought)
@@ -189,14 +185,17 @@ class ORBrecognizer():
             filename = filenames[0]
         elif whichCam == 'right' or whichCam == 'left':
             filename = filenames[1]
-        # path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
+        """Yeah, hardcoded paths are gross and we all hate them. But ROS doesn't set the . directory
+        to the current file, and making the path dynamic was significantly more effort than we wanted
+        to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the 
+        webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
+        """
         path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
         try:
             colorSample = cv2.imread(path)
         except:
             print "Could not read the sample color image " + filename + "!"
 
-        #cv2.imshow("reference", colorSample)
         image2 = image.copy()
         img = self.colorPreprocessing(image2, colorSample)
         return self.findImage(img, properties, itemsSought, whichCam)
