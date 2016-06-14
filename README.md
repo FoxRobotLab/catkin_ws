@@ -15,7 +15,7 @@ IMPORTANT: `qr_seeker` assumes that the robot has been augmented with webcams, t
 __qrPlanner.py__ is the heart of the program. It directs sign/QR code seeking and aligning and controls the potential field brain. It also controls all three cameras.
 
 
-#### `scripts/testing scripts`
+##### `scripts/testing scripts`
 The code in here should be run using python, not roslaunched. It's just bits and pieces that are helpful if you need to do things like test camera settings or which numbers your cameras have. 
 
 A note about the cameras: Apparently, Linux is not happy if you have multiple webcams that aren't on different USB buses, because they take up all the - bandwidth? So as a solution, we've manually dropped the framerate and resolution. You can play with these values in `multipleCameras.py` and `qrMultCam.py`. We weren't able to get the framerate above 12 without dropping the resolution, but the a framerate of 30 and size of 480x360 worked well for us. Note that dropping the resolutoin will mean you may need to have bigger QR codes and look for fewer ORB points.
