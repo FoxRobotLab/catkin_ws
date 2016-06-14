@@ -107,7 +107,7 @@ class qrPlanner(object):
             if qrInfo is not None:
                 #espeak.synth(whichCam)
                 if self.locate(qrInfo, whichCam):
-                    break            
+                    break
             else: #no qr code was seen, so check orb
                 orbInfo = self.orbScanner.orbScan(image, whichCam)
                 if orbInfo is None:
@@ -155,7 +155,7 @@ class qrPlanner(object):
             last = -1
         else:
             last = path[-1]
-        if qrInfo is not None and (last != qrInfo[1] or self.ignoreSignTime > 20):
+        if qrInfo is not None and (last != qrInfo[1] or self.ignoreSignTime > 30):
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
             # nodeNum, nodeCoord, nodeName = qrInfo

@@ -46,7 +46,7 @@ class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
 
     def update(self):
         """set zero magnitude and current heading"""
-        self.setVector(0.2, 0.0)
+        self.setVector(0.15, 0.0)
 
 
 class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):

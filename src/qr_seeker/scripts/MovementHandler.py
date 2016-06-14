@@ -30,8 +30,6 @@ class MovementHandler(object):
         if relativeArea is None:  # No ORB return
             return False
 
-        print("orbReturn", orbReturn)
-
         bestName, bestScore= self.chooseScore(x, centerX, relativeArea)
 
         """ If none of the scores are big enough to return any issues with the target in the bots view to avoid
@@ -57,8 +55,6 @@ class MovementHandler(object):
         """Scores each change that needs to be made to figure out how robot needs to move """
         xScore = abs(x - centerX) / float(centerX) * 1.5
         areaScore = abs(max((1 - relativeArea / 100), -1))
-
-        print("relative Area", relativeArea)
 
         scores = [("xScore", xScore), ("areaScore", areaScore)]
 
