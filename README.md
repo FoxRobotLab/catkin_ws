@@ -3,7 +3,19 @@
 ###M and Rae's Notes on the code:
 
 
-####Turtlebot Code (catkin_ws\src\speedy_nav\scripts)
+####Turtlebot Code 
+
+All code is located under `catkin_ws/src`. In this directory, there are two important folders: `speedy_nav` and `qr_seeker`. Both of these contain programs intended to make the robot navigate independently around Olin-Rice. In `speedy_nav`, this is done by a bunch of tri-colored signs (i.e. green-blue-violet), where the color pattern tells the robot where it is. Due to the difficulty of color tracking, the robot cannot read these signs with any degree of reliability. Additionally, as it navigates the corridors it must continually swivel and look around for the signs, which is slow. `qr_seeker` aims to solve these problems by using only some color recognition - blue signs, the color most reliably recognised - along with QR codes. This is arguably effective.
+
+
+##### `qr_seeker` (`catkin_ws/src/qr_seeker/scripts`)
+IMPORTANT: `qr_seeker` assumes that the robot has been augmented with webcams, taped/somehow attached to the platform the kinect is mounted on. It won't work if you don't have these webcams! It's also possible that the numbers opencv assigns to them will change - usually the laptop's webcam is 0 and then the USB webcams are 1 and 2, but if you're getting errors that look like the camera isn't found, try messing with the numbers in the sample program `multipleCameras.py` (`catkin_ws/src/qr_seeker/scripts/testing scripts/multipleCameras.py`). (Also, if you happen to be using the Dell machine, be aware that the fourth 'USB port' is actually the eSATA port on the right of the machine - we plugged in the create and kinect into the two USBs on the right, and then the webcams into the USB on the left and the eSATA on the right.)
+
+
+__qrPlanner.py__ is the heart of the program. It directs sign/QR code seeking and aligning and controls the potential field brain.
+
+
+##### `speedy_nav` (`catkin_ws/src/speedy_nav/scripts`)
 
 __TurtleBot.py__ Four classes: one for the _TurtleBot_ object, and then three thread classes - _MovementControlThread_, _ImageSensorThread_, and _SensorThread_. (s2 in terms of units means seconds squared, we think -- in terms of seconds of an arc or whatever)
 __TurtleBot__ just initialises all the threads and provides movement/utility methods - turning, bumper status, find angle to wall, and so on. Uses __Utils__. Uses CvBridge to be able to use images from kinect with OpenCV/ROS
