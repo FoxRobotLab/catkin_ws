@@ -15,10 +15,10 @@ def qrScan(image):
     raw = pic2.tobytes()
 
     img = zbar.Image(wid, hgt, 'Y800', raw)
-    result = self.qrScanner.scan(img)
+    result = qrScanner.scan(img)
     #print "RESULT", result
     if result == 0:
-        #print "Scan failed"
+        print "Scan failed"
         return None
     else:
         #print ("img is ", img)
