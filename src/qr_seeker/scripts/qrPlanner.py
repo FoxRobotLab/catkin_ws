@@ -85,31 +85,48 @@ class qrPlanner(object):
             # cv2.waitKey(20)
 
             whichCam = "center"  # data is from kinect camera
-            orbInfo = self.orbScanner.orbScan(image, whichCam)
+
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
 
-            if orbInfo is None and leftImage is not None and rightImage is not None:
-                orbLeft = self.orbScanner.orbScan(leftImage, "left")
-                orbRight = self.orbScanner.orbScan(rightImage, "right")
-                if orbLeft is not None and orbRight is None:
+            if qrInfo is None and leftImage is not None and rightImage is not None:
+                print "I'm scanning the left and right cameras for QR codes"
+                cv2.imshow("left", leftImage)
+                cv2.imshow("right", rightImage)
+                qrLeft = self.qrScanner.qrScan(leftImage)
+                qrRight = self.qrScanner.qrScan(rightImage)
+                if qrLeft is not None and qrRight is None:
                     whichCam = "left"
-                    orbInfo = orbLeft
                     qrInfo = self.qrScanner.qrScan(leftImage)
                     print("I'm seeing things from the left webcam")
-                elif orbLeft is None and orbRight is not None:
+                elif qrLeft is None and qrRight is not None:
                     whichCam = "right"
-                    orbInfo = orbRight
                     qrInfo = self.qrScanner.qrScan(rightImage)
                     print("I'm seeing things from the right webcam")
                 #if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            if orbInfo is not None:
-                espeak.synth(whichCam)
-                if self.locate(orbInfo, qrInfo, whichCam):
-                    break
-            else:
-                self.ignoreBrain = False
-                self.aligned = False
+            if qrInfo is not None:
+                #espeak.synth(whichCam)
+                if self.locate(qrInfo, whichCam):
+                    break            
+            else: #no qr code was seen, so check orb
+                orbInfo = self.orbScanner.orbScan(image, whichCam)
+                if orbInfo is None:
+                    orbLeft = self.orbScanner.orbScan(leftImage,  "left")
+                    orbRight = self.orbScanner.orbScan(leftImage, "right")
+                    if orbLeft is not None and orbRight is None:
+                        whichCam = "left"
+                        orbInfo = orbLeft
+                        print("I'm seeing ORB from the left webcam")
+                    elif orbLeft is None and orbRight is not None:
+                        whichCam = "right"
+                        orbInfo = orbRight
+                        print("I'm seeing ORB from the right webcam")
+                if orbInfo is not None:
+                    self.ignoreBrain = True
+                    self.aligned = self.moveHandle.align(orbInfo, whichCam)
+                else: #orb is none, so continue on as you were
+                    self.ignoreBrain = False
+                    self.aligned = False
         self.brain.stopAll()
 
 
@@ -127,7 +144,7 @@ class qrPlanner(object):
         return currBrain
 
 
-    def locate(self, orbInfo, qrInfo, whichCam):
+    def locate(self, qrInfo, whichCam):
         """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
@@ -155,10 +172,6 @@ class qrPlanner(object):
         #TODO: make sure it doesn't see the same QR code and add it to the list loads of times
             #because it's still on screen - maybe check that the one you're seeing isn't the last one
             #you saw.
-
-        elif qrInfo is None:
-            self.ignoreBrain = True
-            self.aligned = self.moveHandle.align(orbInfo, whichCam)
 
         return False
 
