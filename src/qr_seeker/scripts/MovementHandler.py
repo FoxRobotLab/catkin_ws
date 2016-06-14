@@ -151,13 +151,18 @@ class MovementHandler(object):
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (heading) and the correct angle to the imageMatch
         #(wallAngle)
-        actualAngle = (heading - 90 + wallAngle) % 360
 
-        angleToTurn = targetAngle - actualAngle
-        if camera == "left":
+        if camera == "center":
+            actualAngle = (heading - 90 + wallAngle) % 360
+            angleToTurn = targetAngle - actualAngle
             angleToTurn -= 90
-        elif camera == "right":
-            angleToTurn += 90
+        else:
+            actualAngle = (heading - 90) % 360
+            angleToTurn = targetAngle - actualAngle
+            if camera == "left":
+                angleToTurn -= 90
+            else:
+                angleToTurn += 90
 
         print("Angle to turn: ", angleToTurn)
         if angleToTurn < -180:
