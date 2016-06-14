@@ -34,7 +34,7 @@ class MovementHandler(object):
 
         bestName, bestScore= self.chooseScore(x, centerX, relativeArea)
 
-        """ If none of the scores are big enough to return any issues with the target in the turtlebot's view to avoid
+        """ If none of the scores are big enough to return any issues with the target in the bots view to avoid
          bot constantly trying to fix minute issues"""
 
         if bestScore < 0.4:
@@ -174,7 +174,7 @@ class MovementHandler(object):
 
     def turnByAngle(self, angle):
         """Turns the robot by the given angle, where negative is left and positive is right"""
-        print 'Turning by an angle of: ', str(angle)
+        print('Turning by an angle of: ', str(angle))
         turnSec = angle * self.d2s
         if angle < 0:
             turnSec = abs(turnSec)
@@ -184,24 +184,24 @@ class MovementHandler(object):
 
 
     """Big idea: there may be multiple contours of blue areas in the image, so we need to
-    find contours of the good keypoints, taking into account that some of these may be noise."""
+    find contours of the good keyPoints, taking into account that some of these may be noise."""
     def findORBContours(self, goodKeyPoints, camera):
         w, h = self.getFrameDims(camera)
         black = np.zeros((w, h), dtype='uint8')
 
-        # ALL the keypoints, the list of matched keypoints within some range
-        keypoints, goodMatches = goodKeyPoints
+        # ALL the keyPoints, the list of matched keyPoints within some range
+        keyPoints, goodMatches = goodKeyPoints
 
         # For each pair of points we have between both images
         for mat in goodMatches:
-            # Get the matching keypoints for each of the images from the match struct DMatch
+            # Get the matching keyPoints for each of the images from the match struct DMatch
             img_idx = mat.queryIdx
-            (x, y) = keypoints[img_idx].pt
+            (x, y) = keyPoints[img_idx].pt
 
-            # draw large-ish white circles around each of the keypoints
+            # draw large-ish white circles around each of the keyPoints
             cv2.circle(black, (int(x), int(y)), 10, (255, 255, 255), -1)
 
-        # use closing to eliminate the white spots not in "clusters" - the noise keypoints
+        # use closing to eliminate the white spots not in "clusters" - the noise keyPoints
         kernel = np.ones((15, 15), np.uint8)
         closing = cv2.morphologyEx(black, cv2.MORPH_CLOSE, kernel)
 
