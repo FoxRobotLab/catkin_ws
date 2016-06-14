@@ -25,28 +25,20 @@ class QRrecognizer():
     def qrScan(self, image):
             self.qrScanner.parse_config('enable')
             bwImg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            #cv2.imshow("bwimg", bwImg)
-            #cv2.waitKey(0)
             pil_im = Image.fromarray(bwImg)
             pic2 = pil_im.convert("L")
             wid, hgt = pic2.size
-            #print("wid, hgt,", wid, hgt)
             raw = pic2.tobytes()
 
             img = zbar.Image(wid, hgt, 'Y800', raw)
             result = self.qrScanner.scan(img)
-            #print "RESULT", result
             if result == 0:
-                #print "Scan failed"
                 return None
             else:
-                #print ("img is ", img)
                 for symbol in img:
-                    #print "symbol did indeed get assigned"
                     pass
                 del(img)
                 codeData = symbol.data.decode(u'utf-8')
-                #print "Data found:", codeData
                 list = string.split(codeData)
                 if len(list) < 4 or not list[0].isdigit():
                     print "I saw a bad QR code!"
@@ -56,7 +48,5 @@ class QRrecognizer():
                 nodeName = ''
                 for i in range(3, len(list)):
                     nodeName = nodeName + ' ' + list[i]
-
-                #nodeNum, nodeCoord, nodeName = string.split(codeData)
 
                 return (int(nodeNum), nodeCoord, nodeName)
