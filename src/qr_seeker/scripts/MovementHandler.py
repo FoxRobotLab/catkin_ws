@@ -156,7 +156,6 @@ class MovementHandler(object):
         if camera == "center":
             actualAngle = (heading - 90 + wallAngle) % 360
             angleToTurn = targetAngle - actualAngle
-            angleToTurn -= 90
         else:
             actualAngle = (heading - 90) % 360
             angleToTurn = targetAngle - actualAngle
