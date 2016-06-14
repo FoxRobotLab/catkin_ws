@@ -59,8 +59,6 @@ class QRrecognizer():
                 codeData = symbol.data.decode(u'utf-8')
                 #print "Data found:", codeData
                 list = string.split(codeData)
-                print "len list", len(list)
-                print "is digit?", list[0].isdigit()
                 if len(list) < 4 or not list[0].isdigit():
                     print "I saw a bad QR code!"
                     return None
