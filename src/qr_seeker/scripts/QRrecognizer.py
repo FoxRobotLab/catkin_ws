@@ -60,6 +60,8 @@ class QRrecognizer():
                 #print "Data found:", codeData
                 list = string.split(codeData)
                 #print(list)
+                if len(list) < 4 or not list[0].isDigit():
+                    return None
                 nodeNum = list[0]
                 nodeCoord = list[1] + ' ' + list[2]
                 nodeName = ''
