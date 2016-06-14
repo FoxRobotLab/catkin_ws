@@ -28,11 +28,6 @@ import string
 class QRrecognizer():
     """Holds data about ORB keypoints found in the input picture."""
     def __init__(self, bot):
-        #self.image = None
-        #self.orb = cv2.ORB_create()
-        #self.kp, self.des = self.orb.detectAndCompute(self.image, None)
-        self.matches = None
-        self.goodMatches = None
         self.robot = bot
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
         self.qrScanner = zbar.ImageScanner()
