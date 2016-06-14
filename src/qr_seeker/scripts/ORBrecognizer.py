@@ -10,26 +10,15 @@
 ========================================================================="""
 
 
-import math
-import random
-import time
-import os
 import cv2
 import numpy as np
-import partitionAlg
-import FeatureType
-import FoxQueue
-import OutputLogger
 from operator import itemgetter
-import turtleQR
 
 
 class ORBrecognizer():
     """Holds data about ORB keypoints found in the input picture."""
     def __init__(self, bot):
-        #self.image = None
         self.orb = cv2.ORB_create()
-        #self.kp, self.des = self.orb.detectAndCompute(self.image, None)
         self.matches = None
         self.goodMatches = None
         self.robot = bot

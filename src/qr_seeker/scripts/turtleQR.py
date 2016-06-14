@@ -14,18 +14,14 @@
 
 # !/usr/bin/env python
 
-# from roslib import message
 import rospy
 import threading
 import sys
-from std_msgs.msg import String
-# import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy
 from Utils import *
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
-# from nav_msgs.msg import Odometry
 from create_node.msg import TurtlebotSensorState
 
 

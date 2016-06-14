@@ -1,43 +1,8 @@
 #!/usr/bin/env python
 
-# import rospy
-# import cv2
-# import math
-
 import PotentialFieldBrain
 import numpy
 import random
-
-
-class ColorInvestigate(PotentialFieldBrain.PotentialFieldBehavior):
-    """Attempt at a Potential Field behavior to approach a color pattern, didn't work and is
-    now defunct."""
-
-    def __init__(self, multiCamShift):
-        """Sets up Behavior, stores MultiCamShift."""
-        super(ColorInvestigate, self).__init__()
-        self.mcs = multiCamShift
-        self.framex, framey = self.mcs.getFrameDims()
-        self.xWidth = self.framex / 6.5
-
-    def update(self):
-        """Gets matches from MultiCamShift and chooses move based on where it is."""
-        match = self.mcs.getPotentialMatches()
-        if match is None:
-            self.setVector(0.0, 0.0)
-        else:
-            # ---- print statement ----
-            print match
-            x, y = match
-            lx, rx = x - self.xWidth, x + self.xWidth
-            centerX = self.framex / 2
-            turnAngle = 45.0
-            if centerX < lx:
-                self.setVector(0.2, 180.0 + turnAngle)
-            elif rx < centerX:
-                self.setVector(0.2, 180.0 - turnAngle)
-            else:
-                self.setVector(0.0, 0.0)
 
 
 class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
@@ -71,7 +36,7 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
             else:
                 self.heading = 360 + heading
             self.iteration += 1
-            print self.speed, self.heading
+            print(self.speed, self.heading)
             self.setVector(self.speed, self.heading)
 
 

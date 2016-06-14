@@ -9,18 +9,7 @@
 ========================================================================="""
 
 
-import math
-import random
-import time
-import os
 import cv2
-import numpy as np
-import partitionAlg
-import FeatureType
-import FoxQueue
-import OutputLogger
-from operator import itemgetter
-import turtleQR
 import zbar
 from PIL import Image
 import string
@@ -67,7 +56,7 @@ class QRrecognizer():
                 nodeName = ''
                 for i in range(3, len(list)):
                     nodeName = nodeName + ' ' + list[i]
-                
+
                 #nodeNum, nodeCoord, nodeName = string.split(codeData)
 
                 return (int(nodeNum), nodeCoord, nodeName)

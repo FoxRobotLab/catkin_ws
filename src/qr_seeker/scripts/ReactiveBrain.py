@@ -8,11 +8,8 @@ to implement a variety of reactive architectures. All reactive brains have a
 set of behaviors, and methods for updating and running those behaviors. There
 is also a ReactiveBehavior class, to capture how different behaviors are similar."""
 
-
-# import random
-
 # ---------------------------------------------------------------------
-# First, the ReactiveBrain class.  
+# First, the ReactiveBrain class.
 
 
 class ReactiveBrain(object):
@@ -54,7 +51,7 @@ class ReactiveBrain(object):
 
 
 # ----------------------------------------------------------------------
-# A generic class for a "Behavior"  
+# A generic class for a "Behavior"
 
 class ReactiveBehavior(object):
     """A behavior is an object that has within it a reference to the robot
