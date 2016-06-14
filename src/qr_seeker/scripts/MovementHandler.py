@@ -147,24 +147,29 @@ class MovementHandler(object):
         """Given a planned path and the orientation of the imageMatch in front of the robot, turns in the
         direction of the following node in the path."""
 
-        wallAngle = self.robot.findAngleToWall()
+        wallAngle = self.robot.findAngleToWall() - 90
 
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (heading) and the correct angle to the imageMatch
         #(wallAngle)
 
         if camera == "center":
-            actualAngle = (heading - 90 + wallAngle) % 360
+            actualAngle = (heading + wallAngle) % 360
             angleToTurn = targetAngle - actualAngle
         else:
-            actualAngle = (heading - 90) % 360
+            actualAngle = heading % 360
             angleToTurn = targetAngle - actualAngle
             if camera == "left":
                 angleToTurn -= 90
             else:
                 angleToTurn += 90
 
+        print("-------------------------------------------------")
+        print("wallAngle", wallAngle)
+        print("targetAngle", targetAngle)
         print("Angle to turn: ", angleToTurn)
+        print("-------------------------------------------------")
+
         if angleToTurn < -180:
             angleToTurn += 360
         elif 180 < angleToTurn:

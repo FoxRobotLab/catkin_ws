@@ -13,7 +13,8 @@ import math
 
 
 def getMedianAngle(leftDist, rightDist, angleBetween):
-	"""Given two distances and the angle between them, finds the angle of the observer to the surface with flat against the wall facing left being zero."""
+	"""Given two distances and the angle between them, finds the angle of the observer to the surface with
+	flat against the wall facing left being zero."""
 	if leftDist <= rightDist:
 		shorter, longer = leftDist, rightDist
 	else:
