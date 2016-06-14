@@ -23,18 +23,41 @@ class MovementHandler(object):
 
     def align(self, orbInfo, camera):
         """Positions the robot a fixed distance from a imageMatch in front of it"""
-
         orbReturn = self.findORBContours(orbInfo, camera)
-        (x, y), relativeArea = orbReturn
-        print("orbReturn", orbReturn)
+        centerX, centerY = self.getFrameCenter(camera)
+        x, relativeArea = orbReturn
 
-        if relativeArea is None:
+        if relativeArea is None:  # No ORB return
             return False
 
-        centerX, centerY = self.getFrameCenter(camera)
+        print("orbReturn", orbReturn)
 
+        bestName, bestScore= self.chooseScore(x, centerX, relativeArea)
+
+        """ If none of the scores are big enough to return any issues with the target in the turtlebot's view to avoid
+         bot constantly trying to fix minute issues"""
+
+        if bestScore < 0.4:
+            return True
+        # If camera found sign using Kinect
+        elif camera == "center":
+            self.alignCameraCenter(bestName, x, centerX, relativeArea)
+        # If camera found sign using camera facing left
+        elif camera == "left":
+            self.alignCameraLeft(bestName, x, centerX, relativeArea)
+        # If camera found sign using camera facing right
+        elif camera == "right":
+            self.alignCameraRight(bestName, x, centerX, relativeArea)
+
+        # Robot has done some movement in order to align but is not yet aligned fully
+        return False
+
+
+    def chooseScore(self, x, centerX, relativeArea):
+        """Scores each change that needs to be made to figure out how robot needs to move """
         xScore = abs(x - centerX) / float(centerX) * 1.5
         areaScore = abs(max((1 - relativeArea / 100), -1))
+
         print("relative Area", relativeArea)
 
         scores = [("xScore", xScore), ("areaScore", areaScore)]
@@ -46,84 +69,81 @@ class MovementHandler(object):
             if num > bestScore:
                 bestName, bestScore = score
 
-        """ If none of the scores are big enough to return any issues with the target in the turtlebot's view to avoid
-         bot constantly trying to fix minute issues"""
-        if bestScore < 0.4:
-            return True
-
-        # TODO: Clean this up. Possibly separate into different align functions for each camera?
-        # If camera found sign using Kinect
-        if camera == "center":
-            if bestName == "xScore":
-                # If target area is not centered
-                if x < centerX:
-                    self.turnByAngle(-8)
-                    print("Turn left")
-                else:
-                    self.turnByAngle(8)
-                    print("Turn right")
-            elif bestName == "areaScore":
-                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 80:
-                    self.robot.forward(.05, 1)
-                    print("Move forward")
-                else:
-                    self.robot.backward(.05, 1)
-                    print("Move backward")
-
-        # If camera found sign using camera facing left
-        elif camera == "left":
-            if bestName =="xScore":
-                # If target area is not centered
-                if x < centerX:
-                    self.robot.forward(.05, 1)
-                    print("Sign too far right")
-                else:
-                    self.robot.backward(.05, 1)
-                    print("sign too far left")
-            elif bestName == "areaScore":
-                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 80:
-                    self.turnByAngle(-90)
-                    self.robot.forward(.05, 1)
-                    self.turnByAngle(90)
-                    self.robot.stop()
-                    print("move closer to sign")
-                else:
-                    self.turnByAngle(90)
-                    self.robot.forward(.05, 1)
-                    self.turnByAngle(-90)
-                    self.robot.stop()
-                    print("move farther from sign")
-
-        # If camera found sign using camera facing right
-        elif camera == "right":
-            if bestName == "xScore":
-                # If target area is not centered
-                if x < centerX:
-                    self.robot.backward(.05, 1)
-                    print("sign too far left")
-
-                else:
-                    self.robot.forward(.05, 1)
-                    print("Sign too far right")
-            elif bestName == "areaScore":
-                # If target area does not take up enough area of turtleBot's view (too far away/close-up)
-                if relativeArea < 80:
-                    self.turnByAngle(90)
-                    self.robot.forward(.05, 1)
-                    self.turnByAngle(-90)
-                    self.robot.stop()
-                    print("move farther from sign")
-                else:
-                    self.turnByAngle(-90)
-                    self.robot.forward(.05, 1)
-                    self.turnByAngle(90)
-                    self.robot.stop()
-                    print("move closer to sign")
+        return bestName, bestScore
 
 
-        return False
+    def alignCameraLeft(self, bestName, x, centerX, relativeArea):
+        if bestName == "xScore":
+            # If target area is not centered
+            if x < centerX:
+                self.robot.forward(.05, 1)
+                print("Sign too far right")
+            else:
+                self.robot.backward(.05, 1)
+                print("sign too far left")
+        elif bestName == "areaScore":
+            # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+            if relativeArea < 40:
+                self.leftForwardRight()
+                print("move closer to sign")
+            else:
+                self.rightForwardLeft()
+                print("move farther from sign")
+
+
+    def alignCameraCenter(self, bestName, x, centerX, relativeArea):
+        if bestName == "xScore":
+            # If target area is not centered
+            if x < centerX:
+                self.turnByAngle(-8)
+                print("Turn left")
+            else:
+                self.turnByAngle(8)
+                print("Turn right")
+        elif bestName == "areaScore":
+            # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+            if relativeArea < 80:
+                self.robot.forward(.05, 1)
+                print("Move forward")
+            else:
+                self.robot.backward(.05, 1)
+                print("Move backward")
+
+
+    def alignCameraRight(self, bestName, x, centerX, relativeArea):
+        if bestName == "xScore":
+            # If target area is not centered
+            if x < centerX:
+                self.robot.backward(.05, 1)
+                print("sign too far left")
+
+            else:
+                self.robot.forward(.05, 1)
+                print("Sign too far right")
+        elif bestName == "areaScore":
+            # If target area does not take up enough area of turtleBot's view (too far away/close-up)
+            if relativeArea < 40:
+                self.rightForwardLeft()
+                print("move farther from sign")
+            else:
+                self.leftForwardRight()
+                print("move closer to sign")
+
+
+    def leftForwardRight(self):
+        """Handles awkward movement for adjusting for side cameras"""
+        self.turnByAngle(-90)
+        self.robot.forward(.05, 1)
+        self.turnByAngle(90)
+        self.robot.stop()
+
+
+    def rightForwardLeft(self):
+        """Handles awkward movement for adjusting for side cameras"""
+        self.turnByAngle(90)
+        self.robot.forward(.05, 1)
+        self.turnByAngle(-90)
+        self.robot.stop()
 
 
     def turnToNextTarget(self, heading, targetAngle, camera):
@@ -206,8 +226,8 @@ class MovementHandler(object):
         imageArea = cv2.contourArea(largestContour)
         relativeArea = float(w * h) / imageArea
         cx = int(M['m10'] / M['m00'])
-        cy = int(M['m01'] / M['m00'])
-        return (cx, cy), relativeArea
+        # cy = int(M['m01'] / M['m00'])
+        return cx, relativeArea
 
 
     def getFrameDims(self, cam):
