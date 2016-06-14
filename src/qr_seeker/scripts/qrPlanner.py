@@ -155,7 +155,7 @@ class qrPlanner(object):
             last = -1
         else:
             last = path[-1]
-        if qrInfo is not None and (last != qrInfo[1] or self.ignoreSignTime > 30):
+        if qrInfo is not None and (last != qrInfo[1] or self.ignoreSignTime > 80):
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
             # nodeNum, nodeCoord, nodeName = qrInfo
