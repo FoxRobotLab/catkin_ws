@@ -61,6 +61,7 @@ class QRrecognizer():
                 list = string.split(codeData)
                 #print(list)
                 if len(list) < 4 or not list[0].isDigit():
+                    print "I saw a bad QR code!"
                     return None
                 nodeNum = list[0]
                 nodeCoord = list[1] + ' ' + list[2]
