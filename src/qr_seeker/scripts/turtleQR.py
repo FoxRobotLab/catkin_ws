@@ -1,15 +1,15 @@
 """ ========================================================================
- * turtleQR.py
- *
- *  Created on: June 2016
- *
- *  The turtleQR.py file borrows code from TurtleBot.py in speedy_nav.
- * Four classes: one for the TurtleBot object, and then three thread classes -
- * MovementControlThread, ImageSensorThread, and SensorThread.  TurtleBot
- * initialises all the threads and provides movement/utility methods -
- * turning, bumper status, find angle to wall, and so on.
- * Uses Utils. Uses CvBridge to be able to use images from kinect with OpenCV/ROS
- *
+  turtleQR.py
+
+   Created on: June 2016
+
+   The turtleQR.py file borrows code from TurtleBot.py in speedy_nav.
+  Four classes: one for the TurtleBot object, and then three thread classes -
+  MovementControlThread, ImageSensorThread, and SensorThread.  TurtleBot
+  initialises all the threads and provides movement/utility methods -
+  turning, bumper status, find angle to wall, and so on.
+  Uses Utils. Uses CvBridge to be able to use images from kinect with OpenCV/ROS
+
 ========================================================================="""
 
 # !/usr/bin/env python

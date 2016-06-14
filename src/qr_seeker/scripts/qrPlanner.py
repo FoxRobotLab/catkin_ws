@@ -84,7 +84,7 @@ class qrPlanner(object):
             self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
 
             #we didn't see a QR code from the kinect, but we have other images to check...
-            if qrInfo is None and leftImage is not None and rightImage is not None: 
+            if qrInfo is None and leftImage is not None and rightImage is not None:
                 qrLeft = self.qrScanner.qrScan(leftImage)
                 qrRight = self.qrScanner.qrScan(rightImage)
                 if qrLeft is not None and qrRight is None:
@@ -113,7 +113,7 @@ class qrPlanner(object):
                         whichCam = "right"
                         orbInfo = orbRight
                         print("I'm seeing ORB from the right webcam")
-                if orbInfo is not None: #the program thinks some image had a sign in it 
+                if orbInfo is not None: #the program thinks some image had a sign in it
                     self.ignoreBrain = True
                     self.aligned = self.moveHandle.align(orbInfo, whichCam)
                 else: #orb is none, so continue on as you were
@@ -142,7 +142,7 @@ class qrPlanner(object):
         Returns True if the robot has arrived at it's destination, otherwise, False."""
 
         print "REACHED LOCATE"
-        """Check if the QR code is the same as the last one you saw. If it is, and if it's not been a 
+        """Check if the QR code is the same as the last one you saw. If it is, and if it's not been a
         while since you saw it, then disregard."""
         path = self.pathLoc.getPath()
         if not path:

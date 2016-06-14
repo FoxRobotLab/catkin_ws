@@ -6,9 +6,9 @@ Date: March 2014
 This file contains a general reactive robot "Brain" class which may be used
 to implement a variety of reactive architectures. All reactive brains have a
 set of behaviors, and methods for updating and running those behaviors. There
-is also a ReactiveBehavior class, to capture how different behaviors are similar."""
+is also a ReactiveBehavior class, to capture how different behaviors are similar.
+ ---------------------------------------------------------------------  """
 
-# ---------------------------------------------------------------------
 # First, the ReactiveBrain class.
 
 

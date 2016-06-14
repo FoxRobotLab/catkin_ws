@@ -3,9 +3,10 @@ MovementHandler.py
 
 Created: June, 2016
 
-This file borrows code from the FixedActions.py in Speedy_nav. This file
+This file borrows some ideas from the FixedActions.py in Speedy_nav. This file
 handles the actions the turtlebot completes to see the image it is looking
-for in the center of its view.
+for in the center of its view. It reacts differently depending on which
+camera the bot is seeing out of.
 ======================================================================== """
 
 import cv2

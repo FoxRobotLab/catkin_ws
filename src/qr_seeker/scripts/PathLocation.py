@@ -2,7 +2,10 @@
 File: PathLocation.py
 Date: June 2016
 
-
+This file deals with all path locations. It knows the current path traveled
+and handles adding nodes to the path. Once the node is taken in PathLocation.py
+asks OlinGraph about angles in order to send back how far the robot should
+turn to get to the next node in its calculated path.
 # --------------------------------------------------------------------- """
 
 import OlinGraph
@@ -40,7 +43,7 @@ class PathLocation(object):
         currentNode, nextNode = path[0], path[1]
         targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
 
-        print "Turning from node " , str(currentNode) , " to node " , str(nextNode)
+        print("Turning from node ", str(currentNode), " to node ", str(nextNode))
 
         return heading, targetAngle
 
