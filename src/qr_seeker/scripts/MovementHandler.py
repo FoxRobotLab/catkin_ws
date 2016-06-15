@@ -158,7 +158,8 @@ class MovementHandler(object):
         robot should turn. If the forward-facing camera is facing the marker, then it uses depth data to update its
         angle to the wall."""
 
-        wallAngle = self.robot.findAngleToWall() - 90
+        #wallAngle = self.robot.findAngleToWall() - 90
+        wallAngle = 0        
 
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (headingToMarker) and the correct angle to the imageMatch
