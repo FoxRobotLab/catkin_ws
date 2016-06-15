@@ -98,10 +98,10 @@ class MovementHandler(object):
         if bestName == "xScore":
             # If target area is not centered
             if x < centerX:
-                self.turnByAngle(-8)
+                self.turnByAngle(8)
                 print("Turn left")
             else:
-                self.turnByAngle(8)
+                self.turnByAngle(-8)
                 print("Turn right")
         elif bestName == "areaScore":
             # If target area does not take up enough area of turtleBot's view (too far away/close-up)
