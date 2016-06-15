@@ -13,6 +13,8 @@ import cv2
 import numpy as np
 
 class MovementHandler(object):
+    """Handles the actions of the robot related to approaching and aligning with markers so that they can be read.
+    It also handles turning from one marker to the new direction."""
 
     def __init__(self, bot, botDims, webCamDims):
         """Needs the turtleBot, and cameraThread objects """
@@ -70,6 +72,8 @@ class MovementHandler(object):
 
 
     def alignCameraLeft(self, bestName, x, centerX, relativeArea):
+        """Based on the location and size of the potential match, seen in the left-facing
+        camera, it moves the robot to try to approach it."""
         if bestName == "xScore":
             # If target area is not centered
             if x < centerX:
@@ -89,6 +93,8 @@ class MovementHandler(object):
 
 
     def alignCameraCenter(self, bestName, x, centerX, relativeArea):
+        """Based on the location and size of the potential match, seen in the Kinect, forward-facing
+        camera, it moves the robot to try to approach it."""
         if bestName == "xScore":
             # If target area is not centered
             if x < centerX:
@@ -108,6 +114,8 @@ class MovementHandler(object):
 
 
     def alignCameraRight(self, bestName, x, centerX, relativeArea):
+        """Based on the location and size of the potential match, seen in the right-facing
+        camera, it moves the robot to try to approach it."""
         if bestName == "xScore":
             # If target area is not centered
             if x < centerX:
@@ -143,21 +151,24 @@ class MovementHandler(object):
         self.robot.stop()
 
 
-    def turnToNextTarget(self, heading, targetAngle, camera):
-        """Given a planned path and the orientation of the imageMatch in front of the robot, turns in the
-        direction of the following node in the path."""
+    def turnToNextTarget(self, headingToMarker, targetAngle, camera):
+        """Takes in headingToMarker, which is the direction from the robot to the currently-found marker, in global
+        coordinates, and the targetAngle, which is the global coordinate direction the robot wants to turn to, and
+        camera, which describes which camera on the robot is facing the marker. This function computes the angle the
+        robot should turn. If the forward-facing camera is facing the marker, then it uses depth data to update its
+        angle to the wall."""
 
         wallAngle = self.robot.findAngleToWall() - 90
 
         #determines actual orientation given where the robot would face if it was directly
-        #looking at the imageMatch (heading) and the correct angle to the imageMatch
+        #looking at the imageMatch (headingToMarker) and the correct angle to the imageMatch
         #(wallAngle)
 
         if camera == "center":
-            actualAngle = (heading + wallAngle) % 360
+            actualAngle = (headingToMarker + wallAngle) % 360
             angleToTurn = targetAngle - actualAngle
         else:
-            actualAngle = heading % 360
+            actualAngle = headingToMarker % 360
             angleToTurn = targetAngle - actualAngle
             if camera == "left":
                 angleToTurn -= 90
@@ -182,11 +193,14 @@ class MovementHandler(object):
         """Turns the robot by the given angle, where negative is left and positive is right"""
         print('Turning by an angle of: ', str(angle))
         turnSec = angle * self.d2s
-        if angle < 0:
+        if angle > 0:
             turnSec = abs(turnSec)
             self.robot.turnLeft(0.4, turnSec)
-        else:
+        elif angle < 0:
             self.robot.turnRight(0.4, turnSec)
+        else:
+            print "No need to turn, keep going."
+
 
 
     """Big idea: there may be multiple contours of blue areas in the image, so we need to
