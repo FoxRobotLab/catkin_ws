@@ -9,6 +9,7 @@
 # The y axis runs east-west, increase as you go west.
 
 # NOTE: changes to 1, 2, 4, 6, 8, and 19, 21, 24 to skew the robot's turning
+# More nodes could be changed...
 
 Number of Nodes: 63
 
