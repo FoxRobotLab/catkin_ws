@@ -111,7 +111,7 @@ Edges:
 4 5
 
 # 5) Right Angle door: 259 lab hall, Right angle center, 232-233 hall
-5 30
+#5 30
 5 32
 
 # 6) 258 lab hall: East T, 258 lab, 256 lab hall
