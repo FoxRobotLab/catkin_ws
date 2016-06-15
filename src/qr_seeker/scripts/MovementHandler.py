@@ -171,11 +171,12 @@ class MovementHandler(object):
             actualAngle = headingToMarker % 360
             angleToTurn = targetAngle - actualAngle
             if camera == "left":
-                angleToTurn -= 90
-            else:
                 angleToTurn += 90
+            else:
+                angleToTurn -= 90
 
         print("-------------------------------------------------")
+        print("headingToMarker", headingToMarker)
         print("wallAngle", wallAngle)
         print("targetAngle", targetAngle)
         print("Angle to turn: ", angleToTurn)
@@ -192,9 +193,8 @@ class MovementHandler(object):
     def turnByAngle(self, angle):
         """Turns the robot by the given angle, where negative is left and positive is right"""
         print('Turning by an angle of: ', str(angle))
-        turnSec = angle * self.d2s
+        turnSec = abs(angle * self.d2s)
         if angle > 0:
-            turnSec = abs(turnSec)
             self.robot.turnLeft(0.4, turnSec)
         elif angle < 0:
             self.robot.turnRight(0.4, turnSec)

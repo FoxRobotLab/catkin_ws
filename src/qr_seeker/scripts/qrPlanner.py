@@ -46,7 +46,7 @@ class qrPlanner(object):
         """the two webcams won't both run on Linux unless we turn down their quality"""
         self.rightCam = cv2.VideoCapture(1)     # both are webcams
         self.leftCam = cv2.VideoCapture(2)
-        framerate = 30
+        framerate = 12
         self.rightCam.set(cv2.CAP_PROP_FPS, framerate)
         self.rightCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
         self.rightCam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.webCamHeight)

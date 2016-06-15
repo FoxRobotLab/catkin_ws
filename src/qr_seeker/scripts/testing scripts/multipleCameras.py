@@ -14,7 +14,7 @@ def initCam(cam, framerate, width, height):
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 def onboardCamera():
-    framerate = 30
+    framerate = 12
     width = 480
     height = 360
     cam1 = cv2.VideoCapture(1)

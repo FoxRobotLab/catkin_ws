@@ -13,6 +13,7 @@ import MapGraph
 
 
 # path = "/home/macalester/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
+# path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
 
 
 
@@ -22,7 +23,7 @@ class PathLocation(object):
         self.destination = None
         self.pathTraveled = None
         self.path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
-        self.olin = MapGraph.readMapFile(path)
+        self.olin = MapGraph.readMapFile(self.path)
 
 
     def beginJourney(self):
