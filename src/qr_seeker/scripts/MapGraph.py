@@ -83,9 +83,9 @@ class MapGraph(WeightedListGraph):
         degAngle = math.degrees(radianAngle)
 
         if -180 <= degAngle and degAngle <= 0:
-            degAngle = abs(degAngle)
-        else:
-            degAngle = 360 - degAngle
+            degAngle = degAngle + 360
+        #else:
+        #    degAngle = 360 - degAngle
         return degAngle
 
 
