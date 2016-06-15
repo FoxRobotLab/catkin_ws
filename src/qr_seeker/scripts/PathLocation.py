@@ -8,16 +8,26 @@ asks OlinGraph about angles in order to send back how far the robot should
 turn to get to the next node in its calculated path.
 # --------------------------------------------------------------------- """
 
-import OlinGraph
+import MapGraph
+
+
+
+# path = "/home/macalester/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
+
+
 
 class PathLocation(object):
+    """Handles the path planning component of the robot, interacting with the Olin MapGraph"""
     def __init__(self):
         self.destination = None
         self.pathTraveled = None
+        self.path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
+        self.olin = MapGraph.readMapFile(path)
 
 
     def beginJourney(self):
-        totalNumNodes = OlinGraph.olin._numVerts
+        """Sets up the destination for the route."""
+        totalNumNodes = self.olin.getSize()
         while self.destination is None:
             userInput = int(input("Enter destination index: "))
             if userInput in range(totalNumNodes):
@@ -26,9 +36,11 @@ class PathLocation(object):
 
 
     def continueJourney(self, qrInfo):
-        """Read things"""
+        """This is given information about the marker that is currently seen. It adds it to the path traveled,
+        and then it gets the best path from this point to the destination. This is used to determine the next
+        direction and target node for the robot. Computing the shortest path is done by the MapGraph itself, as needed."""
         nodeNum, nodeCoord, nodeName = qrInfo
-        heading = OlinGraph.olin.getMarkerInfo(nodeNum)
+        heading = self.olin.getMarkerInfo(nodeNum)
 
         if heading is None:
             heading = 0
@@ -39,9 +51,9 @@ class PathLocation(object):
             print ("Arrived at destination.")
             return None, None
 
-        path = OlinGraph.olin.getShortestPath(nodeNum, self.destination)
+        path = self.olin.getShortestPath(nodeNum, self.destination)
         currentNode, nextNode = path[0], path[1]
-        targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
+        targetAngle = self.olin.getAngle(currentNode, nextNode)
 
         print("Turning from node ", str(currentNode), " to node ", str(nextNode))
 
@@ -49,5 +61,6 @@ class PathLocation(object):
 
 
     def getPath(self):
+        """Returns the current path traveled."""
         # print("I'm serious. You actually did it. Here is your path again so you can see how far you have come.")
         return self.pathTraveled
