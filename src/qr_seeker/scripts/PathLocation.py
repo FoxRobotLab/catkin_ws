@@ -43,6 +43,7 @@ class PathLocation(object):
         heading = self.olin.getMarkerInfo(nodeNum)
 
         if heading is None:
+            print "Heading for node", nodeNum, "is not specified, default heading = 0"
             heading = 0
         print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
         self.pathTraveled.append(nodeNum)
