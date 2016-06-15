@@ -36,18 +36,18 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
             else:
                 self.heading = 360 + heading
             self.iteration += 1
-            print(self.speed, self.heading)
             self.setVector(self.speed, self.heading)
 
 
 class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
-    """TODO: write this docstring"""
+    """Reacts to the bumper being pressed by backing up and trying to turn away from the obstacle. It reports no
+    vector if the bumper is not pressed."""
 
     def update(self):
         """set zero magnitude and current heading"""
 
         bumperCode = self.robot.getBumperStatus()
-        if bumperCode == 2:  # Left side of bumpr was hit
+        if bumperCode == 2:  # Left side of bumper was hit
             self.setVector(0.4, 160)
         elif bumperCode == 1 or bumperCode == 3: # Right side of bumper or both
             self.setVector(0.4, 200)

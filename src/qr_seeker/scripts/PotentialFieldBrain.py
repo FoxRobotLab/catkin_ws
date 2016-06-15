@@ -15,7 +15,9 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
     behaviors each produce a vector describing the force they compute on the
     robot. The brain does vector addition to combine those vectors, and then
     transforms the resulting force on the robot into a movement direction and
-    speed"""
+    speed.
+    Angles are given in degrees, increasing in a counterclockwise direction. Thus 45 degrees
+    is to the left, and -45 is to the right. Note that 315 is also to the right."""
 
 
     # ----------------------------------------
@@ -59,15 +61,6 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
         if transValue == 0.0:
             # don't rotate if you aren't moving at all
             scaledSpeed = 0.0
-
-        # if scaledSpeed > 0:
-        #		# if scaled speed is too low, set to 0.2
-        #		scaledSpeed = max(0.2, scaledSpeed)
-        #	elif scaledSpeed < 0:
-        #		# if scaled speed is too low, set to 0.2
-        #		scaledSpeed = min(-0.2, scaledSpeed)
-
-        # print ("Values from potfield: trans, scaled", transValue, scaledSpeed)
 
         self.myRobot.move(transValue, scaledSpeed)
 

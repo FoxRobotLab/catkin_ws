@@ -351,7 +351,7 @@ class TurtleBot(object):
          seconds are given, then it sets the robot to turn right indefinitely (or until superceded by a new movement
          command). If seconds are given, then it has the robot make a timed movement to turn right for the specified time."""
         if seconds is None:
-            self.moveControl.setMovement(0.0, amount)
+            self.moveControl.setMovement(0.0, -amount)
         else:
             self.moveControl.timedMovement(0.0, -amount, seconds)
 
