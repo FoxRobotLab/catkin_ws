@@ -33,8 +33,8 @@ class qrPlanner(object):
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
 
-        self.webCamWidth = 480
-        self.webCamHeight = 360
+        self.webCamWidth = 640
+        self.webCamHeight = 480
 
         self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
                             self.webCamHeight))

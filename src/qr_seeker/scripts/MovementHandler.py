@@ -172,9 +172,9 @@ class MovementHandler(object):
             actualAngle = headingToMarker % 360
             angleToTurn = targetAngle - actualAngle
             if camera == "left":
-                angleToTurn += 90
-            else:
                 angleToTurn -= 90
+            else:
+                angleToTurn += 90
 
         print("-------------------------------------------------")
         print("headingToMarker", headingToMarker)
