@@ -91,7 +91,7 @@ Markers:
 24 180.0
 32 180.0
 35 0.0
-
+36 180.0
 
 Edges:
 # 0) Home lab:  Lab hall
