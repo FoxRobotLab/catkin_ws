@@ -24,7 +24,7 @@ Nodes:
 7   (17.3, 10.2)   Lab 258
 8   (20.5, 17.9)   Lab 256 hall
 9   (17.3, 18.2)   Lab 256
-10   (20.0, 22.4)   250 center hall
+10   (19.0, 22.4)   250 center hall
 11   (20.0, 26.1)   Collab Workspace hall
 12   (17.3, 26.3)   Collab Workspace
 13   (20.0, 27.6)   205 center hall
@@ -87,6 +87,7 @@ Markers:
 5 90.0
 6 0.0
 8 0.0
+10 180.0
 19 180.0
 21 180.0
 24 180.0
