@@ -8,7 +8,7 @@
 # The x axis runs north-south, increasing in the north direction.
 # The y axis runs east-west, increase as you go west.
 
-# NOTE: changes to 1, 2, 6, and 19 to skew the robot's turning
+# NOTE: changes to 1, 2, 4, 6, 8, and 19 to skew the robot's turning
 
 Number of Nodes: 63
 
@@ -17,11 +17,11 @@ Nodes:
 1   (22.2, 7.0)   Lab hall
 2   (20.0, 6.0)   East T
 3   (31.2, 6.5)   East L
-4   (12.9, 6.5)   259 lab hall
+4   (12.9, 7.0)   259 lab hall
 5   (8.7, 6.1)     Right Angle door
 6   (20.5, 9.9)    Lab 258 hall
 7   (17.3, 10.2)   Lab 258
-8   (20.0, 17.9)   Lab 256 hall
+8   (20.5, 17.9)   Lab 256 hall
 9   (17.3, 18.2)   Lab 256
 10   (20.0, 22.4)   250 center hall
 11   (20.0, 26.1)   Collab Workspace hall
