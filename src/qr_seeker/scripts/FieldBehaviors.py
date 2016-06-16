@@ -41,7 +41,7 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
 
 class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
     """Reacts to the bumper being pressed by backing up and trying to turn away from the obstacle. It reports no
-    vector if the bumper is not pressed."""
+    vector if the bumper is not pressed. """
 
     def update(self):
         """set zero magnitude and current heading"""
