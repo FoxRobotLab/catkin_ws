@@ -34,7 +34,8 @@ class ORBrecognizer():
         for i in range (0, 2):
             filename = filenames[i]
             """Yeah, hardcoded paths are gross and we all hate them. But ROS doesn't set the . directory
-            to the current file, and making the path dynamic was significantly more effort than we wanted
+            to the current tdown received
+image sensor shutfile, and making the path dynamic was significantly more effort than we wanted
             to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the 
             webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
             """
@@ -203,5 +204,6 @@ class ORBrecognizer():
             colorSample = self.kinectSample
         else:
             colorSample = self.camSample
-        img = self.colorPreprocessing(image2, colorSample)
+        #img = self.colorPreprocessing(image2, colorSample)
+        img = image2
         return self.findImage(img, self.properties, whichCam)

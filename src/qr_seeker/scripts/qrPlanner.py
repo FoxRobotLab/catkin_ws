@@ -44,8 +44,8 @@ class qrPlanner(object):
         mess with as necessary. Try to keep resolution as high as you can (max is 640x480).
         If it suddnely stops working it'll throw something like a VIDEOIO out of space error,
         if this happens with a configuration that worked before, try restarting the laptop."""
-        self.webCamWidth = 640
-        self.webCamHeight = 480
+        self.webCamWidth = 480
+        self.webCamHeight = 360
         self.rightCam = cv2.VideoCapture(1)     # both are webcams
         self.leftCam = cv2.VideoCapture(2)
         framerate = 12
@@ -86,12 +86,13 @@ class qrPlanner(object):
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
 
-            print "Left cam: "
-            orbLeftNone = self.orbScanner.orbScan(leftImage, 'left')
-            print "Right cam: "
-            orbRightNone = self.orbScanner.orbScan(rightImage, 'right')
-            print "Center cam: "
-            orbCenterNone = self.orbScanner.orbScan(image, 'center')
+            if rightImage is not None and leftImage is not None and image is not None:
+                print "Left cam: "
+                orbLeftNone = self.orbScanner.orbScan(leftImage, 'left')
+                print "Right cam: "
+                orbRightNone = self.orbScanner.orbScan(rightImage, 'right')
+                print "Center cam: "
+                orbCenterNone = self.orbScanner.orbScan(image, 'center')
 
             # we didn't see a QR code from the kinect, but we have other images to check...
             if qrInfo is None and leftImage is not None and rightImage is not None:
