@@ -22,27 +22,28 @@ class ORBrecognizer():
         self.matches = None
         self.goodMatches = None
         self.robot = bot
-        self.colorSample = self.initRefs()
+        self.camSample, self.kinectSample = self.initRefs()
         self.bf = cv2.BFMatcher()
+        itemsSought = ['sign']
+        self.properties = self.loadRefs()
 
-    def initRefs(self):
+    def initColorRefs(self):
         filenames = ['blue.jpg','blue_webcam.jpg']
-        if whichCam == 'center':
-            filename = filenames[0]
-        elif whichCam == 'right' or whichCam == 'left':
-            filename = filenames[1]
-        """Yeah, hardcoded paths are gross and we all hate them. But ROS doesn't set the . directory
-        to the current file, and making the path dynamic was significantly more effort than we wanted
-        to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the 
-        webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
-        """
-        path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
-        try:
-            colorSample = cv2.imread(path)
-            return colorSample
-        except:
-            print "Could not read the sample color image " + filename + "!"
-
+        refs = []
+        for i in range (0, 2):
+            filename = filenames[i]
+            """Yeah, hardcoded paths are gross and we all hate them. But ROS doesn't set the . directory
+            to the current file, and making the path dynamic was significantly more effort than we wanted
+            to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the 
+            webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
+            """
+            path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
+            try:
+                colorSample = cv2.imread(path)
+                refs.append(colorSample)
+            except:
+                print "Could not read the sample color image " + filename + "!"
+        return refs
 
     def tryToMatchFeatures(self, orb, img1, pointInfo, img2):
         kp2, des2 = pointInfo
@@ -196,9 +197,10 @@ class ORBrecognizer():
     this way -- just remember than anytime you see something like 'properties[i]', i is just 
     which image you're checking against, which is always the same - the Fox Robot Lab sign. """
     def orbScan(self, image, whichCam):
-        itemsSought = ['sign']
-        properties = self.initRefs(itemsSought)
-
         image2 = image.copy()
-        img = self.colorPreprocessing(image2, self.colorSample)
-        return self.findImage(img, properties, itemsSought, whichCam)
+        if whichCam == 'center':
+            colorSample = self.kinectSample
+        else:
+            colorSample = self.camSample
+        img = self.colorPreprocessing(image2, colorSample)
+        return self.findImage(img, self.properties, itemsSought, whichCam)
