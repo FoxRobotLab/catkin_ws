@@ -27,11 +27,14 @@ class qrPlanner(object):
     def __init__(self):
         self.robot = turtleQR.TurtleBot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+        self.webCamWidth = 640
+        self.webCamHeight = 480
 
         self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
+
 
         self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
                             self.webCamHeight))
@@ -44,8 +47,7 @@ class qrPlanner(object):
         mess with as necessary. Try to keep resolution as high as you can (max is 640x480).
         If it suddnely stops working it'll throw something like a VIDEOIO out of space error,
         if this happens with a configuration that worked before, try restarting the laptop."""
-        self.webCamWidth = 640
-        self.webCamHeight = 480
+
         self.rightCam = cv2.VideoCapture(1)     # both are webcams
         self.leftCam = cv2.VideoCapture(2)
         framerate = 12
