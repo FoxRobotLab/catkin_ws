@@ -24,7 +24,7 @@ class ORBrecognizer():
         self.robot = bot
         self.camSample, self.kinectSample = self.initRefs()
         self.bf = cv2.BFMatcher()
-        itemsSought = ['sign']
+        itemsSought = ['sign', 'lastNames', 'secondString', 'exitRef', 'hatchRef', 'doorRef']
         self.properties = self.loadRefs()
 
     def initColorRefs(self):
