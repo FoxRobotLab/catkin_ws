@@ -22,11 +22,11 @@ class ORBrecognizer():
         self.matches = None
         self.goodMatches = None
         self.robot = bot
-        self.camSample, self.kinectSample = self.initRefs()
+        self.camSample, self.kinectSample = self.initColorRefs()
         self.bf = cv2.BFMatcher()
         self.itemsSought = ['sign', 'lastNames', 'secondString', 'exitRef', 'hatchRef', 'doorRef']
         #self.itemsSought = ['sign'] #for normal functionality
-        self.properties = self.loadRefs()
+        self.properties = self.initRefs(self.itemsSought)
 
     def initColorRefs(self):
         filenames = ['blue.jpg','blue_webcam.jpg']
@@ -204,4 +204,4 @@ class ORBrecognizer():
         else:
             colorSample = self.camSample
         img = self.colorPreprocessing(image2, colorSample)
-        return self.findImage(img, self.properties, itemsSought, whichCam)
+        return self.findImage(img, self.properties, whichCam)
