@@ -22,6 +22,26 @@ class ORBrecognizer():
         self.matches = None
         self.goodMatches = None
         self.robot = bot
+        self.colorSample = self.initRefs()
+        self.bf = cv2.BFMatcher()
+
+    def initRefs(self):
+        filenames = ['blue.jpg','blue_webcam.jpg']
+        if whichCam == 'center':
+            filename = filenames[0]
+        elif whichCam == 'right' or whichCam == 'left':
+            filename = filenames[1]
+        """Yeah, hardcoded paths are gross and we all hate them. But ROS doesn't set the . directory
+        to the current file, and making the path dynamic was significantly more effort than we wanted
+        to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the 
+        webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
+        """
+        path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
+        try:
+            colorSample = cv2.imread(path)
+            return colorSample
+        except:
+            print "Could not read the sample color image " + filename + "!"
 
 
     def tryToMatchFeatures(self, orb, img1, pointInfo, img2):
@@ -37,8 +57,7 @@ class ORBrecognizer():
             return [], None, None
 
         # BFMatcher with default params
-        bf = cv2.BFMatcher()
-        matches = bf.match(des1,des2)
+        matches = self.bf.match(des1,des2)
 
         sortedMatches = sorted(matches, key = lambda x: x.distance)
         goodMatches = [mat for mat in matches if mat.distance < 300]
@@ -94,7 +113,7 @@ class ORBrecognizer():
         img2 = img.copy() #used to apply the final mask to, later - img is destroyed, I think
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)    # convert to HSV
-        mask = cv2.inRange(hsv, np.array((0., 60., 32.)), np.array((180., 255., 255.)))   # eliminate low and high saturation and value values
+        mask = cv2.inRange(hsv, np.array((0., 60., 32.)), np.array((180., 255., 255.)))   # eliminate low and high saturation values
 
         # access the currently selected region and make a histogram of its hue
         hsv_roi = cv2.cvtColor(colorSample, cv2.COLOR_BGR2HSV) 
@@ -106,7 +125,7 @@ class ORBrecognizer():
         prob = cv2.calcBackProject([hsv], [0], hist, [0, 180], 1)
         prob &= mask
 
-        #opening removes the remanants in the background
+        #opening removes the remnants in the background
         size = 15
         kernel = np.ones((size,size),np.uint8)
         prob = cv2.morphologyEx(prob, cv2.MORPH_OPEN, kernel)
@@ -180,22 +199,6 @@ class ORBrecognizer():
         itemsSought = ['sign']
         properties = self.initRefs(itemsSought)
 
-        filenames = ['blue.jpg','blue_webcam.jpg']
-        if whichCam == 'center':
-            filename = filenames[0]
-        elif whichCam == 'right' or whichCam == 'left':
-            filename = filenames[1]
-        """Yeah, hardcoded paths are gross and we all hate them. But ROS doesn't set the . directory
-        to the current file, and making the path dynamic was significantly more effort than we wanted
-        to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the 
-        webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
-        """
-        path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
-        try:
-            colorSample = cv2.imread(path)
-        except:
-            print "Could not read the sample color image " + filename + "!"
-
         image2 = image.copy()
-        img = self.colorPreprocessing(image2, colorSample)
+        img = self.colorPreprocessing(image2, self.colorSample)
         return self.findImage(img, properties, itemsSought, whichCam)
