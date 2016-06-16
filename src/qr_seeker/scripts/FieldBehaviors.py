@@ -47,17 +47,12 @@ class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
         """set zero magnitude and current heading"""
 
         bumperCode = self.robot.getBumperStatus()
-        print "BumperReact, bumperCode =", bumperCode
         if bumperCode == 2:  # Left side of bumper was hit
-            print "  Thought Left side hit"
             self.setVector(0.4, 220)
         elif bumperCode == 1: # should be right
-            print "   Hoping right side hit"
             self.setVector(0.4, 160)
         elif bumperCode == 3: # should be both
-            print "   Hoping both hit"
             self.setVector(0.4, 180)
-            print "   Choosing not to react"
         else:
             self.setVector(0.0, 0.0)
 
