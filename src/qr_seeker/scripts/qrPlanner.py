@@ -33,9 +33,6 @@ class qrPlanner(object):
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
 
-        self.webCamWidth = 640
-        self.webCamHeight = 480
-
         self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
                             self.webCamHeight))
         self.pathLoc = PathLocation.PathLocation()
@@ -43,7 +40,12 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
-        """the two webcams won't both run on Linux unless we turn down their quality"""
+        """the two webcams won't both run on Linux unless we turn down their quality ---
+        mess with as necessary. Try to keep resolution as high as you can (max is 640x480).
+        If it suddnely stops working it'll throw something like a VIDEOIO out of space error,
+        if this happens with a configuration that worked before, try restarting the laptop."""
+        self.webCamWidth = 640
+        self.webCamHeight = 480
         self.rightCam = cv2.VideoCapture(1)     # both are webcams
         self.leftCam = cv2.VideoCapture(2)
         framerate = 12
@@ -83,6 +85,13 @@ class qrPlanner(object):
             whichCam = "center"  #assume data is from kinect camera unless told otherwise
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
+
+            print "Left cam: "
+            orbLeftNone = self.orbScanner.orbScan(leftImage, 'left')
+            print "Right cam: "
+            orbRightNone = self.orbScanner.orbScan(rightImage, 'right')
+            print "Center cam: "
+            orbCenterNone = self.orbScanner.orbScan(image, 'center')
 
             # we didn't see a QR code from the kinect, but we have other images to check...
             if qrInfo is None and leftImage is not None and rightImage is not None:

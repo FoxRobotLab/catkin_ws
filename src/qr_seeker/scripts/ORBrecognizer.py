@@ -24,7 +24,8 @@ class ORBrecognizer():
         self.robot = bot
         self.camSample, self.kinectSample = self.initRefs()
         self.bf = cv2.BFMatcher()
-        itemsSought = ['sign', 'lastNames', 'secondString', 'exitRef', 'hatchRef', 'doorRef']
+        self.itemsSought = ['sign', 'lastNames', 'secondString', 'exitRef', 'hatchRef', 'doorRef']
+        #self.itemsSought = ['sign'] #for normal functionality
         self.properties = self.loadRefs()
 
     def initColorRefs(self):
@@ -71,13 +72,13 @@ class ORBrecognizer():
         return goodMatches, kp1, kp2
 
 
-    def findImage(self, img, properties, itemsSought, whichCam):
+    def findImage(self, img, properties, whichCam):
 
         colorImage = img
         answer = False
 
         #properties[i][2] holds the list of good points and the two sets of keypoints (for drawing)
-        for i in range (0, len(itemsSought)):
+        for i in range (0, len(self.itemsSought)):
             goodPoints, targetKeypts, refKeypts = self.tryToMatchFeatures(self.orb, img, properties[i][1], properties[i][0])
             properties[i][2].append(goodPoints)    #[i][2][0]
             properties[i][2].append(targetKeypts)  #[i][2][1]
@@ -93,14 +94,14 @@ class ORBrecognizer():
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
 
         if (max_value > 25 and whichCam == 'center') or max_value > 40:
-            print('The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
+            print('The '+ str(self.itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
             #returns the best set of good points (for the image and reference) 
             retVal = (properties[max_index][2][1], properties[max_index][2][0]) 
         else:
             retVal = None
 
         #cleanup
-        for i in range (0, len(itemsSought)):
+        for i in range (0, len(self.itemsSought)):
             properties[i][2] = []
             properties[i][3] = 0
 
