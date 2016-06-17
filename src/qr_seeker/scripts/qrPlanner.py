@@ -148,7 +148,7 @@ class qrPlanner(object):
         else:
             idx = 2
         cv2.imwrite("/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/ORBcaps/" 
-                    + str(self.captureNum[idx])+ whichCam + ".jpg"), image)
+                    + str(self.captureNum[idx])+ whichCam + ".jpg", image)
         self.captureNum[idx] = self.captureNum[idx] + 1
 
 
