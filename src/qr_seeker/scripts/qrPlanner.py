@@ -83,14 +83,14 @@ class qrPlanner(object):
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     #print "Stepping the brain"
-                    #self.brain.step()
+                    self.brain.step()
                     pass
 
             whichCam = "center"  #assume data is from kinect camera unless told otherwise
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
 
-            if rightImage is not None and leftImage is not None and image is not None:
+            if rightImage is not None and leftImage is not None and image is not None and image is None:
                 print "Left cam: "
                 orbLeftNone = self.orbScanner.orbScan(leftImage, 'left')
                 print "Right cam: "
@@ -149,8 +149,7 @@ class qrPlanner(object):
             idx = 1
         else:
             idx = 2
-        cv2.imwrite("/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/ORBcaps/" 
-                    + str(self.captureNum[idx])+ whichCam + ".jpg", image)
+        cv2.imwrite("/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/ORBcaps/" + str(self.captureNum[idx])+ whichCam + ".jpg", image)
         self.captureNum[idx] = self.captureNum[idx] + 1
 
 
