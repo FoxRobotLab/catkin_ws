@@ -88,14 +88,6 @@ class qrPlanner(object):
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
 
-            if leftImage is not None and rightImage is not None:
-                print "Left cam: "
-                orbLeftNone = self.orbScanner.orbScan(leftImage, 'left')
-                print "Right cam: "
-                orbRightNone = self.orbScanner.orbScan(rightImage, 'right')
-                print "Center cam: "
-                orbCenterNone = self.orbScanner.orbScan(image, 'center')
-
             # we didn't see a QR code from the kinect, but we have other images to check...
             if qrInfo is None and leftImage is not None and rightImage is not None:
                 qrLeft = self.qrScanner.qrScan(leftImage)
