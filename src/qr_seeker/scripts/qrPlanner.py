@@ -39,6 +39,7 @@ class qrPlanner(object):
         self.pathTraveled = []
         self.aligned = False
         self.ignoreBrain = False
+        self.captureNum = [0, 0, 0] #center left right
 
         """the two webcams won't both run on Linux unless we turn down their quality ---
         mess with as necessary. Try to keep resolution as high as you can (max is 640x480).
@@ -64,6 +65,7 @@ class qrPlanner(object):
         timeout = time.time() + runtime
         iterationCount = 0
         self.pathLoc.beginJourney()
+        count = 0
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
             leftImage = self.getNextFrame(self.leftCam)
@@ -130,7 +132,24 @@ class qrPlanner(object):
                 else:  # orb is none, so continue on as you were
                     self.ignoreBrain = False
                     self.aligned = False
+            if count == 20:
+                self.saveCaptures(image, 'center')
+                self.saveCaptures(leftImage, 'left')
+                self.saveCaptures(rightImage, 'right')
+                count = 0
+            count += 1
         self.brain.stopAll()
+
+    def saveCaptures(self, image, whichCam):
+        if whichCam == 'center':
+            idx = 0
+        elif whichCam == 'left':
+            idx = 1
+        else:
+            idx = 2
+        cv2.imwrite("/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/ORBcaps/" 
+                    + str(self.captureNum[idx])+ whichCam + ".jpg"), image)
+        self.captureNum[idx] = self.captureNum[idx] + 1
 
 
     def setupPot(self):
