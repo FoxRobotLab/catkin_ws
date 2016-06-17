@@ -33,8 +33,6 @@ class qrPlanner(object):
         self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
         self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
 
-        self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
-                            self.webCamHeight))
         self.pathLoc = PathLocation.PathLocation()
         self.pathTraveled = []
         self.aligned = False
@@ -55,6 +53,9 @@ class qrPlanner(object):
         self.leftCam.set(cv2.CAP_PROP_FPS, framerate)
         self.leftCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
         self.leftCam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.webCamHeight)
+
+    
+        self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth, self.webCamHeight))
 
         self.ignoreSignTime = 0
 
@@ -80,7 +81,8 @@ class qrPlanner(object):
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     #print "Stepping the brain"
-                    self.brain.step()
+                    #self.brain.step()
+                    pass
 
             whichCam = "center"  #assume data is from kinect camera unless told otherwise
             qrInfo = self.qrScanner.qrScan(image)

@@ -63,7 +63,7 @@ image sensor shutfile, and making the path dynamic was significantly more effort
         matches = self.bf.match(des1,des2)
 
         sortedMatches = sorted(matches, key = lambda x: x.distance)
-        goodMatches = [mat for mat in matches if mat.distance < 300]
+        goodMatches = [mat for mat in matches if mat.distance < 250]
 
         matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,
             None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
@@ -94,7 +94,7 @@ image sensor shutfile, and making the path dynamic was significantly more effort
         scores = map(getcount, properties)
         max_index, max_value = max(enumerate(scores), key=itemgetter(1))
 
-        if (max_value > 25 and whichCam == 'center') or max_value > 40:
+        if (max_value > 10 and whichCam == 'center') or max_value > 10:
             print('The '+ str(self.itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
             #returns the best set of good points (for the image and reference) 
             retVal = (properties[max_index][2][1], properties[max_index][2][0]) 
