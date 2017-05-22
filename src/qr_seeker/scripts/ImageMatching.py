@@ -18,11 +18,11 @@ import ImageFeatures
 
 class ImageMatcher:
     """..."""
-    
-    
-    def __init__(self, logFile = False, logShell = False, 
-                 dir1 = None, dir2 = None, 
-                 baseName = 'foo', ext= "jpg", 
+
+
+    def __init__(self, logFile = False, logShell = False,
+                 dir1 = None, dir2 = None,
+                 baseName = 'foo', ext= "jpg",
                  startPic = 0, numPics = -1):
         self.logToFile = logFile
         self.logToShell = logShell
@@ -37,38 +37,42 @@ class ImageMatcher:
         self.height = 0
         self.width = 0
         self.logger = OutputLogger.OutputLogger(self.logToFile, self.logToShell)
+
+        # Add line to debug ORB
+        cv2.ocl.setUseOpenCL(False)
+        self.ORBFinder = cv2.ORB_create()
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
 
-        
+
     def setLogToFile(self, val):
         if val in {False, True}:
             self.logToFile = val
 
-    
+
     def setLogToShell(self, val):
         if val in {False, True}:
             self.logToShell = val
-            
-            
+
+
     def setCurrentDir(self, currDir):
         if type(currDir) == str:
             self.currDirectory = currDir
-            
+
 
     def setSecondDir(self, sndDir):
         if type(sndDir) == str:
             self.secondDirectory = sndDir
 
-            
+
     def setExtension(self, newExt):
         if type(newExt) == str:
             self.currExtension = newExt
 
-            
+
     def setFirstPicture(self, picNum):
         if type(picNum == int) and (picNum >= 0):
             self.startPicture = picNum
-            
+
     def setNumPictures(self, picNum):
         if type(picNum == int) and (picNum >= 0):
             self.numPictures = picNum
@@ -77,13 +81,13 @@ class ImageMatcher:
         if type(camNum == int) and (camNum >= 0):
             self.cameraNum = camNum
 
-        
+
     # ------------------------------------------------------------------------
     # One of the major operations we can undertake, comparing all pairs in a range
 
     def cycle(self, verbose = False):
         """Compares all to all. Must have called makeCollection before calling this operation."""
-        
+
         if (self.currDirectory is None)\
            or (self.numPictures == -1):
             print("ERROR: cannot run cycle without at least a directory and a number of pictures")
@@ -97,7 +101,7 @@ class ImageMatcher:
         matchScore = {}
         #cv2.namedWindow("Image l")
         #cv2.namedWindow("Image 2")
-        
+
         for i in range(self.numPictures):
             picNum = self.startPicture + i
             if quitTime:
@@ -106,7 +110,7 @@ class ImageMatcher:
             if verbose:
                 features1.displayFeaturePics("Image 1", 0, 0)
                 self.logger.log("image 1 = " + str(picNum))
-            
+
             for j in range(self.numPictures):  # Note this duplicates for debugging purposes comparisons both ways
                 pic2num = self.startPicture + j
                 features2 = self.featureCollection[pic2num] #self._getImageAndDisplay(pic2num, "Image 2", 400, 0)
@@ -116,7 +120,7 @@ class ImageMatcher:
                 matchScore[picNum, pic2num] = simVal
                 logStr = "image " + str(picNum) + " matched image " + str(pic2num) + " with score " + str(simVal)
                 self.logger.log(logStr)
-                
+
                 c = cv2.waitKey(50)
                 #c = chr(c & 0xFF)
                 #if c == 'q':
@@ -125,7 +129,7 @@ class ImageMatcher:
                     #self.threshold += 50
                 #elif c == 'l':
                     #self.threshold -= 50
-                    
+
         # Displays to logger a table of the pictures and their similarity scores
         formatSimilScore = "{:^9.3f}"
         formatPicNum = "  {:0>4d}   "
@@ -145,13 +149,13 @@ class ImageMatcher:
             self.logger.log(nextLine)
 
 
-            
+
     # ------------------------------------------------------------------------
     # One of the major operations we can undertake, user-selected pairs of pictures ...
-    
+
     def compareSelected(self):
         """Loops until the user says to quit. It asks the user for two image numbers,
-        reads those images from the current directory, and compares them, displaying the 
+        reads those images from the current directory, and compares them, displaying the
         results."""
         if (self.currDirectory is None):
             print("ERROR: cannot run compareSelected without at least a directory")
@@ -160,8 +164,8 @@ class ImageMatcher:
 
         cv2.namedWindow("Image l")
         cv2.namedWindow("Image 2")
-        
-        
+
+
         while True:
             print("Enter the number of the first picture")
             pic1Num = self._userGetInteger()
@@ -171,7 +175,7 @@ class ImageMatcher:
             pic2Num = self._userGetInteger()
             if pic2Num == 'q':
                 break
-            
+
             image1, features1 = self._getImageAndDisplay(pic1Num, "Image 1", 0, 0)
             if self.height == 0:
                 self.height, self.width, depth = image1.shape
@@ -180,21 +184,21 @@ class ImageMatcher:
             self.logger.log("image 2 =" + str(pic2Num))
             simval = features1.evaluateSimilarity(features2)
             self.logger.log("Similarity = " + str(simval))
-                   
-                   
-                   
+
+
+
     # ------------------------------------------------------------------------
     # One of the major operations we can undertake, creates a list of ImageFeatures objects
-    
+
     def makeCollection(self):
-        """Reads in all the images in the specified directory, start number and end number, and 
+        """Reads in all the images in the specified directory, start number and end number, and
         makes a list of ImageFeature objects for each image read in."""
         if (self.currDirectory is None)\
            or (self.numPictures == -1):
             print("ERROR: cannot run makeCollection without a directory and a number of pictures")
             return
         self.logger.log("Reading in image database")
-        
+
 
         for i in range(self.numPictures):
             picNum = self.startPicture + i
@@ -202,10 +206,10 @@ class ImageMatcher:
             if self.height == 0:
                 self.height, self.width, depth = image.shape
             #self.logger.log("Image = " + str(picNum))
-            features = ImageFeatures.ImageFeatures(image, picNum, self.logger)
+            features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
             self.featureCollection[picNum] = features
             print i
-            
+
         self.logger.log("Length of collection = " + str(self.numPictures))
 
 
@@ -232,10 +236,10 @@ class ImageMatcher:
                 break
             image, features = self._getImageAndDisplay(picNum, "Primary image", 0, 0)
             self.logger.log("Primary image = " + str(picNum))
-            
+
             self._findBestNMatches(image, features, numMatches)
-            
-        
+
+
     # ------------------------------------------------------------------------
     # One of the major operations we can undertake, comparing all pairs in a range
     def mostSimilarCamera(self):
@@ -252,7 +256,7 @@ class ImageMatcher:
             image = self._userSelectFrame(cap)
             if image is None:
                 break
-            features = ImageFeatures.ImageFeatures(image, 9999, self.logger)
+            features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
             cv2.imshow("Primary image", image)
             cv2.moveWindow("Primary image", 0, 0)
             features.displayFeaturePics("Primary image features", 0, 0)
@@ -274,11 +278,11 @@ class ImageMatcher:
                 return None
             elif ch == ' ':
                 return frame
-                
-                
-                
-            
-            
+
+
+
+
+
     def _findBestNMatches(self, image, features, numMatches):
         """Looks through the collection of features and keeps the numMatches
         best matches."""
@@ -309,9 +313,9 @@ class ImageMatcher:
                         #self.logger.log("Changing " + str(whichMax) + "to new value")
                         bestScores[whichMax] = simValue
                         bestMatches[whichMax] = feat
-                else:           
+                else:
                     self.logger.log("Should never get here... too many items in bestMatches!! " + str(len(bestMatches)))
-                        
+
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
         self.logger.log("==========Close Matches==========")
@@ -322,9 +326,9 @@ class ImageMatcher:
             nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
             self.logger.log("Image " + str(nextMatch.getIdNum()) + " matches with similarity = " + str(nextScore))
             cv2.waitKey(0)
-            
-            
-    
+
+
+
     def _userGetInteger(self):
         """Ask until user either enters 'q' or a valid nonnegative integer"""
         inpStr = ""
@@ -334,8 +338,8 @@ class ImageMatcher:
                return 'q'
         num = int(inpStr)
         return num
-    
-    
+
+
     def _getImageAndDisplay(self, picNum, label, baseX, baseY):
         """Given a picture number and a label, it reads the image, creates
         its features, and displays the features, returning the image and its
@@ -344,12 +348,12 @@ class ImageMatcher:
         cv2.imshow(label, image)
         cv2.moveWindow(label, baseX, baseY)
         cv2.waitKey(50)
-        features = ImageFeatures.ImageFeatures(image, picNum, self.logger)
+        features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
         features.displayFeaturePics(label + "Features", baseX, baseY)
         return image, features
-     
 
-        
+
+
     def getFileByNumber(self, fileNum):
         """Makes a filename given the number and reads in the file, returning it."""
         filename = self.makeFilename(fileNum)
@@ -357,38 +361,38 @@ class ImageMatcher:
         if image is None:
             print("Failed to read image:", filename)
         return image
-    
-    
+
+
     def putFileByNumber(self, fileNum, image):
         """Writes a file in the current directory with the given number."""
         filename = self.makeFilename(fileNum)
         cv2.imwrite(filename, image)
-        
-        
+
+
     def makeFilename(self, fileNum):
         """Makes a filename for reading or writing image files"""
         formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
-        name = formStr.format(self.currDirectory, 
-                              self.baseName, 
-                              fileNum, 
+        name = formStr.format(self.currDirectory,
+                              self.baseName,
+                              fileNum,
                               self.currExtension)
         return name
-        
-        
-        
-"""if __name__ == '__main__':
+
+
+
+if __name__ == '__main__':
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = "../Pictures2016/May23-MobileTest3/",
-                           baseName = "pic",
+                           dir1 = "../res/Feb2017Data/",
+                           baseName = "frame",
                            ext = "jpg",
                            startPic = 0,
-                           numPics = 175)
+                           numPics = 500)
     matcher.makeCollection()
     #matcher.cycle()
     #matcher.compareSelected()
-    matcher.mostSimilarSelected()"""
-        
-        
-        
-        
-        
+    matcher.mostSimilarSelected()
+
+
+
+
+
