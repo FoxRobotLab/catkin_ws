@@ -150,7 +150,7 @@ class qrPlanner(object):
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
 
-        print "REACHED LOCATE"
+        print "REACHED LOCATE", whichCam
         """Check if the QR code is the same as the last one you saw. If it is, and if it's not been a
         while since you saw it, then disregard."""
         path = self.pathLoc.getPath()
