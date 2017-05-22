@@ -48,8 +48,8 @@ class qrPlanner(object):
         If it suddnely stops working it'll throw something like a VIDEOIO out of space error,
         if this happens with a configuration that worked before, try restarting the laptop."""
 
-        self.rightCam = cv2.VideoCapture(1)     # both are webcams
-        self.leftCam = cv2.VideoCapture(2)
+        self.rightCam = cv2.VideoCapture(2)     # both are webcams
+        self.leftCam = cv2.VideoCapture(1)
         framerate = 12
         self.rightCam.set(cv2.CAP_PROP_FPS, framerate)
         self.rightCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
