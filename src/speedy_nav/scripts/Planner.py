@@ -115,11 +115,11 @@ class Planner(object):
 		ignoreColorTime = 0
 		sweepTime = 0
 		sinceLastStall = 0
-                print "Planner.run starting while loop"
+		print "Planner.run starting while loop"
 		while time.time() < timeout and not rospy.is_shutdown():
 
 			if not self.camera.isStalled():
-                                print " -------------------------------- camera not stalled"
+				print " -------------------------------- camera not stalled"
 				sinceLastStall += 1
 				if 30 < sinceLastStall:
 					"""bumper = self.robot.getBumperStatus()

@@ -18,6 +18,7 @@ from operator import itemgetter
 class ORBrecognizer():
     """Holds data about ORB keypoints found in the input picture."""
     def __init__(self, bot):
+        cv2.ocl.setUseOpenCL(False)
         self.orb = cv2.ORB_create()
         self.matches = None
         self.goodMatches = None
@@ -34,7 +35,7 @@ class ORBrecognizer():
             filename = filenames[i]
             """Yeah, hardcoded paths are gross and we all hate them. But ROS doesn't set the . directory
             to the current file, and making the path dynamic was significantly more effort than we wanted
-            to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the 
+            to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the
             webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
             """
             path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
@@ -94,8 +95,8 @@ class ORBrecognizer():
 
         if (max_value > 25 and whichCam == 'center') or max_value > 40:
             print('The '+ str(self.itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
-            #returns the best set of good points (for the image and reference) 
-            retVal = (properties[max_index][2][1], properties[max_index][2][0]) 
+            #returns the best set of good points (for the image and reference)
+            retVal = (properties[max_index][2][1], properties[max_index][2][0])
         else:
             retVal = None
 
@@ -117,7 +118,7 @@ class ORBrecognizer():
         mask = cv2.inRange(hsv, np.array((0., 60., 32.)), np.array((180., 255., 255.)))   # eliminate low and high saturation values
 
         # access the currently selected region and make a histogram of its hue
-        hsv_roi = cv2.cvtColor(colorSample, cv2.COLOR_BGR2HSV) 
+        hsv_roi = cv2.cvtColor(colorSample, cv2.COLOR_BGR2HSV)
         hist = cv2.calcHist( [hsv_roi], [0], None, [16], [0, 180] )
         cv2.normalize(hist, hist, 0, 255, cv2.NORM_MINMAX)
         hist = hist.reshape(-1)
@@ -192,9 +193,9 @@ class ORBrecognizer():
 
     #run this if you wanna test the feature recognition using a still image
     """This code is built so that you can check an image against multiple features.
-    However, qrPlanner really only wants you to look for one, the Fox Robotics Lab sign. As 
+    However, qrPlanner really only wants you to look for one, the Fox Robotics Lab sign. As
     a result, all of this code is a lot more complicated than it needs to be. It's more flexible
-    this way -- just remember than anytime you see something like 'properties[i]', i is just 
+    this way -- just remember than anytime you see something like 'properties[i]', i is just
     which image you're checking against, which is always the same - the Fox Robot Lab sign. """
     def orbScan(self, image, whichCam):
         image2 = image.copy()

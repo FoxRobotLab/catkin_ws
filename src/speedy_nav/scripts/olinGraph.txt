@@ -144,7 +144,7 @@ Edges:
 # 16)  250 north:  250 center, 
 16 23
 
-# 17) 205 east:  205 center hall, 205 north hall
+# 17) 205 east:  205 center hall, 205 west, 205 north hall
 17 18
 17 26
 

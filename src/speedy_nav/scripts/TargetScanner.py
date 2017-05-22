@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 
-from Tracker import *
+import Tracker
+
 
 class TargetScanner(object):
 	def __init__(self, object_name, frame_dims):
@@ -9,7 +10,6 @@ class TargetScanner(object):
 		self.object_name = object_name
 		self.fWidth, self.fHeight = frame_dims
 		self.full_track_window = (0,0,self.fWidth,self.fHeight)
-		
 
 		# Only direct references to the files seemed to work here
 		try:
@@ -28,7 +28,7 @@ class TargetScanner(object):
 		self.tracking = []
 		
 		#Tracker that is looking for new objects
-		self.searcher = Tracker(self.full_track_window, False)
+		self.searcher = Tracker.Tracker(self.full_track_window, False)
 		
 	
 	def calcAverageColor(self):
@@ -60,10 +60,10 @@ class TargetScanner(object):
 		box, bproj, split = self.searcher.update(bproj.copy())		
 		if split:
 			self.splitTracker(self.searcher)
-			self.searcher = Tracker(self.full_track_window, found = False)		
+			self.searcher = Tracker.Tracker(self.full_track_window, found = False)
 		if self.searcher.hasFound():
 			self.tracking.append(self.searcher)
-			self.searcher = Tracker(self.full_track_window, found = False)			
+			self.searcher = Tracker.Tracker(self.full_track_window, found = False)
 		return frame
 
 	
@@ -86,6 +86,6 @@ class TargetScanner(object):
 		h1 = h // 2
 		h2 = h - h1		
 		for newBox in [(c, r, w1, h1), (c+w1+1, r, w2, h1), (c, r+h1+1, w1, h2), (c+w1+1, r+h1+1, w2, h2)]:
-			self.tracking.append(Tracker(newBox, True))
+			self.tracking.append(Tracker.Tracker(newBox, True))
 
 

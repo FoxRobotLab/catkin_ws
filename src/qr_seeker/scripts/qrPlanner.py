@@ -62,7 +62,7 @@ class qrPlanner(object):
 
 
     def run(self, runtime=120):
-        #Runs the program for the duration of 'runtime'
+        """Runs the program for the duration of 'runtime'"""
         timeout = time.time() + runtime
         iterationCount = 0
         self.pathLoc.beginJourney()
@@ -128,6 +128,9 @@ class qrPlanner(object):
 
 
     def setupPot(self):
+        """Sets up the potential field brain with access to the robot's sensors and motors, and add the
+        KeepMoving and BumperReact behaviors, along with ObstacleForce behaviors for six regions of the depth
+        data."""
         currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         currBrain.add(FieldBehaviors.KeepMoving())
         currBrain.add(FieldBehaviors.BumperReact())
