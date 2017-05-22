@@ -19,7 +19,7 @@ import FieldBehaviors
 import math
 import PathLocation
 import numpy as np
-# from espeak import espeak
+from espeak import espeak
 
 
 class qrPlanner(object):
@@ -48,8 +48,8 @@ class qrPlanner(object):
         If it suddnely stops working it'll throw something like a VIDEOIO out of space error,
         if this happens with a configuration that worked before, try restarting the laptop."""
 
-        self.rightCam = cv2.VideoCapture(1)     # both are webcams
-        self.leftCam = cv2.VideoCapture(2)
+        self.rightCam = cv2.VideoCapture(2)     # both are webcams
+        self.leftCam = cv2.VideoCapture(1)
         framerate = 12
         self.rightCam.set(cv2.CAP_PROP_FPS, framerate)
         self.rightCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
@@ -161,7 +161,7 @@ class qrPlanner(object):
         if qrInfo is not None and (last != qrInfo[0] or self.ignoreSignTime > 50):
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
-            # espeak.synth("Seen node " + str(qrInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
+            espeak.synth("Seen node " + str(qrInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
 
             if heading is None:
                 # We have reached our destination
