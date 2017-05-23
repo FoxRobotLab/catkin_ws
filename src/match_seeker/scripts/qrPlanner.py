@@ -92,7 +92,7 @@ class qrPlanner(object):
             iterationCount += 1
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
-                    print "Stepping the brain"
+                    # print "Stepping the brain"
                     self.brain.step()
 
             if iterationCount % 30 == 0:
