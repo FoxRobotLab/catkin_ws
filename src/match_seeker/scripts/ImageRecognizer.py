@@ -19,6 +19,7 @@ import cv2
 import OutputLogger
 import ImageFeatures
 from OSPathDefine import basePath
+import MapGraph
 
 
 class ImageMatcher(object):
@@ -48,6 +49,16 @@ class ImageMatcher(object):
         cv2.ocl.setUseOpenCL(False)
         self.ORBFinder = cv2.ORB_create()
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
+
+        self.location = {}
+        file = open(basePath + "res/Data-May18Thu-163526.txt")
+        for line in file.readlines():
+            line = line.rstrip('/n')
+            line = line.split()
+            self.location[int(line[0])] = line[1:]
+
+        self.path = basePath + "scripts/olinGraph.txt"
+        self.olin = MapGraph.readMapFile(self.path)
 
 
     def setLogToFile(self, val):
@@ -168,9 +179,25 @@ class ImageMatcher(object):
             cv2.imshow("Match Picture", nextMatch.getImage())
             cv2.moveWindow("Match Picture", self.width+10, 0)
             # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
-            self.logger.log("Image " + str(nextMatch.getIdNum()) + " matches with similarity = " + str(nextScore))
+            idNum = nextMatch.getIdNum()
+            self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
+            print "x axis is ", self.location[idNum][0], '. y axis is ', self.location[idNum][1], '. Angle is ', self.location[idNum][2], '.'
+            # (num, x, y) = self.findClosestNode((float(self.location[idNum][0]),float(self.location[idNum][1])))
+            # print "The closest node is number ", num, "with x and y coordinates as ", x, "and", y
             # cv2.waitKey(0)
 
+
+    # def findClosestNode(self, (x, y)):
+    #     nodeFound = False
+    #     radius = 0.1
+    #     while not nodeFound:
+    #         for nodeNum in range(self.olin.getSize()):
+    #             print nodeNum
+    #             (nodeX,nodeY) = self.olin.getMarkerInfo(nodeNum)
+    #             if (((nodeX-x)*(nodeX-x))+((nodeY-y)*(nodeY-y)) == radius*radius):
+    #                 nodeFound = True
+    #         radius = radius + 0.1
+    #     return (nodeNum, nodeX, nodeY)
 
 
     # def _userGetInteger(self):
@@ -248,8 +275,8 @@ if __name__ == '__main__':
                            ext = "jpg",
                            startPic = 0,
                            numPics = 500)
-    matcher.run()
-    rospy.on_shutdown(matcher.exit)
+    #matcher.run()
+    #rospy.on_shutdown(matcher.exit)
     rospy.spin()
 
 
