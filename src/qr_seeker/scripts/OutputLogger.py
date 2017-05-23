@@ -20,24 +20,24 @@ class OutputLogger:
     def __init__(self, toFile = True, toConsole = True):
         """If logging to a file, sets up the file with the right name based\
         on the current date and time."""
-        
+
         self.toFile = toFile
         self.toConsole = toConsole
         self.fileOpen = False
         self.logOpen = True
-        
+
         if self.toFile:
             try:
-                os.makedirs('logs/')
+                os.makedirs('/home/macalester/catkin_ws/src/qr_seeker/res/logs/')
             except:
                 pass
             self.logName = time.strftime("%b%d%a-%H%M%S.txt")
             try:
-                self.logFile = open("logs/" + self.logName, 'w')
+                self.logFile = open("/home/macalester/catkin_ws/src/qr_seeker/res/logs/" + self.logName, 'w')
                 self.fileOpen = True
             except e:
                 print "LOGGER FAILED TO OPEN LOG FILE"
-            
+
 
 
     def log(self, line):
@@ -56,19 +56,19 @@ class OutputLogger:
             self.logFile.close()
             self.fileOpen = False
         self.logOpen = False
-        
+
     def reset(self):
         """Reset the log to open the old log and add to it?"""
         self.fileOpen = False
         self.logOpen = True
-        
+
         if self.toFile:
             try:
-                self.logFile = open("logs/" + self.logName, 'a')
+                self.logFile = open("/home/macalester/catkin_ws/src/qr_seeker/res/logs/" + self.logName, 'a')
                 self.fileOpen = True
             except e:
                 print "LOGGER FAILED TO OPEN LOG FILE"
-         
+
 
 if __name__ == '__main__':
     logger = OutputLogger(False, False)
@@ -81,4 +81,3 @@ if __name__ == '__main__':
     logger.log("Shouldn't see this")
     logger.reset()
     logger.log("Third line")
-    

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """ ========================================================================
 ImageMatching.py
 
@@ -12,9 +14,11 @@ This is porting the CompareInfo class written in C++ in about 2011.
 
 
 import sys
+import rospy
 import cv2
 import OutputLogger
 import ImageFeatures
+import turtleQR
 
 class ImageMatcher:
     """..."""
@@ -36,7 +40,12 @@ class ImageMatcher:
         self.cameraNum = 0
         self.height = 0
         self.width = 0
+        print "before init outputLogger"
+        input("type something")
         self.logger = OutputLogger.OutputLogger(self.logToFile, self.logToShell)
+        print "made logger"
+
+        self.robot = turtleQR.TurtleBot()
 
         # Add line to debug ORB
         cv2.ocl.setUseOpenCL(False)
@@ -193,6 +202,7 @@ class ImageMatcher:
     def makeCollection(self):
         """Reads in all the images in the specified directory, start number and end number, and
         makes a list of ImageFeature objects for each image read in."""
+        print "in make collection"
         if (self.currDirectory is None)\
            or (self.numPictures == -1):
             print("ERROR: cannot run makeCollection without a directory and a number of pictures")
@@ -251,9 +261,10 @@ class ImageMatcher:
         print("How many matches should it find?")
         numMatches = self._userGetInteger()
         quitTime = False
-        cap = cv2.VideoCapture(self.cameraNum)
+        # cap = cv2.VideoCapture(self.cameraNum)
         while not quitTime:
-            image = self._userSelectFrame(cap)
+            # image = self._userSelectFrame(cap)
+            image = self.robot.getImage()[0]
             if image is None:
                 break
             features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
@@ -381,18 +392,21 @@ class ImageMatcher:
 
 
 if __name__ == '__main__':
-    matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = "../res/Feb2017Data/",
-                           baseName = "frame",
-                           ext = "jpg",
-                           startPic = 0,
-                           numPics = 500)
-    matcher.makeCollection()
-    #matcher.cycle()
-    #matcher.compareSelected()
-    matcher.mostSimilarSelected()
-
-
+    rospy.init_node('ImageMatching')
+    print "GOT HERE"
+    # matcher = ImageMatcher(logFile = True, logShell = True,
+    #                        dir1 = "/home/macalester/catkin_ws/src/qr_seeker/res/Feb2017Data/",
+    #                        baseName = "frame",
+    #                        ext = "jpg",
+    #                        startPic = 0,
+    #                        numPics = 500)
+    # print "finish ImageMatcher call"
+    # matcher.makeCollection()
+    # #matcher.cycle()
+    # #matcher.compareSelected()
+    # matcher.mostSimilarCamera()
+    # matcher.mostSimilarSelected()
+    rospy.spin()
 
 
 

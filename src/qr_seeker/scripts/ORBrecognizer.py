@@ -38,7 +38,7 @@ class ORBrecognizer():
             to invest. (See <http://wiki.ros.org/rospy_tutorials/Tutorials/Makefile>.) Since (due to the
             webcams) you can't run the code remotely, you're going to be on the turtlebot laptop anyway.
             """
-            path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
+            path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
             try:
                 colorSample = cv2.imread(path)
                 refs.append(colorSample)
@@ -179,7 +179,7 @@ class ORBrecognizer():
 
             #see note on hardcoded paths in orbScan().
             filename = itemsSought[i] + '.jpg'
-            path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/res/refs/" + filename
+            path = "/home/macalester/catkin_ws/src/qr_seeker/res/refs/" + filename
             properties[i][0] = cv2.imread(path, 0)
             if properties[i][0] is None:
                 print("Reference image", itemsSought[i], "not found")
