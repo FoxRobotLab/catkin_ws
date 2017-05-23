@@ -95,7 +95,8 @@ class qrPlanner(object):
                     print "Stepping the brain"
                     self.brain.step()
 
-            self.matcher.matchImage(image)
+            if iterationCount % 30 == 0:
+                self.matcher.matchImage(image)
             # whichCam = "center"  #assume data is from kinect camera unless told otherwise
             # qrInfo = self.qrScanner.qrScan(image)
             # self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
