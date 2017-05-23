@@ -119,7 +119,7 @@ class ImageMatcher(object):
         if len(self.featureCollection) == 0:
             print("ERROR: must have built collection before running this.")
             return
-        self.logger.log("Choosing frames from video to compare to collection")
+        # self.logger.log("Choosing frames from video to compare to collection")
 
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
         # cv2.imshow("Primary image", camImage)
@@ -242,14 +242,12 @@ class ImageMatcher(object):
 
 if __name__ == '__main__':
     rospy.init_node('ImageMatching')
-    print "GOT HERE"
     matcher = ImageMatcher(logFile = True, logShell = True,
                            dir1 = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/res/Feb2017Data/",
                            baseName = "frame",
                            ext = "jpg",
                            startPic = 0,
                            numPics = 500)
-    print "finish ImageMatcher call"
     matcher.run()
     rospy.on_shutdown(matcher.exit)
     rospy.spin()

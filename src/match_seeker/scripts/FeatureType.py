@@ -42,7 +42,7 @@ class FeatureType:
         It then uses a greedy algorithm to pick matches (not optimal, but efficient).
         """
         # Override this in the child class
-        # return self.maxValue
+        return self.maxValue
 
     def _normalizeSimValue(self, simValue):
         """Takes in a similarity value and normalizes it to be between 0 and 100. However, it divides the

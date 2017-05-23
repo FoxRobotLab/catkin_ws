@@ -47,7 +47,6 @@ class ORBFeatures(FeatureType.FeatureType):
 
 
         # Match descriptors.
-        print "DES LENS", "des1 =", len(self.des), "   des2 =", len(otherFeature.des)
         self.matches = self.matcher.match(self.des, otherFeature.des)
         sortedMatches = sorted(self.matches, key=lambda x: x.distance)
         self.goodMatches = [mat for mat in sortedMatches if mat.distance < 25]
