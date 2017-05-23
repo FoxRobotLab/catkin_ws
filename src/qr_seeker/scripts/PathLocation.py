@@ -22,7 +22,7 @@ class PathLocation(object):
     def __init__(self):
         self.destination = None
         self.pathTraveled = None
-        self.path = "/home/macalester/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
+        self.path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
 
 
