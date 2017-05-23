@@ -18,36 +18,33 @@ import rospy
 import cv2
 import OutputLogger
 import ImageFeatures
-import turtleQR
+
 
 class ImageMatcher(object):
     """..."""
 
 
-    def __init__(self, logFile = False, logShell = False,
-                 dir1 = None, dir2 = None,
-                 baseName = 'foo', ext= "jpg",
-                 startPic = 0, numPics = -1):
+    def __init__(self, bot, logFile = False, logShell = False,
+                 dir1 = None, baseName = 'foo', ext= "jpg",
+                 startPic = 0, numPics = -1, numMatches = 4):
         self.logToFile = logFile
         self.logToShell = logShell
         self.currDirectory = dir1
-        self.secondDirectory = dir2
         self.baseName = baseName
         self.currExtension = ext
         self.startPicture = startPic
         self.numPictures = numPics
+        self.numMatches = numMatches
         self.threshold = 800.0
         self.cameraNum = 0
         self.height = 0
         self.width = 0
-        self.stalled = False
-        self.runFlag = True
         print "before init outputLogger"
         input("type something")
         self.logger = OutputLogger.OutputLogger(self.logToFile, self.logToShell)
         print "made logger"
 
-        self.robot = turtleQR.TurtleBot()
+        self.robot = bot
 
         # Add line to debug ORB
         cv2.ocl.setUseOpenCL(False)
@@ -99,8 +96,7 @@ class ImageMatcher(object):
         """Reads in all the images in the specified directory, start number and end number, and
         makes a list of ImageFeature objects for each image read in."""
         print "in make collection"
-        if (self.currDirectory is None)\
-           or (self.numPictures == -1):
+        if (self.currDirectory is None) or (self.numPictures == -1):
             print("ERROR: cannot run makeCollection without a directory and a number of pictures")
             return
         self.logger.log("Reading in image database")
@@ -114,31 +110,25 @@ class ImageMatcher(object):
             #self.logger.log("Image = " + str(picNum))
             features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
             self.featureCollection[picNum] = features
-            print i
+            if i % 100 == 0:
+                print i
 
         self.logger.log("Length of collection = " + str(self.numPictures))
 
 
     # ------------------------------------------------------------------------
     # One of the major operations we can undertake, comparing all pairs in a range
-    def mostSimilarCamera(self):
-        """Connects to the camera and when user hits a key it takes that picture and compares against the collection."""
+    def matchImage(self, camImage):
         if len(self.featureCollection) == 0:
             print("ERROR: must have built collection before running this.")
             return
         self.logger.log("Choosing frames from video to compare to collection")
-        print("How many matches should it find?")
-        numMatches = self._userGetInteger()
-        quitTime = False
-        while not quitTime:
-            image = self.robot.getImage()[0]
-            if image is None:
-                break
-            features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
-            cv2.imshow("Primary image", image)
-            cv2.moveWindow("Primary image", 0, 0)
-            features.displayFeaturePics("Primary image features", 0, 0)
-            self._findBestNMatches(features, numMatches)
+
+        features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
+        cv2.imshow("Primary image", camImage)
+        cv2.moveWindow("Primary image", 0, 0)
+        features.displayFeaturePics("Primary image features", 0, 0)
+        self._findBestNMatches(features, self.numMatches)
 
 
     def _findBestNMatches(self, features, numMatches):
@@ -187,15 +177,15 @@ class ImageMatcher(object):
 
 
 
-    def _userGetInteger(self):
-        """Ask until user either enters 'q' or a valid nonnegative integer"""
-        inpStr = ""
-        while not inpStr.isdigit():
-            inpStr = raw_input("Enter nonnegative integer: ")
-            if inpStr == 'q':
-               return 'q'
-        num = int(inpStr)
-        return num
+    # def _userGetInteger(self):
+    #     """Ask until user either enters 'q' or a valid nonnegative integer"""
+    #     inpStr = ""
+    #     while not inpStr.isdigit():
+    #         inpStr = raw_input("Enter nonnegative integer: ")
+    #         if inpStr == 'q':
+    #            return 'q'
+    #     num = int(inpStr)
+    #     return num
 
 
     def getFileByNumber(self, fileNum):
@@ -223,34 +213,35 @@ class ImageMatcher(object):
         return name
 
 
-    def run(self):
-        runFlag = True
-        self.makeCollection()
-        if len(self.featureCollection) == 0:
-            print("ERROR: must have built collection before running this.")
-            return
-        self.logger.log("Choosing frames from video to compare to collection")
-        print("How many matches should it find?")
-        numMatches = self._userGetInteger()
-        while runFlag:
-            image = self.robot.getImage()[0]
-            if image is None:
-                break
-            features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
-            cv2.imshow("Primary image", image)
-            cv2.moveWindow("Primary image", 0, 0)
-            features.displayFeaturePics("Primary image features", 0, 0)
-            self._findBestNMatches(features, numMatches)
-            runFlag = self.runFlag
 
 
-    def isStalled(self):
-        """Returns the status of the camera stream"""
-        return self.stalled
+    # def run(self):
+    #     runFlag = True
+    #     self.makeCollection()
+    #     if len(self.featureCollection) == 0:
+    #         print("ERROR: must have built collection before running this.")
+    #         return
+    #     self.logger.log("Choosing frames from video to compare to collection")
+    #     print("How many matches should it find?")
+    #     numMatches = self._userGetInteger()
+    #     while runFlag:
+    #         image = self.robot.getImage()[0]
+    #         if image is None:
+    #             break
+    #         features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
+    #         cv2.imshow("Primary image", image)
+    #         cv2.moveWindow("Primary image", 0, 0)
+    #         features.displayFeaturePics("Primary image features", 0, 0)
+    #         self._findBestNMatches(features, numMatches)
+    #         runFlag = self.runFlag
 
-
-    def exit(self):
-        self.runFlag = False
+    # def isStalled(self):
+    #     """Returns the status of the camera stream"""
+    #     return self.stalled
+    #
+    #
+    # def exit(self):
+    #     self.runFlag = False
 
 
 if __name__ == '__main__':

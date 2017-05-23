@@ -13,9 +13,10 @@ import rospy
 import time
 import MovementHandler
 import PotentialFieldBrain
+import FieldBehaviors
 import ORBrecognizer
 import QRrecognizer
-import FieldBehaviors
+import ImageRecognizer
 import math
 import PathLocation
 import numpy as np
@@ -42,6 +43,13 @@ class qrPlanner(object):
         self.pathTraveled = []
         self.aligned = False
         self.ignoreBrain = False
+
+        self.matcher = ImageRecognizer.ImageMatcher(self.robot, logFile=True, logShell=True,
+                               dir1="/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/res/Feb2017Data/",
+                               baseName="frame",
+                               ext="jpg",
+                               startPic=0,
+                               numPics=500)
 
         """the two webcams won't both run on Linux unless we turn down their quality ---
         mess with as necessary. Try to keep resolution as high as you can (max is 640x480).
@@ -84,6 +92,7 @@ class qrPlanner(object):
                     #print "Stepping the brain"
                     self.brain.step()
 
+            self.matcher.matchImage(image)
             whichCam = "center"  #assume data is from kinect camera unless told otherwise
             qrInfo = self.qrScanner.qrScan(image)
             self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
