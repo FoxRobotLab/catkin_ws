@@ -5,6 +5,6 @@
   <node pkg="image_transport" type="republish" name="image_conversion_depth" output="screen" args="compressedDepth in:=camera/depth/image_rect_raw raw out:=camera/depth_decompressed" />
 
 
-  <node pkg="qr_seeker" type="ImageMatching.py" name="ImageMatching" output="screen" />
+  <node pkg="match_seeker" type="ImageRecognizer.py" name="ImageRecognizer" output="screen" />
 
 </launch>

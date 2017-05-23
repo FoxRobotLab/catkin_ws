@@ -588,6 +588,21 @@ clean: beginner_tutorials/CMakeFiles/std_msgs_generate_messages_py.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Directory level rules for directory match_seeker
+
+# Convenience name for "all" pass in the directory.
+match_seeker/all:
+.PHONY : match_seeker/all
+
+# Convenience name for "clean" pass in the directory.
+match_seeker/clean:
+.PHONY : match_seeker/clean
+
+# Convenience name for "preinstall" pass in the directory.
+match_seeker/preinstall:
+.PHONY : match_seeker/preinstall
+
+#=============================================================================
 # Directory level rules for directory qr_seeker
 
 # Convenience name for "all" pass in the directory.

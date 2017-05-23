@@ -23,17 +23,18 @@ class OutputLogger:
 
         self.toFile = toFile
         self.toConsole = toConsole
+        self.directory = '/home/macalester/catkin_ws/src/match_seeker/res/logs/'
         self.fileOpen = False
         self.logOpen = True
 
         if self.toFile:
             try:
-                os.makedirs('/home/macalester/catkin_ws/src/qr_seeker/res/logs/')
+                os.makedirs(self.directory)
             except:
                 pass
             self.logName = time.strftime("%b%d%a-%H%M%S.txt")
             try:
-                self.logFile = open("/home/macalester/catkin_ws/src/qr_seeker/res/logs/" + self.logName, 'w')
+                self.logFile = open(self.directory + self.logName, 'w')
                 self.fileOpen = True
             except e:
                 print "LOGGER FAILED TO OPEN LOG FILE"
@@ -64,7 +65,7 @@ class OutputLogger:
 
         if self.toFile:
             try:
-                self.logFile = open("/home/macalester/catkin_ws/src/qr_seeker/res/logs/" + self.logName, 'a')
+                self.logFile = open(self.directory + self.logName, 'a')
                 self.fileOpen = True
             except e:
                 print "LOGGER FAILED TO OPEN LOG FILE"

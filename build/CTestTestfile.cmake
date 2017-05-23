@@ -6,6 +6,7 @@
 # testing this directory and lists subdirectories to be tested as well.
 SUBDIRS(gtest)
 SUBDIRS(beginner_tutorials)
+SUBDIRS(match_seeker)
 SUBDIRS(qr_seeker)
 SUBDIRS(speedy_nav)
 SUBDIRS(test_movement)
