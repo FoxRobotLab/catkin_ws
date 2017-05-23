@@ -78,6 +78,6 @@ class ImageFeatures:
         #self.logger.log("Hough Lines sim = " + str(houghSim))
         #colorSim = self.colorSignature.evaluateSimilarity(featureObj.colorSignature)
         orbSim = self.ORBFeatures.evaluateSimilarity(featureObj.ORBFeatures)
-        print "ORB SIM", orbSim
+        # print "ORB SIM", orbSim
         #self.logger.log("ColorSig sim =" + str(colorSim))
         return orbSim #houghSim + colorSim + orbSim
