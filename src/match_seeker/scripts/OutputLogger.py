@@ -23,7 +23,7 @@ class OutputLogger:
 
         self.toFile = toFile
         self.toConsole = toConsole
-        self.directory = '/home/macalester/catkin_ws/src/match_seeker/res/logs/'
+        self.directory = '/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/res/logs/'
         self.fileOpen = False
         self.logOpen = True
 

@@ -39,10 +39,7 @@ class ImageMatcher(object):
         self.cameraNum = 0
         self.height = 0
         self.width = 0
-        print "before init outputLogger"
-        input("type something")
         self.logger = OutputLogger.OutputLogger(self.logToFile, self.logToShell)
-        print "made logger"
 
         self.robot = bot
 

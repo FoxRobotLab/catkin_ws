@@ -50,6 +50,7 @@ class qrPlanner(object):
                                ext="jpg",
                                startPic=0,
                                numPics=500)
+        self.matcher.makeCollection()
 
         """the two webcams won't both run on Linux unless we turn down their quality ---
         mess with as necessary. Try to keep resolution as high as you can (max is 640x480).
