@@ -19,7 +19,7 @@ import FieldBehaviors
 import math
 import PathLocation
 import numpy as np
-#from espeak import espeak
+from espeak import espeak
 
 
 class qrPlanner(object):
@@ -161,7 +161,7 @@ class qrPlanner(object):
         if qrInfo is not None and (last != qrInfo[0] or self.ignoreSignTime > 50):
             self.ignoreSignTime = 0
             heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
-            #espeak.synth("Seen node " + str(qrInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
+            espeak.synth("Seen node " + str(qrInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
 
             if heading is None:
                 # We have reached our destination
