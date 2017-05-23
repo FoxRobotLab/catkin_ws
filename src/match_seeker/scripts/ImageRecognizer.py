@@ -165,8 +165,8 @@ class ImageMatcher(object):
         self.logger.log("==========Close Matches==========")
         for j in range(len(bestZipped)):
             (nextScore, nextMatch) = bestZipped[j]
-            # cv2.imshow("Match Picture", nextMatch.getImage())
-            # cv2.moveWindow("Match Picture", self.width+10, 0)
+            cv2.imshow("Match Picture", nextMatch.getImage())
+            cv2.moveWindow("Match Picture", self.width+10, 0)
             # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
             self.logger.log("Image " + str(nextMatch.getIdNum()) + " matches with similarity = " + str(nextScore))
             # cv2.waitKey(0)
