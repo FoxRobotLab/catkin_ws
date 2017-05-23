@@ -96,9 +96,9 @@ class qrPlanner(object):
                     self.brain.step()
 
             self.matcher.matchImage(image)
-            whichCam = "center"  #assume data is from kinect camera unless told otherwise
-            qrInfo = self.qrScanner.qrScan(image)
-            self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
+            # whichCam = "center"  #assume data is from kinect camera unless told otherwise
+            # qrInfo = self.qrScanner.qrScan(image)
+            # self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
 
             # we didn't see a QR code from the kinect, but we have other images to check...
             # if qrInfo is None and leftImage is not None and rightImage is not None:
@@ -113,11 +113,11 @@ class qrPlanner(object):
             #         qrInfo = self.qrScanner.qrScan(rightImage)
             #         print("I'm seeing a QR code from the right webcam")
                 # if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            if qrInfo is not None:  # saw a QR code from one of the three images
-                if self.locate(qrInfo, whichCam):
-                    break
-            else:  # no qr code was seen, so check orb
-                orbInfo = self.orbScanner.orbScan(image, whichCam)
+            # if qrInfo is not None:  # saw a QR code from one of the three images
+            #     if self.locate(qrInfo, whichCam):
+            #         break
+            # else:  # no qr code was seen, so check orb
+            #     orbInfo = self.orbScanner.orbScan(image, whichCam)
                 # didn't see a sign from the kinect, check the side images
                 # if orbInfo is None and leftImage is not None and rightImage is not None:
                 #     orbLeft = self.orbScanner.orbScan(leftImage,  "left")
@@ -130,12 +130,12 @@ class qrPlanner(object):
                 #         whichCam = "right"
                 #         orbInfo = orbRight
                 #         print("I'm seeing ORB from the right webcam")
-                if orbInfo is not None:  # the program thinks some image had a sign in it
-                    self.ignoreBrain = True
-                    self.aligned = self.moveHandle.align(orbInfo, whichCam)
-                else:  # orb is none, so continue on as you were
-                    self.ignoreBrain = False
-                    self.aligned = False
+                # if orbInfo is not None:  # the program thinks some image had a sign in it
+                #     self.ignoreBrain = True
+                #     self.aligned = self.moveHandle.align(orbInfo, whichCam)
+                # else:  # orb is none, so continue on as you were
+                #     self.ignoreBrain = False
+                #     self.aligned = False
         self.brain.stopAll()
 
 
