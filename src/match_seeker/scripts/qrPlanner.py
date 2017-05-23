@@ -19,6 +19,7 @@ import QRrecognizer
 import ImageRecognizer
 import math
 import PathLocation
+from OSPathDefine import basePath
 import numpy as np
 from espeak import espeak
 
@@ -45,7 +46,7 @@ class qrPlanner(object):
         self.ignoreBrain = False
 
         self.matcher = ImageRecognizer.ImageMatcher(self.robot, logFile=True, logShell=True,
-                               dir1="/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/res/Feb2017Data/",
+                               dir1= basePath + "res/Feb2017Data/",
                                baseName="frame",
                                ext="jpg",
                                startPic=0,

@@ -9,12 +9,7 @@ turn to get to the next node in its calculated path.
 # --------------------------------------------------------------------- """
 
 import MapGraph
-
-
-
-# path = "/home/macalester/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
-# path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
-
+from OSPathDefine import basePath
 
 
 class PathLocation(object):
@@ -22,7 +17,7 @@ class PathLocation(object):
     def __init__(self):
         self.destination = None
         self.pathTraveled = None
-        self.path = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/qr_seeker/scripts/olinGraph.txt"
+        self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
 
 

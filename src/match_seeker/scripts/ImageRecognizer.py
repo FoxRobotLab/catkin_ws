@@ -18,6 +18,7 @@ import rospy
 import cv2
 import OutputLogger
 import ImageFeatures
+from OSPathDefine import basePath
 
 
 class ImageMatcher(object):
@@ -92,7 +93,6 @@ class ImageMatcher(object):
     def makeCollection(self):
         """Reads in all the images in the specified directory, start number and end number, and
         makes a list of ImageFeature objects for each image read in."""
-        print "in make collection"
         if (self.currDirectory is None) or (self.numPictures == -1):
             print("ERROR: cannot run makeCollection without a directory and a number of pictures")
             return
@@ -107,8 +107,8 @@ class ImageMatcher(object):
             #self.logger.log("Image = " + str(picNum))
             features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
             self.featureCollection[picNum] = features
-            if i % 100 == 0:
-                print i
+            # if i % 100 == 0:
+            #     print i
 
         self.logger.log("Length of collection = " + str(self.numPictures))
 
@@ -122,9 +122,9 @@ class ImageMatcher(object):
         self.logger.log("Choosing frames from video to compare to collection")
 
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
-        cv2.imshow("Primary image", camImage)
-        cv2.moveWindow("Primary image", 0, 0)
-        features.displayFeaturePics("Primary image features", 0, 0)
+        # cv2.imshow("Primary image", camImage)
+        # cv2.moveWindow("Primary image", 0, 0)
+        # features.displayFeaturePics("Primary image features", 0, 0)
         self._findBestNMatches(features, self.numMatches)
 
 
@@ -134,7 +134,6 @@ class ImageMatcher(object):
         bestMatches = []
         bestScores = []
         for pos in self.featureCollection:
-            print pos
             feat = self.featureCollection[pos]
             simValue = features.evaluateSimilarity(feat)
             if simValue < self.threshold:
@@ -166,11 +165,11 @@ class ImageMatcher(object):
         self.logger.log("==========Close Matches==========")
         for j in range(len(bestZipped)):
             (nextScore, nextMatch) = bestZipped[j]
-            cv2.imshow("Match Picture", nextMatch.getImage())
-            cv2.moveWindow("Match Picture", self.width+10, 0)
-            nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
+            # cv2.imshow("Match Picture", nextMatch.getImage())
+            # cv2.moveWindow("Match Picture", self.width+10, 0)
+            # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
             self.logger.log("Image " + str(nextMatch.getIdNum()) + " matches with similarity = " + str(nextScore))
-            cv2.waitKey(0)
+            # cv2.waitKey(0)
 
 
 
