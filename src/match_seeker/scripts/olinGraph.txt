@@ -1,0 +1,382 @@
+######################################
+# Graph of Olin-Rice east half, 2nd floor
+#
+# Contains a graph of 63 points on the east half of the 2nd floor of
+# Olin-Rice.  The positions given are in meters, from (0, 0), which is
+# where the south wall and the east wall of the building meet (outside
+# of the actual building!).
+# The x axis runs north-south, increasing in the north direction.
+# The y axis runs east-west, increase as you go west.
+
+# NOTE: changes to 1, 2, 4, 6, 8, and 19, 21, 24 to skew the robot's turning
+# More nodes could be changed...
+
+Number of Nodes: 63
+
+Nodes:
+0   (22.2, 4.0)   Home lab
+1   (22.2, 6.5)   Lab hall
+2   (20.0, 6.5)   East T
+3   (31.2, 6.5)   East L
+4   (12.9, 6.5)   259 lab hall
+5   (8.7, 6.1)     Right Angle door
+6   (20.0, 9.9)    Lab 258 hall
+7   (17.3, 10.2)   Lab 258
+8   (20.0, 17.9)   Lab 256 hall
+9   (17.3, 18.2)   Lab 256
+10   (20.0, 22.4)   250 center hall
+11   (20.0, 26.1)   Collab Workspace hall
+12   (17.3, 26.3)   Collab Workspace
+13   (20.0, 27.6)   205 center hall
+14   (20.0, 40.1)   Atrium center hall
+15   (23.8, 21.2)   250 center
+16   (28.1, 21.2)   250 north
+17   (25.0, 29.5)   205 east
+18   (23.2, 38.1)   205 west
+19   (31.0, 10.6)   247 hall
+20   (34.2, 10.0)   247 room
+21   (31.0, 18.6)   245 hall
+22   (35.0, 18.0)   245 room
+23   (31.0, 22.6)   250 north hall
+24   (31.0, 26.7)   243 hall
+25   (35.0, 26.2)   243 room
+26   (31.0, 28.6)   205 north hall
+27   (31.0, 38.9)   241 hall
+28   (35.1, 38.6)   241 room
+29   (31.0, 40.1)   Atrium north hall
+30   (6.7, 10.1)   Right Angle center
+31   (3.2, 7.6)   233 room
+32   (6.1, 8.5)   232-233 hall
+33   (3.2, 9.4)   232 room
+34   (3.2, 13.6)   231 room
+35   (6.1, 14.5)   230-231 hall
+36   (3.2, 15.4)   230 room
+37   (3.2, 19.8)   229 room
+38   (6.1, 20.7)   228-229 hall
+39   (3.2, 21.6)   228 room
+40   (3.2, 25.9)   227 room
+41   (6.1, 26.8)   226-227 hall
+42   (3.2, 27.7)   226 room
+43   (3.2, 31.8)   225 room
+44   (6.1, 32.7)   224-225 hall
+45   (3.2, 33.6)   224 room
+46   (3.2, 38.1)   223 room
+47   (6.1, 39.0)   222-223 hall
+48   (3.2, 39.9)   222 room
+49   (6.3, 41.1)   Atrium south hall
+50   (31.1, 44.8)   Atrium NE
+51   (32.6, 50.6)   North main doors
+52   (31.2, 57.1)   Atrium NW
+53   (26.2, 50.7)   Atrium NC
+54   (23.0, 43.2)   205 west atrium
+55   (20.1, 57.1)   Atrium CW
+56   (19.6, 50.7)   Atrium CC
+57   (21.0, 44.8)   Atrium CE
+58   (14.1, 50.6)   Atrium SC
+59   (10.1, 57.1)   Atrium SW
+60   (6.3, 57.1)   Atrium SSW
+61   (6.3, 50.7)   South main doors
+62   (6.3, 44.8)   Atrium SE
+
+Markers:
+0 270.0
+1 90.0
+2 270.0
+3 0.0
+4 90.0
+5 90.0
+6 0.0
+7 180.0
+8 0.0
+9 180.0
+10 180.0
+11 0.0
+12 180.0
+13 180.0
+14 180.0
+15 90.0
+16 90.0
+19 180.0
+20 0.0
+21 180.0
+22 0.0
+23 0.0
+24 180.0
+25 0.0
+26 0.0
+27 180.0
+28 0.0
+29 180.0
+32 180.0
+35 0.0
+36 180.0
+38 0.0
+41 0.0
+44 0.0
+47 0.0
+48 135.0
+49 180.0
+50 0.0
+51 180.0
+52 0.0
+54 90.0
+55 90.0
+56 0.0
+57 90.0
+59 90.0
+60 180.0
+61 180.0
+62 180.0
+
+Edges:
+# 0) Home lab:  Lab hall
+0 1
+# 1) Lab hall:  Home lab, East T, East L
+1 2
+1 3
+
+# 2) East T:  Lab hall,259 lab hall, 258 lab hall
+2 4
+2 6
+
+# 3) East L:  Lab hall, 247 hall
+3 19
+
+# 4) Libby's lab hall:  East T, Right Angle door
+4 5
+
+# 5) Right Angle door: 259 lab hall, Right angle center, 232-233 hall
+#5 30
+5 32
+
+# 6) 258 lab hall: East T, 258 lab, 256 lab hall
+6 7
+6 8
+
+# 7) 258 lab:  258 lab hall, 256 lab
+7 9
+
+# 8) 256 lab hall: 258 lab hall, 256 lab, 250 center hall
+8 9
+8 10
+
+# 9) 256 lab:  258 lab, 256 lab hall, Collab Workspace
+9 12
+
+# 10) 250 center hall:  256 lab hall, Collab Workspace hall
+#                       250 center
+10 11
+10 15
+
+# 11) Collab Workspace hall: 250 center hall, Collab Workspace,
+#                        205 center hall
+11 12
+11 13
+
+# 12) Collab Workspace:  256 lab, Collab Workspace hall
+
+# 13) 205 center hall:  Collab Workspace hall, Atrium center hall, 205 east
+13 14
+13 17
+
+# 14) Atrium center hall:  Collab Workspace hall, 205 center hall, Atrium CE
+14 57
+
+# 15) 250 center: 250 center hall, 250 north
+#15 16
+
+# 16)  250 north:  250 center,
+#16 23
+
+# 17) 205 east:  205 center hall, 205 north hall
+#17 18
+#17 26
+
+# 18) 205 west: 205 east, 205 west atrium
+#18 54
+
+# 19) 247 hall: East L, 247 room, 245 hall
+19 20
+19 21
+
+# 20) 247 room:  247 hall
+
+# 21) 245 hall: 247 hall, 245 room, 250 north hall
+21 22
+21 23
+
+# 22) 245 room:  245 hall
+
+# 23) 250 north hall: East L, 250 north, 245 hall, 243 hall
+23 24
+
+# 24) 243 hall:  245 hall, 250 north hall, 243 room, 205 north hall
+24 25
+24 26
+
+# 25) 243 room:  243 hall
+
+# 26) 205 north hall:  205 east, 243 hall, 241 hall
+26 27
+
+# 27) 241 hall: 205 north hall, 241 room, Atrium north hall
+27 28
+27 29
+
+# 28) 241 room: 241 hall
+
+# 29) Atrium north hall: 241 hall, Atrium NE
+29 50
+
+# 30) Right angle center: Right angle door, 232-233 hall, 230-231 hall
+30 32
+30 35
+
+# 31) 233 room: 232-233 hall
+31 32
+
+# 32) 232-233 hall: Right angle door, Right angle center, 233 room, 232 room,
+#                   230-231 haljyler@gmail.coml
+32 33
+32 35
+
+# 33) 232 room: 232-233 hall
+
+# 34) 231 room: 230-231 hall
+34 35
+
+# 35) 230-231 hall: Right angle center, 232-233 hall, 231 room, 230 room
+#                   228-229 hall
+35 36
+35 38
+
+# 36) 230 room: 230-231 hall
+
+# 37) 229 room:  228-229 hall
+37 38
+
+# 38) 228-229 hall: 230-231 hall, 229 room, 228 room, 226-227 hall
+38 39
+38 41
+
+# 39) 228 room:  228-229 hall
+
+# 40) 227 room: 226-227 hall
+40 41
+
+# 41) 226-227 hall:  228-229 hall, 227 room, 226 room, 224-225 hall
+41 42
+41 44
+
+# 42) 226 room:  226-227 hall
+
+# 43) 225 room: 224-225 hall
+43 44
+
+# 44) 224-225 hall: 226-227 hall, 225 room, 224 room, 222-223 hall
+44 45
+44 47
+
+# 45) 224 room: 224-225 hall
+
+# 46) 223 room: 222-223 hall
+46 47
+
+# 47) 222-223 hall: 224-225 hall, 223 room, 222 room, Atrium south hall
+47 48
+47 49
+
+# 48) 222 room: 222-223 hall
+
+# 49) Atrium south hall: 222-223 hall, Atrium SE
+49 62
+
+# 50) Atrium NE: Atrium north hall, 205 west atrium, North main doors, Atrium NC
+50 54
+50 51
+50 53
+50 57
+
+# 51) North main doors: Atrium NE, Atrium NW, Atrium NC
+51 52
+51 53
+
+# 52) Atrium NW:  North main doors, Atrium NC, Atrium CW
+52 53
+52 55
+
+# 53) Atrium NC: Atrium NE, North main doors, Atrium NW, 205 west atrium
+#                Atrium CW, Atrium CE
+#53 54
+#53 55
+#53 57
+
+# 54) 205 west atrium: 205 west, Atrium NE, Atrium NC, Atrium CE
+54 57
+
+# 55) Atrium CW:  Atrium NW, Atrium NC, Atrium CC, Atrium SW, Atrium SC
+55 56
+55 59
+55 58
+
+# 56) Atrium CC: Atrium CW, Atrium CE, Atrium SC
+56 57
+56 58
+
+# 57) Atrium CE: Atrium NC, 205 west atrium, Atrium CC, Atrium SC, Atrium SE
+57 58
+57 62
+
+# 58) Atrium SC: Atrium CW, Atrium CC, Atrium CE, Atrium SW, Atrium SSW,
+#                South main doors, Atrium SE
+#58 59
+#58 60
+#58 61
+#58 62
+
+# 59) Atrium SW: Atrium CW, Atrium SC, Atrium SSW, South main doors
+59 60
+59 61
+
+# 60)  Atrium SSW: Atrium SC, Atrium SW, South main doors
+60 61
+
+# 61) South main doors: Atrium SC, Atrium SW, Atrium SSW, Atrium SE
+61 62
+
+# 62) Atrium SE: Atrium south hall, Atrium CE, Atrium SC, South main doors
+
+
+#patternLocations = {
+#	(color1, color2, color3) : (node, angle, targetRelativeArea)
+#	("red", "blue", "green") : (1, 270.0, 0.13),
+#	("indigo", "red", "green") : (2, 90.0, 0.13),
+#	("green", "violet", "blue") : (0, 90.0, 0.13),
+#	("blue", "green", "red") : (8, 0.0, 0.13),
+#	("red", "green", "blue") : (11, 0.0, 0.13),
+#	("green", "blue", "indigo") : (4, 270.0, 0.13),
+#	("violet", "green", "red") : (21, 180.0, 0.1),
+#	("violet", "red", "indigo") : (3, 0.0, 0.1),
+#	("indigo", "green", "violet") : (24, 180.0, 0.1)
+#}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

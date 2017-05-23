@@ -20,7 +20,7 @@ import OutputLogger
 import ImageFeatures
 import turtleQR
 
-class ImageMatcher:
+class ImageMatcher(object):
     """..."""
 
 
@@ -40,6 +40,8 @@ class ImageMatcher:
         self.cameraNum = 0
         self.height = 0
         self.width = 0
+        self.stalled = False
+        self.runFlag = True
         print "before init outputLogger"
         input("type something")
         self.logger = OutputLogger.OutputLogger(self.logToFile, self.logToShell)
@@ -390,22 +392,51 @@ class ImageMatcher:
         return name
 
 
+    def run(self):
+        runFlag = True
+        self.makeCollection()
+        if len(self.featureCollection) == 0:
+            print("ERROR: must have built collection before running this.")
+            return
+        self.logger.log("Choosing frames from video to compare to collection")
+        print("How many matches should it find?")
+        numMatches = self._userGetInteger()
+        # cap = cv2.VideoCapture(self.cameraNum)
+        while runFlag:
+            # image = self._userSelectFrame(cap)
+            image = self.robot.getImage()[0]
+            if image is None:
+                break
+            features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
+            cv2.imshow("Primary image", image)
+            cv2.moveWindow("Primary image", 0, 0)
+            features.displayFeaturePics("Primary image features", 0, 0)
+            self._findBestNMatches(image, features, numMatches)
+            runFlag = self.runFlag
+
+
+    def isStalled(self):
+        """Returns the status of the camera stream"""
+        return self.stalled
+
+
+    def exit(self):
+        self.runFlag = False
+
 
 if __name__ == '__main__':
     rospy.init_node('ImageMatching')
     print "GOT HERE"
-    # matcher = ImageMatcher(logFile = True, logShell = True,
-    #                        dir1 = "/home/macalester/catkin_ws/src/qr_seeker/res/Feb2017Data/",
-    #                        baseName = "frame",
-    #                        ext = "jpg",
-    #                        startPic = 0,
-    #                        numPics = 500)
-    # print "finish ImageMatcher call"
-    # matcher.makeCollection()
-    # #matcher.cycle()
-    # #matcher.compareSelected()
-    # matcher.mostSimilarCamera()
-    # matcher.mostSimilarSelected()
+    matcher = ImageMatcher(logFile = True, logShell = True,
+                           dir1 = "/home/macalester/catkin_ws/src/qr_seeker/res/Feb2017Data/",
+                           baseName = "frame",
+                           ext = "jpg",
+                           startPic = 0,
+                           numPics = 500)
+    print "finish ImageMatcher call"
+    matcher.run()
+    rospy.on_shutdown(matcher.exit)
+    #matcher.mostSimilarSelected()
     rospy.spin()
 
 
