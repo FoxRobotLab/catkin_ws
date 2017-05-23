@@ -15,7 +15,7 @@ import numpy as np
 from operator import itemgetter
 
 
-class ORBrecognizer():
+class ORBRecognizer():
     """Holds data about ORB keypoints found in the input picture."""
     def __init__(self, bot):
         cv2.ocl.setUseOpenCL(False)

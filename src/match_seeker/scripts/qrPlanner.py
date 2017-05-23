@@ -14,8 +14,8 @@ import time
 import MovementHandler
 import PotentialFieldBrain
 import FieldBehaviors
-import ORBrecognizer
-import QRrecognizer
+import ORBRecognizer
+import QRRecognizer
 import ImageRecognizer
 import math
 import PathLocation
@@ -34,8 +34,8 @@ class qrPlanner(object):
 
         self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
-        self.orbScanner = ORBrecognizer.ORBrecognizer(self.robot)
-        self.qrScanner = QRrecognizer.QRrecognizer(self.robot)
+        self.orbScanner = ORBRecognizer.ORBRecognizer(self.robot)
+        self.qrScanner = QRRecognizer.QRrecognizer(self.robot)
 
 
         self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
@@ -86,12 +86,13 @@ class qrPlanner(object):
             #     image2 = cv2.resize(image, (leftImage.shape[1], leftImage.shape[0]), None)
             #     cv2.imshow("TurtleBot View", np.hstack([leftImage, image2, rightImage]))
             #     cv2.resizeWindow("TurtleBot View", 600, 200)
+            cv2.imshow("Turtlebot View", image)
             cv2.waitKey(20)
 
             iterationCount += 1
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
-                    #print "Stepping the brain"
+                    print "Stepping the brain"
                     self.brain.step()
 
             self.matcher.matchImage(image)

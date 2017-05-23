@@ -188,7 +188,6 @@ class ImageMatcher(object):
         """Makes a filename given the number and reads in the file, returning it."""
         filename = self.makeFilename(fileNum)
         print "getFileByNumber filename=", filename
-        image = cv2.imread(filename)
         if image is None:
             print("Failed to read image:", filename)
         return image
