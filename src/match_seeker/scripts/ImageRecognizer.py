@@ -14,6 +14,7 @@ This is porting the CompareInfo class written in C++ in about 2011.
 
 
 import sys
+import os
 import rospy
 import cv2
 import OutputLogger
@@ -28,14 +29,12 @@ class ImageMatcher(object):
 
     def __init__(self, bot, logFile = False, logShell = False,
                  dir1 = None, baseName = 'foo', ext= "jpg",
-                 startPic = 0, numPics = -1, numMatches = 4):
+                 numMatches = 4):
         self.logToFile = logFile
         self.logToShell = logShell
         self.currDirectory = dir1
         self.baseName = baseName
         self.currExtension = ext
-        self.startPicture = startPic
-        self.numPictures = numPics
         self.numMatches = numMatches
         self.threshold = 800.0
         self.cameraNum = 0
@@ -86,13 +85,13 @@ class ImageMatcher(object):
             self.currExtension = newExt
 
 
-    def setFirstPicture(self, picNum):
-        if type(picNum == int) and (picNum >= 0):
-            self.startPicture = picNum
+    # def setFirstPicture(self, picNum):
+    #     if type(picNum == int) and (picNum >= 0):
+    #         self.startPicture = picNum
 
-    def setNumPictures(self, picNum):
-        if type(picNum == int) and (picNum >= 0):
-            self.numPictures = picNum
+    # def setNumPictures(self, picNum):
+    #     if type(picNum == int) and (picNum >= 0):
+    #         self.numPictures = picNum
 
     def setCameraNum(self, camNum):
         if type(camNum == int) and (camNum >= 0):
@@ -104,15 +103,16 @@ class ImageMatcher(object):
     def makeCollection(self):
         """Reads in all the images in the specified directory, start number and end number, and
         makes a list of ImageFeature objects for each image read in."""
-        if (self.currDirectory is None) or (self.numPictures == -1):
-            print("ERROR: cannot run makeCollection without a directory and a number of pictures")
+        if (self.currDirectory is None):
+            print("ERROR: cannot run makeCollection without a directory")
             return
-        self.logger.log("Reading in image database")
 
+        listDir = os.listdir(self.currDirectory)
 
-        for i in range(self.numPictures):
-            picNum = self.startPicture + i
-            image = self.getFileByNumber(picNum)
+        for file in listDir:
+            image = cv2.imread(self.currDirectory + file)
+            end = len(file) - (len(self.currExtension) + 1)
+            picNum = int(file[len(self.baseName):end])
             if self.height == 0:
                 self.height, self.width, depth = image.shape
             #self.logger.log("Image = " + str(picNum))
@@ -121,7 +121,7 @@ class ImageMatcher(object):
             # if i % 100 == 0:
             #     print i
 
-        self.logger.log("Length of collection = " + str(self.numPictures))
+        self.logger.log("Length of collection = " + str(len(self.featureCollection)))
 
 
     # ------------------------------------------------------------------------
@@ -272,16 +272,12 @@ class ImageMatcher(object):
 
 
 if __name__ == '__main__':
-    rospy.init_node('ImageMatching')
+
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/res/Feb2017Data/",
+                           dir1 = basePath + "res/refinedFeb2017Data/",
                            baseName = "frame",
-                           ext = "jpg",
-                           startPic = 0,
-                           numPics = 800)
-    #matcher.run()
-    #rospy.on_shutdown(matcher.exit)
-    rospy.spin()
+                           ext = "jpg")
+
 
 
 

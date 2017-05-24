@@ -4,6 +4,12 @@ from OSPathDefine import basePath
 import cv2
 import shutil
 
+duplicates = open("matchingImages.txt",'r')
+dir1 = basePath + "res/Feb2017Data/"
+sizeDir1 = 1398
+dir2 = basePath + "res/refinedFeb2017Data/"
+dupList = []
+
 
 def getFileByNumber( fileNum):
     """Makes a filename given the number and reads in the file, returning it."""
@@ -12,6 +18,7 @@ def getFileByNumber( fileNum):
     if image is None:
         print("Failed to read image:", filename)
     return image
+
 
 def makeFilename( fileNum):
     """Makes a filename for reading or writing image files"""
@@ -23,15 +30,6 @@ def makeFilename( fileNum):
     return name
 
 
-
-
-duplicates = open("matchingImages.txt",'r')
-dir1 = basePath + "res/Feb2017Data/"
-sizeDir1 = 1398
-dir2 = basePath + "res/refinedFeb2017Data/"
-dupList = []
-unique = []
-
 for lines in duplicates.readlines():
     dupList.append(int(lines))
 
@@ -40,3 +38,4 @@ for i in range(sizeDir1):
         file = makeFilename(i)
         shutil.copy(file,dir2)
 
+duplicates.close()
