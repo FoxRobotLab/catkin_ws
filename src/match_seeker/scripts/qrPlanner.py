@@ -48,7 +48,7 @@ class qrPlanner(object):
         self.matcher = ImageRecognizer.ImageMatcher(self.robot, logFile=True, logShell=True,
                                dir1= basePath + "res/refinedFeb2017Data/",
                                baseName="frame",
-                               ext="jpg", numMatches=1)
+                               ext="jpg", numMatches=3)
         self.matcher.makeCollection()
 
         """the two webcams won't both run on Linux unless we turn down their quality ---

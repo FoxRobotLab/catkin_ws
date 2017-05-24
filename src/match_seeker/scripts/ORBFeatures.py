@@ -37,13 +37,14 @@ class ORBFeatures(FeatureType.FeatureType):
         self.kp, self.des = self.orb.detectAndCompute(self.image, None)
         self.matches = None
         self.goodMatches = None
+        self.maxValue = 100
 
     def evaluateSimilarity(self, otherFeature):
         """Given two images along with their features, calculates their similarity."""
         if self.des is None and otherFeature.des is None:
             return self._normalizeSimValue(0)
         elif self.des is None or otherFeature.des is None:
-            return self._normalizeSimValue(100)
+            return self._normalizeSimValue(self.maxValue)
 
 
         # Match descriptors.
@@ -56,6 +57,7 @@ class ORBFeatures(FeatureType.FeatureType):
         # cv2.imshow("Match Image", matchImage)
         # cv2.waitKey(0)
         matchNum = min(100, len(self.goodMatches))
+        # return 100-matchNum
         return self._normalizeSimValue(100 - matchNum)
 
 

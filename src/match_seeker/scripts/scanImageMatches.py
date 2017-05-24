@@ -29,6 +29,7 @@ class scanImageMatches(object):
         self.featureCollection = {}
 
 
+
     def makeCollection(self):
         """Reads in all the images in the specified directory, start number and end number, and
         makes a list of ImageFeature objects for each image read in."""
@@ -100,28 +101,11 @@ class scanImageMatches(object):
                             if response == 'y':
                                 matchNums.append(pic2num)
         # print matchNums
-        matchFile = open('matchingImages.txt', 'w')
+        matchFile = open('mayMatchingImages.txt', 'w')
         for item in matchNums:
             matchFile.write("%s\n" % item)
         matchFile.close()
 
-        # # prints a table of the pictures and their similarity scores
-        # formatSimilScore = "{:^9.3f}"
-        # formatPicNum = "  {:0>4d}   "
-        # firstLine = " " * 9
-        # for i in range(self.numPictures):
-        #     pNum = self.startPicture + i
-        #     nextStr = formatPicNum.format(pNum)
-        #     firstLine += nextStr
-        # print firstLine
-        # for i in range(self.numPictures):
-        #     pNum1 = self.startPicture + i
-        #     nextLine = formatPicNum.format(pNum1)
-        #     for j in range(self.numPictures):
-        #         pNum2 = self.startPicture + j
-        #         nextStr = formatSimilScore.format(matchScore[pNum1, pNum2])
-        #         nextLine += nextStr
-        #     print nextLine
 
     def getFileByNumber(self, fileNum):
         """Makes a filename given the number and reads in the file, returning it."""
@@ -153,7 +137,7 @@ class scanImageMatches(object):
 
 if __name__ == '__main__':
     scan = scanImageMatches(
-                           dir1 = basePath + "res/Feb2017Data/",
+                           dir1 = basePath + "res/May2417/",
                            baseName = "frame",
                            ext = "jpg",
                            startPic = 0,
