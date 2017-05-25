@@ -11,7 +11,7 @@ dir2 = basePath + "res/May2517/"
 dupList = []
 
 
-def getFileByNumber( fileNum):
+def getFileByNumber(fileNum):
     """Makes a filename given the number and reads in the file, returning it."""
     filename = makeFilename(fileNum)
     image = cv2.imread(filename)
@@ -20,7 +20,7 @@ def getFileByNumber( fileNum):
     return image
 
 
-def makeFilename( fileNum):
+def makeFilename(fileNum):
     """Makes a filename for reading or writing image files"""
     formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
     name = formStr.format(dir1,
