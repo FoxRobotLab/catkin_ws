@@ -110,7 +110,7 @@ class scanImageMatches(object):
                             if response == 'y':
                                 matchNums.append(pic2num)
         print matchNums
-        matchFile = open('may25MatchingImages.txt', 'w')
+        matchFile = open('may25MatchingImages1.txt', 'w')
         for item in matchNums:
             matchFile.write("%s\n" % item)
         matchFile.close()
@@ -150,7 +150,7 @@ if __name__ == '__main__':
                            baseName = "frame",
                            ext = "jpg",
                            startPic = 0,
-                           numPics = 3577)
+                           numPics = 1800)
     scan.makeCollection()
     scan.compare()
 
