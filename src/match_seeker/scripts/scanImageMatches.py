@@ -110,7 +110,7 @@ class scanImageMatches(object):
                             if response == 'y':
                                 matchNums.append(pic2num)
         print matchNums
-        matchFile = open('may25MatchingImages1.txt', 'w')
+        matchFile = open('may25MatchingImagesAtrium.txt', 'w')
         for item in matchNums:
             matchFile.write("%s\n" % item)
         matchFile.close()
@@ -146,11 +146,11 @@ class scanImageMatches(object):
 
 if __name__ == '__main__':
     scan = scanImageMatches(
-                           dir1 = basePath + "res/May2417/",
+                           dir1 = basePath + "res/May2517-office1/",
                            baseName = "frame",
                            ext = "jpg",
                            startPic = 0,
-                           numPics = 1800)
+                           numPics = 1655)
     scan.makeCollection()
     scan.compare()
 

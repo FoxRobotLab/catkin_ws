@@ -4,10 +4,10 @@ from OSPathDefine import basePath
 import cv2
 import shutil
 
-duplicates = open("may25MatchingImages.txt",'r')
-dir1 = basePath + "res/May2417/"
-sizeDir1 = 3577
-dir2 = basePath + "res/May2517/"
+duplicates = open("may25Matching-office2.txt",'r')
+dir1 = basePath + "res/May2517-office2/"
+sizeDir1 = 1054
+dir2 = basePath + "res/May25-Atrium2/"
 dupList = []
 
 
