@@ -6,8 +6,8 @@ import cv2
 basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 
 numChange = open("workingNumChangeMapping.txt",'r')
-data = open(basePath + "/res/locdata/Data-May25Thu-140500.txt",'r')
-locations = open("locationsMay25.txt",'w')
+data = open(basePath + "/res/locdata/Data-May25Thu-151653.txt",'r')
+locations = open("locationsMay25-office2.txt",'w')
 locData = {}
 
 for pt in data.readlines():
