@@ -47,6 +47,8 @@ class scanImageMatches(object):
                 self.height, self.width, depth = image.shape
             features = ImageFeatures.ImageFeatures(image, picNum, None, self.ORBFinder)
             self.featureCollection[picNum] = features
+            if i % 100 == 0:
+                print i
 
         print "Length of collection = " + str(self.numPictures)
 
@@ -65,7 +67,12 @@ class scanImageMatches(object):
 
         matchScore = {}
         matchNums = []
-
+        cv2.namedWindow("image 1")
+        cv2.namedWindow("match")
+        cv2.namedWindow("DIFF")
+        cv2.moveWindow("image 1", 50, 50)
+        cv2.moveWindow("match", 700, 50)
+        cv2.moveWindow("DIFF", 1400, 50)
         for i in range(self.numPictures):
             picNum = self.startPicture + i
             newFirst = True
@@ -92,16 +99,18 @@ class scanImageMatches(object):
                                 newFirst = False
                             img1 = self.getFileByNumber(picNum)
                             img2 = self.getFileByNumber(pic2num)
+                            diffIm = cv2.absdiff(img1, img2)
                             cv2.putText(img1,str(picNum),(50,50),cv2.FONT_HERSHEY_COMPLEX,2,(255,255,0))
                             cv2.putText(img2, str(pic2num), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0))
                             cv2.imshow("image 1", img1)
                             cv2.imshow("match", img2)
+                            cv2.imshow("DIFF", diffIm)
                             response = cv2.waitKey(0)
                             response = chr(response%0x255)
                             if response == 'y':
                                 matchNums.append(pic2num)
-        # print matchNums
-        matchFile = open('mayMatchingImages.txt', 'w')
+        print matchNums
+        matchFile = open('may25MatchingImages.txt', 'w')
         for item in matchNums:
             matchFile.write("%s\n" % item)
         matchFile.close()
@@ -141,7 +150,7 @@ if __name__ == '__main__':
                            baseName = "frame",
                            ext = "jpg",
                            startPic = 0,
-                           numPics = 1398)
+                           numPics = 3577)
     scan.makeCollection()
     scan.compare()
 
