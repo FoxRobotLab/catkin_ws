@@ -2,10 +2,10 @@
 shows user the matching images from the dataset. Flags for removal with user permission.
 
 """
-import ImageFeatures
+import src.match_seeker.scripts.ImageFeatures
 import cv2
 import numpy
-from OSPathDefine import basePath
+from src.match_seeker.scripts.OSPathDefine import basePath
 
 
 class scanImageMatches(object):
@@ -45,7 +45,7 @@ class scanImageMatches(object):
             image = self.getFileByNumber(picNum)
             if self.height == 0:
                 self.height, self.width, depth = image.shape
-            features = ImageFeatures.ImageFeatures(image, picNum, None, self.ORBFinder)
+            features = src.match_seeker.scripts.ImageFeatures.ImageFeatures(image, picNum, None, self.ORBFinder)
             self.featureCollection[picNum] = features
             if i % 100 == 0:
                 print i

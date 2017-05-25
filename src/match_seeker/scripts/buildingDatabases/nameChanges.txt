@@ -1,3 +1,6 @@
+newNum, oldNum
+
+
 /home/macalester/catkin_ws/src/match_seeker/res/May2517/
 0 0
 1 18

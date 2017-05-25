@@ -1,6 +1,6 @@
 """creates a copy of the photo dataset by removing images determined duplicates in scanImageMatches"""
 
-from OSPathDefine import basePath
+from src.match_seeker.scripts.OSPathDefine import basePath
 import cv2
 import shutil
 
