@@ -341,9 +341,9 @@ class LabeledFrames(object):
 
 
 if __name__ == "__main__":
-    frameRecorder = LabeledFrames("olinNewMap.txt", "/Users/susan/PycharmProjects/markLocations/Feb7B.avi")
+    frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/Videos/output.avi", 'video')
     frameRecorder.go()
 
 
-    frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/May2517/", "images")
-    frameRecorder.go()
+    # frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/May2517/", "images")
+    # frameRecorder.go()
