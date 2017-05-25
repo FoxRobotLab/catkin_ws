@@ -105,7 +105,7 @@ def drawMap(parameters, lines, mapUnits = 1000, picUnits = 20):
 
 def convertToPixels(value, mapUn, picUn):
     """Convert the value in map units into pixels using the given scale."""
-    return int(np.ceil((value / mapUn) * picUn))
+    return int(np.ceil((value / float(mapUn)) * picUn))
 
 
 def drawGrid(map, hgt, wid, units):

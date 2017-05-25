@@ -64,7 +64,7 @@ class LabeledFrames(object):
         # run main loop until user quits or run out of frames
         while (not self.dataDone) and (ch != 'q'):
             cv2.imshow("Image", self.currFrame)
-            x = cv2.waitKey(0)
+            x = cv2.waitKey(20)
             ch = chr(x & 0xFF)
             if ch in "wasd" and self.currLoc != (0, 0):  # if robot location has been placed on the map
                 (mapX, mapY) = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
@@ -341,7 +341,7 @@ class LabeledFrames(object):
 
 
 if __name__ == "__main__":
-    frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/Videos/output.avi", 'video')
+    frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/Videos/office2.avi", 'video')
     frameRecorder.go()
 
 
