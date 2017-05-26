@@ -1,10 +1,13 @@
 
 
-import time
 import os
+import time
+
 import cv2
 import numpy as np
-import readMap
+
+from src.match_seeker.scripts import readMap
+
 
 class LabeledFrames(object):
 

@@ -18,7 +18,11 @@ import rospy
 import cv2
 import OutputLogger
 import ImageFeatures
+import os
 import turtleQR
+import MapGraph
+import readMap
+import numpy as np
 
 class ImageMatcher(object):
     """..."""
@@ -43,16 +47,27 @@ class ImageMatcher(object):
         self.stalled = False
         self.runFlag = True
         print "before init outputLogger"
-        input("type something")
         self.logger = OutputLogger.OutputLogger(self.logToFile, self.logToShell)
         print "made logger"
 
-        self.robot = turtleQR.TurtleBot()
+        # self.robot = turtleQR.TurtleBot()
+        self.basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 
         # Add line to debug ORB
         cv2.ocl.setUseOpenCL(False)
         self.ORBFinder = cv2.ORB_create()
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
+
+        self.location = {}
+        file = open(self.basePath + "scripts/buildingDatabases/locationsMay25.txt")
+        for line in file.readlines():
+            line = line.rstrip('/n')
+            line = line.split()
+            self.location[int(line[0])] = line[1:]
+
+        self.path = self.basePath + "scripts/olinGraph.txt"
+        self.olin = MapGraph.readMapFile(self.path)
+        self.img = self.getOlinMap()
 
 
     def setLogToFile(self, val):
@@ -200,29 +215,45 @@ class ImageMatcher(object):
 
     # ------------------------------------------------------------------------
     # One of the major operations we can undertake, creates a list of ImageFeatures objects
-
     def makeCollection(self):
         """Reads in all the images in the specified directory, start number and end number, and
         makes a list of ImageFeature objects for each image read in."""
-        print "in make collection"
-        if (self.currDirectory is None)\
-           or (self.numPictures == -1):
-            print("ERROR: cannot run makeCollection without a directory and a number of pictures")
+        if (self.currDirectory is None):
+            print("ERROR: cannot run makeCollection without a directory")
             return
-        self.logger.log("Reading in image database")
 
+        listDir = os.listdir(self.currDirectory)
 
-        for i in range(self.numPictures):
-            picNum = self.startPicture + i
-            image = self.getFileByNumber(picNum)
-            if self.height == 0:
-                self.height, self.width, depth = image.shape
-            #self.logger.log("Image = " + str(picNum))
-            features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
+        for file in listDir:
+            pic = cv2.imread(self.currDirectory + file)
+            end = len(file) - (len(self.currExtension) + 1)
+            picNum = int(file[len(self.baseName):end])
+            features = ImageFeatures.ImageFeatures(pic, picNum, self.logger, self.ORBFinder)
             self.featureCollection[picNum] = features
-            print i
 
-        self.logger.log("Length of collection = " + str(self.numPictures))
+
+    # def makeCollection(self):
+    #     """Reads in all the images in the specified directory, start number and end number, and
+    #     makes a list of ImageFeature objects for each image read in."""
+    #     print "in make collection"
+    #     if (self.currDirectory is None)\
+    #        or (self.numPictures == -1):
+    #         print("ERROR: cannot run makeCollection without a directory and a number of pictures")
+    #         return
+    #     self.logger.log("Reading in image database")
+    #
+    #
+    #     for i in range(self.numPictures):
+    #         picNum = self.startPicture + i
+    #         image = self.getFileByNumber(picNum)
+    #         if self.height == 0:
+    #             self.height, self.width, depth = image.shape
+    #         #self.logger.log("Image = " + str(picNum))
+    #         features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
+    #         self.featureCollection[picNum] = features
+    #         print i
+    #
+    #     self.logger.log("Length of collection = " + str(self.numPictures))
 
 
     # ------------------------------------------------------------------------
@@ -253,27 +284,27 @@ class ImageMatcher(object):
 
 
     # ------------------------------------------------------------------------
-    # One of the major operations we can undertake, comparing all pairs in a range
-    def mostSimilarCamera(self):
-        """Connects to the camera and when user hits a key it takes that picture and compares against the collection."""
-        if len(self.featureCollection) == 0:
-            print("ERROR: must have built collection before running this.")
-            return
-        self.logger.log("Choosing frames from video to compare to collection")
-        print("How many matches should it find?")
-        numMatches = self._userGetInteger()
-        quitTime = False
-        # cap = cv2.VideoCapture(self.cameraNum)
-        while not quitTime:
-            # image = self._userSelectFrame(cap)
-            image = self.robot.getImage()[0]
-            if image is None:
-                break
-            features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
-            cv2.imshow("Primary image", image)
-            cv2.moveWindow("Primary image", 0, 0)
-            features.displayFeaturePics("Primary image features", 0, 0)
-            self._findBestNMatches(image, features, numMatches)
+    # # One of the major operations we can undertake, comparing all pairs in a range
+    # def mostSimilarCamera(self):
+    #     """Connects to the camera and when user hits a key it takes that picture and compares against the collection."""
+    #     if len(self.featureCollection) == 0:
+    #         print("ERROR: must have built collection before running this.")
+    #         return
+    #     self.logger.log("Choosing frames from video to compare to collection")
+    #     print("How many matches should it find?")
+    #     numMatches = self._userGetInteger()
+    #     quitTime = False
+    #     # cap = cv2.VideoCapture(self.cameraNum)
+    #     while not quitTime:
+    #         # image = self._userSelectFrame(cap)
+    #         # image = self.robot.getImage()[0]
+    #         if image is None:
+    #             break
+    #         features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
+    #         cv2.imshow("Primary image", image)
+    #         cv2.moveWindow("Primary image", 0, 0)
+    #         features.displayFeaturePics("Primary image features", 0, 0)
+    #         self._findBestNMatches(image, features, numMatches)
 
 
 
@@ -332,13 +363,71 @@ class ImageMatcher(object):
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
         self.logger.log("==========Close Matches==========")
+
+        # for j in range(len(bestZipped)):
+        #     (nextScore, nextMatch) = bestZipped[j]
+        #     cv2.imshow("Match Picture", nextMatch.getImage())
+        #     cv2.moveWindow("Match Picture", self.width+10, 0)
+        #     nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
+        #     self.logger.log("Image " + str(nextMatch.getIdNum()) + " matches with similarity = " + str(nextScore))
+        #     cv2.waitKey(0)
+
+
+        self.img = self.img.copy()
+        (self.mapHgt, self.mapWid, dep) = self.img.shape
+        # cv2.imshow("map", img)
+        # cv2.waitKey(0)
+
         for j in range(len(bestZipped)):
             (nextScore, nextMatch) = bestZipped[j]
-            cv2.imshow("Match Picture", nextMatch.getImage())
-            cv2.moveWindow("Match Picture", self.width+10, 0)
-            nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
-            self.logger.log("Image " + str(nextMatch.getIdNum()) + " matches with similarity = " + str(nextScore))
-            cv2.waitKey(0)
+            # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
+            idNum = nextMatch.getIdNum()
+            # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
+            # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
+            (num, x, y) = self.findClosestNode((float(self.location[idNum][0]), float(self.location[idNum][1])))
+            # print "The closest node is number", num, "with x and y coordinates as", x, "and", y
+            pixelX, pixelY = self._convertWorldToMap(x, y)
+
+            cv2.circle(self.img, (pixelX,pixelY),6, 255)
+            cv2.imshow("map", self.img)
+            cv2.waitKey(20)
+
+    def findClosestNode(self, (x, y)):
+        closestNode = None
+        closestX = None
+        closestY = None
+        for nodeNum in self.olin.getVertices():
+            if closestNode is None:
+                closestNode = nodeNum
+                closestX, closestY = self.olin.getData(nodeNum)
+                bestVal = ((closestX - x) * (closestX - x)) + ((closestY - y) * (closestY - y))
+            (nodeX, nodeY) = self.olin.getData(nodeNum)
+            val = ((nodeX - x) * (nodeX - x)) + ((nodeY - y) * (nodeY - y))
+            if (val <= bestVal):
+                bestVal = val
+                closestNode = nodeNum
+                closestX, closestY = (nodeX, nodeY)
+        return (closestNode, closestX, closestY)
+
+    def getOlinMap(self):
+        """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
+        Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
+        perhaps."""
+        origMap = readMap.createMapImage(self.basePath + "scripts/markLocations/olinNewMap.txt", 20)
+        map2 = np.flipud(origMap)
+        olinMap = np.rot90(map2)
+        return olinMap
+
+    def _convertWorldToMap(self, worldX, worldY):
+        """Converts coordinates in meters in the world to integer coordinates on the map
+        Note that this also has to adjust for the rotation and flipping of the map."""
+        # First convert from meters to pixels, assuming 20 pixels per meter
+        pixelX = worldX * 20.0
+        pixelY = worldY * 20.0
+        # Next flip x and y values around
+        mapX = self.mapWid - 1 - pixelY
+        mapY = self.mapHgt - 1 - pixelX
+        return (int(mapX), int(mapY))
 
 
 
@@ -392,27 +481,27 @@ class ImageMatcher(object):
         return name
 
 
-    def run(self):
-        runFlag = True
-        self.makeCollection()
-        if len(self.featureCollection) == 0:
-            print("ERROR: must have built collection before running this.")
-            return
-        self.logger.log("Choosing frames from video to compare to collection")
-        print("How many matches should it find?")
-        numMatches = self._userGetInteger()
-        # cap = cv2.VideoCapture(self.cameraNum)
-        while runFlag:
-            # image = self._userSelectFrame(cap)
-            image = self.robot.getImage()[0]
-            if image is None:
-                break
-            features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
-            cv2.imshow("Primary image", image)
-            cv2.moveWindow("Primary image", 0, 0)
-            features.displayFeaturePics("Primary image features", 0, 0)
-            self._findBestNMatches(image, features, numMatches)
-            runFlag = self.runFlag
+    # def run(self):
+    #     runFlag = True
+    #     self.makeCollection()
+    #     if len(self.featureCollection) == 0:
+    #         print("ERROR: must have built collection before running this.")
+    #         return
+    #     self.logger.log("Choosing frames from video to compare to collection")
+    #     print("How many matches should it find?")
+    #     numMatches = self._userGetInteger()
+    #     # cap = cv2.VideoCapture(self.cameraNum)
+    #     while runFlag:
+    #         # image = self._userSelectFrame(cap)
+    #         # image = self.robot.getImage()[0]
+    #         if image is None:
+    #             break
+    #         features = ImageFeatures.ImageFeatures(image, 9999, self.logger, self.ORBFinder)
+    #         cv2.imshow("Primary image", image)
+    #         cv2.moveWindow("Primary image", 0, 0)
+    #         features.displayFeaturePics("Primary image features", 0, 0)
+    #         self._findBestNMatches(image, features, numMatches)
+    #         runFlag = self.runFlag
 
 
     def isStalled(self):
@@ -425,19 +514,21 @@ class ImageMatcher(object):
 
 
 if __name__ == '__main__':
-    rospy.init_node('ImageMatching')
+    # rospy.init_node('ImageMatching')
     print "GOT HERE"
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = "/home/macalester/catkin_ws/src/qr_seeker/res/Feb2017Data/",
+                           dir1 = "/home/macalester/catkin_ws/src/match_seeker/res/052517/",
                            baseName = "frame",
-                           ext = "jpg",
-                           startPic = 0,
-                           numPics = 500)
+                           ext = "jpg", startPic = 0,
+                           numPics = 1086)
     print "finish ImageMatcher call"
-    matcher.run()
-    rospy.on_shutdown(matcher.exit)
-    #matcher.mostSimilarSelected()
-    rospy.spin()
+    matcher.makeCollection()
+    matcher.mostSimilarSelected()
+
+    # matcher.run()
+    # rospy.on_shutdown(matcher.exit)
+    # #matcher.mostSimilarSelected()
+    # rospy.spin()
 
 
 

@@ -34,8 +34,8 @@ class qrPlanner(object):
 
         self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
-        self.orbScanner = ORBRecognizer.ORBRecognizer(self.robot)
-        self.qrScanner = QRRecognizer.QRrecognizer(self.robot)
+        # self.orbScanner = ORBRecognizer.ORBRecognizer(self.robot)
+        # self.qrScanner = QRRecognizer.QRrecognizer(self.robot)
 
 
         self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
@@ -46,9 +46,9 @@ class qrPlanner(object):
         self.ignoreBrain = False
 
         self.matcher = ImageRecognizer.ImageMatcher(self.robot, logFile=True, logShell=True,
-                               dir1= basePath + "res/refinedFeb2017Data/",
+                               dir1= basePath + "res/052517/",
                                baseName="frame",
-                               ext="jpg", numMatches=3)
+                               ext="jpg", numMatches=5)
         self.matcher.makeCollection()
 
         """the two webcams won't both run on Linux unless we turn down their quality ---

@@ -15,7 +15,8 @@ This is porting the CompareInfo class written in C++ in about 2011.
 
 import sys
 import os
-import rospy
+import numpy as np
+import readMap
 import cv2
 import OutputLogger
 import ImageFeatures
@@ -50,7 +51,7 @@ class ImageMatcher(object):
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
 
         self.location = {}
-        file = open(basePath + "res/Data-May18Thu-163526.txt")
+        file = open(basePath + "scripts/buildingDatabases/locationsMay25.txt")
         for line in file.readlines():
             line = line.rstrip('/n')
             line = line.split()
@@ -58,6 +59,7 @@ class ImageMatcher(object):
 
         self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
+        self.img = self.getOlinMap()
 
 
     def setLogToFile(self, val):
@@ -177,14 +179,53 @@ class ImageMatcher(object):
         cv2.imshow("Match Picture", bestZipped[0][1].getImage())
         cv2.moveWindow("Match Picture", self.width + 10, 0)
         cv2.waitKey(20)
+        img = self.img.copy()
+        (self.mapHgt, self.mapWid, dep) = img.shape
+        cv2.imshow("map",img)
+
         for j in range(len(bestZipped)):
             (nextScore, nextMatch) = bestZipped[j]
             # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
             idNum = nextMatch.getIdNum()
-            self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
-            print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
-            (num, x, y) = self.findClosestNode((float(self.location[idNum][0]),float(self.location[idNum][1])))
-            print "The closest node is number", num, "with x and y coordinates as", x, "and", y
+            locX, locY, locHead = self.location[idNum]
+            # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
+            # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
+            (num, x, y) = self.findClosestNode((float(locX),float(locY)))
+            print "The closest node is number", num, "Score:", nextScore
+            pixelX,pixelY = self._convertWorldToMap(x,y)
+            self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
+            turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
+            self.drawPosition(img, turtleX, turtleY,int(locHead),(255,nextScore*2.55,0))
+            cv2.imshow("map",img)
+            cv2.waitKey(20)
+
+    def drawPosition(self, image, x, y, heading, color):
+        cv2.circle(image, (x, y), 6, color, -1)
+        newX = x
+        newY = y
+        if heading == 0:
+            newY = y - 10
+        elif heading == 45:
+            newX = x - 8
+            newY = y - 8
+        elif heading == 90:
+            newX = x - 10
+        elif heading == 135:
+            newX = x - 8
+            newY = y + 8
+        elif heading == 180:
+            newY = y + 10
+        elif heading == 225:
+            newX = x + 8
+            newY = y + 8
+        elif heading == 270:
+            newX = x + 10
+        elif heading == 315:
+            newX = x + 8
+            newY = y - 8
+        else:
+            print "Error! The heading is", heading
+        cv2.line(image, (x,y), (newX, newY), color)
 
 
     def findClosestNode(self, (x, y)):
@@ -204,6 +245,25 @@ class ImageMatcher(object):
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY)
 
+    def getOlinMap(self):
+        """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
+        Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
+        perhaps."""
+        origMap = readMap.createMapImage(basePath + "scripts/markLocations/olinNewMap.txt", 20)
+        map2 = np.flipud(origMap)
+        olinMap = np.rot90(map2)
+        return olinMap
+
+    def _convertWorldToMap(self, worldX, worldY):
+        """Converts coordinates in meters in the world to integer coordinates on the map
+        Note that this also has to adjust for the rotation and flipping of the map."""
+        # First convert from meters to pixels, assuming 20 pixels per meter
+        pixelX = worldX * 20.0
+        pixelY = worldY * 20.0
+        # Next flip x and y values around
+        mapX = self.mapWid - 1 - pixelY
+        mapY = self.mapHgt - 1 - pixelX
+        return (int(mapX), int(mapY))
 
     # def _userGetInteger(self):
     #     """Ask until user either enters 'q' or a valid nonnegative integer"""
