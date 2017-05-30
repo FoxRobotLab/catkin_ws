@@ -134,6 +134,7 @@ class ImageMatcher(object):
             return
         # self.logger.log("Choosing frames from video to compare to collection")
 
+        #grayCamImage = cv2.cvtColor(camImage, cv2.COLOR_BGR2GRAY)
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
         # cv2.imshow("Primary image", camImage)
         # cv2.moveWindow("Primary image", 0, 0)
@@ -176,28 +177,31 @@ class ImageMatcher(object):
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
         self.logger.log("==========Close Matches==========")
-        cv2.imshow("Match Picture", bestZipped[0][1].getImage())
-        cv2.moveWindow("Match Picture", self.width + 10, 0)
-        cv2.waitKey(20)
-        img = self.img.copy()
-        (self.mapHgt, self.mapWid, dep) = img.shape
-        cv2.imshow("map",img)
-
-        for j in range(len(bestZipped)):
-            (nextScore, nextMatch) = bestZipped[j]
-            # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
-            idNum = nextMatch.getIdNum()
-            locX, locY, locHead = self.location[idNum]
-            # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
-            # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
-            (num, x, y) = self.findClosestNode((float(locX),float(locY)))
-            print "The closest node is number", num, "Score:", nextScore
-            pixelX,pixelY = self._convertWorldToMap(x,y)
-            self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
-            turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
-            self.drawPosition(img, turtleX, turtleY,int(locHead),(255,nextScore*2.55,0))
-            cv2.imshow("map",img)
+        if bestZipped[-1][0] > 99:
+            self.logger.log("There are no good enough matches.")
+        else:
+            cv2.imshow("Match Picture", bestZipped[0][1].getImage())
+            cv2.moveWindow("Match Picture", self.width + 10, 0)
             cv2.waitKey(20)
+            img = self.img.copy()
+            (self.mapHgt, self.mapWid, dep) = img.shape
+            cv2.imshow("map",img)
+
+            for j in range(len(bestZipped)-1, -1, -1):
+                (nextScore, nextMatch) = bestZipped[j]
+                # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
+                idNum = nextMatch.getIdNum()
+                locX, locY, locHead = self.location[idNum]
+                # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
+                # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
+                (num, x, y) = self.findClosestNode((float(locX),float(locY)))
+                print "The closest node is number", num, "Score:", nextScore
+                pixelX,pixelY = self._convertWorldToMap(x,y)
+                self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
+                turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
+                self.drawPosition(img, turtleX, turtleY,int(locHead),(255,nextScore*2.55,0))
+                cv2.imshow("map",img)
+                cv2.waitKey(20)
 
     def drawPosition(self, image, x, y, heading, color):
         cv2.circle(image, (x, y), 6, color, -1)
