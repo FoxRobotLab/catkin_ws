@@ -517,7 +517,7 @@ if __name__ == '__main__':
     # rospy.init_node('ImageMatching')
     print "GOT HERE"
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = "/home/macalester/catkin_ws/src/match_seeker/res/052517/",
+                           dir1 = "/home/macalester/catkin_ws/src/match_seeker/res/BWmay25Dir/",
                            baseName = "frame",
                            ext = "jpg", startPic = 0,
                            numPics = 1086)

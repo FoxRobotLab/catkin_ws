@@ -177,7 +177,10 @@ class ImageMatcher(object):
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
         self.logger.log("==========Close Matches==========")
-        if bestZipped[-1][0] > 99:
+
+
+
+        if bestZipped[0][0] > 99:
             self.logger.log("There are no good enough matches.")
         else:
             cv2.imshow("Match Picture", bestZipped[0][1].getImage())
@@ -187,6 +190,7 @@ class ImageMatcher(object):
             (self.mapHgt, self.mapWid, dep) = img.shape
             cv2.imshow("map",img)
 
+
             for j in range(len(bestZipped)-1, -1, -1):
                 (nextScore, nextMatch) = bestZipped[j]
                 # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
@@ -195,7 +199,7 @@ class ImageMatcher(object):
                 # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
                 # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
                 (num, x, y) = self.findClosestNode((float(locX),float(locY)))
-                print "The closest node is number", num, "Score:", nextScore
+                self.logger.log("The closest node is number " + str(num) + " Score: " + str(nextScore))
                 pixelX,pixelY = self._convertWorldToMap(x,y)
                 self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
                 turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
