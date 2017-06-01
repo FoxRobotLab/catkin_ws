@@ -252,11 +252,14 @@ class DepthSensorThread(threading.Thread):
         """Callback function triggered when sensor data is available. Just copies to instance variable."""
         with self.lock:
             self.sensor_state = data
+        # print self.sensor_state
+
 
     def depth_callback(self, data):
         """Callback function triggered when depth data is available, Just copies data to instance variable."""
         with self.lock:
             self.depth_array = data
+
 
     def getDims(self):
         """Method typically called by another thread, it returns the botWidth and botHeight of the depth data, if available,
@@ -417,6 +420,16 @@ class TurtleBot(object):
             return state.bumper
         else:
             return state.bumps_wheeldrops
+
+    def getCliffStatus(self):
+        """Accesses the robot base sensor data and reports whether the cliff sensor has triggered."""
+        state = self.depthControl.getSensorState()
+        if state is None:
+            return 0
+        if self.robotType == "kobuki":
+            return state.cliff
+        else:
+            return state.cliff_left + state.cliff_right + state.cliff_front_left + state.cliff_front_right
 
     def exit(self):
         """A method that shuts down the three threads of the robot."""

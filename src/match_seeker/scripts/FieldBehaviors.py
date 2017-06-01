@@ -56,6 +56,16 @@ class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
         else:
             self.setVector(0.0, 0.0)
 
+class CliffReact(PotentialFieldBrain.PotentialFieldBehavior):
+    """Reacts to the cliff sensor going off by stopping. It reports no
+        vector if the bumper is not pressed. """
+
+    def update(self):
+        cliffCode = self.robot.getCliffStatus()
+        if cliffCode != False or cliffCode != 0:
+            self.emergencyStop()
+        else:
+            self.setVector(0.0, 0.0)
 
 class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
     """Defines a Potential Field behavior for depth image-based obstacle reactions."""

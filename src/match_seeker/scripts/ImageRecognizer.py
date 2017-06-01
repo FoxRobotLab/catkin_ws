@@ -187,8 +187,8 @@ class ImageMatcher(object):
 
 
 
-        if bestZipped[0][0] > 99:
-            self.logger.log("There are no good enough matches.")
+        if bestZipped[0][0] > 90:
+            self.logger.log("There are no good matches.")
         else:
             cv2.imshow("Match Picture", bestZipped[0][1].getImage())
             cv2.moveWindow("Match Picture", self.width + 10, 0)
@@ -197,6 +197,8 @@ class ImageMatcher(object):
             (self.mapHgt, self.mapWid, dep) = img.shape
             cv2.imshow("map",img)
 
+            #TODO
+            # self.guessLocation(bestZipped)
 
             for j in range(len(bestZipped)-1, -1, -1):
                 (nextScore, nextMatch) = bestZipped[j]
@@ -242,8 +244,23 @@ class ImageMatcher(object):
             print "Error! The heading is", heading
         cv2.line(image, (x,y), (newX, newY), color)
 
+    def guessLocation(self,bestZipped):
+        pass
+        # best = len(bestZipped)-1
+        # if bestZipped[best][1] < 70:
+        #     match = bestZipped[best][1]
+        #     idNum = match.getIdNum()
+        #     bestX, bestY, bestHead = self.locations[idNum]
+        #
+        #
+        # for j in range(len(bestZipped) - 1, -1, -1):
+        #     (nextScore, nextMatch) = bestZipped[j]
+        #     idNum = nextMatch.getIdNum()
+        #     locX, locY, locHead = self.locations[idNum]
 
     def findClosestNode(self, (x, y)):
+        """uses the location of a matched image and the distance formula to determine the node on the olingraph
+        closest to each match/guess"""
         closestNode = None
         closestX = None
         closestY = None
