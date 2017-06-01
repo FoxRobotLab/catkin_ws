@@ -183,12 +183,12 @@ class ImageMatcher(object):
 
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
-        self.logger.log("==========Close Matches==========")
+        self.logger.log("==========Location Update==========")
 
 
 
         if bestZipped[0][0] > 90:
-            self.logger.log("There are no good matches.")
+            self.logger.log("I have no idea where I am.")
         else:
             cv2.imshow("Match Picture", bestZipped[0][1].getImage())
             cv2.moveWindow("Match Picture", self.width + 10, 0)
@@ -197,24 +197,25 @@ class ImageMatcher(object):
             (self.mapHgt, self.mapWid, dep) = img.shape
             cv2.imshow("map",img)
 
-            #TODO
-            # self.guessLocation(bestZipped)
+            guess,conf = self.guessLocation(bestZipped)
+            self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
 
-            for j in range(len(bestZipped)-1, -1, -1):
-                (nextScore, nextMatch) = bestZipped[j]
-                # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
-                idNum = nextMatch.getIdNum()
-                locX, locY, locHead = self.locations[idNum]
-                # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
-                # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
-                (num, x, y) = self.findClosestNode((float(locX),float(locY)))
-                self.logger.log("The closest node is number " + str(num) + " Score: " + str(nextScore))
-                pixelX,pixelY = self._convertWorldToMap(x,y)
-                self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
-                turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
-                self.drawPosition(img, turtleX, turtleY,int(locHead),(255,nextScore*2.55,0))
-                cv2.imshow("map",img)
-                cv2.waitKey(20)
+
+            # for j in range(len(bestZipped)-1, -1, -1):
+            #     (nextScore, nextMatch) = bestZipped[j]
+            #     # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
+            #     idNum = nextMatch.getIdNum()
+            #     locX, locY, locHead = self.locations[idNum]
+            #     # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
+            #     # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
+            #     (num, x, y, distSq) = self.findClosestNode((float(locX),float(locY)))
+            #     self.logger.log("The closest node is number " + str(num) + " Score: " + str(nextScore))
+            # pixelX,pixelY = self._convertWorldToMap(x,y)
+            # self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
+            # turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
+            # self.drawPosition(img, turtleX, turtleY,int(locHead),(255,nextScore*2.55,0))
+            # cv2.imshow("map",img)
+            # cv2.waitKey(20)
 
     def drawPosition(self, image, x, y, heading, color):
         cv2.circle(image, (x, y), 6, color, -1)
@@ -246,17 +247,28 @@ class ImageMatcher(object):
 
     def guessLocation(self,bestZipped):
         pass
-        # best = len(bestZipped)-1
-        # if bestZipped[best][1] < 70:
-        #     match = bestZipped[best][1]
-        #     idNum = match.getIdNum()
-        #     bestX, bestY, bestHead = self.locations[idNum]
-        #
-        #
-        # for j in range(len(bestZipped) - 1, -1, -1):
-        #     (nextScore, nextMatch) = bestZipped[j]
-        #     idNum = nextMatch.getIdNum()
-        #     locX, locY, locHead = self.locations[idNum]
+        best = len(bestZipped)-1
+        if bestZipped[best][0] < 70:
+            match = bestZipped[best][1]
+            idNum = match.getIdNum()
+            bestX, bestY, bestHead = self.locations[idNum]
+            (nodeNum, x, y, distSq) = self.findClosestNode((float(bestX), float(bestY)))
+            if distSq <= 1.0:
+                return nodeNum, "very confident."
+        else:
+            guessNodes = []
+            for j in range(len(bestZipped) - 1, -1, -1):
+                (nextScore, nextMatch) = bestZipped[j]
+                idNum = nextMatch.getIdNum()
+                locX, locY, locHead = self.locations[idNum]
+                (nodeNum, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
+                if nodeNum not in guessNodes:
+                    guessNodes.append(nodeNum)
+            if len(guessNodes) == 1:
+                return guessNodes[0], "guessing."
+            else:
+                return guessNodes, "totally unsure."
+
 
     def findClosestNode(self, (x, y)):
         """uses the location of a matched image and the distance formula to determine the node on the olingraph
@@ -275,7 +287,7 @@ class ImageMatcher(object):
                 bestVal = val
                 closestNode = nodeNum
                 closestX, closestY = (nodeX,nodeY)
-        return (closestNode, closestX, closestY)
+        return (closestNode, closestX, closestY, bestVal)
 
     def getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
