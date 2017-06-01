@@ -1,0 +1,21 @@
+Reading in image database
+Length of collection = 500
+Finding most similar to selected
+Primary image = 215
+==========Close Matches==========
+Image 204 matches with similarity = 0.0
+Image 205 matches with similarity = 0.0
+Image 207 matches with similarity = 0.0
+Image 206 matches with similarity = 0.0
+Primary image = 2
+==========Close Matches==========
+Image 0 matches with similarity = 0.0
+Image 1 matches with similarity = 0.0
+Image 2 matches with similarity = 0.0
+Image 3 matches with similarity = 0.0
+Primary image = 400
+==========Close Matches==========
+Image 392 matches with similarity = 0.0
+Image 399 matches with similarity = 0.0
+Image 393 matches with similarity = 0.0
+Image 394 matches with similarity = 0.0

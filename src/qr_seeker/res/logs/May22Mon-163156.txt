@@ -1,0 +1,63 @@
+Reading in image database
+Length of collection = 500
+Finding most similar to selected
+Primary image = 389
+==========Close Matches==========
+Image 379 matches with similarity = 0.0
+Image 381 matches with similarity = 0.0
+Image 380 matches with similarity = 0.0
+Image 378 matches with similarity = 0.0
+Primary image = 36
+==========Close Matches==========
+Image 35 matches with similarity = 0.0
+Image 36 matches with similarity = 0.0
+Image 33 matches with similarity = 0.0
+Image 34 matches with similarity = 0.0
+Primary image = 500
+==========Close Matches==========
+Image 478 matches with similarity = 0.0
+Image 479 matches with similarity = 0.0
+Image 480 matches with similarity = 0.0
+Image 481 matches with similarity = 0.0
+Primary image = 1000
+==========Close Matches==========
+Image 494 matches with similarity = 33.0
+Image 496 matches with similarity = 35.0
+Image 491 matches with similarity = 35.0
+Image 492 matches with similarity = 36.0
+Primary image = 1250
+==========Close Matches==========
+Image 451 matches with similarity = 77.0
+Image 444 matches with similarity = 80.0
+Image 445 matches with similarity = 80.0
+Image 447 matches with similarity = 80.0
+Primary image = 1176
+==========Close Matches==========
+Image 491 matches with similarity = 96.0
+Image 492 matches with similarity = 96.0
+Image 496 matches with similarity = 96.0
+Image 497 matches with similarity = 96.0
+Primary image = 1350
+==========Close Matches==========
+Image 255 matches with similarity = 99.0
+Image 332 matches with similarity = 99.0
+Image 334 matches with similarity = 99.0
+Image 338 matches with similarity = 99.0
+Primary image = 1300
+==========Close Matches==========
+Image 0 matches with similarity = 100.0
+Image 1 matches with similarity = 100.0
+Image 2 matches with similarity = 100.0
+Image 3 matches with similarity = 100.0
+Primary image = 789
+==========Close Matches==========
+Image 13 matches with similarity = 98.0
+Image 19 matches with similarity = 98.0
+Image 20 matches with similarity = 98.0
+Image 23 matches with similarity = 98.0
+Primary image = 444
+==========Close Matches==========
+Image 434 matches with similarity = 0.0
+Image 437 matches with similarity = 0.0
+Image 436 matches with similarity = 0.0
+Image 435 matches with similarity = 0.0

@@ -1,0 +1,1337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="f9128a58-36df-4d0b-9c27-760ee7e366ff" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+    </list>
+    <ignored path="catkin_ws.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="catkin_ws" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="locationsMay30.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/locationsMay30.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="901">
+              <caret line="612" column="0" lean-forward="true" selection-start-line="612" selection-start-column="0" selection-end-line="612" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="locationsMay25.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/locationsMay25.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="91">
+              <caret line="1009" column="17" lean-forward="true" selection-start-line="1009" selection-start-column="17" selection-end-line="1009" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ImageRecognizer.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/ImageRecognizer.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="54">
+              <caret line="35" column="33" lean-forward="true" selection-start-line="35" selection-start-column="33" selection-end-line="35" selection-end-column="33" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>built collection</find>
+      <find>self.loc</find>
+      <find>self.path</find>
+      <find>espea</find>
+      <find>reco</find>
+      <find>imagere</find>
+      <find>05</find>
+      <find>video</find>
+      <find>cam</find>
+      <find>camImage</find>
+      <find>depth</find>
+      <find>process</find>
+      <find>sensors/c</find>
+      <find>CV2.IM</find>
+      <find>CV2.IMSHOW</find>
+      <find>drawMatches</find>
+      <find>BGR</find>
+      <find>orbscan</find>
+      <find>tryto</find>
+      <find>sensors</find>
+      <find>sensor_state</find>
+      <find>sensor_ca</find>
+      <find>turtlebotsensor</find>
+      <find>print</find>
+      <find>robottype</find>
+      <find>robot</find>
+      <find>Length of</find>
+      <find>currDirec</find>
+      <find>getidnum</find>
+      <find>997</find>
+    </findStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/src/match_seeker/res/may30</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="MERGE" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/qr_seeker/launch/imageCapture.launch" />
+        <option value="$PROJECT_DIR$/src/match_seeker/launch/ImageRecognizer.launch" />
+        <option value="$PROJECT_DIR$/src/match_seeker/launch/imageCapture.launch" />
+        <option value="$PROJECT_DIR$/src/match_seeker/launch/qr_seeker.launch" />
+        <option value="$PROJECT_DIR$/src/match_seeker/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/package.xml" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/ORBrecognizer.py" />
+        <option value="$PROJECT_DIR$/src/qr_seeker/scripts/ORBrecognizer.py" />
+        <option value="$PROJECT_DIR$/src/qr_seeker/scripts/PathLocation.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/OutputLogger.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/PathLocation.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/ORBRecognizer.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/FeatureType.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/OSPathDefine.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/collection.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/ORBFeatures.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/may25MatchingImages1.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/may25MatchingImages.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/classVideoToFiles.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/scanImageMatches.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/createDirectory.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/organizePics.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/nameChanges.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/__init__.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May25Thu-140500.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May25Thu-145502.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/locationsMay25-office1.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/workingNumChangeMapping.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/editDirMay2417.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/editDirMay25-office1.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/editDirectory.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/nameChanges.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/normalizeColors.py" />
+        <option value="$PROJECT_DIR$/src/qr_seeker/scripts/ImageMatching.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/ImageFeatures.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/locationsMay25.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/qrPlanner.py" />
+        <option value="$PROJECT_DIR$/src/qr_seeker/scripts/comparePerformance.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/classVideoToFiles.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/markLocations/locsForFrames.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May18Thu-163526.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/scanImageMatches.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/createDirectory.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/organizePics.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/nameChangesMay30.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/nameChangesMay30-2.txt" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/doubleNameChange.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/mappingLocData.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/turtleQR.py" />
+        <option value="$PROJECT_DIR$/src/match_seeker/scripts/ImageRecognizer.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="382" />
+    <option name="y" value="24" />
+    <option name="width" value="1538" />
+    <option name="height" value="1026" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="match_seeker" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="match_seeker" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="catkin_ws" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="match_seeker" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="res" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases" />
+      <recent name="$PROJECT_DIR$/src/match_seeker/res/Videos" />
+      <recent name="$PROJECT_DIR$/src/qr_seeker/scripts" />
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/match_seeker/res" />
+      <recent name="$PROJECT_DIR$/src/match_seeker/scripts" />
+      <recent name="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/buildingDatabases" />
+      <recent name="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases" />
+      <recent name="$PROJECT_DIR$/src/match_seeker/res/test" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.mappingLocData">
+    <configuration default="false" name="organizePics" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/organizePics.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="scanImageMatches" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/scanImageMatches.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="createDirectory" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/createDirectory.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="doubleNameChange" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/doubleNameChange.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="mappingLocData" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/mappingLocData.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python.organizePics" />
+      <item index="1" class="java.lang.String" itemvalue="Python.scanImageMatches" />
+      <item index="2" class="java.lang.String" itemvalue="Python.createDirectory" />
+      <item index="3" class="java.lang.String" itemvalue="Python.doubleNameChange" />
+      <item index="4" class="java.lang.String" itemvalue="Python.mappingLocData" />
+    </list>
+    <recent_temporary>
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.mappingLocData" />
+        <item index="1" class="java.lang.String" itemvalue="Python.doubleNameChange" />
+        <item index="2" class="java.lang.String" itemvalue="Python.organizePics" />
+        <item index="3" class="java.lang.String" itemvalue="Python.createDirectory" />
+        <item index="4" class="java.lang.String" itemvalue="Python.scanImageMatches" />
+      </list>
+    </recent_temporary>
+    <configuration default="true" type="tests" factoryName="Attests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="catkin_ws" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f9128a58-36df-4d0b-9c27-760ee7e366ff" name="Default" comment="" />
+      <created>1495468970449</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1495468970449</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Changed the camera number">
+      <created>1495483042939</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1495483042939</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Changed the camera number">
+      <created>1495483352227</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1495483352227</updated>
+    </task>
+    <task id="LOCAL-00003" summary="debug">
+      <created>1495483546086</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1495483546086</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Changed the number back">
+      <created>1495483827922</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1495483827922</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Changed the number of camera">
+      <created>1495484528451</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1495484528451</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Changes">
+      <created>1495550892830</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1495550892830</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Changes">
+      <created>1495550933236</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1495550933236</updated>
+    </task>
+    <task id="LOCAL-00008" summary="new match_seeker file">
+      <created>1495553683909</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1495553683909</updated>
+    </task>
+    <task id="LOCAL-00009" summary="modified ImageRecognizer">
+      <created>1495554258269</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1495554258269</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Testing">
+      <created>1495565008243</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1495565008243</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Changing hard-coded paths and such for Speedy">
+      <created>1495565656001</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1495565656001</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Changing hard-coded paths and such for Speedy">
+      <created>1495565837030</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1495565837030</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Changing hard-coded paths and such for Speedy">
+      <created>1495566039147</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1495566039147</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Changing hard-coded paths and such for Speedy">
+      <created>1495567249772</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1495567249772</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495567458326</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1495567458326</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495568030552</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1495568030552</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495568193122</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1495568193122</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495568437509</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1495568437509</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495568611938</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1495568611938</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495569031572</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1495569031572</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495569297581</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1495569297581</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495569700029</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1495569700029</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495569976763</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1495569976763</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495570178454</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1495570178454</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Integrating ImageRecognizer into qrPlanner in match_seeker">
+      <created>1495570197743</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1495570197743</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Reporting location information">
+      <created>1495576674340</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1495576674340</updated>
+    </task>
+    <task id="LOCAL-00027" summary="finding the matching images in the directory and&#10;copying the nonduplicate images in the directory">
+      <created>1495651954301</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1495651954301</updated>
+    </task>
+    <task id="LOCAL-00028" summary="a new and better directory (hopefully)">
+      <created>1495653908656</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1495653908656</updated>
+    </task>
+    <task id="LOCAL-00029" summary="new video. new dataset. Longer! (still need to cut duplicates, add locations)">
+      <created>1495661948028</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1495661948028</updated>
+    </task>
+    <task id="LOCAL-00030" summary="new video. new dataset. Longer! (still need to cut duplicates, add locations)">
+      <created>1495662044731</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1495662044731</updated>
+    </task>
+    <task id="LOCAL-00031" summary="creating new database">
+      <created>1495721939989</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1495721939990</updated>
+    </task>
+    <task id="LOCAL-00032" summary="created new database">
+      <created>1495724974882</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1495724974882</updated>
+    </task>
+    <task id="LOCAL-00033" summary="New data(atrium and office)">
+      <created>1495727524074</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1495727524074</updated>
+    </task>
+    <task id="LOCAL-00034" summary="New data(atrium and office) - refined">
+      <created>1495728800241</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1495728800241</updated>
+    </task>
+    <task id="LOCAL-00035" summary="New data(atrium and office) - refined">
+      <created>1495730236518</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1495730236518</updated>
+    </task>
+    <task id="LOCAL-00036" summary="New data(atrium and office) - refined">
+      <created>1495730257247</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1495730257247</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Pictures Organized">
+      <created>1495739957629</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1495739957629</updated>
+    </task>
+    <task id="LOCAL-00038" summary="buildingDatabases subfolder">
+      <created>1495740617673</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1495740617673</updated>
+    </task>
+    <task id="LOCAL-00039" summary="mapping new location data to new renumberings of the file names">
+      <created>1495743058296</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1495743058296</updated>
+    </task>
+    <task id="LOCAL-00040" summary="mapping new location data to new renumberings of the file names">
+      <created>1495743912031</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1495743912031</updated>
+    </task>
+    <task id="LOCAL-00041" summary="mapping new location data to new renumberings of the file names">
+      <created>1495813549483</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1495813549483</updated>
+    </task>
+    <task id="LOCAL-00042" summary="editting blurry stuff &amp; some blank walls out of the dataset">
+      <created>1495825240226</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1495825240226</updated>
+    </task>
+    <task id="LOCAL-00043" summary="able to run on kobuki&#10;prints matches from worse to best &amp; drawing dots accordingly&#10;filters undesirable matches &amp; doesn't display matches with high scores">
+      <created>1496161223382</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1496161223382</updated>
+    </task>
+    <task id="LOCAL-00044" summary="new video for database. we converted it to 4588 frames">
+      <created>1496179845705</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1496179845705</updated>
+    </task>
+    <task id="LOCAL-00045" summary="data for the hallways added">
+      <created>1496251738518</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1496251738518</updated>
+    </task>
+    <task id="LOCAL-00046" summary="new video and processed images from kobuki (removed actual video from Git)">
+      <created>1496327677568</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1496327677568</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
+    <servers />
+  </component>
+  <component name="TodoView" selected-index="4">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="382" y="24" width="1538" height="1026" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23458445" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.51555556" sideWeight="0.50280505" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3288889" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32555556" sideWeight="0.49463806" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5477778" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3288889" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3997833" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="debug" />
+    <MESSAGE value="Changed the number back" />
+    <MESSAGE value="Changed the number of camera" />
+    <MESSAGE value="Changes" />
+    <MESSAGE value="new match_seeker file" />
+    <MESSAGE value="modified ImageRecognizer" />
+    <MESSAGE value="Testing" />
+    <MESSAGE value="Changing hard-coded paths and such for Speedy" />
+    <MESSAGE value="Integrating ImageRecognizer into qrPlanner in match_seeker" />
+    <MESSAGE value="Reporting location information" />
+    <MESSAGE value="finding the matching images in the directory and&#10;copying the nonduplicate images in the directory" />
+    <MESSAGE value="a new and better directory (hopefully)" />
+    <MESSAGE value="new video. new dataset. Longer! (still need to cut duplicates, add locations)" />
+    <MESSAGE value="creating new database" />
+    <MESSAGE value="created new database" />
+    <MESSAGE value="New data(atrium and office)" />
+    <MESSAGE value="New data(atrium and office) - refined" />
+    <MESSAGE value="Pictures Organized" />
+    <MESSAGE value="buildingDatabases subfolder" />
+    <MESSAGE value="mapping new location data to new renumberings of the file names" />
+    <MESSAGE value="editting blurry stuff &amp; some blank walls out of the dataset" />
+    <MESSAGE value="able to run on kobuki&#10;prints matches from worse to best &amp; drawing dots accordingly&#10;filters undesirable matches &amp; doesn't display matches with high scores" />
+    <MESSAGE value="new video for database. we converted it to 4588 frames" />
+    <MESSAGE value="data for the hallways added" />
+    <MESSAGE value="new video and processed images from kobuki (removed actual video from Git)" />
+    <option name="LAST_COMMIT_MESSAGE" value="new video and processed images from kobuki (removed actual video from Git)" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="9" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/052517/frame0000.jpg">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/ORBRecognizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="64">
+          <caret line="173" column="78" lean-forward="false" selection-start-line="173" selection-start-column="78" selection-end-line="173" selection-end-column="78" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/qrPlanner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="118">
+          <caret line="48" column="59" lean-forward="false" selection-start-line="48" selection-start-column="59" selection-end-line="48" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/FieldBehaviors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="48" column="47" lean-forward="false" selection-start-line="48" selection-start-column="32" selection-end-line="48" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/qrPlanner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2483">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/PotentialFieldBrain.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2127">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/QRrecognizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/ReactiveBrain.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-759">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/readMap.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/comparePerformance.py" />
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/launch/match_seeker.launch">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/ImageMatching.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="512" column="28" lean-forward="false" selection-start-line="512" selection-start-column="28" selection-end-line="512" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/QRRecognizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="172">
+          <caret line="28" column="49" lean-forward="false" selection-start-line="28" selection-start-column="46" selection-end-line="28" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/comparePerformance/kobukiRun.txt" />
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/logs/May30Tue-141631.txt" />
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/logs/May30Tue-141502.txt" />
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/logs/May30Tue-142341.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="226" column="0" lean-forward="false" selection-start-line="226" selection-start-column="0" selection-end-line="228" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/qr_seeker/scripts/turtleQR.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3996">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/classVideoToFiles.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May18Thu-163526.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="14" lean-forward="true" selection-start-line="5" selection-start-column="14" selection-end-line="5" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May25Thu-132025.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May25Thu-140500.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May25Thu-145502.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May25Thu-150336.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/res/locdata/Data-May25Thu-151653.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/createDirectory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="27" column="34" lean-forward="false" selection-start-line="27" selection-start-column="34" selection-end-line="27" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/markLocations/locsForFrames.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2336">
+          <caret line="311" column="11" lean-forward="false" selection-start-line="311" selection-start-column="11" selection-end-line="311" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/workingNumChangeMapping.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/scanImageMatches.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="541">
+          <caret line="157" column="0" lean-forward="false" selection-start-line="157" selection-start-column="0" selection-end-line="157" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/locationsMay25-office1.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="15" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/may30-2.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-54">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/nameChangesMay30.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-10547">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/nameChangesMay30-2.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="2167" column="9" lean-forward="false" selection-start-line="2167" selection-start-column="9" selection-end-line="2167" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/may30Matches.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/doubleNameChange.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="12" column="36" lean-forward="false" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/may30nameChanges.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-864">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/mappingLocData.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="9" column="32" lean-forward="false" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/turtleQR.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="173">
+          <caret line="257" column="23" lean-forward="true" selection-start-line="257" selection-start-column="23" selection-end-line="257" selection-end-column="23" />
+          <folding>
+            <element signature="e#651#663#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/FeatureType.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-656">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/nameChanges.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-900">
+          <caret line="585" column="6" lean-forward="false" selection-start-line="585" selection-start-column="6" selection-end-line="585" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/organizePics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="14" column="10" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/locationsMay30.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="901">
+          <caret line="612" column="0" lean-forward="true" selection-start-line="612" selection-start-column="0" selection-end-line="612" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/buildingDatabases/locationsMay25.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="1009" column="17" lean-forward="true" selection-start-line="1009" selection-start-column="17" selection-end-line="1009" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/ORBFeatures.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1962">
+          <caret line="115" column="47" lean-forward="false" selection-start-line="115" selection-start-column="44" selection-end-line="115" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/MapGraph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2726">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/ImageFeatures.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="820">
+          <caret line="68" column="33" lean-forward="false" selection-start-line="68" selection-start-column="33" selection-end-line="68" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/imageCapture.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="26" column="47" lean-forward="false" selection-start-line="26" selection-start-column="47" selection-end-line="26" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/Graphs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/FoxStack.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="5" lean-forward="false" selection-start-line="2" selection-start-column="5" selection-end-line="2" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/match_seeker/scripts/ImageRecognizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="35" column="33" lean-forward="true" selection-start-line="35" selection-start-column="33" selection-end-line="35" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
