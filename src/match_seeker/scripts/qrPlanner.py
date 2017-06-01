@@ -19,7 +19,7 @@ import QRRecognizer
 import ImageRecognizer
 import math
 import PathLocation
-from OSPathDefine import basePath
+from OSPathDefine import basePath,directory,locData
 import numpy as np
 from espeak import espeak
 
@@ -45,8 +45,9 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
+        # change file names in OSPathDefine
         self.matcher = ImageRecognizer.ImageMatcher(self.robot, logFile=True, logShell=True,
-                               dir1= basePath + "res/052517/",
+                               dir1= basePath + directory, locFile = basePath + locData,
                                baseName="frame",
                                ext="jpg", numMatches=5)
         self.matcher.makeCollection()

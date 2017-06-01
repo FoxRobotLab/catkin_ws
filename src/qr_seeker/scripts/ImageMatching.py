@@ -24,6 +24,10 @@ import MapGraph
 import readMap
 import numpy as np
 
+basePath = "/home/macalester/catkin_ws/src/match_seeker/"
+directory = "res/BWmay25Dir/"
+locData = "scripts/buildingDatabases/locationsMay25.txt"
+
 class ImageMatcher(object):
     """..."""
 
@@ -51,7 +55,7 @@ class ImageMatcher(object):
         print "made logger"
 
         # self.robot = turtleQR.TurtleBot()
-        self.basePath = "/home/macalester/catkin_ws/src/match_seeker/"
+
 
         # Add line to debug ORB
         cv2.ocl.setUseOpenCL(False)
@@ -59,13 +63,13 @@ class ImageMatcher(object):
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
 
         self.location = {}
-        file = open(self.basePath + "scripts/buildingDatabases/locationsMay25.txt")
+        file = open(basePath + locData)
         for line in file.readlines():
             line = line.rstrip('/n')
             line = line.split()
             self.location[int(line[0])] = line[1:]
 
-        self.path = self.basePath + "scripts/olinGraph.txt"
+        self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
         self.img = self.getOlinMap()
 
@@ -413,7 +417,7 @@ class ImageMatcher(object):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
         perhaps."""
-        origMap = readMap.createMapImage(self.basePath + "scripts/markLocations/olinNewMap.txt", 20)
+        origMap = readMap.createMapImage(basePath + "scripts/markLocations/olinNewMap.txt", 20)
         map2 = np.flipud(origMap)
         olinMap = np.rot90(map2)
         return olinMap
@@ -517,7 +521,7 @@ if __name__ == '__main__':
     # rospy.init_node('ImageMatching')
     print "GOT HERE"
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = "/home/macalester/catkin_ws/src/match_seeker/res/BWmay25Dir/",
+                           dir1 = basePath + directory,
                            baseName = "frame",
                            ext = "jpg", startPic = 0,
                            numPics = 1086)

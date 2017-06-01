@@ -20,7 +20,7 @@ import readMap
 import cv2
 import OutputLogger
 import ImageFeatures
-from OSPathDefine import basePath
+from OSPathDefine import basePath, directory, locData
 import MapGraph
 
 
@@ -29,7 +29,7 @@ class ImageMatcher(object):
 
 
     def __init__(self, bot, logFile = False, logShell = False,
-                 dir1 = None, baseName = 'foo', ext= "jpg",
+                 dir1 = None,locFile = None, baseName = 'foo', ext= "jpg",
                  numMatches = 4):
         self.logToFile = logFile
         self.logToShell = logShell
@@ -50,12 +50,12 @@ class ImageMatcher(object):
         self.ORBFinder = cv2.ORB_create()
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
 
-        self.location = {}
-        file = open(basePath + "scripts/buildingDatabases/locationsMay25.txt")
+        self.locations = {}
+        file = open(locFile)
         for line in file.readlines():
             line = line.rstrip('/n')
             line = line.split()
-            self.location[int(line[0])] = line[1:]
+            self.locations[int(line[0])] = line[1:]
 
         self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
@@ -108,10 +108,14 @@ class ImageMatcher(object):
         if (self.currDirectory is None):
             print("ERROR: cannot run makeCollection without a directory")
             return
-
+        print "Current dir =", self.currDirectory
         listDir = os.listdir(self.currDirectory)
-
+        print "Length of listDir =", len(listDir)
+        cnt = 1
         for file in listDir:
+            if file[-3:] != 'jpg':
+                print "FOUND NON IMAGE IN IMAGE FOLDER:", file
+                continue
             image = cv2.imread(self.currDirectory + file)
             end = len(file) - (len(self.currExtension) + 1)
             picNum = int(file[len(self.baseName):end])
@@ -119,10 +123,13 @@ class ImageMatcher(object):
                 self.height, self.width, depth = image.shape
             #self.logger.log("Image = " + str(picNum))
             features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
+            if picNum in self.featureCollection:
+                print "ERROR: duplicate number", picNum
             self.featureCollection[picNum] = features
+            cnt += 1
             # if i % 100 == 0:
             #     print i
-
+        print "cnt =", cnt
         self.logger.log("Length of collection = " + str(len(self.featureCollection)))
 
 
@@ -195,7 +202,7 @@ class ImageMatcher(object):
                 (nextScore, nextMatch) = bestZipped[j]
                 # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
                 idNum = nextMatch.getIdNum()
-                locX, locY, locHead = self.location[idNum]
+                locX, locY, locHead = self.locations[idNum]
                 # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
                 # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
                 (num, x, y) = self.findClosestNode((float(locX),float(locY)))
@@ -341,9 +348,11 @@ class ImageMatcher(object):
 
 
 if __name__ == '__main__':
-
+    # REMEMBER THIS IS TEST CODE ONLY!
+    # change paths for files in OSPathDefine
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = basePath + "res/052517/",
+                           dir1 = basePath + directory,
+                           locFile = basePath + locData,
                            baseName = "frame",
                            ext = "jpg")
 
