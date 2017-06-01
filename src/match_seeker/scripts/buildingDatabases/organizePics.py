@@ -10,9 +10,9 @@ import os
 
 
 
-origDir = basePath + "res/May25-Atrium2/"
-desDir = basePath + "res/052517/"
-nameChange = open("nameChanges2.txt", "w")
+origDir = "/home/macalester/catkin_ws/src/match_seeker/res/may30-edited/"
+desDir = "/home/macalester/catkin_ws/src/match_seeker/res/may30-working/"
+nameChange = open("nameChangesMay30.txt", "w")
 nameChange.write(origDir)
 nameChange.write('\n')
 
@@ -57,7 +57,7 @@ for file in listDir:
 
 picNumList.sort()
 
-i=831
+i=0
 
 print origDir
 print desDir

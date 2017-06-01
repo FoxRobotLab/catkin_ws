@@ -255,7 +255,6 @@ class DepthSensorThread(threading.Thread):
 
     def depth_callback(self, data):
         """Callback function triggered when depth data is available, Just copies data to instance variable."""
-        print "depth callback"
         with self.lock:
             self.depth_array = data
 

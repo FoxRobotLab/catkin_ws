@@ -343,7 +343,7 @@ class ImageMatcher(object):
 if __name__ == '__main__':
 
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = basePath + "res/May2517/",
+                           dir1 = basePath + "res/052517/",
                            baseName = "frame",
                            ext = "jpg")
 
