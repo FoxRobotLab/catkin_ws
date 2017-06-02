@@ -191,6 +191,7 @@ class ImageMatcher(object):
         if bestZipped[0][0] > 90:
             self.logger.log("I have no idea where I am.")
         else:
+            print "may know where I am"
             im =  bestZipped[0][1].getImage()
             locX,locY,locHead = self.locations[bestZipped[0][1].getIdNum()]
             (num, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
