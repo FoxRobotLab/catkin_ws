@@ -12,16 +12,16 @@ similarity based on those features. See the README for more details.
 This is porting the CompareInfo class written in C++ in about 2011.
 ======================================================================== """
 
-
-import sys
 import os
-import numpy as np
-import readMap
+
 import cv2
-import OutputLogger
+import numpy as np
+
 import ImageFeatures
-from OSPathDefine import basePath
 import MapGraph
+import OutputLogger
+from OSPathDefine import basePath
+from markLocations import readMap
 
 
 class ImageMatcher(object):

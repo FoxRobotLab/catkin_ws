@@ -94,7 +94,7 @@ def drawMap(parameters, lines, mapUnits = 1000, picUnits = 20):
     heightPic = convertToPixels(heightMap, mapUnits, picUnits)
     mapImage = 255 * np.ones((heightPic, widthPic, 3), np.uint8)
 
-    # drawGrid(mapImage, heightPic, widthPic, picUnits)
+    drawGrid(mapImage, heightPic, widthPic, picUnits)
 
     for line in lines:
         col = (0, 0, 0)
