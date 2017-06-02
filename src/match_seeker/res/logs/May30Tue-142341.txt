@@ -1,0 +1,619 @@
+Length of collection = 997
+==========Close Matches==========
+The closest node is number0Score:76.0
+The closest node is number0Score:73.0
+The closest node is number0Score:69.0
+The closest node is number0Score:66.0
+The closest node is number0Score:53.0
+==========Close Matches==========
+The closest node is number0Score:81.0
+The closest node is number0Score:74.0
+The closest node is number0Score:70.0
+The closest node is number0Score:70.0
+The closest node is number0Score:65.0
+==========Close Matches==========
+The closest node is number0Score:84.0
+The closest node is number0Score:80.0
+The closest node is number0Score:73.0
+The closest node is number0Score:71.0
+The closest node is number0Score:70.0
+==========Close Matches==========
+The closest node is number0Score:86.0
+The closest node is number0Score:83.0
+The closest node is number0Score:75.0
+The closest node is number0Score:73.0
+The closest node is number0Score:72.0
+==========Close Matches==========
+The closest node is number0Score:87.0
+The closest node is number0Score:87.0
+The closest node is number0Score:84.0
+The closest node is number0Score:84.0
+The closest node is number0Score:83.0
+==========Close Matches==========
+The closest node is number0Score:87.0
+The closest node is number0Score:87.0
+The closest node is number0Score:85.0
+The closest node is number0Score:81.0
+The closest node is number0Score:78.0
+==========Close Matches==========
+The closest node is number0Score:90.0
+The closest node is number0Score:90.0
+The closest node is number0Score:88.0
+The closest node is number0Score:84.0
+The closest node is number0Score:83.0
+==========Close Matches==========
+The closest node is number0Score:94.0
+The closest node is number0Score:93.0
+The closest node is number0Score:92.0
+The closest node is number0Score:92.0
+The closest node is number0Score:90.0
+==========Close Matches==========
+The closest node is number1Score:96.0
+The closest node is number0Score:96.0
+The closest node is number0Score:96.0
+The closest node is number0Score:96.0
+The closest node is number0Score:95.0
+==========Close Matches==========
+The closest node is number1Score:99.0
+The closest node is number1Score:99.0
+The closest node is number1Score:98.0
+The closest node is number1Score:98.0
+The closest node is number1Score:98.0
+==========Close Matches==========
+There are no good enough matches.
+==========Close Matches==========
+There are no good enough matches.
+==========Close Matches==========
+The closest node is number1Score:91.0
+The closest node is number1Score:91.0
+The closest node is number2Score:90.0
+The closest node is number1Score:88.0
+The closest node is number1Score:82.0
+==========Close Matches==========
+The closest node is number1Score:78.0
+The closest node is number2Score:75.0
+The closest node is number1Score:73.0
+The closest node is number1Score:71.0
+The closest node is number1Score:63.0
+==========Close Matches==========
+The closest node is number1Score:83.0
+The closest node is number1Score:83.0
+The closest node is number1Score:81.0
+The closest node is number1Score:79.0
+The closest node is number1Score:78.0
+==========Close Matches==========
+The closest node is number1Score:85.0
+The closest node is number1Score:84.0
+The closest node is number1Score:80.0
+The closest node is number1Score:80.0
+The closest node is number1Score:78.0
+==========Close Matches==========
+The closest node is number1Score:84.0
+The closest node is number1Score:83.0
+The closest node is number1Score:82.0
+The closest node is number1Score:82.0
+The closest node is number1Score:77.0
+==========Close Matches==========
+The closest node is number1Score:85.0
+The closest node is number1Score:81.0
+The closest node is number1Score:80.0
+The closest node is number1Score:79.0
+The closest node is number1Score:75.0
+==========Close Matches==========
+The closest node is number1Score:86.0
+The closest node is number1Score:86.0
+The closest node is number1Score:83.0
+The closest node is number1Score:81.0
+The closest node is number1Score:76.0
+==========Close Matches==========
+The closest node is number1Score:77.0
+The closest node is number1Score:76.0
+The closest node is number1Score:75.0
+The closest node is number1Score:72.0
+The closest node is number1Score:72.0
+==========Close Matches==========
+The closest node is number1Score:78.0
+The closest node is number1Score:77.0
+The closest node is number1Score:59.0
+The closest node is number1Score:59.0
+The closest node is number1Score:56.0
+==========Close Matches==========
+The closest node is number1Score:75.0
+The closest node is number1Score:73.0
+The closest node is number1Score:62.0
+The closest node is number1Score:59.0
+The closest node is number1Score:52.0
+==========Close Matches==========
+The closest node is number1Score:81.0
+The closest node is number1Score:75.0
+The closest node is number1Score:74.0
+The closest node is number1Score:69.0
+The closest node is number1Score:66.0
+==========Close Matches==========
+The closest node is number1Score:82.0
+The closest node is number1Score:79.0
+The closest node is number1Score:75.0
+The closest node is number3Score:75.0
+The closest node is number1Score:70.0
+==========Close Matches==========
+The closest node is number1Score:83.0
+The closest node is number1Score:82.0
+The closest node is number3Score:80.0
+The closest node is number1Score:74.0
+The closest node is number1Score:70.0
+==========Close Matches==========
+The closest node is number1Score:83.0
+The closest node is number1Score:80.0
+The closest node is number1Score:75.0
+The closest node is number1Score:73.0
+The closest node is number1Score:72.0
+==========Close Matches==========
+The closest node is number1Score:76.0
+The closest node is number1Score:73.0
+The closest node is number1Score:72.0
+The closest node is number3Score:67.0
+The closest node is number1Score:65.0
+==========Close Matches==========
+The closest node is number3Score:76.0
+The closest node is number1Score:75.0
+The closest node is number1Score:72.0
+The closest node is number1Score:70.0
+The closest node is number1Score:65.0
+==========Close Matches==========
+The closest node is number3Score:79.0
+The closest node is number1Score:76.0
+The closest node is number1Score:75.0
+The closest node is number1Score:73.0
+The closest node is number3Score:71.0
+==========Close Matches==========
+The closest node is number1Score:81.0
+The closest node is number1Score:78.0
+The closest node is number1Score:71.0
+The closest node is number1Score:62.0
+The closest node is number3Score:60.0
+==========Close Matches==========
+The closest node is number3Score:81.0
+The closest node is number1Score:81.0
+The closest node is number3Score:78.0
+The closest node is number3Score:71.0
+The closest node is number3Score:67.0
+==========Close Matches==========
+The closest node is number3Score:85.0
+The closest node is number3Score:84.0
+The closest node is number3Score:81.0
+The closest node is number3Score:80.0
+The closest node is number3Score:76.0
+==========Close Matches==========
+The closest node is number3Score:90.0
+The closest node is number3Score:88.0
+The closest node is number3Score:87.0
+The closest node is number3Score:86.0
+The closest node is number3Score:82.0
+==========Close Matches==========
+The closest node is number3Score:94.0
+The closest node is number3Score:94.0
+The closest node is number3Score:89.0
+The closest node is number3Score:89.0
+The closest node is number3Score:86.0
+==========Close Matches==========
+The closest node is number3Score:97.0
+The closest node is number3Score:96.0
+The closest node is number3Score:90.0
+The closest node is number3Score:86.0
+The closest node is number3Score:86.0
+==========Close Matches==========
+There are no good enough matches.
+==========Close Matches==========
+The closest node is number0Score:100.0
+The closest node is number0Score:100.0
+The closest node is number32Score:99.0
+The closest node is number8Score:99.0
+The closest node is number1Score:99.0
+==========Close Matches==========
+The closest node is number27Score:99.0
+The closest node is number27Score:99.0
+The closest node is number21Score:99.0
+The closest node is number32Score:98.0
+The closest node is number3Score:97.0
+==========Close Matches==========
+The closest node is number3Score:96.0
+The closest node is number13Score:95.0
+The closest node is number3Score:92.0
+The closest node is number3Score:88.0
+The closest node is number3Score:86.0
+==========Close Matches==========
+The closest node is number27Score:94.0
+The closest node is number13Score:93.0
+The closest node is number18Score:93.0
+The closest node is number3Score:93.0
+The closest node is number8Score:93.0
+==========Close Matches==========
+The closest node is number3Score:95.0
+The closest node is number13Score:94.0
+The closest node is number3Score:94.0
+The closest node is number3Score:93.0
+The closest node is number11Score:93.0
+==========Close Matches==========
+The closest node is number11Score:94.0
+The closest node is number3Score:94.0
+The closest node is number13Score:93.0
+The closest node is number3Score:91.0
+The closest node is number13Score:90.0
+==========Close Matches==========
+The closest node is number3Score:95.0
+The closest node is number19Score:94.0
+The closest node is number19Score:94.0
+The closest node is number13Score:94.0
+The closest node is number3Score:93.0
+==========Close Matches==========
+The closest node is number19Score:95.0
+The closest node is number19Score:95.0
+The closest node is number19Score:95.0
+The closest node is number3Score:94.0
+The closest node is number19Score:92.0
+==========Close Matches==========
+The closest node is number19Score:94.0
+The closest node is number19Score:93.0
+The closest node is number3Score:92.0
+The closest node is number19Score:92.0
+The closest node is number3Score:91.0
+==========Close Matches==========
+The closest node is number19Score:92.0
+The closest node is number3Score:92.0
+The closest node is number19Score:90.0
+The closest node is number19Score:90.0
+The closest node is number19Score:85.0
+==========Close Matches==========
+The closest node is number19Score:92.0
+The closest node is number19Score:92.0
+The closest node is number19Score:91.0
+The closest node is number19Score:90.0
+The closest node is number19Score:86.0
+==========Close Matches==========
+The closest node is number27Score:93.0
+The closest node is number19Score:91.0
+The closest node is number19Score:91.0
+The closest node is number19Score:90.0
+The closest node is number19Score:77.0
+==========Close Matches==========
+The closest node is number19Score:95.0
+The closest node is number19Score:90.0
+The closest node is number19Score:88.0
+The closest node is number19Score:85.0
+The closest node is number19Score:83.0
+==========Close Matches==========
+The closest node is number19Score:93.0
+The closest node is number19Score:92.0
+The closest node is number19Score:85.0
+The closest node is number19Score:83.0
+The closest node is number19Score:82.0
+==========Close Matches==========
+The closest node is number3Score:95.0
+The closest node is number27Score:93.0
+The closest node is number19Score:91.0
+The closest node is number19Score:85.0
+The closest node is number19Score:84.0
+==========Close Matches==========
+The closest node is number3Score:95.0
+The closest node is number19Score:93.0
+The closest node is number19Score:91.0
+The closest node is number19Score:88.0
+The closest node is number19Score:85.0
+==========Close Matches==========
+The closest node is number21Score:96.0
+The closest node is number21Score:96.0
+The closest node is number19Score:95.0
+The closest node is number19Score:93.0
+The closest node is number19Score:81.0
+==========Close Matches==========
+The closest node is number3Score:96.0
+The closest node is number19Score:95.0
+The closest node is number21Score:95.0
+The closest node is number19Score:89.0
+The closest node is number19Score:89.0
+==========Close Matches==========
+The closest node is number19Score:96.0
+The closest node is number21Score:96.0
+The closest node is number21Score:94.0
+The closest node is number21Score:93.0
+The closest node is number19Score:89.0
+==========Close Matches==========
+The closest node is number19Score:95.0
+The closest node is number21Score:95.0
+The closest node is number21Score:95.0
+The closest node is number19Score:90.0
+The closest node is number21Score:90.0
+==========Close Matches==========
+The closest node is number21Score:95.0
+The closest node is number21Score:94.0
+The closest node is number19Score:94.0
+The closest node is number21Score:93.0
+The closest node is number21Score:91.0
+==========Close Matches==========
+The closest node is number19Score:96.0
+The closest node is number19Score:96.0
+The closest node is number21Score:95.0
+The closest node is number21Score:95.0
+The closest node is number21Score:95.0
+==========Close Matches==========
+The closest node is number21Score:96.0
+The closest node is number3Score:96.0
+The closest node is number19Score:96.0
+The closest node is number3Score:96.0
+The closest node is number21Score:93.0
+==========Close Matches==========
+The closest node is number21Score:96.0
+The closest node is number21Score:96.0
+The closest node is number21Score:94.0
+The closest node is number21Score:94.0
+The closest node is number19Score:94.0
+==========Close Matches==========
+The closest node is number19Score:95.0
+The closest node is number21Score:95.0
+The closest node is number21Score:94.0
+The closest node is number21Score:93.0
+The closest node is number21Score:91.0
+==========Close Matches==========
+The closest node is number21Score:95.0
+The closest node is number21Score:95.0
+The closest node is number19Score:94.0
+The closest node is number21Score:92.0
+The closest node is number21Score:91.0
+==========Close Matches==========
+The closest node is number19Score:95.0
+The closest node is number19Score:94.0
+The closest node is number3Score:94.0
+The closest node is number21Score:94.0
+The closest node is number21Score:91.0
+==========Close Matches==========
+The closest node is number21Score:97.0
+The closest node is number21Score:96.0
+The closest node is number13Score:96.0
+The closest node is number3Score:96.0
+The closest node is number21Score:94.0
+==========Close Matches==========
+The closest node is number21Score:96.0
+The closest node is number23Score:95.0
+The closest node is number16Score:95.0
+The closest node is number21Score:95.0
+The closest node is number21Score:94.0
+==========Close Matches==========
+The closest node is number21Score:97.0
+The closest node is number21Score:97.0
+The closest node is number23Score:97.0
+The closest node is number21Score:96.0
+The closest node is number21Score:92.0
+==========Close Matches==========
+The closest node is number23Score:97.0
+The closest node is number23Score:97.0
+The closest node is number16Score:95.0
+The closest node is number21Score:93.0
+The closest node is number21Score:90.0
+==========Close Matches==========
+The closest node is number23Score:96.0
+The closest node is number16Score:95.0
+The closest node is number23Score:94.0
+The closest node is number21Score:92.0
+The closest node is number21Score:89.0
+==========Close Matches==========
+The closest node is number23Score:95.0
+The closest node is number21Score:95.0
+The closest node is number23Score:93.0
+The closest node is number21Score:92.0
+The closest node is number16Score:91.0
+==========Close Matches==========
+The closest node is number23Score:96.0
+The closest node is number21Score:96.0
+The closest node is number16Score:94.0
+The closest node is number23Score:93.0
+The closest node is number21Score:92.0
+==========Close Matches==========
+The closest node is number23Score:97.0
+The closest node is number21Score:97.0
+The closest node is number16Score:96.0
+The closest node is number23Score:95.0
+The closest node is number21Score:88.0
+==========Close Matches==========
+The closest node is number23Score:95.0
+The closest node is number21Score:94.0
+The closest node is number21Score:91.0
+The closest node is number23Score:91.0
+The closest node is number16Score:90.0
+==========Close Matches==========
+The closest node is number21Score:95.0
+The closest node is number23Score:93.0
+The closest node is number21Score:90.0
+The closest node is number23Score:90.0
+The closest node is number16Score:85.0
+==========Close Matches==========
+The closest node is number24Score:95.0
+The closest node is number23Score:94.0
+The closest node is number21Score:94.0
+The closest node is number23Score:89.0
+The closest node is number16Score:88.0
+==========Close Matches==========
+The closest node is number21Score:96.0
+The closest node is number23Score:91.0
+The closest node is number16Score:90.0
+The closest node is number23Score:88.0
+The closest node is number23Score:84.0
+==========Close Matches==========
+The closest node is number23Score:94.0
+The closest node is number23Score:93.0
+The closest node is number23Score:92.0
+The closest node is number16Score:92.0
+The closest node is number23Score:89.0
+==========Close Matches==========
+The closest node is number23Score:94.0
+The closest node is number16Score:90.0
+The closest node is number23Score:87.0
+The closest node is number23Score:84.0
+The closest node is number23Score:82.0
+==========Close Matches==========
+The closest node is number16Score:95.0
+The closest node is number23Score:89.0
+The closest node is number23Score:88.0
+The closest node is number23Score:86.0
+The closest node is number23Score:84.0
+==========Close Matches==========
+The closest node is number23Score:91.0
+The closest node is number23Score:89.0
+The closest node is number23Score:87.0
+The closest node is number23Score:85.0
+The closest node is number23Score:82.0
+==========Close Matches==========
+The closest node is number23Score:95.0
+The closest node is number23Score:92.0
+The closest node is number23Score:92.0
+The closest node is number23Score:91.0
+The closest node is number23Score:90.0
+==========Close Matches==========
+The closest node is number23Score:99.0
+The closest node is number23Score:99.0
+The closest node is number23Score:98.0
+The closest node is number23Score:96.0
+The closest node is number16Score:96.0
+==========Close Matches==========
+The closest node is number27Score:95.0
+The closest node is number24Score:95.0
+The closest node is number23Score:94.0
+The closest node is number23Score:93.0
+The closest node is number23Score:93.0
+==========Close Matches==========
+The closest node is number19Score:98.0
+The closest node is number24Score:97.0
+The closest node is number23Score:97.0
+The closest node is number23Score:96.0
+The closest node is number23Score:96.0
+==========Close Matches==========
+The closest node is number23Score:97.0
+The closest node is number24Score:96.0
+The closest node is number23Score:96.0
+The closest node is number23Score:95.0
+The closest node is number23Score:94.0
+==========Close Matches==========
+The closest node is number50Score:98.0
+The closest node is number50Score:98.0
+The closest node is number26Score:98.0
+The closest node is number26Score:98.0
+The closest node is number29Score:96.0
+==========Close Matches==========
+The closest node is number50Score:96.0
+The closest node is number50Score:96.0
+The closest node is number29Score:96.0
+The closest node is number23Score:95.0
+The closest node is number23Score:95.0
+==========Close Matches==========
+The closest node is number29Score:97.0
+The closest node is number23Score:97.0
+The closest node is number26Score:97.0
+The closest node is number50Score:97.0
+The closest node is number23Score:97.0
+==========Close Matches==========
+The closest node is number26Score:97.0
+The closest node is number26Score:97.0
+The closest node is number29Score:96.0
+The closest node is number29Score:96.0
+The closest node is number29Score:96.0
+==========Close Matches==========
+The closest node is number11Score:96.0
+The closest node is number27Score:96.0
+The closest node is number29Score:95.0
+The closest node is number26Score:94.0
+The closest node is number29Score:94.0
+==========Close Matches==========
+The closest node is number26Score:97.0
+The closest node is number29Score:97.0
+The closest node is number50Score:97.0
+The closest node is number11Score:97.0
+The closest node is number29Score:96.0
+==========Close Matches==========
+The closest node is number26Score:96.0
+The closest node is number11Score:96.0
+The closest node is number8Score:96.0
+The closest node is number26Score:96.0
+The closest node is number29Score:95.0
+==========Close Matches==========
+The closest node is number24Score:97.0
+The closest node is number24Score:97.0
+The closest node is number29Score:96.0
+The closest node is number18Score:96.0
+The closest node is number26Score:96.0
+==========Close Matches==========
+The closest node is number50Score:96.0
+The closest node is number50Score:96.0
+The closest node is number13Score:96.0
+The closest node is number11Score:96.0
+The closest node is number13Score:95.0
+==========Close Matches==========
+The closest node is number3Score:97.0
+The closest node is number50Score:96.0
+The closest node is number11Score:96.0
+The closest node is number10Score:96.0
+The closest node is number26Score:96.0
+==========Close Matches==========
+The closest node is number10Score:97.0
+The closest node is number11Score:97.0
+The closest node is number11Score:97.0
+The closest node is number26Score:97.0
+The closest node is number13Score:96.0
+==========Close Matches==========
+The closest node is number10Score:97.0
+The closest node is number26Score:97.0
+The closest node is number26Score:97.0
+The closest node is number29Score:96.0
+The closest node is number13Score:95.0
+==========Close Matches==========
+The closest node is number27Score:97.0
+The closest node is number3Score:97.0
+The closest node is number26Score:97.0
+The closest node is number26Score:96.0
+The closest node is number13Score:95.0
+==========Close Matches==========
+The closest node is number27Score:96.0
+The closest node is number27Score:96.0
+The closest node is number3Score:96.0
+The closest node is number3Score:95.0
+The closest node is number10Score:95.0
+==========Close Matches==========
+The closest node is number10Score:96.0
+The closest node is number26Score:96.0
+The closest node is number26Score:95.0
+The closest node is number27Score:95.0
+The closest node is number10Score:95.0
+==========Close Matches==========
+The closest node is number26Score:97.0
+The closest node is number29Score:96.0
+The closest node is number29Score:96.0
+The closest node is number10Score:96.0
+The closest node is number27Score:96.0
+==========Close Matches==========
+The closest node is number10Score:95.0
+The closest node is number10Score:95.0
+The closest node is number26Score:95.0
+The closest node is number26Score:94.0
+The closest node is number26Score:93.0
+==========Close Matches==========
+The closest node is number11Score:95.0
+The closest node is number10Score:94.0
+The closest node is number26Score:94.0
+The closest node is number2Score:94.0
+The closest node is number29Score:94.0
+==========Close Matches==========
+The closest node is number10Score:96.0
+The closest node is number8Score:96.0
+The closest node is number2Score:96.0
+The closest node is number10Score:95.0
+The closest node is number11Score:95.0
+==========Close Matches==========
+The closest node is number3Score:97.0
+The closest node is number2Score:97.0
+The closest node is number23Score:97.0
+The closest node is number8Score:96.0
+The closest node is number11Score:96.0
+==========Close Matches==========
+The closest node is number11Score:96.0
+The closest node is number23Score:96.0
+The closest node is number27Score:96.0
+The closest node is number11Score:95.0
+The closest node is number23Score:95.0

@@ -37,32 +37,36 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
         """one step means figuring out the vectors for each of the behaviors, and performing
         vector addition to combine them.  Then the resulting vector is the action taken."""
         vectors = self._updateBehaviors()
-        (magnitude, angle) = self._vectorAdd(vectors)
 
-        transValue = magnitude
+        if vectors == "STOP":
+            self.myRobot.stop()
+        else:
+            (magnitude, angle) = self._vectorAdd(vectors)
 
-        # if the angle is forward-heading, translate forward, else backward
-        # there is probably a more clever way to do this...
+            transValue = magnitude
 
-        # Convert angle so that runs from 0 to 180 counterclockwise, and from 0 to -180 clockwise
-        if angle > 180:
-            angle = -(360 - angle)
+            # if the angle is forward-heading, translate forward, else backward
+            # there is probably a more clever way to do this...
 
-        # If angle is backward-looking, set negative translation speed
-        if abs(angle) > 90:
-            transValue = -transValue
+            # Convert angle so that runs from 0 to 180 counterclockwise, and from 0 to -180 clockwise
+            if angle > 180:
+                angle = -(360 - angle)
 
-        if abs(angle) < 0.001:
-            angle = 0
+            # If angle is backward-looking, set negative translation speed
+            if abs(angle) > 90:
+                transValue = -transValue
 
-        # scale rotation speed by size of angle we want
-        scaledSpeed = angle / 180.0
+            if abs(angle) < 0.001:
+                angle = 0
 
-        if transValue == 0.0:
-            # don't rotate if you aren't moving at all
-            scaledSpeed = 0.0
+            # scale rotation speed by size of angle we want
+            scaledSpeed = angle / 180.0
 
-        self.myRobot.move(transValue, scaledSpeed)
+            if transValue == 0.0:
+                # don't rotate if you aren't moving at all
+                scaledSpeed = 0.0
+
+            self.myRobot.move(transValue, scaledSpeed)
 
 
     def _updateBehaviors(self):
@@ -76,6 +80,8 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
             behav.setNoFlag()
             behav.update()
             vec = behav.getVector()
+            if vec[0] == "stop":
+                return "STOP"
             vectors.append(vec)
         return vectors
 
@@ -148,6 +154,8 @@ class PotentialFieldBehavior(ReactiveBrain.ReactiveBehavior):
         self._magnitude = mag
         self._angle = ang
 
+    def emergencyStop(self):
+        self._magnitude = "stop"
 
     def update(self):
         """Reads the sensor data and determines what force is on the robot from its

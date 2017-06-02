@@ -1,0 +1,16 @@
+<package>
+  <description brief="drive_base_tutorial">
+
+     drive_base_tutorial
+
+  </description>
+  <author>Macalester</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/drive_base_tutorial</url>
+  <depend package="rospy"/>
+  <depend package="geometry_msgs"/>
+
+</package>
+
+

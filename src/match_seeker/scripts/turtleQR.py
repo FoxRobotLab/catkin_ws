@@ -18,18 +18,21 @@
 import rospy
 import threading
 import sys
+import os
+import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy
 from Utils import *
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from create_node.msg import TurtlebotSensorState
+from kobuki_msgs.msg import SensorState
 
 
 class MovementControlThread(threading.Thread):
     """Thread communicates with ROS to implement movement commands."""
 
-    def __init__(self):
+    def __init__(self, robotType):
         """Sets up lock and instance variables that control running, translation and rotation values,
         and a rate limiter."""
         threading.Thread.__init__(self)
@@ -39,8 +42,12 @@ class MovementControlThread(threading.Thread):
         self.rotate = 0.0
         self.rateLimiter = rospy.Rate(10)  # 10Hz
         self.paused = False
+        self.robot = robotType
 
-        self.move_pub = rospy.Publisher('mobile_base/commands/velocity', Twist, queue_size = 10)
+        if robotType == "create":
+            self.move_pub = rospy.Publisher('mobile_base/commands/velocity', Twist, queue_size = 10)
+        elif robotType == "kobuki":
+            self.move_pub = rospy.Publisher('mobile_base/commands/velocity', Twist, queue_size=10)
 
     def run(self):
         """Thread's run method, runs, getting the translation and rotation set by other methods."""
@@ -121,7 +128,7 @@ class MovementControlThread(threading.Thread):
 class ImageSensorThread(threading.Thread):
     """This thread communicates with the camera data from ROS, providing updated camera images upon request."""
 
-    def __init__(self):
+    def __init__(self, robotType):
         """Creates the connections to ROS, sets up CvBridge to translate ROS images to OpenCV ones, and initializes
         the thread."""
         threading.Thread.__init__(self)
@@ -132,8 +139,13 @@ class ImageSensorThread(threading.Thread):
         self.image_array = None
         self.savedImage = None
         self.numTimesImgServed = 0
-        # self.image_sub = rospy.Subscriber("/camera/rgb/image_color",Image,self.image_callback)
-        self.image_sub = rospy.Subscriber("/camera/image_decompressed", Image, self.image_callback)
+
+        self.robot = robotType
+
+        if self.robot == "create":
+            self.image_sub = rospy.Subscriber("/camera/image_decompressed", Image, self.image_callback)
+        elif self.robot == "kobuki":
+            self.image_sub = rospy.Subscriber("/camera/rgb/image_rect_color",Image,self.image_callback)
 
         self.runFlag = True
 
@@ -181,6 +193,9 @@ class ImageSensorThread(threading.Thread):
                 print e
 
             retval = cv_image[y:y + height, x:x + width]
+            if self.robot == "kobuki":
+                r, g, b = cv2.split(retval)
+                retval = cv2.merge((b,g,r))
             with self.lock:
                 self.savedImage = retval
                 self.imageProcessed = True
@@ -201,18 +216,22 @@ class ImageSensorThread(threading.Thread):
 class DepthSensorThread(threading.Thread):
     """This thread communicates with the ROS depth data, and also the mobile_base sensors (like the bumper and onboard IR sensor."""
 
-    def __init__(self):
+    def __init__(self, robotType):
         """Sets up the thread, connects to the ROS depth data (with a callback) and to the ROS sensor data with a callback."""
         print "depth sensor thread init"
         threading.Thread.__init__(self)
         self.lock = threading.Lock()
         self.bridge = CvBridge()
-
+        self.robot = robotType
         self.depth_array = None
-        self.depth_sub = rospy.Subscriber("/camera/depth_decompressed", Image, self.depth_callback)
-
         self.sensor_state = None
-        self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", TurtlebotSensorState, self.sensor_callback)
+
+        if self.robot == "create":
+            self.depth_sub = rospy.Subscriber("/camera/depth_decompressed", Image, self.depth_callback)
+            self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", TurtlebotSensorState, self.sensor_callback)
+        elif self.robot == "kobuki":
+            self.depth_sub = rospy.Subscriber("/camera/depth/image_raw",Image,self.depth_callback)
+            self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.sensor_callback)
 
         self.runFlag = True
 
@@ -233,11 +252,14 @@ class DepthSensorThread(threading.Thread):
         """Callback function triggered when sensor data is available. Just copies to instance variable."""
         with self.lock:
             self.sensor_state = data
+        # print self.sensor_state
+
 
     def depth_callback(self, data):
         """Callback function triggered when depth data is available, Just copies data to instance variable."""
         with self.lock:
             self.depth_array = data
+
 
     def getDims(self):
         """Method typically called by another thread, it returns the botWidth and botHeight of the depth data, if available,
@@ -293,13 +315,16 @@ class TurtleBot(object):
 
     def __init__(self):
         """Sets up the three threads and starts them running."""
-        self.moveControl = MovementControlThread()
+
+        self.robotType = os.environ["TURTLEBOT_BASE"]
+
+        self.moveControl = MovementControlThread(self.robotType)
         self.moveControl.start()
 
-        self.depthControl = DepthSensorThread()
+        self.depthControl = DepthSensorThread(self.robotType)
         self.depthControl.start()
 
-        self.imageControl = ImageSensorThread()
+        self.imageControl = ImageSensorThread(self.robotType)
         self.imageControl.start()
 
         rospy.on_shutdown(self.exit)
@@ -391,7 +416,20 @@ class TurtleBot(object):
         state = self.depthControl.getSensorState()
         if state is None:
             return 0
-        return state.bumps_wheeldrops
+        if self.robotType == "kobuki":
+            return state.bumper
+        else:
+            return state.bumps_wheeldrops
+
+    def getCliffStatus(self):
+        """Accesses the robot base sensor data and reports whether the cliff sensor has triggered."""
+        state = self.depthControl.getSensorState()
+        if state is None:
+            return 0
+        if self.robotType == "kobuki":
+            return state.cliff
+        else:
+            return state.cliff_left + state.cliff_right + state.cliff_front_left + state.cliff_front_right
 
     def exit(self):
         """A method that shuts down the three threads of the robot."""

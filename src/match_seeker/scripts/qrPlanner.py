@@ -19,7 +19,7 @@ import QRRecognizer
 import ImageRecognizer
 import math
 import PathLocation
-from OSPathDefine import basePath
+from OSPathDefine import basePath,directory,locData
 import numpy as np
 from espeak import espeak
 
@@ -32,7 +32,7 @@ class qrPlanner(object):
         self.webCamWidth = 640
         self.webCamHeight = 480
 
-        self.brain = self.setupPot()
+        # self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
         # self.orbScanner = ORBRecognizer.ORBRecognizer(self.robot)
         # self.qrScanner = QRRecognizer.QRrecognizer(self.robot)
@@ -45,10 +45,11 @@ class qrPlanner(object):
         self.aligned = False
         self.ignoreBrain = False
 
+        # change file names in OSPathDefine
         self.matcher = ImageRecognizer.ImageMatcher(self.robot, logFile=True, logShell=True,
-                               dir1= basePath + "res/052517/",
+                               dir1= basePath + directory, locFile = basePath + locData,
                                baseName="frame",
-                               ext="jpg", numMatches=5)
+                               ext="jpg", numMatches=3)
         self.matcher.makeCollection()
 
         """the two webcams won't both run on Linux unless we turn down their quality ---
@@ -91,7 +92,8 @@ class qrPlanner(object):
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     # print "Stepping the brain"
-                    self.brain.step()
+                    # self.brain.step()
+                    pass
 
             if iterationCount % 30 == 0:
                 self.matcher.matchImage(image)
@@ -135,7 +137,7 @@ class qrPlanner(object):
                 # else:  # orb is none, so continue on as you were
                 #     self.ignoreBrain = False
                 #     self.aligned = False
-        self.brain.stopAll()
+        # self.brain.stopAll()
 
 
     def setupPot(self):
@@ -145,6 +147,7 @@ class qrPlanner(object):
         currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         currBrain.add(FieldBehaviors.KeepMoving())
         currBrain.add(FieldBehaviors.BumperReact())
+        currBrain.add(FieldBehaviors.CliffReact())
 
         numPieces = 6
         widthPieces = int(math.floor(self.fWidth / float(numPieces)))

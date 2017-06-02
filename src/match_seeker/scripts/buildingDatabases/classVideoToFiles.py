@@ -34,5 +34,5 @@ def nextFilename(num):
     return fileName
 
 
-saveVideo("/home/macalester/May2517Video/output.avi", "../res/May2517-office2/")
+saveVideo("/home/macalester/May30Videos/may30.avi", "/home/macalester/catkin_ws/src/match_seeker/res/may30/")
 

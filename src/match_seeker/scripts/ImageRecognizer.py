@@ -12,16 +12,17 @@ similarity based on those features. See the README for more details.
 This is porting the CompareInfo class written in C++ in about 2011.
 ======================================================================== """
 
+
+import sys
 import os
-
-import cv2
 import numpy as np
-
-import ImageFeatures
-import MapGraph
+import readMap
+import cv2
 import OutputLogger
-from OSPathDefine import basePath
-from markLocations import readMap
+import ImageFeatures
+from OSPathDefine import basePath, directory, locData
+import MapGraph
+from espeak import espeak
 
 
 class ImageMatcher(object):
@@ -29,7 +30,7 @@ class ImageMatcher(object):
 
 
     def __init__(self, bot, logFile = False, logShell = False,
-                 dir1 = None, baseName = 'foo', ext= "jpg",
+                 dir1 = None,locFile = None, baseName = 'foo', ext= "jpg",
                  numMatches = 4):
         self.logToFile = logFile
         self.logToShell = logShell
@@ -50,12 +51,12 @@ class ImageMatcher(object):
         self.ORBFinder = cv2.ORB_create()
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
 
-        self.location = {}
-        file = open(basePath + "scripts/buildingDatabases/locationsMay25.txt")
+        self.locations = {}
+        file = open(locFile)
         for line in file.readlines():
             line = line.rstrip('/n')
             line = line.split()
-            self.location[int(line[0])] = line[1:]
+            self.locations[int(line[0])] = line[1:]
 
         self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
@@ -108,10 +109,14 @@ class ImageMatcher(object):
         if (self.currDirectory is None):
             print("ERROR: cannot run makeCollection without a directory")
             return
-
+        print "Current dir =", self.currDirectory
         listDir = os.listdir(self.currDirectory)
-
+        print "Length of listDir =", len(listDir)
+        cnt = 1
         for file in listDir:
+            if file[-3:] != 'jpg':
+                print "FOUND NON IMAGE IN IMAGE FOLDER:", file
+                continue
             image = cv2.imread(self.currDirectory + file)
             end = len(file) - (len(self.currExtension) + 1)
             picNum = int(file[len(self.baseName):end])
@@ -119,10 +124,13 @@ class ImageMatcher(object):
                 self.height, self.width, depth = image.shape
             #self.logger.log("Image = " + str(picNum))
             features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
+            if picNum in self.featureCollection:
+                print "ERROR: duplicate number", picNum
             self.featureCollection[picNum] = features
+            cnt += 1
             # if i % 100 == 0:
             #     print i
-
+        print "cnt =", cnt
         self.logger.log("Length of collection = " + str(len(self.featureCollection)))
 
 
@@ -134,6 +142,7 @@ class ImageMatcher(object):
             return
         # self.logger.log("Choosing frames from video to compare to collection")
 
+        #grayCamImage = cv2.cvtColor(camImage, cv2.COLOR_BGR2GRAY)
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
         # cv2.imshow("Primary image", camImage)
         # cv2.moveWindow("Primary image", 0, 0)
@@ -175,29 +184,45 @@ class ImageMatcher(object):
 
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
-        self.logger.log("==========Close Matches==========")
-        cv2.imshow("Match Picture", bestZipped[0][1].getImage())
-        cv2.moveWindow("Match Picture", self.width + 10, 0)
-        cv2.waitKey(20)
-        img = self.img.copy()
-        (self.mapHgt, self.mapWid, dep) = img.shape
-        cv2.imshow("map",img)
+        self.logger.log("==========Location Update==========")
 
-        for j in range(len(bestZipped)):
-            (nextScore, nextMatch) = bestZipped[j]
-            # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
-            idNum = nextMatch.getIdNum()
-            locX, locY, locHead = self.location[idNum]
-            # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
-            # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
-            (num, x, y) = self.findClosestNode((float(locX),float(locY)))
-            print "The closest node is number", num, "Score:", nextScore
-            pixelX,pixelY = self._convertWorldToMap(x,y)
-            self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
-            turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
-            self.drawPosition(img, turtleX, turtleY,int(locHead),(255,nextScore*2.55,0))
-            cv2.imshow("map",img)
+
+
+        if bestZipped[0][0] > 90:
+            self.logger.log("I have no idea where I am.")
+        else:
+            print "may know where I am"
+            im =  bestZipped[0][1].getImage()
+            locX,locY,locHead = self.locations[bestZipped[0][1].getIdNum()]
+            (num, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
+            self.logger.log("This match is tagged at " + str(locX) + ", " + str(locY) + ".")
+            self.logger.log("The closest node is " + str(num) + " at " + str(distSq) + " sq meters.")
+            cv2.imshow("Match Picture", im)
+            cv2.moveWindow("Match Picture", self.width + 10, 0)
             cv2.waitKey(20)
+            # img = self.img.copy()
+            # (self.mapHgt, self.mapWid, dep) = img.shape
+            # cv2.imshow("map",img)
+
+            guess,conf = self.guessLocation(bestZipped)
+            self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
+
+
+            # for j in range(len(bestZipped)-1, -1, -1):
+            #     (nextScore, nextMatch) = bestZipped[j]
+            #     # nextMatch.displayFeaturePics("Match Picture Features", self.width+10, 0)
+            #     idNum = nextMatch.getIdNum()
+            #     locX, locY, locHead = self.locations[idNum]
+            #     # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
+            #     # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
+            #     (num, x, y, distSq) = self.findClosestNode((float(locX),float(locY)))
+            #     self.logger.log("The closest node is number " + str(num) + " Score: " + str(nextScore))
+            # pixelX,pixelY = self._convertWorldToMap(x,y)
+            # self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
+            # turtleX, turtleY = self._convertWorldToMap(float(locX), float(locY))
+            # self.drawPosition(img, turtleX, turtleY,int(locHead),(255,nextScore*2.55,0))
+            # cv2.imshow("map",img)
+            # cv2.waitKey(20)
 
     def drawPosition(self, image, x, y, heading, color):
         cv2.circle(image, (x, y), 6, color, -1)
@@ -227,8 +252,42 @@ class ImageMatcher(object):
             print "Error! The heading is", heading
         cv2.line(image, (x,y), (newX, newY), color)
 
+    def guessLocation(self,bestZipped):
+        best = len(bestZipped)-1
+        if bestZipped[best][0] < 70:
+            match = bestZipped[best][1]
+            idNum = match.getIdNum()
+            bestX, bestY, bestHead = self.locations[idNum]
+            (nodeNum, x, y, distSq) = self.findClosestNode((float(bestX), float(bestY)))
+            if distSq <= 0.8:
+                espeak.synth(str(nodeNum))
+                return nodeNum, "very confident."
+            else:
+                return nodeNum, "confident, but far away."
+        else:
+            guessNodes = []
+            distSq = 0
+            for j in range(len(bestZipped) - 1, -1, -1):
+                (nextScore, nextMatch) = bestZipped[j]
+                idNum = nextMatch.getIdNum()
+                locX, locY, locHead = self.locations[idNum]
+                (nodeNum, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
+                if nodeNum not in guessNodes:
+                    guessNodes.append(nodeNum)
+            if len(guessNodes) == 1 and distSq <= 0.8:
+                return guessNodes[0], "close, but guessing."
+            elif len(guessNodes) == 1:
+                return guessNodes[0], "far and guessing."
+            else:
+                nodes = str(guessNodes[0])
+                for i in range(1,len(guessNodes)):
+                    nodes += " or " + str(guessNodes[i])
+                return nodes, "totally unsure."
+
 
     def findClosestNode(self, (x, y)):
+        """uses the location of a matched image and the distance formula to determine the node on the olingraph
+        closest to each match/guess"""
         closestNode = None
         closestX = None
         closestY = None
@@ -243,7 +302,7 @@ class ImageMatcher(object):
                 bestVal = val
                 closestNode = nodeNum
                 closestX, closestY = (nodeX,nodeY)
-        return (closestNode, closestX, closestY)
+        return (closestNode, closestX, closestY, bestVal)
 
     def getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
@@ -333,9 +392,11 @@ class ImageMatcher(object):
 
 
 if __name__ == '__main__':
-
+    # REMEMBER THIS IS TEST CODE ONLY!
+    # change paths for files in OSPathDefine
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = basePath + "res/May2517/",
+                           dir1 = basePath + directory,
+                           locFile = basePath + locData,
                            baseName = "frame",
                            ext = "jpg")
 

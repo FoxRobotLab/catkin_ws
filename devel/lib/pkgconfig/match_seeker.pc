@@ -1,0 +1,8 @@
+prefix=/home/macalester/catkin_ws/devel
+
+Name: match_seeker
+Description: Description of match_seeker
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/macalester/catkin_ws/devel/lib 
+Requires: 
