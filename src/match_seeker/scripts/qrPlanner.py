@@ -32,7 +32,7 @@ class qrPlanner(object):
         self.webCamWidth = 640
         self.webCamHeight = 480
 
-        self.brain = self.setupPot()
+        # self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
         # self.orbScanner = ORBRecognizer.ORBRecognizer(self.robot)
         # self.qrScanner = QRRecognizer.QRrecognizer(self.robot)
@@ -92,7 +92,8 @@ class qrPlanner(object):
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     # print "Stepping the brain"
-                    self.brain.step()
+                    # self.brain.step()
+                    pass
 
             if iterationCount % 30 == 0:
                 self.matcher.matchImage(image)
@@ -136,7 +137,7 @@ class qrPlanner(object):
                 # else:  # orb is none, so continue on as you were
                 #     self.ignoreBrain = False
                 #     self.aligned = False
-        self.brain.stopAll()
+        # self.brain.stopAll()
 
 
     def setupPot(self):

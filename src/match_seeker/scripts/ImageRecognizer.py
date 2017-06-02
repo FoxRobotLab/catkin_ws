@@ -22,6 +22,7 @@ import OutputLogger
 import ImageFeatures
 from OSPathDefine import basePath, directory, locData
 import MapGraph
+from espeak import espeak
 
 
 class ImageMatcher(object):
@@ -190,12 +191,17 @@ class ImageMatcher(object):
         if bestZipped[0][0] > 90:
             self.logger.log("I have no idea where I am.")
         else:
-            cv2.imshow("Match Picture", bestZipped[0][1].getImage())
+            im =  bestZipped[0][1].getImage()
+            locX,locY,locHead = self.locations[bestZipped[0][1].getIdNum()]
+            (num, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
+            self.logger.log("This match is tagged at " + str(locX) + ", " + str(locY) + ".")
+            self.logger.log("The closest node is " + str(num) + " at " + str(distSq) + " sq meters.")
+            cv2.imshow("Match Picture", im)
             cv2.moveWindow("Match Picture", self.width + 10, 0)
             cv2.waitKey(20)
-            img = self.img.copy()
-            (self.mapHgt, self.mapWid, dep) = img.shape
-            cv2.imshow("map",img)
+            # img = self.img.copy()
+            # (self.mapHgt, self.mapWid, dep) = img.shape
+            # cv2.imshow("map",img)
 
             guess,conf = self.guessLocation(bestZipped)
             self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
@@ -246,17 +252,20 @@ class ImageMatcher(object):
         cv2.line(image, (x,y), (newX, newY), color)
 
     def guessLocation(self,bestZipped):
-        pass
         best = len(bestZipped)-1
         if bestZipped[best][0] < 70:
             match = bestZipped[best][1]
             idNum = match.getIdNum()
             bestX, bestY, bestHead = self.locations[idNum]
             (nodeNum, x, y, distSq) = self.findClosestNode((float(bestX), float(bestY)))
-            if distSq <= 1.0:
+            if distSq <= 0.8:
+                espeak.synth(str(nodeNum))
                 return nodeNum, "very confident."
+            else:
+                return nodeNum, "confident, but far away."
         else:
             guessNodes = []
+            distSq = 0
             for j in range(len(bestZipped) - 1, -1, -1):
                 (nextScore, nextMatch) = bestZipped[j]
                 idNum = nextMatch.getIdNum()
@@ -264,10 +273,15 @@ class ImageMatcher(object):
                 (nodeNum, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
-            if len(guessNodes) == 1:
-                return guessNodes[0], "guessing."
+            if len(guessNodes) == 1 and distSq <= 0.8:
+                return guessNodes[0], "close, but guessing."
+            elif len(guessNodes) == 1:
+                return guessNodes[0], "far and guessing."
             else:
-                return guessNodes, "totally unsure."
+                nodes = str(guessNodes[0])
+                for i in range(1,len(guessNodes)):
+                    nodes += " or " + str(guessNodes[i])
+                return nodes, "totally unsure."
 
 
     def findClosestNode(self, (x, y)):
