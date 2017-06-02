@@ -26,7 +26,7 @@ import numpy as np
 
 basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 directory = "res/BWmay25Dir/"
-locData = "scripts/buildingDatabases/locationsMay25.txt"
+locData = "scripts/buildingDatabases/locationsMay25ORIG.txt"
 
 class ImageMatcher(object):
     """..."""

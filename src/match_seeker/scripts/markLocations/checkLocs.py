@@ -15,6 +15,7 @@ def main(mapFile, locFile, imageDir):
     locations = readLocations(locFile)
     setupWindows()
     filenames = os.listdir(imageDir)
+    filenames.sort()
     lineTemplate = "{0:d} {1:.2f} {2:.2f} {3:d}\n"
     i = 0
     offsetX = 0
