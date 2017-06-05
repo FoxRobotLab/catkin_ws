@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """ ========================================================================
-qrPlanner.py
+matchPlanner.py
 Created: June, 2016
 This file borrows code from the Planner.py in Speedy_nav. This file
 uses MovementHandler.py and PotentialFieldBrain.py.

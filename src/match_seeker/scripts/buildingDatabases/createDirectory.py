@@ -4,10 +4,10 @@ from src.match_seeker.scripts.OSPathDefine import basePath
 import cv2
 import shutil
 
-duplicates = open("may30Matches.txt",'r')
-dir1 = basePath + "res/may30-1-edited/"
-sizeDir1 = 2300
-dir2 = basePath + "res/may30-1/"
+duplicates = open("toDelete.txt",'r')
+dir1 = basePath + "res/may30-working/"
+sizeDir1 = 704
+dir2 = basePath + "res/may30-edited/"
 dupList = []
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """ ========================================================================
-qrPlanner.py
+matchPlanner.py
 Created: June, 2016
 This file borrows code from the Planner.py in Speedy_nav. This file
 uses MovementHandler.py and PotentialFieldBrain.py.
@@ -32,7 +32,7 @@ class qrPlanner(object):
         self.webCamWidth = 640
         self.webCamHeight = 480
 
-        # self.brain = self.setupPot()
+        self.brain = self.setupPot()
         self.image, times = self.robot.getImage()
         # self.orbScanner = ORBRecognizer.ORBRecognizer(self.robot)
         # self.qrScanner = QRRecognizer.QRrecognizer(self.robot)
@@ -77,14 +77,6 @@ class qrPlanner(object):
         self.pathLoc.beginJourney()
         while time.time() < timeout and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            # leftImage = self.getNextFrame(self.leftCam)
-            # rightImage = self.getNextFrame(self.rightCam)
-            # #if we have all three images, disply them in the same window
-            # if leftImage is not None and rightImage is not None:
-            #     cv2.namedWindow("TurtleBot View", cv2.WINDOW_NORMAL)
-            #     image2 = cv2.resize(image, (leftImage.shape[1], leftImage.shape[0]), None)
-            #     cv2.imshow("TurtleBot View", np.hstack([leftImage, image2, rightImage]))
-            #     cv2.resizeWindow("TurtleBot View", 600, 200)
             cv2.imshow("Turtlebot View", image)
             cv2.waitKey(20)
 
@@ -92,52 +84,18 @@ class qrPlanner(object):
             if iterationCount > 20:
                 if not self.aligned and not self.ignoreBrain:
                     # print "Stepping the brain"
-                    # self.brain.step()
-                    pass
+                    self.brain.step()
+
 
             if iterationCount % 30 == 0:
-                self.matcher.matchImage(image)
-            # whichCam = "center"  #assume data is from kinect camera unless told otherwise
-            # qrInfo = self.qrScanner.qrScan(image)
-            # self.ignoreSignTime += 1   # Incrementing "time" to avoid reading the same sign before moving away
+                matchInfo = self.matcher.matchImage(image)
+                print matchInfo
+                if matchInfo is not None:
+                    self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
+                    if self.locate(matchInfo):
+                        break
 
-            # we didn't see a QR code from the kinect, but we have other images to check...
-            # if qrInfo is None and leftImage is not None and rightImage is not None:
-            #     qrLeft = self.qrScanner.qrScan(leftImage)
-            #     qrRight = self.qrScanner.qrScan(rightImage)
-            #     if qrLeft is not None and qrRight is None:
-            #         whichCam = "left"
-            #         qrInfo = self.qrScanner.qrScan(leftImage)
-            #         print("I'm seeing a QR code from the left webcam")
-            #     elif qrLeft is None and qrRight is not None:
-            #         whichCam = "right"
-            #         qrInfo = self.qrScanner.qrScan(rightImage)
-            #         print("I'm seeing a QR code from the right webcam")
-                # if they're both seeing a sign there's too much noise SOMEWHERE so disregard
-            # if qrInfo is not None:  # saw a QR code from one of the three images
-            #     if self.locate(qrInfo, whichCam):
-            #         break
-            # else:  # no qr code was seen, so check orb
-            #     orbInfo = self.orbScanner.orbScan(image, whichCam)
-                # didn't see a sign from the kinect, check the side images
-                # if orbInfo is None and leftImage is not None and rightImage is not None:
-                #     orbLeft = self.orbScanner.orbScan(leftImage,  "left")
-                #     orbRight = self.orbScanner.orbScan(leftImage, "right")
-                #     if orbLeft is not None and orbRight is None:
-                #         whichCam = "left"
-                #         orbInfo = orbLeft
-                #         print("I'm seeing ORB from the left webcam")
-                #     elif orbLeft is None and orbRight is not None:
-                #         whichCam = "right"
-                #         orbInfo = orbRight
-                #         print("I'm seeing ORB from the right webcam")
-                # if orbInfo is not None:  # the program thinks some image had a sign in it
-                #     self.ignoreBrain = True
-                #     self.aligned = self.moveHandle.align(orbInfo, whichCam)
-                # else:  # orb is none, so continue on as you were
-                #     self.ignoreBrain = False
-                #     self.aligned = False
-        # self.brain.stopAll()
+        self.brain.stopAll()
 
 
     def setupPot(self):
@@ -159,12 +117,12 @@ class qrPlanner(object):
         return currBrain
 
 
-    def locate(self, qrInfo, whichCam):
+    def locate(self, matchInfo):
         """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
         by seeing the QR code below. Then aligns itself with the path it should take to the next node.
         Returns True if the robot has arrived at it's destination, otherwise, False."""
 
-        print "REACHED LOCATE", whichCam
+        print "REACHED LOCATE"
         """Check if the QR code is the same as the last one you saw. If it is, and if it's not been a
         while since you saw it, then disregard."""
         path = self.pathLoc.getPath()
@@ -172,18 +130,18 @@ class qrPlanner(object):
             last = -1
         else:
             last = path[-1]
-        if qrInfo is not None and (last != qrInfo[0] or self.ignoreSignTime > 50):
+        if matchInfo is not None and (last != matchInfo[0] or self.ignoreSignTime > 50):
             self.ignoreSignTime = 0
-            heading, targetAngle = self.pathLoc.continueJourney(qrInfo)
+            targetAngle = self.pathLoc.continueJourney(matchInfo)
             # espeak.synth("Seen node " + str(qrInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
 
-            if heading is None:
+            if targetAngle is None:
                 # We have reached our destination
                 print(self.pathLoc.getPath())
                 return True
 
             # We know where we are and need to turn
-            self.moveHandle.turnToNextTarget(heading, targetAngle, whichCam)
+            self.moveHandle.turnToNextTarget(matchInfo[2], targetAngle)
             self.ignoreBrain = False
 
         return False

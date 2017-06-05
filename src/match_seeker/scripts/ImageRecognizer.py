@@ -16,7 +16,7 @@ This is porting the CompareInfo class written in C++ in about 2011.
 import sys
 import os
 import numpy as np
-import readMap
+# import readMap
 import cv2
 import OutputLogger
 import ImageFeatures
@@ -56,11 +56,11 @@ class ImageMatcher(object):
         for line in file.readlines():
             line = line.rstrip('/n')
             line = line.split()
-            self.locations[int(line[0])] = line[1:]
+            self.locations[int(line[0])] = [float(x) for x in line[1:]]
 
         self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
-        self.img = self.getOlinMap()
+        # self.img = self.getOlinMap()
 
 
     def setLogToFile(self, val):
@@ -147,7 +147,7 @@ class ImageMatcher(object):
         # cv2.imshow("Primary image", camImage)
         # cv2.moveWindow("Primary image", 0, 0)
         # features.displayFeaturePics("Primary image features", 0, 0)
-        self._findBestNMatches(features, self.numMatches)
+        return self._findBestNMatches(features, self.numMatches)
 
 
     def _findBestNMatches(self, features, numMatches):
@@ -184,6 +184,7 @@ class ImageMatcher(object):
 
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
+        print [x[0]for x in bestZipped]
         self.logger.log("==========Location Update==========")
 
 
@@ -194,7 +195,7 @@ class ImageMatcher(object):
             print "may know where I am"
             im =  bestZipped[0][1].getImage()
             locX,locY,locHead = self.locations[bestZipped[0][1].getIdNum()]
-            (num, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
+            (num, x, y, distSq) = self.findClosestNode((locX, locY))
             self.logger.log("This match is tagged at " + str(locX) + ", " + str(locY) + ".")
             self.logger.log("The closest node is " + str(num) + " at " + str(distSq) + " sq meters.")
             cv2.imshow("Match Picture", im)
@@ -204,8 +205,14 @@ class ImageMatcher(object):
             # (self.mapHgt, self.mapWid, dep) = img.shape
             # cv2.imshow("map",img)
 
-            guess,conf = self.guessLocation(bestZipped)
+            guess, pts, head, conf = self.guessLocation(bestZipped)
             self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
+
+            if conf == "very confident." or conf == "close, but guessing.":
+                print "I found my location."
+                return guess, pts, head
+            else:
+                return None
 
 
             # for j in range(len(bestZipped)-1, -1, -1):
@@ -253,17 +260,17 @@ class ImageMatcher(object):
         cv2.line(image, (x,y), (newX, newY), color)
 
     def guessLocation(self,bestZipped):
-        best = len(bestZipped)-1
-        if bestZipped[best][0] < 70:
-            match = bestZipped[best][1]
+        worst = len(bestZipped)-1
+        if bestZipped[0][0] < 70:
+            match = bestZipped[0][1]
             idNum = match.getIdNum()
             bestX, bestY, bestHead = self.locations[idNum]
-            (nodeNum, x, y, distSq) = self.findClosestNode((float(bestX), float(bestY)))
+            (nodeNum, x, y, distSq) = self.findClosestNode((bestX, bestY))
             if distSq <= 0.8:
                 espeak.synth(str(nodeNum))
-                return nodeNum, "very confident."
+                return nodeNum, (x,y), bestHead, "very confident."
             else:
-                return nodeNum, "confident, but far away."
+                return nodeNum, (x,y), bestHead, "confident, but far away."
         else:
             guessNodes = []
             distSq = 0
@@ -271,18 +278,18 @@ class ImageMatcher(object):
                 (nextScore, nextMatch) = bestZipped[j]
                 idNum = nextMatch.getIdNum()
                 locX, locY, locHead = self.locations[idNum]
-                (nodeNum, x, y, distSq) = self.findClosestNode((float(locX), float(locY)))
+                (nodeNum, x, y, distSq) = self.findClosestNode((locX, locY))
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
             if len(guessNodes) == 1 and distSq <= 0.8:
-                return guessNodes[0], "close, but guessing."
+                return guessNodes[0], (x,y), locHead, "close, but guessing."
             elif len(guessNodes) == 1:
-                return guessNodes[0], "far and guessing."
+                return guessNodes[0], (x,y), locHead, "far and guessing."
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1,len(guessNodes)):
                     nodes += " or " + str(guessNodes[i])
-                return nodes, "totally unsure."
+                return nodes, (x,y), locHead, "totally unsure."
 
 
     def findClosestNode(self, (x, y)):
@@ -304,14 +311,14 @@ class ImageMatcher(object):
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY, bestVal)
 
-    def getOlinMap(self):
-        """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
-        Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
-        perhaps."""
-        origMap = readMap.createMapImage(basePath + "scripts/markLocations/olinNewMap.txt", 20)
-        map2 = np.flipud(origMap)
-        olinMap = np.rot90(map2)
-        return olinMap
+    # def getOlinMap(self):
+    #     """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
+    #     Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
+    #     perhaps."""
+    #     origMap = readMap.createMapImage(basePath + "scripts/markLocations/olinNewMap.txt", 20)
+    #     map2 = np.flipud(origMap)
+    #     olinMap = np.rot90(map2)
+    #     return olinMap
 
     def _convertWorldToMap(self, worldX, worldY):
         """Converts coordinates in meters in the world to integer coordinates on the map

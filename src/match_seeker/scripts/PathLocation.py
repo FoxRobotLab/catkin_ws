@@ -31,22 +31,22 @@ class PathLocation(object):
         self.pathTraveled =[]
 
 
-    def continueJourney(self, qrInfo):
+    def continueJourney(self, matchInfo):
         """This is given information about the marker that is currently seen. It adds it to the path traveled,
         and then it gets the best path from this point to the destination. This is used to determine the next
         direction and target node for the robot. Computing the shortest path is done by the MapGraph itself, as needed."""
-        nodeNum, nodeCoord, nodeName = qrInfo
-        heading = self.olin.getMarkerInfo(nodeNum)
+        nodeNum, nodeCoord, currHead = matchInfo
+        # heading = self.olin.getMarkerInfo(nodeNum)
 
-        if heading is None:
-            print "Heading for node", nodeNum, "is not specified, default heading = 0"
-            heading = 0
-        print("Location is ", nodeName, "with number", nodeNum, "at coordinates", nodeCoord)
+        # if heading is None:
+        #     print "Heading for node", nodeNum, "is not specified, default heading = 0"
+        #     heading = 0
+        print("Location is number", nodeNum, "at coordinates", nodeCoord)
         self.pathTraveled.append(nodeNum)
         print ("Path travelled so far: \n", self.pathTraveled)
         if nodeNum == self.destination:
             print ("Arrived at destination.")
-            return None, None
+            return None
 
         path = self.olin.getShortestPath(nodeNum, self.destination)
         currentNode, nextNode = path[0], path[1]
@@ -54,7 +54,7 @@ class PathLocation(object):
 
         print("Turning from node ", str(currentNode), " to node ", str(nextNode))
 
-        return heading, targetAngle
+        return targetAngle
 
 
     def getPath(self):

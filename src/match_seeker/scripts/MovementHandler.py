@@ -152,7 +152,7 @@ class MovementHandler(object):
         self.robot.stop()
 
 
-    def turnToNextTarget(self, headingToMarker, targetAngle, camera):
+    def turnToNextTarget(self, currHeading, targetAngle):
         """Takes in headingToMarker, which is the direction from the robot to the currently-found marker, in global
         coordinates, and the targetAngle, which is the global coordinate direction the robot wants to turn to, and
         camera, which describes which camera on the robot is facing the marker. This function computes the angle the
@@ -160,25 +160,19 @@ class MovementHandler(object):
         angle to the wall."""
 
         #wallAngle = self.robot.findAngleToWall() - 90
-        wallAngle = 0        
+        wallAngle = 0
 
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (headingToMarker) and the correct angle to the imageMatch
         #(wallAngle)
 
-        if camera == "center":
-            actualAngle = (headingToMarker + wallAngle) % 360
-            angleToTurn = targetAngle - actualAngle
-        else:
-            actualAngle = headingToMarker % 360
-            angleToTurn = targetAngle - actualAngle
-            if camera == "left":
-                angleToTurn += 90
-            else:
-                angleToTurn -= 90
+
+        actualAngle = (wallAngle + currHeading) % 360
+        angleToTurn = targetAngle - actualAngle
+
 
         print("-------------------------------------------------")
-        print("headingToMarker", headingToMarker)
+        print "current heading", currHeading
         print("wallAngle", wallAngle)
         print("targetAngle", targetAngle)
         print("Angle to turn: ", angleToTurn)

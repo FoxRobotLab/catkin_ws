@@ -1,4 +1,4 @@
-'''Rename and put pictures in different folders in one'''
+'''Rename and put pictures from different folders into one'''
 
 
 
@@ -10,9 +10,9 @@ import os
 
 
 
-origDir = "/home/macalester/catkin_ws/src/match_seeker/res/may30-edited/"
-desDir = "/home/macalester/catkin_ws/src/match_seeker/res/may30-working/"
-nameChange = open("nameChangesMay30.txt", "w")
+origDir = "/home/macalester/catkin_ws/pics2/"
+desDir = "/home/macalester/catkin_ws/src/match_seeker/res/locationSpecific/"
+nameChange = open("nameChangeslocSpec1.txt", "w")
 nameChange.write(origDir)
 nameChange.write('\n')
 
@@ -50,6 +50,7 @@ def makeNewFilename(fileNum):
 listDir = os.listdir(origDir)
 picNumList = []
 
+#gets list of every file in the directory in order
 for file in listDir:
     end = len(file) - (len('jpg') + 1)
     picNum = int(file[len('frame'):end])
@@ -57,7 +58,8 @@ for file in listDir:
 
 picNumList.sort()
 
-i=0
+#starting number
+i=664
 
 print origDir
 print desDir
