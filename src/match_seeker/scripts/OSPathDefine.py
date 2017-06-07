@@ -6,11 +6,11 @@ computers more easily."""
 # base path on Enterprise
 basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 ## Kobuki
-# directory = "res/may30-edited/"
+# directory = "res/kobuki0530Pics/"
 # locData = "res/locations/locationsMay30.txt"
 
 ## Create
-directory = "res/060717/"
+directory = "res/create060717/"
 locData = "res/locations/create0607.txt"
 
 # base path on FoxVoyager (aka Speedy)

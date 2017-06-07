@@ -9,8 +9,8 @@ import shutil
 import os
 
 
-origDir = "/home/macalester/catkin_ws/060717/"
-desDir = "/home/macalester/catkin_ws/src/match_seeker/res/052517/"
+origDir = "/home/macalester/catkin_ws/signpics/"
+desDir = "/home/macalester/catkin_ws/src/match_seeker/res/kobukiSigns/"
 nameChange = open("nameChangesCreateJun06.txt", "w")
 nameChange.write(origDir)
 nameChange.write('\n')
@@ -58,7 +58,7 @@ for file in listDir:
 picNumList.sort()
 
 #starting number
-i=1087
+i=704
 
 print origDir
 print desDir

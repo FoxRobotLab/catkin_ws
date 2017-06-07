@@ -5,9 +5,9 @@ import cv2
 import shutil
 import os
 
-duplicates = open("toDelete.txt",'r')
+duplicates = open("toDeleteKobuki.txt",'r')
 dir1 = basePath + "res/052517/"
-dir2 = basePath + "res/060717/"
+dir2 = basePath + "res/create060717/"
 dupList = []
 
 
