@@ -171,6 +171,7 @@ class MovementHandler(object):
         angleToTurn = targetAngle - actualAngle
 
 
+
         print("-------------------------------------------------")
         print "current heading", currHeading
         print("wallAngle", wallAngle)

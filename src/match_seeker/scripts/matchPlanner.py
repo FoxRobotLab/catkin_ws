@@ -134,7 +134,7 @@ class qrPlanner(object):
         if matchInfo is not None and (last != matchInfo[0] or self.ignoreSignTime > 50):
             self.ignoreSignTime = 0
             targetAngle = self.pathLoc.continueJourney(matchInfo)
-            # espeak.synth("Seen node " + str(qrInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
+            espeak.synth("At node " + str(matchInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
 
             if targetAngle is None:
                 # We have reached our destination

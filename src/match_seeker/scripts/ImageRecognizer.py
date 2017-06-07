@@ -23,6 +23,7 @@ import ImageFeatures
 from OSPathDefine import basePath, directory, locData
 import MapGraph
 from espeak import espeak
+import math
 
 
 class ImageMatcher(object):
@@ -59,6 +60,7 @@ class ImageMatcher(object):
         self.lastKnownLoc = None
         self.radius = 2
         self.lostCount = 0
+        self.beenGuessing = False
 
         self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
@@ -192,6 +194,8 @@ class ImageMatcher(object):
             for loc in self.xyArray[i[0]]:
                 tup = tuple(loc)
                 potentialMatches.extend(self.numByLoc[tup])
+            if potentialMatches == []:
+                potentialMatches = self.featureCollection.keys()
             self.logger.log("Potential matches length: " + str(len(potentialMatches)))
             self.logger.log("Radius: " + str(self.radius) + " lastKnownLoc: "+ str(self.lastKnownLoc))
 
@@ -235,6 +239,7 @@ class ImageMatcher(object):
             self.logger.log("I have no idea where I am.")
             self.radius = 6
             self.lostCount += 1
+            self.beenGuessing = False
             if self.lostCount >= 5:
                 self.lastKnownLoc = None
             return None
@@ -242,9 +247,9 @@ class ImageMatcher(object):
             self.lostCount = 0
             im =  bestZipped[0][1].getImage()
             locX,locY,locHead = self.locByNum[bestZipped[0][1].getIdNum()]
-            (num, x, y, distSq) = self.findClosestNode((locX, locY))
+            (num, x, y, dist) = self.findClosestNode((locX, locY))
             self.logger.log("This match is tagged at " + str(locX) + ", " + str(locY) + ".")
-            self.logger.log("The closest node is " + str(num) + " at " + str(distSq) + " sq meters.")
+            self.logger.log("The closest node is " + str(num) + " at " + str(dist) + "  meters.")
             cv2.imshow("Match Picture", im)
             cv2.moveWindow("Match Picture", self.width + 10, 0)
             cv2.waitKey(20)
@@ -269,7 +274,7 @@ class ImageMatcher(object):
             #     locX, locY, locHead = self.locations[idNum]
             #     # self.logger.log("Image " + str(idNum) + " matches with similarity = " + str(nextScore))
             #     # print "x axis is", self.location[idNum][0], '. y axis is', self.location[idNum][1], '. Angle is', self.location[idNum][2], '.'
-            #     (num, x, y, distSq) = self.findClosestNode((float(locX),float(locY)))
+            #     (num, x, y, dist) = self.findClosestNode((float(locX),float(locY)))
             #     self.logger.log("The closest node is number " + str(num) + " Score: " + str(nextScore))
             # pixelX,pixelY = self._convertWorldToMap(x,y)
             # self.drawPosition(img, pixelX, pixelY, int(locHead),(0,0,255))
@@ -312,39 +317,50 @@ class ImageMatcher(object):
             match = bestZipped[0][1]
             idNum = match.getIdNum()
             bestX, bestY, bestHead = self.locByNum[idNum]
-            (nodeNum, x, y, distSq) = self.findClosestNode((bestX, bestY))
-            if distSq <= 0.8:
-                espeak.synth(str(nodeNum))
+            (nodeNum, x, y, dist) = self.findClosestNode((bestX, bestY))
+            self.beenGuessing = False
+            if dist <= 0.8:
+                # espeak.synth(str(nodeNum))
                 self.lastKnownLoc = (x,y)
                 self.radius = 1.5
                 return nodeNum, (x,y), bestHead, "very confident."
             else:
                 self.lastKnownLoc = (x,y)
-                self.radius += 0.25
+                if self.beenGuessing:
+                    self.radius += 0.25
+                else:
+                    self.radius = 1.5
+                    self.beenGuessing = True
                 return nodeNum, (x,y), bestHead, "confident, but far away."
         else:
             guessNodes = []
-            distSq = 0
+            dist = 0
             for j in range(len(bestZipped) - 1, -1, -1):
                 (nextScore, nextMatch) = bestZipped[j]
                 idNum = nextMatch.getIdNum()
                 locX, locY, locHead = self.locByNum[idNum]
-                (nodeNum, x, y, distSq) = self.findClosestNode((locX, locY))
+                (nodeNum, x, y, dist) = self.findClosestNode((locX, locY))
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
-            if len(guessNodes) == 1 and distSq <= 0.8:
+            if len(guessNodes) == 1 and dist <= 0.8:
                 self.lastKnownLoc = (x,y)
-                self.radius = 1.5
+                if self.beenGuessing:
+                    self.radius += 0.25
+                else:
+                    self.radius = 1.5
+                    self.beenGuessing = True
                 return guessNodes[0], (x,y), locHead, "close, but guessing."
             elif len(guessNodes) == 1:
                 self.lastKnownLoc = (x,y)
                 self.radius = 4
+                self.beenGuessing = False
                 return guessNodes[0], (x,y), locHead, "far and guessing."
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1,len(guessNodes)):
                     nodes += " or " + str(guessNodes[i])
                 self.radius = 6
+                self.beenGuessing = False
                 return nodes, (x,y), locHead, "totally unsure."
 
 
@@ -358,9 +374,9 @@ class ImageMatcher(object):
             if closestNode is None:
                 closestNode = nodeNum
                 closestX, closestY = self.olin.getData(nodeNum)
-                bestVal = ((closestX - x) * (closestX - x)) + ((closestY - y) * (closestY - y))
+                bestVal = math.sqrt(((closestX - x) * (closestX - x)) + ((closestY - y) * (closestY - y)))
             (nodeX,nodeY) = self.olin.getData(nodeNum)
-            val = ((nodeX - x) * (nodeX - x)) + ((nodeY - y) * (nodeY - y))
+            val = math.sqrt(((nodeX - x) * (nodeX - x)) + ((nodeY - y) * (nodeY - y)))
             if (val <= bestVal):
                 bestVal = val
                 closestNode = nodeNum
