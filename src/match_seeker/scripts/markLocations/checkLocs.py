@@ -17,7 +17,7 @@ def main(mapFile, locFile, imageDir):
     filenames.sort()
     lineTemplate = "{0:d} {1:.2f} {2:.2f} {3:d}\n"
     # the node you want to look for points near
-    nearby =  [20.0, 40.1]
+    #nearby =  [20.0, 40.1]
     i = 0
     offsetX = 0
     offsetY = 0
@@ -29,10 +29,10 @@ def main(mapFile, locFile, imageDir):
         nextImg = cv2.imread(imageDir + name)
         cv2.imshow("Image", nextImg)
         (locX, locY, locH) = locations[nextNum]
-        distSq = ((locX - nearby[0]) * (locX - nearby[0])) + ((locY - nearby[1]) * (locY - nearby[1]))
-        if distSq > 8:
-            i = i+1
-            continue
+        #distSq = ((locX - nearby[0]) * (locX - nearby[0])) + ((locY - nearby[1]) * (locY - nearby[1]))
+        #if distSq > 8:
+        #    i = i+1
+        #    continue
         currX = locX + offsetX
         currY = locY + offsetY
         currH = locH + offsetH
@@ -175,4 +175,4 @@ def extractNum(fileString):
         return -1
 
 if __name__ == '__main__':
-    main("olinNewMap.txt", "../../scripts/buildingDatabases/finalLocationsMay30.txt", "../../res/may30-edited/")
+    main("olinNewMap.txt", "../../res/locdata/Data-Jun06Tue-102405.txt", "../../res/060717/")

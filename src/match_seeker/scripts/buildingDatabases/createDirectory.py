@@ -3,11 +3,11 @@
 from src.match_seeker.scripts.OSPathDefine import basePath
 import cv2
 import shutil
+import os
 
 duplicates = open("toDelete.txt",'r')
-dir1 = basePath + "res/may30-working/"
-sizeDir1 = 704
-dir2 = basePath + "res/may30-edited/"
+dir1 = basePath + "res/052517/"
+dir2 = basePath + "res/060717/"
 dupList = []
 
 
@@ -29,13 +29,17 @@ def makeFilename(fileNum):
                           "jpg")
     return name
 
+listDir = os.listdir(dir1)
 
 for lines in duplicates.readlines():
     dupList.append(int(lines))
 
-for i in range(sizeDir1):
-    if i not in dupList:
-        file = makeFilename(i)
+
+for img in listDir:
+    end = len(img) - (len('jpg') + 1)
+    picNum = int(img[len('frame'):end])
+    if picNum not in dupList:
+        file = makeFilename(picNum)
         shutil.copy(file,dir2)
 
 duplicates.close()

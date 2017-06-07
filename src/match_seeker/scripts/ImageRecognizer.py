@@ -16,7 +16,7 @@ This is porting the CompareInfo class written in C++ in about 2011.
 import sys
 import os
 import numpy as np
-# import readMap
+from scipy import spatial
 import cv2
 import OutputLogger
 import ImageFeatures
@@ -35,6 +35,7 @@ class ImageMatcher(object):
         self.logToFile = logFile
         self.logToShell = logShell
         self.currDirectory = dir1
+        self.locFile = locFile
         self.baseName = baseName
         self.currExtension = ext
         self.numMatches = numMatches
@@ -49,14 +50,15 @@ class ImageMatcher(object):
         # Add line to debug ORB
         cv2.ocl.setUseOpenCL(False)
         self.ORBFinder = cv2.ORB_create()
-        self.featureCollection = {} # dict with key being image number and value being ImageFeatures
 
-        self.locations = {}
-        file = open(locFile)
-        for line in file.readlines():
-            line = line.rstrip('/n')
-            line = line.split()
-            self.locations[int(line[0])] = [float(x) for x in line[1:]]
+        self.featureCollection = {} # dict with key being image number and value being ImageFeatures
+        self.numByLoc = {}
+        self.locByNum = {}
+        self.tree = None
+        self.xyArray = []
+        self.lastKnownLoc = None
+        self.radius = 2
+        self.lostCount = 0
 
         self.path = basePath + "scripts/olinGraph.txt"
         self.olin = MapGraph.readMapFile(self.path)
@@ -133,6 +135,31 @@ class ImageMatcher(object):
         print "cnt =", cnt
         self.logger.log("Length of collection = " + str(len(self.featureCollection)))
 
+    def makeLocDict(self):
+        # picNum to x,y,heading
+        file = open(self.locFile)
+        for line in file.readlines():
+            line = line.rstrip('/n')
+            line = line.split()
+            self.locByNum[int(line[0])] = [float(x) for x in line[1:]]
+
+        # x,y to picNums w/ headings
+        for picNum in self.locByNum:
+            (x, y, h) = self.locByNum[picNum]
+            if (x, y) in self.numByLoc:
+                self.numByLoc[(x, y)].append(picNum)
+            else:
+                self.numByLoc[(x, y)] = [picNum]
+
+    def buildKDTree(self):
+        xyKeys = self.numByLoc.keys()
+        self.xyArray = np.asarray(xyKeys)
+        self.tree = spatial.KDTree(self.xyArray)
+
+    def setupData(self):
+        self.makeCollection()
+        self.makeLocDict()
+        self.buildKDTree()
 
     # ------------------------------------------------------------------------
     # One of the major operations we can undertake, comparing all pairs in a range
@@ -155,9 +182,23 @@ class ImageMatcher(object):
         best matches."""
         bestMatches = []
         bestScores = []
-        for pos in self.featureCollection:
+
+        potentialMatches = []
+        if self.lastKnownLoc is None:
+            potentialMatches = self.featureCollection.keys()
+        else:
+            pt = np.array([self.lastKnownLoc])
+            i = self.tree.query_ball_point(pt, self.radius)
+            for loc in self.xyArray[i[0]]:
+                tup = tuple(loc)
+                potentialMatches.extend(self.numByLoc[tup])
+            self.logger.log("Potential matches length: " + str(len(potentialMatches)))
+            self.logger.log("Radius: " + str(self.radius) + " lastKnownLoc: "+ str(self.lastKnownLoc))
+
+        for pos in potentialMatches:
             feat = self.featureCollection[pos]
             simValue = features.evaluateSimilarity(feat)
+            # self.logger.log(str(pos) + " " + str(simValue))
             if simValue < self.threshold:
                 if len(bestScores) < numMatches:
                     #self.logger.log("Adding good match " + str(len(bestScores)))
@@ -189,12 +230,18 @@ class ImageMatcher(object):
 
 
 
+
         if bestZipped[0][0] > 90:
             self.logger.log("I have no idea where I am.")
+            self.radius = 6
+            self.lostCount += 1
+            if self.lostCount >= 5:
+                self.lastKnownLoc = None
+            return None
         else:
-            print "may know where I am"
+            self.lostCount = 0
             im =  bestZipped[0][1].getImage()
-            locX,locY,locHead = self.locations[bestZipped[0][1].getIdNum()]
+            locX,locY,locHead = self.locByNum[bestZipped[0][1].getIdNum()]
             (num, x, y, distSq) = self.findClosestNode((locX, locY))
             self.logger.log("This match is tagged at " + str(locX) + ", " + str(locY) + ".")
             self.logger.log("The closest node is " + str(num) + " at " + str(distSq) + " sq meters.")
@@ -264,12 +311,16 @@ class ImageMatcher(object):
         if bestZipped[0][0] < 70:
             match = bestZipped[0][1]
             idNum = match.getIdNum()
-            bestX, bestY, bestHead = self.locations[idNum]
+            bestX, bestY, bestHead = self.locByNum[idNum]
             (nodeNum, x, y, distSq) = self.findClosestNode((bestX, bestY))
             if distSq <= 0.8:
                 espeak.synth(str(nodeNum))
+                self.lastKnownLoc = (x,y)
+                self.radius = 1.5
                 return nodeNum, (x,y), bestHead, "very confident."
             else:
+                self.lastKnownLoc = (x,y)
+                self.radius += 0.25
                 return nodeNum, (x,y), bestHead, "confident, but far away."
         else:
             guessNodes = []
@@ -277,18 +328,23 @@ class ImageMatcher(object):
             for j in range(len(bestZipped) - 1, -1, -1):
                 (nextScore, nextMatch) = bestZipped[j]
                 idNum = nextMatch.getIdNum()
-                locX, locY, locHead = self.locations[idNum]
+                locX, locY, locHead = self.locByNum[idNum]
                 (nodeNum, x, y, distSq) = self.findClosestNode((locX, locY))
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
             if len(guessNodes) == 1 and distSq <= 0.8:
+                self.lastKnownLoc = (x,y)
+                self.radius = 1.5
                 return guessNodes[0], (x,y), locHead, "close, but guessing."
             elif len(guessNodes) == 1:
+                self.lastKnownLoc = (x,y)
+                self.radius = 4
                 return guessNodes[0], (x,y), locHead, "far and guessing."
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1,len(guessNodes)):
                     nodes += " or " + str(guessNodes[i])
+                self.radius = 6
                 return nodes, (x,y), locHead, "totally unsure."
 
 
