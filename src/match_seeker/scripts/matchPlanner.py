@@ -2,71 +2,51 @@
 
 """ ========================================================================
 matchPlanner.py
-Created: June, 2016
-This file borrows code from the Planner.py in Speedy_nav. This file
-uses MovementHandler.py and PotentialFieldBrain.py.
+Created: June 2017
+
+This file borrows code from the qrPlanner.py in qr_seeker.
+It manages the robot, from low-level motion control (using PotentialFieldBrain)
+to higher level path planning, plus matching camera images to a database of images
+in order to localize the robot.
 ======================================================================== """
 
-import turtleQR
+import time
+import math
+# import numpy as np
 import cv2
 import rospy
-import time
+from espeak import espeak
+
+import turtleControl
 import MovementHandler
 import PotentialFieldBrain
 import FieldBehaviors
-import ORBRecognizer
-import QRRecognizer
-import ImageRecognizer
-import math
+# import ImageRecognizer
+import Localizer
 import PathLocation
-from OSPathDefine import basePath,directory,locData
-import numpy as np
-from espeak import espeak
+import OutputLogger
+import MapGraph
+from DataPaths import basePath, graphMapData
 
 
-class qrPlanner(object):
+class MatchPlanner(object):
 
     def __init__(self):
-        self.robot = turtleQR.TurtleBot()
-        self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
-        self.webCamWidth = 640
-        self.webCamHeight = 480
+        self.robot = turtleControl.TurtleBot()
+        # self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+        # self.webCamWidth = 640
+        # self.webCamHeight = 480
+        # self.image, times = self.robot.getImage()
 
         self.brain = self.setupPot()
-        self.image, times = self.robot.getImage()
-        # self.orbScanner = ORBRecognizer.ORBRecognizer(self.robot)
-        # self.qrScanner = QRRecognizer.QRrecognizer(self.robot)
 
-
-        self.moveHandle = MovementHandler.MovementHandler(self.robot, (self.fWidth, self.fHeight), (self.webCamWidth,
-                            self.webCamHeight))
-        self.pathLoc = PathLocation.PathLocation()
-        self.pathTraveled = []
-        self.aligned = False
-        self.ignoreBrain = False
+        self.logger = OutputLogger.OutputLogger(True, True)
+        self.olinGraph =  MapGraph.readMapFile(basePath + graphMapData)
+        self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
+        self.pathLoc = PathLocation.PathLocation(self.olinGraph, self.logger)
 
         # change file names in OSPathDefine
-        self.matcher = ImageRecognizer.ImageMatcher(self.robot, logFile=True, logShell=True,
-                               dir1= basePath + directory, locFile = basePath + locData,
-                               baseName="frame",
-                               ext="jpg", numMatches=3)
-
-        self.matcher.setupData()
-
-        """the two webcams won't both run on Linux unless we turn down their quality ---
-        mess with as necessary. Try to keep resolution as high as you can (max is 640x480).
-        If it suddnely stops working it'll throw something like a VIDEOIO out of space error,
-        if this happens with a configuration that worked before, try restarting the laptop."""
-
-        # self.rightCam = cv2.VideoCapture(2)     # both are webcams
-        # self.leftCam = cv2.VideoCapture(1)
-        framerate = 12
-        # self.rightCam.set(cv2.CAP_PROP_FPS, framerate)
-        # self.rightCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
-        # self.rightCam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.webCamHeight)
-        # self.leftCam.set(cv2.CAP_PROP_FPS, framerate)
-        # self.leftCam.set(cv2.CAP_PROP_FRAME_WIDTH, self.webCamWidth)
-        # self.leftCam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.webCamHeight)
+        self.locator = Localizer.Localizer(self.robot, self.olinGraph, self.logger)
 
         self.ignoreSignTime = 0
 
@@ -81,28 +61,26 @@ class qrPlanner(object):
             cv2.imshow("Turtlebot View", image)
             cv2.waitKey(20)
 
-            iterationCount += 1
             if iterationCount > 20:
-                if not self.aligned and not self.ignoreBrain:
-                    # print "Stepping the brain"
-                    self.brain.step()
-
+                self.brain.step()
 
             if iterationCount % 30 == 0:
-                matchInfo = self.matcher.matchImage(image)
-                print matchInfo
+                matchInfo = self.locator.findLocation(image)
                 if matchInfo is not None:
-                    self.ignoreSignTime += 1  # Incrementing "time" to avoid reading the same sign before moving away
-                    if self.locate(matchInfo):
+                    self.logger.log("Found a good enough match: " + str(matchInfo))
+                    self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
+                    if self.respondToLocation(matchInfo):
                         break
+
+            iterationCount += 1
 
         self.brain.stopAll()
 
 
     def setupPot(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
-        KeepMoving and BumperReact behaviors, along with ObstacleForce behaviors for six regions of the depth
-        data."""
+        KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
+        data. TODO: Figure out how to add a positive pull toward the next location?"""
         currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         currBrain.add(FieldBehaviors.KeepMoving())
         currBrain.add(FieldBehaviors.BumperReact())
@@ -118,23 +96,28 @@ class qrPlanner(object):
         return currBrain
 
 
-    def locate(self, matchInfo):
-        """Aligns the robot with the orbInfo in front of it, determines where it is using that orbInfo
-        by seeing the QR code below. Then aligns itself with the path it should take to the next node.
-        Returns True if the robot has arrived at it's destination, otherwise, False."""
+    def respondToLocation(self, matchInfo):
+        """Given information about a location that matches this one "enough". Uses the heading data from the match
+        to determine how to turn to face the next node it should head to.
+        Returns True if the robot has arrived at its final goal location, otherwise, False.
+        First: gets the last node in the path the robot has traveled. If that node is different from the new
+        match information, OR if they are the same but a long time has passed, then record that the robot
+        has reached this location, determine which direction the robot should go next, and turn toward that direction."""
 
-        print "REACHED LOCATE"
-        """Check if the QR code is the same as the last one you saw. If it is, and if it's not been a
-        while since you saw it, then disregard."""
+        assert matchInfo is not None
+
+        self.logger.log("---------------")
+        self.logger.log("RESPONDING TO LOCATION REACHED")
+
         path = self.pathLoc.getPath()
         if not path:
             last = -1
         else:
             last = path[-1]
-        if matchInfo is not None and (last != matchInfo[0] or self.ignoreSignTime > 50):
+        if last != matchInfo[0] or self.ignoreSignTime > 50:
             self.ignoreSignTime = 0
             targetAngle = self.pathLoc.continueJourney(matchInfo)
-            espeak.synth("At node " + str(matchInfo[0]))     # nodeNum, nodeCoord, nodeName = qrInfo
+            espeak.synth("At node " + str(matchInfo[0]))     # nodeNum, nodeCoord, heading = matchInfo
 
             if targetAngle is None:
                 # We have reached our destination
@@ -143,21 +126,14 @@ class qrPlanner(object):
 
             # We know where we are and need to turn
             self.moveHandle.turnToNextTarget(matchInfo[2], targetAngle)
-            self.ignoreBrain = False
 
         return False
 
-    def getNextFrame(self, vidObj):
-        ret, frame = vidObj.read()
-        return frame
-
-    # def exit(self):
-    #     pass
 
 
 if __name__=="__main__":
     rospy.init_node('Planner')
-    plan = qrPlanner()
+    plan = MatchPlanner()
     plan.run(5000)
     # rospy.on_shutdown(plan.exit)
     rospy.spin()

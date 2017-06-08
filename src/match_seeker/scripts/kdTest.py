@@ -5,7 +5,7 @@ import OutputLogger
 import numpy as np
 from scipy import spatial
 import ImageFeatures
-from OSPathDefine import basePath,directory,locData
+from DataPaths import basePath,imageDirectory,locData
 import MapGraph
 
 
@@ -258,7 +258,7 @@ if __name__ == '__main__':
     # REMEMBER THIS IS TEST CODE ONLY!
     # change paths for files in OSPathDefine
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = basePath + directory,
+                           dir1 =basePath + imageDirectory,
                            locFile = basePath + locData,
                            baseName = "frame",
                            ext = "jpg", numMatches=3)

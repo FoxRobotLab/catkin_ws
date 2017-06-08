@@ -5,7 +5,7 @@ shows user the matching images from the dataset. Flags for removal with user per
 import src.match_seeker.scripts.ImageFeatures
 import cv2
 import numpy
-from src.match_seeker.scripts.OSPathDefine import basePath
+from src.match_seeker.scripts.DataPaths import basePath
 
 
 class scanImageMatches(object):

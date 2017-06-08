@@ -1,7 +1,7 @@
 
 
 import os
-from OSPathDefine import basePath
+from DataPaths import basePath
 import cv2
 
 

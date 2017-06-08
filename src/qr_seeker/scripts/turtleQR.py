@@ -1,11 +1,11 @@
 # !/usr/bin/env python
 
 """ ========================================================================
-  turtleQR.py
+  turtleControl.py
 
    Created on: June 2016
 
-   The turtleQR.py file borrows code from TurtleBot.py in speedy_nav.
+   The turtleControl.py file borrows code from TurtleBot.py in speedy_nav.
   Four classes: one for the TurtleBot object, and then three thread classes -
   MovementControlThread, ImageSensorThread, and SensorThread.  TurtleBot
   initialises all the threads and provides movement/utility methods -

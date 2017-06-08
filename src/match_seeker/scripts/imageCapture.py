@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import turtleQR
+import turtleControl
 import cv2
 from datetime import datetime
 from collections import deque
@@ -11,7 +11,7 @@ import time
 class ImageCapture(object):
 
 	def __init__(self):
-		self.robot = turtleQR.TurtleBot()
+		self.robot = turtleControl.TurtleBot()
 		image, times = self.robot.getImage()
 		self.runFlag = True
 		self.stalled = False
@@ -32,13 +32,13 @@ class ImageCapture(object):
 				self.stalled = True
 			else:
 				self.stalled = False
-			
+
 			cv2.imshow("TurtleCam", image)
 
 			code = chr(cv2.waitKey(50) & 255)
 
 			if code == 't':
-				cv2.imwrite("/home/macalester/catkin_ws/src/qr_seeker/res/captures/cap-" 
+				cv2.imwrite("/home/macalester/catkin_ws/src/qr_seeker/res/captures/cap-"
 					+ time.strftime("%b%d%a-%H%M%S.jpg"), image)
 				print "Image saved!"
 			if code == 'q':
@@ -52,7 +52,7 @@ class ImageCapture(object):
 
 	def exit(self):
 		self.runFlag = False
-	
+
 if __name__=="__main__":
 	rospy.init_node('imageCapture')
 	camera = ImageCapture()

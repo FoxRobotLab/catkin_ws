@@ -13,28 +13,28 @@ This is porting the CompareInfo class written in C++ in about 2011.
 ======================================================================== """
 
 
-import sys
+# import sys
 import os
+import math
+
 import numpy as np
 from scipy import spatial
 import cv2
-import OutputLogger
+# from espeak import espeak
+
+# import OutputLogger
 import ImageFeatures
-from OSPathDefine import basePath, directory, locData
+from DataPaths import basePath, imageDirectory, locData
 import MapGraph
-from espeak import espeak
-import math
 
 
 class ImageMatcher(object):
     """..."""
 
 
-    def __init__(self, bot, logFile = False, logShell = False,
+    def __init__(self, bot, logWriter,
                  dir1 = None,locFile = None, baseName = 'foo', ext= "jpg",
                  numMatches = 4):
-        self.logToFile = logFile
-        self.logToShell = logShell
         self.currDirectory = dir1
         self.locFile = locFile
         self.baseName = baseName
@@ -44,7 +44,7 @@ class ImageMatcher(object):
         self.cameraNum = 0
         self.height = 0
         self.width = 0
-        self.logger = OutputLogger.OutputLogger(self.logToFile, self.logToShell)
+        self.logger = logWriter
 
         self.robot = bot
 
@@ -474,7 +474,7 @@ if __name__ == '__main__':
     # REMEMBER THIS IS TEST CODE ONLY!
     # change paths for files in OSPathDefine
     matcher = ImageMatcher(logFile = True, logShell = True,
-                           dir1 = basePath + directory,
+                           dir1 =basePath + imageDirectory,
                            locFile = basePath + locData,
                            baseName = "frame",
                            ext = "jpg")

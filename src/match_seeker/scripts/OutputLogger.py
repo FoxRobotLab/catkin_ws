@@ -10,7 +10,7 @@ An object that write to screen or log file, or both.
 
 import time
 import os
-from OSPathDefine import basePath
+from DataPaths import basePath
 
 
 class OutputLogger:

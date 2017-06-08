@@ -2,7 +2,7 @@
 
 
 
-from src.match_seeker.scripts.OSPathDefine import basePath
+from src.match_seeker.scripts.DataPaths import basePath
 import cv2
 import sys
 import shutil
