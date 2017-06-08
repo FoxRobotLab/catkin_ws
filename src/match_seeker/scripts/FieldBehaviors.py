@@ -56,6 +56,7 @@ class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
         else:
             self.setVector(0.0, 0.0)
 
+
 class CliffReact(PotentialFieldBrain.PotentialFieldBehavior):
     """Reacts to the cliff sensor going off by stopping. It reports no
         vector if the bumper is not pressed. """

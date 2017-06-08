@@ -61,9 +61,9 @@ class Localizer(object):
         """Given match information, of the form (score, ImageFeatures), it displays the match with the score
         written in the lower left corner."""
         (score, imFeat) = match
-        matchIm = imFeat[1].getImage()
+        matchIm = imFeat.getImage()
         matchIm = matchIm.copy()
-        cv2.putText(matchIm, str(score), (30, 400), cv2.FONT_HERSHEY_SIMPLE, 0.75, (0, 255, 0))
+        cv2.putText(matchIm, str(score), (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
         cv2.imshow("Match Picture", matchIm)
         # cv2.moveWindow("Match Picture", self.width + 10, 0)
         cv2.waitKey(20)
@@ -74,14 +74,14 @@ class Localizer(object):
         (lowScore, lowFeat) = bestMatches[0]
         idNum = lowFeat.getIdNum()
         bestX, bestY, bestHead = self.dataset.getLoc(idNum)
-        (bestNodeNum, nodeX, nodeY, dist) = self._findClosestNode((bestX, bestY))
+        (bestNodeNum, nodeX, nodeY, bestDist) = self._findClosestNode((bestX, bestY))
 
         self.logger.log("This match is tagged at " + str(bestX) + ", " + str(bestY) + ".")
-        self.logger.log("The closest node is " + str(bestNodeNum) + " at " + str(dist) + "  meters.")
+        self.logger.log("The closest node is " + str(bestNodeNum) + " at " + str(bestDist) + "  meters.")
 
         if bestMatches[0][0] < 70:
             self.beenGuessing = False
-            if dist <= 0.8:
+            if bestDist <= 0.8:
                 # espeak.synth(str(nodeNum))
                 self.lastKnownLoc = (bestX, bestY)
                 self.confidence = 10.0
@@ -103,8 +103,8 @@ class Localizer(object):
                 locX, locY, locHead = self.dataset.getLoc(idNum)
                 (nodeNum, x, y, dist) = self._findClosestNode((locX, locY))
                 if nodeNum not in guessNodes:
-                    guessNodes.append(bestNodeNum)
-            if len(guessNodes) == 1 and dist <= 0.8:
+                    guessNodes.append(nodeNum)
+            if len(guessNodes) == 1 and bestDist <= 0.8:
                 self.lastKnownLoc = (bestX, bestY)
                 if self.beenGuessing:
                     self.confidence = max(0.0, self.confidence - 0.5)
@@ -134,11 +134,12 @@ class Localizer(object):
         closestNode = None
         closestX = None
         closestY = None
+        bestVal = None
         for nodeNum in self.olin.getVertices():
             if closestNode is None:
                 closestNode = nodeNum
                 closestX, closestY = self.olin.getData(nodeNum)
-                bestVal = self._euclidDist( (closestX, closestY) (x, y) )
+                bestVal = self._euclidDist( (closestX, closestY), (x, y) )
             (nodeX,nodeY) = self.olin.getData(nodeNum)
             val = self._euclidDist( (nodeX, nodeY), (x, y) )
             if (val <= bestVal):

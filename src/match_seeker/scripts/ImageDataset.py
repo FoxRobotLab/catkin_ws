@@ -66,8 +66,8 @@ class ImageDataset(object):
         listDir = os.listdir(currDir)
         for filename in listDir:
             # Check if the next file is the right form, and extract the number part, if it is
-            picNum = self._extractNumber(filename, baseName, ext)
-            if not picNum:
+            (picNum, foundNum) = self._extractNumber(filename, baseName, ext)
+            if not foundNum:
                 continue
             image = cv2.imread(currDir + filename)
             features = ImageFeatures.ImageFeatures(image, picNum, self.logger, self.ORBFinder)
@@ -120,9 +120,9 @@ class ImageDataset(object):
         extPart = filename[extStart:]
         if (extPart != '.' + ext) or (basePart != baseName) or (not numPart.isdigit()):
             self.logger.log("Found wrong format file in image folder: " + filename)
-            return False
+            return None, False
         else:
-            return int(numPart)
+            return int(numPart), True
 
 
     def getLoc(self, picNum):

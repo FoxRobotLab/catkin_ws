@@ -237,7 +237,7 @@ class ImageMatcher(object):
 
         if bestZipped[0][0] > 90:
             self.logger.log("I have no idea where I am.")
-            self.radius = 6
+            self.radius = 8
             self.lostCount += 1
             self.beenGuessing = False
             if self.lostCount >= 5:
@@ -322,14 +322,14 @@ class ImageMatcher(object):
             if dist <= 0.8:
                 # espeak.synth(str(nodeNum))
                 self.lastKnownLoc = (x,y)
-                self.radius = 1.5
+                self.radius = 3
                 return nodeNum, (x,y), bestHead, "very confident."
             else:
                 self.lastKnownLoc = (x,y)
                 if self.beenGuessing:
                     self.radius += 0.25
                 else:
-                    self.radius = 1.5
+                    self.radius = 3
                     self.beenGuessing = True
                 return nodeNum, (x,y), bestHead, "confident, but far away."
         else:
@@ -347,19 +347,19 @@ class ImageMatcher(object):
                 if self.beenGuessing:
                     self.radius += 0.25
                 else:
-                    self.radius = 1.5
+                    self.radius = 3
                     self.beenGuessing = True
                 return guessNodes[0], (x,y), locHead, "close, but guessing."
             elif len(guessNodes) == 1:
                 self.lastKnownLoc = (x,y)
-                self.radius = 4
+                self.radius = 6
                 self.beenGuessing = False
                 return guessNodes[0], (x,y), locHead, "far and guessing."
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1,len(guessNodes)):
                     nodes += " or " + str(guessNodes[i])
-                self.radius = 6
+                self.radius = 8
                 self.beenGuessing = False
                 return nodes, (x,y), locHead, "totally unsure."
 

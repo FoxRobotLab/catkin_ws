@@ -175,4 +175,4 @@ def extractNum(fileString):
         return -1
 
 if __name__ == '__main__':
-    main("olinNewMap.txt", "../../res/locations/kobuki0530.txt", "../../res/kobuki0530Pics/")
+    main("olinNewMap.txt", "/home/macalester/catkin_ws/src/match_seeker/res/locdata/Data-Jun08Thu-163637.txt", "/home/macalester/catkin_ws/src/match_seeker/res/kobuki060817/")

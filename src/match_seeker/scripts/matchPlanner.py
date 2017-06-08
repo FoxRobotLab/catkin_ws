@@ -33,7 +33,7 @@ class MatchPlanner(object):
 
     def __init__(self):
         self.robot = turtleControl.TurtleBot()
-        # self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+        self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
         # self.webCamWidth = 640
         # self.webCamHeight = 480
         # self.image, times = self.robot.getImage()
@@ -44,6 +44,7 @@ class MatchPlanner(object):
         self.olinGraph =  MapGraph.readMapFile(basePath + graphMapData)
         self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinGraph, self.logger)
+        self.prevPath = []
 
         # change file names in OSPathDefine
         self.locator = Localizer.Localizer(self.robot, self.olinGraph, self.logger)
@@ -55,27 +56,27 @@ class MatchPlanner(object):
         """Runs the program for the duration of 'runtime'"""
         timeout = time.time() + runtime
         iterationCount = 0
-        self.pathLoc.beginJourney()
-        while time.time() < timeout and not rospy.is_shutdown():
-            image = self.robot.getImage()[0]
-            cv2.imshow("Turtlebot View", image)
-            cv2.waitKey(20)
+        if self.pathLoc.beginJourney():
+            while time.time() < timeout and not rospy.is_shutdown():
+                image = self.robot.getImage()[0]
+                cv2.imshow("Turtlebot View", image)
+                cv2.waitKey(20)
 
-            if iterationCount > 20:
-                self.brain.step()
+                if iterationCount > 20:
+                    self.brain.step()
 
-            if iterationCount % 30 == 0:
-                matchInfo = self.locator.findLocation(image)
-                if matchInfo is not None:
-                    self.logger.log("Found a good enough match: " + str(matchInfo))
-                    self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
-                    if self.respondToLocation(matchInfo):
-                        break
-
-            iterationCount += 1
+                if iterationCount % 30 == 0:
+                    matchInfo = self.locator.findLocation(image)
+                    if matchInfo is not None:
+                        self.logger.log("Found a good enough match: " + str(matchInfo))
+                        self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
+                        if self.respondToLocation(matchInfo):
+                            self.robot.stop()
+                            if not self.pathLoc.beginJourney():
+                                break
+                iterationCount += 1
 
         self.brain.stopAll()
-
 
     def setupPot(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
@@ -121,11 +122,12 @@ class MatchPlanner(object):
 
             if targetAngle is None:
                 # We have reached our destination
-                print(self.pathLoc.getPath())
+                self.prevPath.extend(self.pathLoc.getPath())
+                print(self.prevPath)
                 return True
 
             # We know where we are and need to turn
-            self.moveHandle.turnToNextTarget(matchInfo[2], targetAngle)
+            self.moveHandle.turnToNextTarget(matchInfo[1], targetAngle)
 
         return False
 

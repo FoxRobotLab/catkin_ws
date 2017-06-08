@@ -23,12 +23,16 @@ class PathLocation(object):
 
     def beginJourney(self):
         """Sets up the destination for the route."""
+        self.destination = None
         totalNumNodes = self.olin.getSize()
         while self.destination is None:
-            userInput = int(input("Enter destination index: "))
+            userInput = int(input("Enter destination index (99 to quit): "))
+            if userInput == 99:
+                return False
             if userInput in range(totalNumNodes):
                 self.destination = userInput
         self.pathTraveled =[]
+        return True
 
 
     def continueJourney(self, matchInfo):
