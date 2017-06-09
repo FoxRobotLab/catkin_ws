@@ -11,8 +11,8 @@ basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 
 
 # Kobuki
-imageDirectory = "res/kobuki0530Pics/"
-locData = "res/locations/kobuki0530.txt"
+imageDirectory = "res/kobuki0609/"
+locData = "res/locations/kobuki0609.txt"
 
 ## Create
 # imageDirectory = "res/create060717/"

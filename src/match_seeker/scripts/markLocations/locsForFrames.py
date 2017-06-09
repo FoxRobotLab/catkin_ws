@@ -348,5 +348,5 @@ if __name__ == "__main__":
     # frameRecorder.go()
 
 
-    frameRecorder = LabeledFrames("olinNewMap.txt", "/home/macalester/catkin_ws/src/match_seeker/res/kobuki060817w/", "images")
+    frameRecorder = LabeledFrames("olinNewMap.txt", "/home/macalester/catkin_ws/src/match_seeker/res/kobuki0530Pics/", "images")
     frameRecorder.go()
