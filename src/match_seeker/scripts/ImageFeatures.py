@@ -72,12 +72,12 @@ class ImageFeatures:
         self.ORBFeatures.displayFeaturePics(sigName, startX, startY +  vertOffset)
 
 
-    def evaluateSimilarity(self, featureObj):
+    def evaluateSimilarity(self, featureObj, verbose = False):
         """Evaluate similarity based on features. Compares Hough Lines and Color Signatures."""
         #houghSim = self.houghLines.evaluateSimilarity(featureObj.houghLines)
         #self.logger.log("Hough Lines sim = " + str(houghSim))
         #colorSim = self.colorSignature.evaluateSimilarity(featureObj.colorSignature)
-        orbSim = self.ORBFeatures.evaluateSimilarity(featureObj.ORBFeatures)
+        orbSim = self.ORBFeatures.evaluateSimilarity(featureObj.ORBFeatures, verbose)
         # print "ORB SIM", orbSim
         #self.logger.log("ColorSig sim =" + str(colorSim))
         return orbSim #houghSim + colorSim + orbSim
