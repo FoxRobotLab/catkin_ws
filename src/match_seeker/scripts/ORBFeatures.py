@@ -39,26 +39,37 @@ class ORBFeatures(FeatureType.FeatureType):
         self.goodMatches = None
         self.maxValue = 100
 
-    def evaluateSimilarity(self, otherFeature):
+
+    def evaluateSimilarity(self, otherFeature, verbose = False):
         """Given two images along with their features, calculates their similarity."""
         if self.des is None and otherFeature.des is None:
             return self._normalizeSimValue(0)
         elif self.des is None or otherFeature.des is None:
             return self._normalizeSimValue(self.maxValue)
 
-
         # Match descriptors.
         self.matches = self.matcher.match(self.des, otherFeature.des)
         sortedMatches = sorted(self.matches, key=lambda x: x.distance)
         self.goodMatches = [mat for mat in sortedMatches if mat.distance < 25]
+
         # print "Good match number:", len(self.goodMatches)
         # matchImage = self.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.goodMatches,
         #                               matchColor = (255, 255, 0)) #, singlePointColor=(0, 0, 255))
         # cv2.imshow("Match Image", matchImage)
         # cv2.waitKey(0)
         matchNum = min(100, len(self.goodMatches))
-        # return 100-matchNum
-        return self._normalizeSimValue(100 - matchNum)
+        normedMatchNum = self._normalizeSimValue(100 - matchNum)
+        if verbose:
+            print "---------------------- evaluateSimilarity --------------------"
+            print "My descriptors: ", len(self.des)
+            print "Other descrips: ", len(otherFeature.des)
+            print "Good matches:   ", len(self.goodMatches)
+            print "All matches:    ", len(self.matches)
+            print "Match number:   ", matchNum
+            print "Raw score:      ", 100 - matchNum
+            print "Normed score:   ", normedMatchNum
+            print "----------------------        DONE        --------------------"
+        return normedMatchNum
 
 
     def displayFeaturePics(self, windowName, startX, startY):

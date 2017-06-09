@@ -179,6 +179,9 @@ class ImageDataset(object):
 
         bestZipped = zip(bestScores, bestMatches)
         bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
+        bestFeat = bestZipped[0][1]
+        # This is just to print the details of the similarity measures!!
+        currImFeatures.evaluateSimilarity(bestFeat, True)
         self.logger.log("Best matches have scores: " + str([x[0]for x in bestZipped]))
         return bestZipped
 
