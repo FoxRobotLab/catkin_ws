@@ -50,7 +50,7 @@ class ORBFeatures(FeatureType.FeatureType):
         # Match descriptors.
         self.matches = self.matcher.match(self.des, otherFeature.des)
         sortedMatches = sorted(self.matches, key=lambda x: x.distance)
-        self.goodMatches = [mat for mat in sortedMatches if mat.distance < 25]
+        self.goodMatches = [mat for mat in sortedMatches if mat.distance < 35] #orig 25
         self.altGood1 = [mat for mat in sortedMatches if mat.distance < 50]
         self.altGood2 = sortedMatches[0 : int(0.3*len(sortedMatches))]
         scoreGood2 = [v.distance for v in self.altGood2]
@@ -62,7 +62,7 @@ class ORBFeatures(FeatureType.FeatureType):
         matchNum = min(100, len(self.goodMatches))
         normedMatchNum = self._normalizeSimValue(100 - matchNum)
         if verbose:
-            matchImage = self.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.goodMatches,
+            matchImage = self.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.altGood1,
                                           matchColor=(255, 255, 0))  # , singlePointColor=(0, 0, 255))
             cv2.imshow("Match Image", matchImage)
             cv2.waitKey(20)

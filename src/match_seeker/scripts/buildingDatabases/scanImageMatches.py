@@ -110,7 +110,7 @@ class scanImageMatches(object):
                             if response == 'y':
                                 matchNums.append(pic2num)
         print matchNums
-        matchFile = open('kobuki_2.txt', 'w')
+        matchFile = open('dupKobukiJun8_2.txt', 'w')
         for item in matchNums:
             matchFile.write("%s\n" % item)
         matchFile.close()
