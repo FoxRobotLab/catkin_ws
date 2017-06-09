@@ -66,8 +66,7 @@ class ORBFeatures(FeatureType.FeatureType):
             print "Good matches:   ", len(self.goodMatches)
             print "All matches:    ", len(self.matches)
             print "Match number:   ", matchNum
-            print "Raw score:      ", 100 - matchNum
-            print "Normed score:   ", normedMatchNum
+            print "Score:      ", 100 - matchNum
             print "----------------------        DONE        --------------------"
         return normedMatchNum
 
