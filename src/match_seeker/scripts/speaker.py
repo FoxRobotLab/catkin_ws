@@ -2,6 +2,7 @@
 
 import rospy
 from std_msgs.msg import String
+from espeak import espeak
 
 def callback(data):
     rospy.loginfo(data.data)
@@ -9,7 +10,9 @@ def callback(data):
 def listener():
     rospy.init_node('listener',anonymous=True)
 
-    rospy.Subscriber("chatter",String,callback)
+    str = rospy.Subscriber("chatter",String,callback)
+
+    espeak.synth(str)
 
     rospy.spin()
 
