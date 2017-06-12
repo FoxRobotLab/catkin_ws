@@ -6,13 +6,13 @@ from espeak import espeak
 
 def callback(data):
     rospy.loginfo(data.data)
+    print data.data
+    espeak.synth(data.data)
 
 def listener():
     rospy.init_node('listener',anonymous=True)
 
-    str = rospy.Subscriber("chatter",String,callback)
-
-    espeak.synth(str)
+    rospy.Subscriber("chatter",String,callback)
 
     rospy.spin()
 
