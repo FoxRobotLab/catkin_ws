@@ -146,8 +146,8 @@ Edges:
 4 5
 
 # 5) Right Angle door: 259 lab hall, Right angle center, 232-233 hall
-#5 30
-5 32
+5 30
+#5 32
 
 # 6) 258 lab hall: East T, 258 lab, 256 lab hall
 6 7
@@ -230,14 +230,14 @@ Edges:
 
 # 30) Right angle center: Right angle door, 232-233 hall, 230-231 hall
 30 32
-30 35
+#30 35
 
 # 31) 233 room: 232-233 hall
 31 32
 
 # 32) 232-233 hall: Right angle door, Right angle center, 233 room, 232 room,
-#                   230-231 haljyler@gmail.coml
-32 33
+#                   230-231 hall
+#32 33
 32 35
 
 # 33) 232 room: 232-233 hall
@@ -294,15 +294,15 @@ Edges:
 # 50) Atrium NE: Atrium north hall, 205 west atrium, North main doors, Atrium NC
 50 54
 50 51
-50 53
-50 57
+#50 53
+#50 57
 
 # 51) North main doors: Atrium NE, Atrium NW, Atrium NC
 51 52
-51 53
+#51 53
 
 # 52) Atrium NW:  North main doors, Atrium NC, Atrium CW
-52 53
+#52 53
 52 55
 
 # 53) Atrium NC: Atrium NE, North main doors, Atrium NW, 205 west atrium
@@ -317,14 +317,14 @@ Edges:
 # 55) Atrium CW:  Atrium NW, Atrium NC, Atrium CC, Atrium SW, Atrium SC
 55 56
 55 59
-55 58
+#55 58
 
 # 56) Atrium CC: Atrium CW, Atrium CE, Atrium SC
 56 57
-56 58
+#56 58
 
 # 57) Atrium CE: Atrium NC, 205 west atrium, Atrium CC, Atrium SC, Atrium SE
-57 58
+#57 58
 57 62
 
 # 58) Atrium SC: Atrium CW, Atrium CC, Atrium CE, Atrium SW, Atrium SSW,
@@ -336,7 +336,7 @@ Edges:
 
 # 59) Atrium SW: Atrium CW, Atrium SC, Atrium SSW, South main doors
 59 60
-59 61
+#59 61
 
 # 60)  Atrium SSW: Atrium SC, Atrium SW, South main doors
 60 61
