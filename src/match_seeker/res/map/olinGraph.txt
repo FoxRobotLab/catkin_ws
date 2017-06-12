@@ -18,8 +18,8 @@ Nodes:
 1   (22.2, 6.5)   Lab hall
 2   (20.0, 6.5)   East T
 3   (31.2, 6.5)   East L
-4   (12.9, 6.5)   259 lab hall
-5   (8.7, 6.1)     Right Angle door
+4   (12.8, 6.3)   259 lab hall
+5   (10.0, 6.1)     Right Angle door
 6   (20.0, 9.9)    Lab 258 hall
 7   (17.3, 10.2)   Lab 258
 8   (20.0, 17.9)   Lab 256 hall
@@ -28,7 +28,7 @@ Nodes:
 11   (20.0, 26.1)   Collab Workspace hall
 12   (17.3, 26.3)   Collab Workspace
 13   (20.0, 27.6)   205 center hall
-14   (20.0, 40.1)   Atrium center hall
+14   (20.0, 41.2)   Atrium center hall
 15   (23.8, 21.2)   250 center
 16   (28.1, 21.2)   250 north
 17   (25.0, 29.5)   205 east
@@ -43,8 +43,8 @@ Nodes:
 26   (31.0, 28.6)   205 north hall
 27   (31.0, 38.9)   241 hall
 28   (35.1, 38.6)   241 room
-29   (31.0, 40.1)   Atrium north hall
-30   (6.7, 10.1)   Right Angle center
+29   (31.0, 41.2)   Atrium north hall
+30   (7.5, 6.4)   Right Angle turn
 31   (3.2, 7.6)   233 room
 32   (6.1, 8.5)   232-233 hall
 33   (3.2, 9.4)   232 room
@@ -64,19 +64,19 @@ Nodes:
 47   (6.1, 39.0)   222-223 hall
 48   (3.2, 39.9)   222 room
 49   (6.3, 41.1)   Atrium south hall
-50   (31.1, 44.8)   Atrium NE
+50   (31.1, 44.0)   Atrium NE
 51   (32.6, 50.6)   North main doors
 52   (31.2, 57.1)   Atrium NW
 53   (26.2, 50.7)   Atrium NC
-54   (23.0, 43.2)   205 west atrium
+54   (23.5, 44.0)   205 west atrium
 55   (20.1, 57.1)   Atrium CW
 56   (19.6, 50.7)   Atrium CC
-57   (21.0, 44.8)   Atrium CE
+57   (20.0, 44.0)   Atrium CE
 58   (14.1, 50.6)   Atrium SC
 59   (10.1, 57.1)   Atrium SW
 60   (6.3, 57.1)   Atrium SSW
 61   (6.3, 50.7)   South main doors
-62   (6.3, 44.8)   Atrium SE
+62   (7.0, 44.0)   Atrium SE
 
 Markers:
 0 270.0
