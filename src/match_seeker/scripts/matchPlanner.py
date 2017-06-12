@@ -65,15 +65,15 @@ class MatchPlanner(object):
                 if iterationCount > 20:
                     self.brain.step()
 
-                if iterationCount % 30 == 0:
-                    matchInfo = self.locator.findLocation(image)
-                    if matchInfo is not None:
-                        self.logger.log("Found a good enough match: " + str(matchInfo))
-                        self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
-                        if self.respondToLocation(matchInfo):
-                            self.robot.stop()
-                            if not self.pathLoc.beginJourney():
-                                break
+                # if iterationCount % 30 == 0:
+                #     matchInfo = self.locator.findLocation(image)
+                #     if matchInfo is not None:
+                #         self.logger.log("Found a good enough match: " + str(matchInfo))
+                #         self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
+                #         if self.respondToLocation(matchInfo):
+                #             self.robot.stop()
+                #             if not self.pathLoc.beginJourney():
+                #                 break
                 iterationCount += 1
 
         self.brain.stopAll()
