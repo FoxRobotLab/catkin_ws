@@ -27,7 +27,7 @@ import PathLocation
 import OutputLogger
 import MapGraph
 from DataPaths import basePath, graphMapData
-
+from std_msgs.msg import String
 
 class MatchPlanner(object):
 
@@ -51,6 +51,8 @@ class MatchPlanner(object):
 
         self.ignoreSignTime = 0
 
+        self.pub = rospy.Publisher('chatter', String, queue_size=10)
+        #rospy.init_node('talker', anonymous=True)
 
     def run(self, runtime=120):
         """Runs the program for the duration of 'runtime'"""
@@ -65,15 +67,15 @@ class MatchPlanner(object):
                 if iterationCount > 20:
                     self.brain.step()
 
-                # if iterationCount % 30 == 0:
-                #     matchInfo = self.locator.findLocation(image)
-                #     if matchInfo is not None:
-                #         self.logger.log("Found a good enough match: " + str(matchInfo))
-                #         self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
-                #         if self.respondToLocation(matchInfo):
-                #             self.robot.stop()
-                #             if not self.pathLoc.beginJourney():
-                #                 break
+                if iterationCount % 30 == 0:
+                    matchInfo = self.locator.findLocation(image)
+                    if matchInfo is not None:
+                        self.logger.log("Found a good enough match: " + str(matchInfo))
+                        self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
+                        if self.respondToLocation(matchInfo):
+                            self.robot.stop()
+                            if not self.pathLoc.beginJourney():
+                                break
                 iterationCount += 1
 
         self.brain.stopAll()
@@ -118,7 +120,10 @@ class MatchPlanner(object):
         if last != matchInfo[0] or self.ignoreSignTime > 50:
             self.ignoreSignTime = 0
             targetAngle = self.pathLoc.continueJourney(matchInfo)
-            espeak.synth("At node " + str(matchInfo[0]))     # nodeNum, nodeCoord, heading = matchInfo
+            speakStr = "At node " + str(matchInfo[0])
+            espeak.set_voice("english-us", gender = 2, age = 10)
+            espeak.synth(speakStr)     # nodeNum, nodeCoord, heading = matchInfo
+            self.pub.publish(speakStr)
 
             if targetAngle is None:
                 # We have reached our destination

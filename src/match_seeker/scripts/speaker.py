@@ -7,6 +7,7 @@ from espeak import espeak
 def callback(data):
     rospy.loginfo(data.data)
     print data.data
+    espeak.set_voice("english-us", gender=2, age=10)
     espeak.synth(data.data)
 
 def listener():
