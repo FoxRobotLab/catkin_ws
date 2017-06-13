@@ -61,15 +61,28 @@ class ORBRecognizer():
         # BFMatcher with default params
         matches = self.bf.match(des1,des2)
 
-        sortedMatches = sorted(matches, key = lambda x: x.distance)
+        # sortedMatches = sorted(matches, key = lambda x: x.distance)
         goodMatches = [mat for mat in matches if mat.distance < 300]
 
-        matchImage = cv2.drawMatches(img1, kp1, img2, kp2, goodMatches,
+        betterMatches = []
+
+        for m in goodMatches:
+            print "matches", betterMatches
+            pt1 = kp1[m.queryIdx].pt
+            pt2 = kp2[m.trainIdx].pt
+            end1 = tuple(np.round(pt1).astype(int))
+            end2 = tuple(np.round(pt2).astype(int))
+            if abs(end2[1]-end1[1]) <= 50:
+                betterMatches.append(m)
+            else:
+                print "------ REMOVING A MATCH ------"
+
+        matchImage = cv2.drawMatches(img1, kp1, img2, kp2, betterMatches,
             None, matchColor = (255, 255, 0), singlePointColor=(0, 0, 255))
         cv2.imshow("Match Image", matchImage)
         cv2.waitKey(20)
 
-        return goodMatches, kp1, kp2
+        return betterMatches, kp1, kp2
 
 
     def findImage(self, img, properties, whichCam):
