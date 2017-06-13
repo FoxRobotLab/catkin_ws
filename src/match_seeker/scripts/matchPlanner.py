@@ -38,7 +38,8 @@ class MatchPlanner(object):
         # self.webCamHeight = 480
         # self.image, times = self.robot.getImage()
 
-        self.brain = self.setupPot()
+        self.brain = self.setupNavBrain()
+        self.whichBrain = "nav"
 
         self.logger = OutputLogger.OutputLogger(True, True)
         self.olinGraph =  MapGraph.readMapFile(basePath + graphMapData)
@@ -70,20 +71,36 @@ class MatchPlanner(object):
                 if iterationCount % 30 == 0:
                     self.logger.log("-------------- New Match ---------------")
                     matchInfo = self.locator.findLocation(image)
-                    if matchInfo is not None and matchInfo[3] == "at node":
-                        self.logger.log("Found a good enough match: " + str(matchInfo[0:2]))
-                        self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
-                        if self.respondToLocation(matchInfo[0:2]):
-                            self.robot.stop()
-                            if not self.pathLoc.beginJourney():
-                                break
-                    elif matchInfo is not None and matchInfo[3] == "check coord":
-                        self.checkCoordinates(matchInfo[0:2])
+                    if matchInfo == "look":
+                        if self.whichBrain != "loc":
+                            self.setupLocBrain()
+                    else:
+                        if self.whichBrain != "nav":
+                            self.setupNavBrain()
+                        if matchInfo is not None and matchInfo[3] == "at node":
+                            self.logger.log("Found a good enough match: " + str(matchInfo[0:2]))
+                            self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
+                            if self.respondToLocation(matchInfo[0:2]):
+                                self.robot.stop()
+                                if not self.pathLoc.beginJourney():
+                                    break
+                        elif matchInfo is not None and matchInfo[3] == "check coord":
+                            self.checkCoordinates(matchInfo[0:2])
                 iterationCount += 1
 
         self.brain.stopAll()
 
-    def setupPot(self):
+    def setupLocBrain(self):
+        """Sets up the potential field brain with access to the robot's sensors and motors, and add the
+        KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
+        data. TODO: Figure out how to add a positive pull toward the next location?"""
+        currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+        currBrain.add(FieldBehaviors.LookAround())
+        self.whichBrain = "loc"
+        return currBrain
+
+
+    def setupNavBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
         data. TODO: Figure out how to add a positive pull toward the next location?"""
@@ -91,7 +108,7 @@ class MatchPlanner(object):
         currBrain.add(FieldBehaviors.KeepMoving())
         currBrain.add(FieldBehaviors.BumperReact())
         currBrain.add(FieldBehaviors.CliffReact())
-
+        self.whichBrain = "nav"
         numPieces = 6
         widthPieces = int(math.floor(self.fWidth / float(numPieces)))
         speedMultiplier = 50
