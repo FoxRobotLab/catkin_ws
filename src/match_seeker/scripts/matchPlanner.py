@@ -27,7 +27,7 @@ import PathLocation
 import OutputLogger
 import MapGraph
 from DataPaths import basePath, graphMapData
-
+from std_msgs.msg import String
 
 class MatchPlanner(object):
 
@@ -51,6 +51,8 @@ class MatchPlanner(object):
 
         self.ignoreSignTime = 0
 
+        self.pub = rospy.Publisher('chatter', String, queue_size=10)
+        #rospy.init_node('talker', anonymous=True)
 
     def run(self, runtime=120):
         """Runs the program for the duration of 'runtime'"""
@@ -118,7 +120,10 @@ class MatchPlanner(object):
         if last != matchInfo[0] or self.ignoreSignTime > 50:
             self.ignoreSignTime = 0
             targetAngle = self.pathLoc.continueJourney(matchInfo)
-            espeak.synth("At node " + str(matchInfo[0]))     # nodeNum, nodeCoord, heading = matchInfo
+            speakStr = "At node " + str(matchInfo[0])
+            espeak.set_voice("english-us", gender = 2, age = 10)
+            espeak.synth(speakStr)     # nodeNum, nodeCoord, heading = matchInfo
+            self.pub.publish(speakStr)
 
             if targetAngle is None:
                 # We have reached our destination

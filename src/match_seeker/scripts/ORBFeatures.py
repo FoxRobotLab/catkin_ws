@@ -51,18 +51,18 @@ class ORBFeatures(FeatureType.FeatureType):
         self.matches = self.matcher.match(self.des, otherFeature.des)
         sortedMatches = sorted(self.matches, key=lambda x: x.distance)
         self.goodMatches = [mat for mat in sortedMatches if mat.distance < 35] #orig 25
-        self.altGood1 = [mat for mat in sortedMatches if mat.distance < 50]
-        self.altGood2 = sortedMatches[0 : int(0.3*len(sortedMatches))]
-        scoreGood2 = [v.distance for v in self.altGood2]
-        if len(scoreGood2) > 0:
-            meanGood2 = sum(scoreGood2) / len(scoreGood2)
-        else:
-            meanGood2 = 0.0
+        # self.altGood1 = [mat for mat in sortedMatches if mat.distance < 50]
+        # self.altGood2 = sortedMatches[0 : int(0.3*len(sortedMatches))]
+        # scoreGood2 = [v.distance for v in self.altGood2]
+        # if len(scoreGood2) > 0:
+        #     meanGood2 = sum(scoreGood2) / len(scoreGood2)
+        # else:
+        #     meanGood2 = 0.0
         # print "Good match number:", len(self.goodMatches)
-        matchNum = min(100, len(self.goodMatches))
-        normedMatchNum = self._normalizeSimValue(100 - matchNum)
+        matchNum = min(200, len(self.goodMatches))
+        normedMatchNum = (200-matchNum)/2.0 #self._normalizeSimValue(200 - matchNum)
         if verbose:
-            matchImage = self.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.altGood1,
+            matchImage = self.drawMatches(self.image, self.kp, otherFeature.image, otherFeature.kp, self.goodMatches,
                                           matchColor=(255, 255, 0))  # , singlePointColor=(0, 0, 255))
             cv2.imshow("Match Image", matchImage)
             cv2.waitKey(20)
@@ -70,10 +70,9 @@ class ORBFeatures(FeatureType.FeatureType):
             self.logger.log("My descriptors: " + str(len(self.des)))
             self.logger.log("Other descrips: " + str(len(otherFeature.des)))
             self.logger.log("Good matches:   " + str(len(self.goodMatches)))
-            self.logger.log("Alt Good 1:     " + str(len(self.altGood1)))
-            self.logger.log("Alt Good 2:     " + str( meanGood2))
+            # self.logger.log("Alt Good 1:     " + str(len(self.altGood1)))
             self.logger.log("All matches:    " + str(len(self.matches)))
-            self.logger.log("Score:      " + str(100 - matchNum))
+            self.logger.log("Score:      " + str(normedMatchNum))
             self.logger.log("----------------------        DONE        --------------------")
         return normedMatchNum
 

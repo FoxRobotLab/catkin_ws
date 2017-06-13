@@ -14,7 +14,7 @@ basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 imageDirectory = "res/kobuki0609/"
 locData = "res/locations/kobuki0609.txt"
 
-## Create
+# ## Create
 # imageDirectory = "res/create060717/"
 # locData = "res/locations/create0607.txt"
 

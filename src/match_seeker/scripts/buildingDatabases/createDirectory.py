@@ -5,9 +5,9 @@ import cv2
 import shutil
 import os
 
-duplicates = open("dupKobukiJun8-1.txt",'r')
-dir1 = basePath + "res/kobuki060817_full/"
-dir2 = basePath + "res/kobuki060817_2/"
+duplicates = open("dupNodeSpec0612.txt",'r')
+dir1 = "/home/macalester/pics2/"
+dir2 = basePath + "res/kobuki0609/"
 dupList = []
 
 
