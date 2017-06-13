@@ -49,7 +49,7 @@ class PathLocation(object):
             self.logger.log("ARRIVED AT GOAL!!")
             return None
 
-        path = self.olin.getShortestPath(nodeNum, self.destination)
+        self.goalPath = self.olin.getShortestPath(nodeNum, self.destination)
         currentNode, nextNode = path[0], path[1]
         targetAngle = self.olin.getAngle(currentNode, nextNode)
 
@@ -58,6 +58,11 @@ class PathLocation(object):
         return targetAngle
 
 
-    def getPath(self):
+    def getCurrentPath(self):
+        """Returns the path it wants to follow currently."""
+        return self.goalPath
+
+
+    def getPathTraveled(self):
         """Returns the current path traveled."""
         return self.pathTraveled

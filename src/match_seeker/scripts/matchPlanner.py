@@ -110,7 +110,7 @@ class MatchPlanner(object):
         self.logger.log("---------------")
         self.logger.log("RESPONDING TO LOCATION REACHED")
 
-        path = self.pathLoc.getPath()
+        path = self.pathLoc.getPathTraveled()
         if not path:
             last = -1
         else:
@@ -122,7 +122,7 @@ class MatchPlanner(object):
 
             if targetAngle is None:
                 # We have reached our destination
-                self.prevPath.extend(self.pathLoc.getPath())
+                self.prevPath.extend(self.pathLoc.getPathTraveled())
                 print(self.prevPath)
                 return True
 
