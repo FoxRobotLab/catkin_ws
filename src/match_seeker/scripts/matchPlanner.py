@@ -68,14 +68,17 @@ class MatchPlanner(object):
                     self.brain.step()
 
                 if iterationCount % 30 == 0:
+                    self.logger.log("-------------- New Match ---------------")
                     matchInfo = self.locator.findLocation(image)
-                    if matchInfo is not None:
-                        self.logger.log("Found a good enough match: " + str(matchInfo))
+                    if matchInfo is not None and matchInfo[3] == "at node":
+                        self.logger.log("Found a good enough match: " + str(matchInfo[0:2]))
                         self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
-                        if self.respondToLocation(matchInfo):
+                        if self.respondToLocation(matchInfo[0:2]):
                             self.robot.stop()
                             if not self.pathLoc.beginJourney():
                                 break
+                    elif matchInfo is not None and matchInfo[3] == "check coord":
+                        self.checkCoordinates(matchInfo[0:2])
                 iterationCount += 1
 
         self.brain.stopAll()
@@ -136,7 +139,15 @@ class MatchPlanner(object):
 
         return False
 
-
+    def checkCoordinates(self, matchInfo):
+        nearNode = matchInfo[0]
+        heading = matchInfo[1]
+        currPath = self.pathLoc.getCurrentPath()
+        tAngle = self.pathLoc.getTargetAngle()
+        if nearNode == currPath[0] or nearNode == currPath[1]:
+            if abs(heading-tAngle) >= 5:
+                self.moveHandle.turnToNextTarget(heading,tAngle)
+                self.logger.log("Readjusting heading.")
 
 if __name__=="__main__":
     rospy.init_node('Planner')

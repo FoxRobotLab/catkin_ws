@@ -47,12 +47,14 @@ class Localizer(object):
             self.lostCount = 0
 
 
-            guess, head, conf = self._guessLocation(matches)
+            guess, head, probLoc, conf = self._guessLocation(matches)
             self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
 
             if conf == "very confident." or conf == "close, but guessing.":
-                print "I found my location."
-                return guess, head
+                # print "I found my location."
+                return guess, head, probLoc, "at node"
+            elif conf == "confident, but far away.":
+                return guess, head, probLoc, "check coord"
             else:
                 return None
 
@@ -85,7 +87,7 @@ class Localizer(object):
                 # espeak.synth(str(nodeNum))
                 self.lastKnownLoc = (bestX, bestY)
                 self.confidence = 10.0
-                return bestNodeNum, bestHead, "very confident."
+                return bestNodeNum, bestHead, (bestX,bestY), "very confident."
             else:
                 self.lastKnownLoc = (bestX, bestY)
                 if self.beenGuessing:
@@ -93,7 +95,7 @@ class Localizer(object):
                 else:
                     self.confidence = 10.0
                     self.beenGuessing = True
-                return bestNodeNum, bestHead, "confident, but far away."
+                return bestNodeNum, bestHead, (bestX,bestY), "confident, but far away."
         else:
             guessNodes = [bestNodeNum]
             dist = 0
@@ -111,12 +113,12 @@ class Localizer(object):
                 else:
                     self.confidence = 10.0
                     self.beenGuessing = True
-                return guessNodes[0], bestHead, "close, but guessing."
+                return guessNodes[0], bestHead, (bestX,bestY), "close, but guessing."
             elif len(guessNodes) == 1:
                 self.lastKnownLoc = (bestX, bestY)
                 self.confidence = 5.0
                 self.beenGuessing = False
-                return guessNodes[0], bestHead, "far and guessing."
+                return guessNodes[0], bestHead, (bestX,bestY), "far and guessing."
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1,len(guessNodes)):
@@ -124,7 +126,7 @@ class Localizer(object):
                 self.confidence = 0.0
                 self.beenGuessing = False
                 # TODO: figure out if bestHead is the right result, but for now it's probably ignored anyway
-                return nodes, bestHead, "totally unsure."
+                return nodes, bestHead, (bestX,bestY), "totally unsure."
 
 
 

@@ -81,14 +81,14 @@ class ORBFeatures(FeatureType.FeatureType):
             # matchImage = self.drawMatches(matchImage,self.kp, otherFeature.image, otherFeature.kp,removed, matchColor=(0,0,255))
             cv2.imshow("Match Image", matchImage)
             cv2.waitKey(20)
-            self.logger.log("---------------------- evaluateSimilarity --------------------")
-            self.logger.log("My descriptors: " + str(len(self.des)))
-            self.logger.log("Other descrips: " + str(len(otherFeature.des)))
-            self.logger.log("Good matches:   " + str(len(betterMatches)))
-            # self.logger.log("Alt Good 1:     " + str(len(self.altGood1)))
-            self.logger.log("All matches:    " + str(len(self.matches)))
-            self.logger.log("Score:      " + str(normedMatchNum))
-            self.logger.log("----------------------        DONE        --------------------")
+            # self.logger.log("---------------------- evaluateSimilarity --------------------")
+            # self.logger.log("My descriptors: " + str(len(self.des)))
+            # self.logger.log("Other descrips: " + str(len(otherFeature.des)))
+            # self.logger.log("Good matches:   " + str(len(betterMatches)))
+            # # self.logger.log("Alt Good 1:     " + str(len(self.altGood1)))
+            # self.logger.log("All matches:    " + str(len(self.matches)))
+            # self.logger.log("Score:      " + str(normedMatchNum))
+            # self.logger.log("----------------------        DONE        --------------------")
         return normedMatchNum
 
 

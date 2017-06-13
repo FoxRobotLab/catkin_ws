@@ -11,12 +11,12 @@ basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 
 
 # Kobuki
-# imageDirectory = "res/kobuki0609/"
-# locData = "res/locations/kobuki0609.txt"
+imageDirectory = "res/kobuki0609/"
+locData = "res/locations/kobuki0609.txt"
 
-# Create
-imageDirectory = "res/create060717/"
-locData = "res/locations/create0607.txt"
+# # Create
+# imageDirectory = "res/create060717/"
+# locData = "res/locations/create0607.txt"
 
 
 graphMapData = "res/map/olinGraph.txt"
