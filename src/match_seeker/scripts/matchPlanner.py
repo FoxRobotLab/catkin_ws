@@ -38,8 +38,8 @@ class MatchPlanner(object):
         # self.webCamHeight = 480
         # self.image, times = self.robot.getImage()
 
-        self.brain = self.setupNavBrain()
-        self.whichBrain = "nav"
+        self.brain = None
+        self.whichBrain = ""
 
         self.logger = OutputLogger.OutputLogger(True, True)
         self.olinGraph =  MapGraph.readMapFile(basePath + graphMapData)
@@ -57,6 +57,7 @@ class MatchPlanner(object):
 
     def run(self, runtime=120):
         """Runs the program for the duration of 'runtime'"""
+        self.setupNavBrain()
         timeout = time.time() + runtime
         iterationCount = 0
         destination = self.pathLoc.beginJourney()
@@ -100,29 +101,28 @@ class MatchPlanner(object):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
         data. TODO: Figure out how to add a positive pull toward the next location?"""
-        currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
-        currBrain.add(FieldBehaviors.LookAround())
+        self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+        self.brain.add(FieldBehaviors.LookAround())
         self.whichBrain = "loc"
-        return currBrain
+
 
 
     def setupNavBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
         data. TODO: Figure out how to add a positive pull toward the next location?"""
-        currBrain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
-        currBrain.add(FieldBehaviors.KeepMoving())
-        currBrain.add(FieldBehaviors.BumperReact())
-        currBrain.add(FieldBehaviors.CliffReact())
         self.whichBrain = "nav"
+        self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+        self.brain.add(FieldBehaviors.KeepMoving())
+        self.brain.add(FieldBehaviors.BumperReact())
+        self.brain.add(FieldBehaviors.CliffReact())
         numPieces = 6
         widthPieces = int(math.floor(self.fWidth / float(numPieces)))
         speedMultiplier = 50
         for i in range(0, numPieces):
-            currBrain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces / 2, speedMultiplier))
+            self.brain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces / 2, speedMultiplier))
         #     The way these pieces are made leads to the being slightly more responsive to its left side
         #     further investigation into this could lead to a more uniform obstacle reacting
-        return currBrain
 
 
     def respondToLocation(self, matchInfo):
