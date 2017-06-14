@@ -46,7 +46,7 @@ class LookAround(PotentialFieldBrain.PotentialFieldBehavior):
     """Turns slowly so the robot can find itself and a familiar heading"""
 
     def update(self):
-        self.setVector(0.1, 180)
+        self.setVector(0.05, 90)
 
 
 

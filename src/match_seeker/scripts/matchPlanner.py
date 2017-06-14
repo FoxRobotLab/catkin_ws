@@ -85,7 +85,8 @@ class MatchPlanner(object):
                         if matchInfo is not None and matchInfo[3] == "at node":
                             self.logger.log("Found a good enough match: " + str(matchInfo[0:2]))
                             self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
-                            if self.respondToLocation(matchInfo[0:2]):
+                            if self.respondToLocation(matchInfo[0:2]): #reached destination. ask for new destination again
+                                self.speak("Destination reached")
                                 self.robot.stop()
                                 destination = self.pathLoc.beginJourney()
                                 if not destination:
