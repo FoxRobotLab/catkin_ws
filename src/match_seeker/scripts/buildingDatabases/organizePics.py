@@ -9,9 +9,9 @@ import shutil
 import os
 
 
-origDir = "/home/macalester/pics/"
-desDir = "/home/macalester/pics2/"
-nameChange = open("move.txt", "w")
+origDir = "/home/macalester/catkin_ws/src/match_seeker/res/create0614/"
+desDir = "/home/macalester/catkin_ws/src/match_seeker/res/create060717/"
+nameChange = open("create0614nameChanges.txt", "w")
 nameChange.write(origDir)
 nameChange.write('\n')
 
@@ -58,7 +58,7 @@ for file in listDir:
 picNumList.sort()
 
 #starting number
-i=1370
+i=1316
 
 for num in picNumList:
     fileName = makeFilename(num)
