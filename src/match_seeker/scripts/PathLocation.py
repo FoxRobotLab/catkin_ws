@@ -34,7 +34,7 @@ class PathLocation(object):
             if userInput in range(totalNumNodes):
                 self.destination = userInput
         self.pathTraveled =[]
-        return True
+        return self.destination
 
 
     def continueJourney(self, matchInfo):
@@ -54,7 +54,7 @@ class PathLocation(object):
         self.goalPath = self.olin.getShortestPath(nodeNum, self.destination)
         self.targetAngle = self.nextAngle()
 
-        return self.targetAngle
+        return self.targetAngle, self.goalPath[1]
 
     def nextAngle(self,):
         currentNode, nextNode = self.goalPath[0], self.goalPath[1]

@@ -36,7 +36,7 @@ class Localizer(object):
 
         self._displayMatch(matches[0])
         if matches[0][0] > 90:
-            self.logger.log("I have no idea where I am.")
+            self.logger.log("I have no idea where I am. Lost Count = " + str(self.lostCount))
             self.lostCount += 1
             self.beenGuessing = False
             if self.lostCount == 3:

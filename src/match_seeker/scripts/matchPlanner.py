@@ -59,7 +59,9 @@ class MatchPlanner(object):
         """Runs the program for the duration of 'runtime'"""
         timeout = time.time() + runtime
         iterationCount = 0
-        if self.pathLoc.beginJourney():
+        destination = self.pathLoc.beginJourney()
+        if destination:
+            self.speak("Heading to " + str(destination))
             while time.time() < timeout and not rospy.is_shutdown():
                 image = self.robot.getImage()[0]
                 cv2.imshow("Turtlebot View", image)
@@ -71,6 +73,8 @@ class MatchPlanner(object):
                 if iterationCount % 30 == 0:
                     self.logger.log("-------------- New Match ---------------")
                     matchInfo = self.locator.findLocation(image)
+                    print matchInfo
+                    print self.whichBrain
                     if matchInfo == "look":
                         if self.whichBrain != "loc":
                             self.setupLocBrain()
@@ -82,8 +86,10 @@ class MatchPlanner(object):
                             self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
                             if self.respondToLocation(matchInfo[0:2]):
                                 self.robot.stop()
-                                if not self.pathLoc.beginJourney():
+                                destination = self.pathLoc.beginJourney()
+                                if not destination:
                                     break
+                                self.speak("Heading to " + str(destination))
                         elif matchInfo is not None and matchInfo[3] == "check coord":
                             self.checkCoordinates(matchInfo[0:2])
                 iterationCount += 1
@@ -139,20 +145,21 @@ class MatchPlanner(object):
             last = path[-1]
         if last != matchInfo[0] or self.ignoreSignTime > 50:
             self.ignoreSignTime = 0
-            targetAngle = self.pathLoc.continueJourney(matchInfo)
-            speakStr = "At node " + str(matchInfo[0])
-            espeak.set_voice("english-us", gender = 2, age = 10)
-            espeak.synth(speakStr)     # nodeNum, nodeCoord, heading = matchInfo
-            self.pub.publish(speakStr)
+            result = self.pathLoc.continueJourney(matchInfo)
 
-            if targetAngle is None:
+            if result is None:
                 # We have reached our destination
                 self.prevPath.extend(self.pathLoc.getPathTraveled())
                 print(self.prevPath)
                 return True
 
-            # We know where we are and need to turn
-            self.moveHandle.turnToNextTarget(matchInfo[1], targetAngle)
+            else:
+                targetAngle, nextNode = result
+                speakStr = "At node " + str(matchInfo[0]) + " Looking for node "+ str(nextNode)
+                self.speak(speakStr)
+
+                # We know where we are and need to turn
+                self.moveHandle.turnToNextTarget(matchInfo[1], targetAngle)
 
         return False
 
@@ -161,10 +168,19 @@ class MatchPlanner(object):
         heading = matchInfo[1]
         currPath = self.pathLoc.getCurrentPath()
         tAngle = self.pathLoc.getTargetAngle()
-        if nearNode == currPath[0] or nearNode == currPath[1]:
+        if currPath == None:
+            return
+        elif nearNode == currPath[0] or nearNode == currPath[1]:
             if abs(heading-tAngle) >= 5:
                 self.moveHandle.turnToNextTarget(heading,tAngle)
                 self.logger.log("Readjusting heading.")
+
+
+    def speak(self, speakStr):
+        espeak.set_voice("english-us", gender=2, age=10)
+        espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
+        self.pub.publish(speakStr)
+
 
 if __name__=="__main__":
     rospy.init_node('Planner')

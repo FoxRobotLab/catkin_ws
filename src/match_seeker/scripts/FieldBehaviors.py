@@ -38,11 +38,20 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
             self.iteration += 1
             self.setVector(self.speed, self.heading)
 
+
+
+
+
 class LookAround(PotentialFieldBrain.PotentialFieldBehavior):
     """Turns slowly so the robot can find itself and a familiar heading"""
 
     def update(self):
-        self.setVector(0.02,90)
+        self.setVector(0.1, 180)
+
+
+
+
+
 
 class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
     """Reacts to the bumper being pressed by backing up and trying to turn away from the obstacle. It reports no
