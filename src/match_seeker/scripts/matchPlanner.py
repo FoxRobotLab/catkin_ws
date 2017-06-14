@@ -101,6 +101,7 @@ class MatchPlanner(object):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
         data. TODO: Figure out how to add a positive pull toward the next location?"""
+        self.speak("Location Brain Activated")
         self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         self.brain.add(FieldBehaviors.LookAround())
         self.whichBrain = "loc"
@@ -112,6 +113,7 @@ class MatchPlanner(object):
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
         data. TODO: Figure out how to add a positive pull toward the next location?"""
         self.whichBrain = "nav"
+        self.speak("Navigating Brain Activated")
         self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         self.brain.add(FieldBehaviors.KeepMoving())
         self.brain.add(FieldBehaviors.BumperReact())

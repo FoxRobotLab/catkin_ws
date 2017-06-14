@@ -45,8 +45,17 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
 class LookAround(PotentialFieldBrain.PotentialFieldBehavior):
     """Turns slowly so the robot can find itself and a familiar heading"""
 
+    def __init__(self):
+        super(LookAround, self).__init__()
+        self.toggle = False
+
     def update(self):
-        self.setVector(0.05, 90)
+        if self.toggle:
+            self.setVector(0.02, 90)
+        else:
+            self.setVector(0, 90)
+        self.toggle = not self.toggle
+
 
 
 

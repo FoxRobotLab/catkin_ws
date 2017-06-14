@@ -251,14 +251,14 @@ class CheckerOfLocs(object):
             return True
         else:
             dist = math.sqrt((self.nearLoc[0] - locX) ** 2 + (self.nearLoc[1] - locY) ** 2)
-            return dist > 8
+            return dist <= 8
 
 
 if __name__ == '__main__':
-    catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
+    catkinPath = "/home/macalester/"
     basePath = "catkin_ws/src/match_seeker/"
     checker = CheckerOfLocs(catkinPath + basePath + "res/map/olinNewMap.txt",
-                            catkinPath + basePath + "res/locations/create0607.txt",
-                            catkinPath + basePath + "res/create060717/",
+                            catkinPath + basePath + "res/locdata/Data-Jun14Wed-164807.txt",
+                            catkinPath + basePath + "res/create0614/",
                             saveAll = True)
     checker.go()

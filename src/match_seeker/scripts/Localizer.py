@@ -39,10 +39,10 @@ class Localizer(object):
             self.logger.log("I have no idea where I am. Lost Count = " + str(self.lostCount))
             self.lostCount += 1
             self.beenGuessing = False
-            if self.lostCount == 3:
+            if self.lostCount == 5:
                 self.lastKnownLoc = None
                 self.confidence = 0
-            elif self.lostCount >= 5:
+            elif self.lostCount >= 10:
                 return "look"
             return None
         else:
