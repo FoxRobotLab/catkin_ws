@@ -127,7 +127,7 @@ class CheckerOfLocs(object):
         newKeys = self.newLocations.keys()
         newKeys.sort()
         for locKey in newKeys:
-            [currX, currY, currH] = self.oldLocations[locKey]
+            [currX, currY, currH] = self.newLocations[locKey]
             nextLine = lineTemplate.format(locKey, currX, currY, currH)
             newLocFile.write(nextLine)
         newLocFile.close()
@@ -153,13 +153,15 @@ class CheckerOfLocs(object):
 
     def drawLocOnMap(self, nextNum, currX, currY, currH, offsetX, offsetY, offsetH):
         """Draws the current location on the map"""
+        positionTemplate = "{0:d}: ({1:5.2f}, {2:5.2f}, {3:d})"
+        offsetTemplate = "Offsets: ({0:5.2f}, {1:5.2f}, {2:d})"
         nextMapImg = self.olinMap.copy()
         (pixX, pixY) = self.convertWorldToMap(currX, currY)
         self.drawPosition(nextMapImg, pixX, pixY, currH, (255, 0, 0))
-        posInfo = str(nextNum) + ": (" + str(currX) + ", " + str(currY) + ", " + str(currH) + ")"
-        offsInfo = "Offsets: (" + str(offsetX) + ", " + str(offsetY) + ", " + str(offsetH) + ")"
-        cv2.putText(nextMapImg, posInfo, (40, 40), cv2.FONT_HERSHEY_COMPLEX, 0.75, (255, 0, 0), 2)
-        cv2.putText(nextMapImg, offsInfo, (40, 90), cv2.FONT_HERSHEY_COMPLEX, 0.75, (255, 0, 0), 2)
+        posInfo = positionTemplate.format(nextNum, currX, currY, currH)
+        offsInfo = offsetTemplate.format(offsetX, offsetY, offsetH)
+        cv2.putText(nextMapImg, posInfo, (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
+        cv2.putText(nextMapImg, offsInfo, (40, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
         cv2.imshow("Map", nextMapImg)
 
 
