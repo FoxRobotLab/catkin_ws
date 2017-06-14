@@ -53,7 +53,7 @@ class MatchPlanner(object):
         self.ignoreSignTime = 0
 
         self.pub = rospy.Publisher('chatter', String, queue_size=10)
-        #rospy.init_node('talker', anonymous=True)
+
 
     def run(self, runtime=120):
         """Runs the program for the duration of 'runtime'"""
@@ -84,7 +84,6 @@ class MatchPlanner(object):
                             self.setupNavBrain()
                         if matchInfo is not None and matchInfo[3] == "at node":
                             self.logger.log("Found a good enough match: " + str(matchInfo[0:2]))
-                            self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
                             if self.respondToLocation(matchInfo[0:2]): #reached destination. ask for new destination again
                                 self.speak("Destination reached")
                                 self.robot.stop()
@@ -136,14 +135,16 @@ class MatchPlanner(object):
 
         assert matchInfo is not None
 
-        self.logger.log("---------------")
-        self.logger.log("RESPONDING TO LOCATION REACHED")
+        self.logger.log("*******")
+        self.logger.log("Responding to Location Reached")
+        self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
 
         path = self.pathLoc.getPathTraveled()
         if not path:
             last = -1
         else:
             last = path[-1]
+
         if last != matchInfo[0] or self.ignoreSignTime > 50:
             self.ignoreSignTime = 0
             result = self.pathLoc.continueJourney(matchInfo)

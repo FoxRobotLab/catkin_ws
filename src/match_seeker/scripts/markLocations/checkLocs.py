@@ -84,6 +84,9 @@ class CheckerOfLocs(object):
                 offsetH = 0
             elif userKey == 'b':
                 i -= 1
+                offsetX = 0
+                offsetY = 0
+                offsetH = 0
             elif userKey == 'w':
                 offsetX += 0.1
             elif userKey == 's':
