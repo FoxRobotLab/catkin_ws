@@ -346,7 +346,9 @@ class LabeledFrames(object):
 if __name__ == "__main__":
     # frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/Videos/may30.avi", 'video')
     # frameRecorder.go()
+    catkinPath = "Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
+    basePath = "catkin_ws/src/match_seeker/"
 
-
-    frameRecorder = LabeledFrames("olinNewMap.txt", "/home/macalester/catkin_ws/src/match_seeker/res/totagLocs/", "images")
+    frameRecorder = LabeledFrames(catkinPath + basePath + "res/map/olinNewMap.txt",
+                                  catkinPath + basePath + "totagLocs/", "images")
     frameRecorder.go()
