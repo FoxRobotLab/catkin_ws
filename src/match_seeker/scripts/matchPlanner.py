@@ -10,9 +10,8 @@ to higher level path planning, plus matching camera images to a database of imag
 in order to localize the robot.
 ======================================================================== """
 
-import time
 import math
-# import numpy as np
+
 import cv2
 import rospy
 from espeak import espeak
@@ -21,7 +20,6 @@ import turtleControl
 import MovementHandler
 import PotentialFieldBrain
 import FieldBehaviors
-# import ImageRecognizer
 import Localizer
 import PathLocation
 import OutputLogger
@@ -35,9 +33,6 @@ class MatchPlanner(object):
     def __init__(self):
         self.robot = turtleControl.TurtleBot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
-        # self.webCamWidth = 640
-        # self.webCamHeight = 480
-        # self.image, times = self.robot.getImage()
 
         self.brain = None
         self.whichBrain = ""
@@ -47,8 +42,8 @@ class MatchPlanner(object):
         self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinGraph, self.logger)
         self.prevPath = []
+        self.destination = None
 
-        # change file names in OSPathDefine
         self.locator = Localizer.Localizer(self.robot, self.olinGraph, self.logger)
 
         self.ignoreSignTime = 0
@@ -56,57 +51,76 @@ class MatchPlanner(object):
         self.pub = rospy.Publisher('chatter', String, queue_size=10)
 
 
-    def run(self, runtime=120):
+    def run(self):
         """Runs the program for the duration of 'runtime'"""
         self.setupNavBrain()
-        timeout = time.time() + runtime
         iterationCount = 0
-        destination = self.pathLoc.beginJourney()
-        if destination:
-            self.speak("Heading to " + str(destination))
-            while time.time() < timeout and not rospy.is_shutdown():
-                image = self.robot.getImage()[0]
-                cv2.imshow("Turtlebot View", image)
-                cv2.waitKey(20)
+        ready = self.getNextGoalDestination()
 
-                if iterationCount > 20:
-                    self.brain.step()
+        while ready and not rospy.is_shutdown():
+            image = self.robot.getImage()[0]
+            cv2.imshow("Turtlebot View", image)
+            cv2.waitKey(20)
 
-                if iterationCount % 30 == 0:
-                    self.logger.log("-------------- New Match ---------------")
-                    matchInfo = self.locator.findLocation(image)
-                    if matchInfo == "look":
-                        if self.whichBrain != "loc":
-                            self.setupLocBrain()
-                    else:
-                        if self.whichBrain != "nav":
-                            self.setupNavBrain()
-                        if matchInfo is not None and matchInfo[3] == "at node":
-                            self.logger.log("Found a good enough match: " + str(matchInfo[0:2]))
-                            if self.respondToLocation(matchInfo[0:2]):
-                                # reached destination. ask for new destination again
-                                self.speak("Destination reached")
-                                self.robot.stop()
-                                destination = self.pathLoc.beginJourney()
-                                if not destination:
-                                    break
-                                self.speak("Heading to " + str(destination))
-                        elif matchInfo is not None and matchInfo[3] == "check coord":
-                            self.checkCoordinates(matchInfo[0:2])
-                iterationCount += 1
+            if iterationCount > 20:
+                self.brain.step()
 
+            if iterationCount % 30 == 0:
+                self.logger.log("-------------- New Match ---------------")
+                matchInfo = self.locator.findLocation(image)
+                if matchInfo is None:
+                    pass
+                elif matchInfo == "look":
+                    self.setupLocBrain()
+                else:
+                    self.setupNavBrain()
+                    if matchInfo[3] == "at node":
+                        self.logger.log("Found a good enough match: " + str(matchInfo[0:3]))
+                        if self.respondToLocation(matchInfo[0:2]):
+                            # reached destination. ask for new destination again
+                            self.speak("Destination reached")
+                            self.robot.stop()
+                            ready = self.getNextGoalDestination()
+                    elif matchInfo[3] == "check coord":
+                        self.checkCoordinates(matchInfo[0:2])
+            iterationCount += 1
+
+        self.logger.log("Quitting...")
+        self.robot.stop()
         self.brain.stopAll()
+
+
+    def getNextGoalDestination(self):
+        """Gets goal from user and sets up path location tracker etc. Returns False if
+        the user wants to quit."""
+        self.destination = self._userGoalDest(self.olinGraph.getSize())
+        if self.destination == 99:
+            return False
+        self.pathLoc.beginJourney(self.destination)
+        self.speak("Heading to " + str(self.destination))
+        return True
+
+
+    def _userGoalDest(self, graphSize):
+        """Asks the user for a goal destination or 99 to cause the robot to shut down."""
+        while True:
+            userInp = raw_input("Enter destination index (99 to quit): ")
+            if userInp.isdigit():
+                userNum = int(userInp)
+                if (0 <= userNum < graphSize) or userNum == 99:
+                    return userNum
 
 
     def setupLocBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
         of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
-        self.whichBrain = "loc"
-        self.speak("Location Brain Activated")
-        self.logger.log("Location Brain Activated")
-        self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
-        self.brain.add(FieldBehaviors.LookAround())
+        if self.whichBrain != "loc":
+            self.whichBrain = "loc"
+            self.speak("Location Brain Activated")
+            self.logger.log("Location Brain Activated")
+            self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+            self.brain.add(FieldBehaviors.LookAround())
 
 
 
@@ -114,20 +128,21 @@ class MatchPlanner(object):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
         of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
-        self.whichBrain = "nav"
-        self.speak("Navigating Brain Activated")
-        self.logger.log("Navigating Brain Activated")
-        self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
-        self.brain.add(FieldBehaviors.KeepMoving())
-        self.brain.add(FieldBehaviors.BumperReact())
-        self.brain.add(FieldBehaviors.CliffReact())
-        numPieces = 6
-        widthPieces = int(math.floor(self.fWidth / float(numPieces)))
-        speedMultiplier = 50
-        for i in range(0, numPieces):
-            self.brain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces / 2, speedMultiplier))
-        #     The way these pieces are made leads to the being slightly more responsive to its left side
-        #     further investigation into this could lead to a more uniform obstacle reacting
+        if self.whichBrain != 'nav':
+            self.whichBrain = "nav"
+            self.speak("Navigating Brain Activated")
+            self.logger.log("Navigating Brain Activated")
+            self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+            self.brain.add(FieldBehaviors.KeepMoving())
+            self.brain.add(FieldBehaviors.BumperReact())
+            self.brain.add(FieldBehaviors.CliffReact())
+            numPieces = 6
+            widthPieces = int(math.floor(self.fWidth / float(numPieces)))
+            speedMultiplier = 50
+            for i in range(0, numPieces):
+                self.brain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces / 2, speedMultiplier))
+            #     The way these pieces are made leads to the being slightly more responsive to its left side
+            #     further investigation into this could lead to a more uniform obstacle reacting
 
 
     def respondToLocation(self, matchInfo):

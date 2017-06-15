@@ -18,7 +18,7 @@ class MapGraph(WeightedListGraph):
         node data.  The list MUST be the same length as the number of nodes,
         and each value must be a pair of numbers giving the location in the world
         of the related node.  If it is not, then an exception is raised."""
-        if len(nodeData) != n or (not self._goodNodeData(nodeData)):
+        if (len(nodeData) != n) or (not self._goodNodeData(nodeData)):
             raise(BadNodeDataException())
         else:
             WeightedListGraph.__init__(self, n, nodeData)
@@ -70,21 +70,33 @@ class MapGraph(WeightedListGraph):
         return math.hypot(loc1[0] - loc2[0], loc1[1] - loc2[1])
 
 
-    def getAngle(self, node1, node2):
-        """Returns the angle direction of the line between the two nodes. 0 being
+    def getAngle(self, pos1, pos2):
+        """Input: two node numbers, or either one may be a tuple giving an (x, y) coordinate in the map space.
+        Returns the angle direction of the line between the two nodes. 0 being
         north and going clockwise around"""
-        n1x, n1y = self.getData(node1)
-        n2x, n2y = self.getData(node2)
+        if type(pos1) is int:
+            n1x, n1y = self.getData(pos1)
+        elif type(pos1) in [tuple, list]:
+            (n1x, n1y) = pos1
+        else:  # bad data for pos1
+            return None
 
-        #translate node1 and node2 so that node1 is at origin
+        if type(pos2) is int:
+            n2x, n2y = self.getData(pos2)
+        elif type(pos2) in [tuple, list]:
+            (n2x, n2y) = pos2
+        else:  # bad data for pos2
+            return None
+
+        # translate node1 and node2 so that node1 is at origin
         t2x, t2y = n2x - n1x, n2y - n1y
 
         radianAngle = math.atan2(t2y, t2x)
         degAngle = math.degrees(radianAngle)
 
-        if -180 <= degAngle and degAngle <= 0:
-            degAngle = degAngle + 360
-        #else:
+        if -180 <= degAngle <= 0:
+            degAngle += 360
+        # else:
         #    degAngle = 360 - degAngle
         return degAngle
 
@@ -108,7 +120,7 @@ def readMapFile(mapFile):
     in the data from the file. It then generates the map appropriately."""
     try:
         filObj = open(mapFile, 'r')
-    except:
+    except IOError:
         print("ERROR READING FILE, ABORTING")
         return
     readingIntro = True
@@ -139,7 +151,7 @@ def readMapFile(mapFile):
             # If reading nodes, and haven't finished (must be data for every node)
             try:
                 [nodeNumStr, locStr, descr] = line.split("   ")
-            except:
+            except ValueError:
                 print "ERROR IN FILE AT LINE: ", line, "ABORTING"
                 return
             nodeNum = int(nodeNumStr)
@@ -174,4 +186,3 @@ def readMapFile(mapFile):
         else:
             print "Shouldn't get here", line
     return graph
-

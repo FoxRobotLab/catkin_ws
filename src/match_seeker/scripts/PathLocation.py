@@ -23,18 +23,10 @@ class PathLocation(object):
         self.targetAngle = None
 
 
-    def beginJourney(self):
+    def beginJourney(self, destNode):
         """Sets up the destination for the route."""
-        self.destination = None
-        totalNumNodes = self.olin.getSize()
-        while self.destination is None:
-            userInput = int(input("Enter destination index (99 to quit): "))
-            if userInput == 99:
-                return False
-            if userInput in range(totalNumNodes):
-                self.destination = userInput
+        self.destination = destNode
         self.pathTraveled =[]
-        return self.destination
 
 
     def continueJourney(self, matchInfo):
