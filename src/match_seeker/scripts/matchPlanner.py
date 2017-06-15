@@ -82,7 +82,7 @@ class MatchPlanner(object):
                             self.robot.stop()
                             ready = self.getNextGoalDestination()
                     elif matchInfo[3] == "check coord":
-                        self.checkCoordinates(matchInfo[0:2])
+                        self.checkCoordinates(matchInfo)
             iterationCount += 1
 
         self.logger.log("Quitting...")
@@ -152,7 +152,8 @@ class MatchPlanner(object):
         First: gets the last node in the path the robot has traveled. If that node is different from the new
         match information, OR if they are the same but a long time has passed, then record that the robot
         has reached this location, determine which direction the robot should go next, and turn toward that
-        direction."""
+        direction.
+        matchInfo format = [nearNode, heading, (x, y), descr]"""
 
         assert matchInfo is not None
 
@@ -161,12 +162,14 @@ class MatchPlanner(object):
         self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
 
         path = self.pathLoc.getPathTraveled()
+        nearNode = matchInfo[0]
+        heading = matchInfo[1]
         if not path:
             last = -1
         else:
             last = path[-1]
 
-        if last != matchInfo[0] or self.ignoreSignTime > 50:
+        if last != nearNode or self.ignoreSignTime > 50:
             self.ignoreSignTime = 0
             result = self.pathLoc.continueJourney(matchInfo)
 
@@ -178,28 +181,57 @@ class MatchPlanner(object):
 
             else:
                 targetAngle, nextNode = result
-                speakStr = "At node " + str(matchInfo[0]) + " Looking for node " + str(nextNode)
+                speakStr = "At node " + str(nearNode) + " Looking for node " + str(nextNode)
                 self.speak(speakStr)
 
                 # We know where we are and need to turn
-                self.moveHandle.turnToNextTarget(matchInfo[1], targetAngle)
+                self.moveHandle.turnToNextTarget(heading, targetAngle)
 
         return False
 
+
     def checkCoordinates(self, matchInfo):
-        nearNode = matchInfo[0]
-        heading = matchInfo[1]
+        """Check the current match information to see if we should change headings. If node that is
+        confidently "not close enough" is what we expect, then make sure heading is right. Otherwise,
+        if it is a neighbor of one of the expected nodes, then turn to move toward that node.
+        If it is further in the path, should do something, but not doing it now.
+        MatchInfo format: (nearNode, heading, (x, y), description)"""
         currPath = self.pathLoc.getCurrentPath()
-        tAngle = self.pathLoc.getTargetAngle()
         if currPath is None:
             return
-        elif nearNode == currPath[0] or nearNode == currPath[1]:
-            if abs(heading-tAngle) >= 5:
-                self.moveHandle.turnToNextTarget(heading, tAngle)
-                self.logger.log("Readjusting heading.")
+
+        nearNode = matchInfo[0]
+        heading = matchInfo[1]
+        currLoc = matchInfo[2]
+        justVisitedNode = currPath[0]
+        immediateGoalNode = currPath[1]
+        if nearNode == justVisitedNode or nearNode == immediateGoalNode:
+            tAngle = self.pathLoc.getTargetAngle()
+        elif nearNode in currPath:
+            self.logger.log("Node is in the current path, may have missed current goal, doing nothing for now...")
+            tAngle = heading
+            # TODO: figure out a response in this case?
+        elif nearNode in self.olinGraph.getNeighbors(immediateGoalNode):
+            self.logger.log("Node is adjacent to current goal, " + str(immediateGoalNode) + "but not in path")
+            self.logger.log("  Adjusting heading to move toward current goal")
+            tAngle = self.olinGraph.getAngle(currLoc, immediateGoalNode)
+        elif nearNode in self.olinGraph.getNeighbors(justVisitedNode):
+            # If near node just visited, but not near next goal, and not in path already, return to just visited
+            self.logger.log("Node is adjacent to node just visited, " + str(justVisitedNode) + "but not in current goal or path")
+            self.logger.log("  Adjusting heading to move toward just visited")
+            tAngle = self.olinGraph.getAngle(currLoc, justVisitedNode)
+        else:  # Don't know what to do
+            tAngle = heading
+
+        # adjust heading based on previous if statement
+        if abs(heading - tAngle) >= 5:
+            self.moveHandle.turnToNextTarget(heading, tAngle)
+            self.logger.log("Readjusting heading.")
+            self.speak("Adjusting heading.")
 
 
     def speak(self, speakStr):
+        """Takes in a string and "speaks" it to the base station and also to the  robot's computer."""
         espeak.set_voice("english-us", gender=2, age=10)
         espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
         self.pub.publish(speakStr)
@@ -208,6 +240,6 @@ class MatchPlanner(object):
 if __name__ == "__main__":
     rospy.init_node('Planner')
     plan = MatchPlanner()
-    plan.run(5000)
+    plan.run()
     # rospy.on_shutdown(plan.exit)
     rospy.spin()
