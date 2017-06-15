@@ -62,18 +62,27 @@ class MatchPlanner(object):
             cv2.imshow("Turtlebot View", image)
             cv2.waitKey(20)
 
-            if iterationCount > 20:
+            if iterationCount > 20 and self.whichBrain == "nav":
                 self.brain.step()
 
-            if iterationCount % 30 == 0:
+            if self.whichBrain == "loc":
+                self.moveHandle.lookAround()
+
+
+            if iterationCount % 30 == 0 or self.whichBrain == "loc":
                 self.logger.log("-------------- New Match ---------------")
                 matchInfo = self.locator.findLocation(image)
                 if matchInfo is None:
                     pass
                 elif matchInfo == "look":
-                    self.setupLocBrain()
+                    if self.whichBrain != "loc":
+                        self.speak("Location Brain Activated")
+                        self.logger.log("Location Brain Activated")
+                    self.whichBrain = "loc"
+                    # self.setupLocBrain()
                 else:
-                    self.setupNavBrain()
+                    # self.setupNavBrain()
+                    self.whichBrain = "nav"
                     if matchInfo[3] == "at node":
                         self.logger.log("Found a good enough match: " + str(matchInfo[0:3]))
                         if self.respondToLocation(matchInfo[0:2]):
@@ -211,11 +220,11 @@ class MatchPlanner(object):
             self.logger.log("Node is in the current path, may have missed current goal, doing nothing for now...")
             tAngle = heading
             # TODO: figure out a response in this case?
-        elif nearNode in self.olinGraph.getNeighbors(immediateGoalNode):
+        elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(immediateGoalNode)]:
             self.logger.log("Node is adjacent to current goal, " + str(immediateGoalNode) + "but not in path")
             self.logger.log("  Adjusting heading to move toward current goal")
             tAngle = self.olinGraph.getAngle(currLoc, immediateGoalNode)
-        elif nearNode in self.olinGraph.getNeighbors(justVisitedNode):
+        elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(justVisitedNode)]:
             # If near node just visited, but not near next goal, and not in path already, return to just visited
             self.logger.log("Node is adjacent to node just visited, " + str(justVisitedNode) + "but not in current goal or path")
             self.logger.log("  Adjusting heading to move toward just visited")

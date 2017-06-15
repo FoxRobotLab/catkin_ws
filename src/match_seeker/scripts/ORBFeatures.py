@@ -74,13 +74,13 @@ class ORBFeatures(FeatureType.FeatureType):
 
         matchNum = min(200, len(betterMatches))
         normedMatchNum = (200-matchNum)/2.0 #self._normalizeSimValue(200 - matchNum)
-        if verbose:
-            img, offset = self.joinImages(self.image,otherFeature.image)
-            matchImage = self.drawMatches(img, offset, self.kp, otherFeature.kp, betterMatches, removed,
-                                          matchColor=(255, 255, 0), remColor = (0,0,255))  # , singlePointColor=(0, 0, 255))
+        # if verbose:
+        #     img, offset = self.joinImages(self.image,otherFeature.image)
+            # matchImage = self.drawMatches(img, offset, self.kp, otherFeature.kp, betterMatches, removed,
+            #                               matchColor=(255, 255, 0), remColor = (0,0,255))  # , singlePointColor=(0, 0, 255))
             # matchImage = self.drawMatches(matchImage,self.kp, otherFeature.image, otherFeature.kp,removed, matchColor=(0,0,255))
-            cv2.imshow("Match Image", matchImage)
-            cv2.waitKey(20)
+            # cv2.imshow("Match Image", matchImage)
+            # cv2.waitKey(20)
             # self.logger.log("---------------------- evaluateSimilarity --------------------")
             # self.logger.log("My descriptors: " + str(len(self.des)))
             # self.logger.log("Other descrips: " + str(len(otherFeature.des)))

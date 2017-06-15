@@ -7,7 +7,7 @@ import os
 
 duplicates = open("dupNodeSpec0612.txt",'r')
 dir1 = "/home/macalester/pics2/"
-dir2 = basePath + "res/kobuki0609/"
+dir2 = basePath + "res/kobuki0615/"
 dupList = []
 
 

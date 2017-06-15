@@ -10,7 +10,7 @@ import os
 
 
 origDir = "/home/macalester/catkin_ws/src/match_seeker/res/homeSigns/"
-desDir = "/home/macalester/catkin_ws/src/match_seeker/res/kobuki0609/"
+desDir = "/home/macalester/catkin_ws/src/match_seeker/res/kobuki0615/"
 nameChange = open("kobukiSignsNameChanges.txt", "w")
 nameChange.write(origDir)
 nameChange.write('\n')

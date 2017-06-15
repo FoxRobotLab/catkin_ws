@@ -23,6 +23,10 @@ class MovementHandler(object):
         self.d2s = 0.046 # converts degrees to seconds
         self.logger = logWriter
 
+    def lookAround(self):
+        """turns. stops. waits."""
+        self.turnByAngle(-35)
+        self.robot.stop()
 
     def turnToNextTarget(self, currHeading, targetAngle):
         """Takes in the currentHeading, which comes from the heading attached to the current best matching picture,
