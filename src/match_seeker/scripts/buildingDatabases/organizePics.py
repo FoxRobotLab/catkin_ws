@@ -10,8 +10,8 @@ import os
 
 
 origDir = "/home/macalester/catkin_ws/src/match_seeker/res/homeSigns/"
-desDir = "/home/macalester/catkin_ws/src/match_seeker/res/create060717/"
-nameChange = open("createSignNameChanges.txt", "w")
+desDir = "/home/macalester/catkin_ws/src/match_seeker/res/kobuki0609/"
+nameChange = open("kobukiSignsNameChanges.txt", "w")
 nameChange.write(origDir)
 nameChange.write('\n')
 
@@ -58,7 +58,7 @@ for file in listDir:
 picNumList.sort()
 
 #starting number
-i=1426
+i=1619
 
 for num in picNumList:
     fileName = makeFilename(num)

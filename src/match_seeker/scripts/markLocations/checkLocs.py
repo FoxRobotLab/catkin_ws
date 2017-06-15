@@ -258,7 +258,7 @@ if __name__ == '__main__':
     catkinPath = "/home/macalester/"
     basePath = "catkin_ws/src/match_seeker/"
     checker = CheckerOfLocs(catkinPath + basePath + "res/map/olinNewMap.txt",
-                            catkinPath + basePath + "res/locdata/Data-Jun14Wed-164807.txt",
-                            catkinPath + basePath + "res/create0614/",
+                            catkinPath + basePath + "res/locdata/Data-Jun15Thu-103404.txt",
+                            catkinPath + basePath + "res/kobuki0615/",
                             saveAll = True)
     checker.go()

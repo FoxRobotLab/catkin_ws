@@ -350,5 +350,5 @@ if __name__ == "__main__":
     basePath = "catkin_ws/src/match_seeker/"
 
     frameRecorder = LabeledFrames(catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  catkinPath + basePath + "res/create0614/", "images")
+                                  catkinPath + basePath + "res/kobuki0615/", "images")
     frameRecorder.go()
