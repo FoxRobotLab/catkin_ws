@@ -16,7 +16,7 @@ locData = "res/locations/kobuki0609.txtOLD"
 
 # # # Create
 # imageDirectory = "res/create060717/"
-# locData = "res/locations/create0607.txt"
+# locData = "res/locations/SUSANcreate0607.txt"
 
 
 graphMapData = "res/map/olinGraph.txt"
