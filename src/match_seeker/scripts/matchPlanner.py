@@ -29,6 +29,7 @@ import MapGraph
 from DataPaths import basePath, graphMapData
 from std_msgs.msg import String
 
+
 class MatchPlanner(object):
 
     def __init__(self):
@@ -42,7 +43,7 @@ class MatchPlanner(object):
         self.whichBrain = ""
 
         self.logger = OutputLogger.OutputLogger(True, True)
-        self.olinGraph =  MapGraph.readMapFile(basePath + graphMapData)
+        self.olinGraph = MapGraph.readMapFile(basePath + graphMapData)
         self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinGraph, self.logger)
         self.prevPath = []
@@ -74,8 +75,6 @@ class MatchPlanner(object):
                 if iterationCount % 30 == 0:
                     self.logger.log("-------------- New Match ---------------")
                     matchInfo = self.locator.findLocation(image)
-                    print matchInfo
-                    print self.whichBrain
                     if matchInfo == "look":
                         if self.whichBrain != "loc":
                             self.setupLocBrain()
@@ -84,7 +83,8 @@ class MatchPlanner(object):
                             self.setupNavBrain()
                         if matchInfo is not None and matchInfo[3] == "at node":
                             self.logger.log("Found a good enough match: " + str(matchInfo[0:2]))
-                            if self.respondToLocation(matchInfo[0:2]): #reached destination. ask for new destination again
+                            if self.respondToLocation(matchInfo[0:2]):
+                                # reached destination. ask for new destination again
                                 self.speak("Destination reached")
                                 self.robot.stop()
                                 destination = self.pathLoc.beginJourney()
@@ -97,23 +97,26 @@ class MatchPlanner(object):
 
         self.brain.stopAll()
 
+
     def setupLocBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
-        KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
-        data. TODO: Figure out how to add a positive pull toward the next location?"""
+        KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
+        of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
+        self.whichBrain = "loc"
         self.speak("Location Brain Activated")
+        self.logger.log("Location Brain Activated")
         self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         self.brain.add(FieldBehaviors.LookAround())
-        self.whichBrain = "loc"
 
 
 
     def setupNavBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
-        KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions of the depth
-        data. TODO: Figure out how to add a positive pull toward the next location?"""
+        KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
+        of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
         self.whichBrain = "nav"
         self.speak("Navigating Brain Activated")
+        self.logger.log("Navigating Brain Activated")
         self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
         self.brain.add(FieldBehaviors.KeepMoving())
         self.brain.add(FieldBehaviors.BumperReact())
@@ -133,7 +136,8 @@ class MatchPlanner(object):
         Returns True if the robot has arrived at its final goal location, otherwise, False.
         First: gets the last node in the path the robot has traveled. If that node is different from the new
         match information, OR if they are the same but a long time has passed, then record that the robot
-        has reached this location, determine which direction the robot should go next, and turn toward that direction."""
+        has reached this location, determine which direction the robot should go next, and turn toward that
+        direction."""
 
         assert matchInfo is not None
 
@@ -159,7 +163,7 @@ class MatchPlanner(object):
 
             else:
                 targetAngle, nextNode = result
-                speakStr = "At node " + str(matchInfo[0]) + " Looking for node "+ str(nextNode)
+                speakStr = "At node " + str(matchInfo[0]) + " Looking for node " + str(nextNode)
                 self.speak(speakStr)
 
                 # We know where we are and need to turn
@@ -172,11 +176,11 @@ class MatchPlanner(object):
         heading = matchInfo[1]
         currPath = self.pathLoc.getCurrentPath()
         tAngle = self.pathLoc.getTargetAngle()
-        if currPath == None:
+        if currPath is None:
             return
         elif nearNode == currPath[0] or nearNode == currPath[1]:
             if abs(heading-tAngle) >= 5:
-                self.moveHandle.turnToNextTarget(heading,tAngle)
+                self.moveHandle.turnToNextTarget(heading, tAngle)
                 self.logger.log("Readjusting heading.")
 
 
@@ -186,7 +190,7 @@ class MatchPlanner(object):
         self.pub.publish(speakStr)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     rospy.init_node('Planner')
     plan = MatchPlanner()
     plan.run(5000)
