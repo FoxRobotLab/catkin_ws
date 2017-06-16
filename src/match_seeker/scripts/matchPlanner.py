@@ -75,9 +75,10 @@ class MatchPlanner(object):
                 if matchInfo == "continue":
                     pass
                 elif matchInfo == "keep-going":
+                    if self.whichBrain != "nav":
+                        self.speak("Navigating...")
+                        self.logger.log("Navigating...")
                     self.whichBrain = "nav"
-                    self.speak("Navigating...")
-                    self.logger.log("Navigating...")
                 elif matchInfo == "look":
                     if self.whichBrain != "loc":
                         self.speak("Localizing...")
