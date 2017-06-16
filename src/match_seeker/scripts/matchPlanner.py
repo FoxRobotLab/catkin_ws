@@ -72,12 +72,16 @@ class MatchPlanner(object):
             if iterationCount % 30 == 0 or self.whichBrain == "loc":
                 self.logger.log("-------------- New Match ---------------")
                 matchInfo = self.locator.findLocation(image)
-                if matchInfo is None:
+                if matchInfo == "continue":
                     pass
+                elif matchInfo == "keep-going":
+                    self.whichBrain = "nav"
+                    self.speak("Navigating...")
+                    self.logger.log("Navigating...")
                 elif matchInfo == "look":
                     if self.whichBrain != "loc":
-                        self.speak("Location Brain Activated")
-                        self.logger.log("Location Brain Activated")
+                        self.speak("Localizing...")
+                        self.logger.log("Localizing...")
                     self.whichBrain = "loc"
                 else:
                     self.whichBrain = "nav"

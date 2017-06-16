@@ -44,7 +44,7 @@ class Localizer(object):
                 self.confidence = 0
             elif self.lostCount >= 10:
                 return "look"
-            return None
+            return "continue"
         else:
             self.lostCount = 0
 
@@ -57,7 +57,7 @@ class Localizer(object):
             elif conf == "confident, but far away.":
                 return guess, head, probLoc, "check coord"
             else:
-                return None
+                return "keep-going"
 
 
     def _displayMatch(self, match):
