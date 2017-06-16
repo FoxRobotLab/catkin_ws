@@ -33,9 +33,9 @@ class Localizer(object):
          enough, then the information about the location is returned so the planner can respond to it."""
 
         matches = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
-
-        self._displayMatch(matches[0])
-        if matches[0][0] > 90:
+        bestMatch = matches[0]
+        self._displayMatch(bestMatch)
+        if bestMatch[0] > 90:
             self.logger.log("I have no idea where I am. Lost Count = " + str(self.lostCount))
             self.lostCount += 1
             self.beenGuessing = False
@@ -47,7 +47,6 @@ class Localizer(object):
             return None
         else:
             self.lostCount = 0
-
 
             guess, head, probLoc, conf = self._guessLocation(matches)
             self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
@@ -64,10 +63,12 @@ class Localizer(object):
     def _displayMatch(self, match):
         """Given match information, of the form (score, ImageFeatures), it displays the match with the score
         written in the lower left corner."""
+        dispTemplate = "{0:d}: {1:3.1f}"
         (score, imFeat) = match
+        dispString = dispTemplate.format(imFeat.getIdNum(), score)
         matchIm = imFeat.getImage()
         matchIm = matchIm.copy()
-        cv2.putText(matchIm, str(score), (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
+        cv2.putText(matchIm, dispString, (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
         cv2.imshow("Match Picture", matchIm)
         # cv2.moveWindow("Match Picture", self.width + 10, 0)
         cv2.waitKey(20)
@@ -75,18 +76,17 @@ class Localizer(object):
 
 
     def _guessLocation(self, bestMatches):
-        (lowScore, lowFeat) = bestMatches[0]
-        idNum = lowFeat.getIdNum()
+        (bestScore, bestFeat) = bestMatches[0]
+        idNum = bestFeat.getIdNum()
         bestX, bestY, bestHead = self.dataset.getLoc(idNum)
         (bestNodeNum, nodeX, nodeY, bestDist) = self._findClosestNode((bestX, bestY))
 
         self.logger.log("This match is tagged at " + str(bestX) + ", " + str(bestY) + ".")
         self.logger.log("The closest node is " + str(bestNodeNum) + " at " + str(bestDist) + "  meters.")
 
-        if bestMatches[0][0] < 70:
+        if bestScore < 70:
             self.beenGuessing = False
             if bestDist <= 0.8:
-                # espeak.synth(str(nodeNum))
                 self.lastKnownLoc = (bestX, bestY)
                 self.confidence = 10.0
                 return bestNodeNum, bestHead, (bestX,bestY), "very confident."

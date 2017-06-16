@@ -28,6 +28,7 @@ class MovementHandler(object):
         self.turnByAngle(-35)
         self.robot.stop()
 
+
     def turnToNextTarget(self, currHeading, targetAngle):
         """Takes in the currentHeading, which comes from the heading attached to the current best matching picture,
         given in global coordinates. Also takes in the target angle, also in global coordinates. This function computes

@@ -142,9 +142,6 @@ class ImageDataset(object):
             return
 
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
-        # cv2.imshow("Primary image", camImage)
-        # cv2.moveWindow("Primary image", 0, 0)
-        # features.displayFeaturePics("Primary image features", 0, 0)
         bestMatches = self._findBestNMatches(features, lastKnown, confidence)
         return bestMatches
 
@@ -156,32 +153,13 @@ class ImageDataset(object):
         bestScores = []
 
         potentialMatches = self._findPotentialMatches(lastKnown, confidence)
-
-        for pos in potentialMatches:
-            feat = self.featureCollection[pos]
-            simValue = currImFeatures.evaluateSimilarity(feat)
-            if simValue < self.threshold:
-                if len(bestScores) < self.numMatches:
-                    bestMatches.append(feat)
-                    bestScores.append(simValue)
-                elif len(bestScores) == self.numMatches:
-                    whichMax = -1
-                    maxBest = -1.0
-                    for j in range(self.numMatches):
-                        if bestScores[j] > maxBest:
-                            maxBest = bestScores[j]
-                            whichMax = j
-                    if simValue < maxBest:
-                        bestScores[whichMax] = simValue
-                        bestMatches[whichMax] = feat
-                else:
-                    self.logger.log("Should never get here... too many items in bestMatches!! " + str(len(bestMatches)))
+        (bestScores, bestMatches) = self._selectBestN(potentialMatches, currImFeatures)
 
         bestZipped = zip(bestScores, bestMatches)
-        bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
+        # bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
         bestFeat = bestZipped[0][1]
         # This is just to print the details of the similarity measures!!
-        currImFeatures.evaluateSimilarity(bestFeat, True)
+        # currImFeatures.evaluateSimilarity(bestFeat, True)
         self.logger.log("Best matches have scores: " + str([x[0]for x in bestZipped]))
         return bestZipped
 
@@ -204,6 +182,37 @@ class ImageDataset(object):
         self.logger.log("Potential matches length: " + str(len(potentialMatches)))
         self.logger.log("Last Known Location: " + str(lastKnown) + " Radius: " + str(radius))
         return potentialMatches
+
+
+    def _selectBestN(self, potentialMatches, currFeat):
+        """Takes in a list of potential matching images (image numbers, specifically) from the dataset, and
+        it checks their similarity to the current image. Keeps the best numMatches """
+        bestMatches = []
+        bestScores = []
+        for pos in potentialMatches:
+            feat = self.featureCollection[pos]
+            simValue = currFeat.evaluateSimilarity(feat)
+            if simValue < self.threshold:
+                self._doubleInsert(simValue, feat, bestScores, bestMatches)
+                if len(bestScores) > self.numMatches:
+                    bestScores.pop()
+                    bestMatches.pop()
+        return bestScores, bestMatches
+
+
+    def _doubleInsert(score, feat, scoreList, featList):
+        """Given a score and a feature, inserts it to keep the scorelist in increasing order, inserting the feature in the
+        feature list at the same point."""
+        indx = 0
+        while indx < len(scoreList) and (score < scoreList[indx]):
+            indx += 1
+
+        if indx == len(scoreList):
+            scoreList.append(score)
+            featList.append(feat)
+        else:
+            scoreList.insert(indx, score)
+            featList.insert(indx, feat)
 
 
     def _confidenceToRadius(self, confidence):

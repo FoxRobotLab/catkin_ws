@@ -79,9 +79,7 @@ class MatchPlanner(object):
                         self.speak("Location Brain Activated")
                         self.logger.log("Location Brain Activated")
                     self.whichBrain = "loc"
-                    # self.setupLocBrain()
                 else:
-                    # self.setupNavBrain()
                     self.whichBrain = "nav"
                     if matchInfo[3] == "at node":
                         self.logger.log("Found a good enough match: " + str(matchInfo[0:3]))
@@ -233,7 +231,11 @@ class MatchPlanner(object):
             tAngle = heading
 
         # adjust heading based on previous if statement
-        if abs(heading - tAngle) >= 5:
+        tAngle = tAngle % 360
+        angle1 = abs(heading - tAngle)
+        angle2 = 360 - angle1
+
+        if min(angle1, angle2) >= 5:
             self.moveHandle.turnToNextTarget(heading, tAngle)
             self.logger.log("Readjusting heading.")
             self.speak("Adjusting heading.")

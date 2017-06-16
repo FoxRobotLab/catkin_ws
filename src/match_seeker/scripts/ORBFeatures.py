@@ -51,14 +51,6 @@ class ORBFeatures(FeatureType.FeatureType):
         self.matches = self.matcher.match(self.des, otherFeature.des)
         sortedMatches = sorted(self.matches, key=lambda x: x.distance)
         self.goodMatches = [mat for mat in sortedMatches if mat.distance < 35] #orig 25
-        # self.altGood1 = [mat for mat in sortedMatches if mat.distance < 50]
-        # self.altGood2 = sortedMatches[0 : int(0.3*len(sortedMatches))]
-        # scoreGood2 = [v.distance for v in self.altGood2]
-        # if len(scoreGood2) > 0:
-        #     meanGood2 = sum(scoreGood2) / len(scoreGood2)
-        # else:
-        #     meanGood2 = 0.0
-        # print "Good match number:", len(self.goodMatches)
 
         betterMatches = []
         removed = []
@@ -73,22 +65,22 @@ class ORBFeatures(FeatureType.FeatureType):
                 removed.append(m)
 
         matchNum = min(200, len(betterMatches))
-        normedMatchNum = (200-matchNum)/2.0 #self._normalizeSimValue(200 - matchNum)
-        # if verbose:
-        #     img, offset = self.joinImages(self.image,otherFeature.image)
-            # matchImage = self.drawMatches(img, offset, self.kp, otherFeature.kp, betterMatches, removed,
-            #                               matchColor=(255, 255, 0), remColor = (0,0,255))  # , singlePointColor=(0, 0, 255))
-            # matchImage = self.drawMatches(matchImage,self.kp, otherFeature.image, otherFeature.kp,removed, matchColor=(0,0,255))
-            # cv2.imshow("Match Image", matchImage)
-            # cv2.waitKey(20)
-            # self.logger.log("---------------------- evaluateSimilarity --------------------")
-            # self.logger.log("My descriptors: " + str(len(self.des)))
-            # self.logger.log("Other descrips: " + str(len(otherFeature.des)))
-            # self.logger.log("Good matches:   " + str(len(betterMatches)))
-            # # self.logger.log("Alt Good 1:     " + str(len(self.altGood1)))
-            # self.logger.log("All matches:    " + str(len(self.matches)))
-            # self.logger.log("Score:      " + str(normedMatchNum))
-            # self.logger.log("----------------------        DONE        --------------------")
+        normedMatchNum = (200-matchNum)/2.0
+        if verbose:
+            img, offset = self.joinImages(self.image,otherFeature.image)
+            matchImage = self.drawMatches(img, offset, self.kp, otherFeature.kp, betterMatches, removed,
+                                          matchColor=(255, 255, 0), remColor = (0,0,255))  # , singlePointColor=(0, 0, 255))
+            matchImage = self.drawMatches(matchImage,self.kp, otherFeature.image, otherFeature.kp,removed, matchColor=(0,0,255))
+            cv2.imshow("Match Image", matchImage)
+            cv2.waitKey(20)
+            self.logger.log("---------------------- evaluateSimilarity --------------------")
+            self.logger.log("My descriptors: " + str(len(self.des)))
+            self.logger.log("Other descrips: " + str(len(otherFeature.des)))
+            self.logger.log("Good matches:   " + str(len(betterMatches)))
+            # self.logger.log("Alt Good 1:     " + str(len(self.altGood1)))
+            self.logger.log("All matches:    " + str(len(self.matches)))
+            self.logger.log("Score:      " + str(normedMatchNum))
+            self.logger.log("----------------------        DONE        --------------------")
         return normedMatchNum
 
 
