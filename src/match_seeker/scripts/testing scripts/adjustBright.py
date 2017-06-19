@@ -1,6 +1,3 @@
-
-
-
 import cv2
 
 def setupFLANN():

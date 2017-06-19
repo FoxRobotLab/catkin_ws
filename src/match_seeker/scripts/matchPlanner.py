@@ -219,6 +219,7 @@ class MatchPlanner(object):
         immediateGoalNode = currPath[1]
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
             tAngle = self.pathLoc.getTargetAngle()
+            self.logger.log("tAngle is " + str(tAngle))
         elif nearNode in currPath:
             self.logger.log("Node is in the current path, may have missed current goal, doing nothing for now...")
             tAngle = heading
@@ -241,9 +242,9 @@ class MatchPlanner(object):
         angle2 = 360 - angle1
 
         if min(angle1, angle2) >= 5:
-            self.moveHandle.turnToNextTarget(heading, tAngle)
             self.logger.log("Readjusting heading.")
             self.speak("Adjusting heading.")
+            self.moveHandle.turnToNextTarget(heading, tAngle)
 
 
     def speak(self, speakStr):
