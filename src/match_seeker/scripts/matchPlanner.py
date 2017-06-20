@@ -218,7 +218,9 @@ class MatchPlanner(object):
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
-            tAngle = self.pathLoc.getTargetAngle()
+            tAngle = self.olinGraph.getAngle(currLoc, immediateGoalNode)
+            #self.logger.log("tAngle is " + str(tAngle))
+            self.logger.log("Node is close to either previous node or current goal.")
         elif nearNode in currPath:
             self.logger.log("Node is in the current path, may have missed current goal, doing nothing for now...")
             tAngle = heading
@@ -235,15 +237,16 @@ class MatchPlanner(object):
         else:  # Don't know what to do
             tAngle = heading
 
+        self.logger.log("tAngle is " + str(tAngle))
         # adjust heading based on previous if statement
         tAngle = tAngle % 360
         angle1 = abs(heading - tAngle)
         angle2 = 360 - angle1
 
         if min(angle1, angle2) >= 5:
-            self.moveHandle.turnToNextTarget(heading, tAngle)
             self.logger.log("Readjusting heading.")
             self.speak("Adjusting heading.")
+            self.moveHandle.turnToNextTarget(heading, tAngle)
 
 
     def speak(self, speakStr):

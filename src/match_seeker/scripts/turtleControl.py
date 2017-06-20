@@ -39,6 +39,13 @@ class TurtleBot(object):
 
         self.robotType = os.environ["TURTLEBOT_BASE"]
 
+        if self.robotType == "create":
+            self.degreeToSeconds = 0.046
+            self.angleTurnSpeed = 0.4
+        elif self.robotType == "kobuki":
+            self.degreeToSeconds = 0.039
+            self.angleTurnSpeed = 0.5
+
         self.moveControl = MovementControlThread(self.robotType)
         self.moveControl.start()
 
@@ -49,6 +56,18 @@ class TurtleBot(object):
         self.imageControl.start()
 
         rospy.on_shutdown(self.exit)
+
+
+    def turnByAngle(self, angle):
+        """Turns the robot by the given angle, where negative is left and positive is right"""
+        turnSec = abs(angle * self.degreeToSeconds)
+        if angle > 0:
+            self.turnLeft(self.angleTurnSpeed, turnSec)
+        elif angle < 0:
+            self.turnRight(self.angleTurnSpeed, turnSec)
+        else:
+            # No need to turn, keep going
+            pass
 
 
     def findAngleToWall(self):

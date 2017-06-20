@@ -200,11 +200,11 @@ class ImageDataset(object):
         return bestScores, bestMatches
 
 
-    def _doubleInsert(score, feat, scoreList, featList):
+    def _doubleInsert(self, score, feat, scoreList, featList):
         """Given a score and a feature, inserts it to keep the scorelist in increasing order, inserting the feature in the
         feature list at the same point."""
         indx = 0
-        while indx < len(scoreList) and (score < scoreList[indx]):
+        while indx < len(scoreList) and (score > scoreList[indx]):
             indx += 1
 
         if indx == len(scoreList):
