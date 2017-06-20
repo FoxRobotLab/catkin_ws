@@ -35,6 +35,7 @@ class MatchPlanner(object):
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
         self.brain = None
+        self.goalSeeker = None
         self.whichBrain = ""
 
         self.logger = OutputLogger.OutputLogger(True, True)
@@ -71,29 +72,32 @@ class MatchPlanner(object):
 
             if iterationCount % 30 == 0 or self.whichBrain == "loc":
                 self.logger.log("-------------- New Match ---------------")
-                matchInfo = self.locator.findLocation(image)
-                if matchInfo == "continue":
+                status, matchInfo = self.locator.findLocation(image)
+                if status == "continue":
                     pass
-                elif matchInfo == "keep-going":
+                elif status == "keep-going":
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
-                        self.logger.log("Navigating...")
                     self.whichBrain = "nav"
-                elif matchInfo == "look":
+                elif status == "look":
                     if self.whichBrain != "loc":
                         self.speak("Localizing...")
-                        self.logger.log("Localizing...")
                     self.whichBrain = "loc"
-                else:
+                    self.goalSeeker.setGoal(None,None,None)
+                else:                                       # found a node
                     self.whichBrain = "nav"
-                    if matchInfo[3] == "at node":
-                        self.logger.log("Found a good enough match: " + str(matchInfo[0:3]))
-                        if self.respondToLocation(matchInfo[0:2]):
-                            # reached destination. ask for new destination again
+                    if status == "at node":
+                        self.logger.log("Found a good enough match: " + str(matchInfo))
+                        if self.respondToLocation(matchInfo):
+                            # reached destination. ask for new destination again. returns false if you're not at the final node
                             self.speak("Destination reached")
                             self.robot.stop()
                             ready = self.getNextGoalDestination()
-                    elif matchInfo[3] == "check coord":
+                            self.goalSeeker.setGoal(None,None,None)
+                        else:
+                            h = self.pathLoc.getTargetAngle()
+                            self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,h)
+                    elif status == "check coord":
                         self.checkCoordinates(matchInfo)
             iterationCount += 1
 
@@ -130,7 +134,6 @@ class MatchPlanner(object):
         if self.whichBrain != "loc":
             self.whichBrain = "loc"
             self.speak("Location Brain Activated")
-            self.logger.log("Location Brain Activated")
             self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
             self.brain.add(FieldBehaviors.LookAround())
 
@@ -143,16 +146,22 @@ class MatchPlanner(object):
         if self.whichBrain != 'nav':
             self.whichBrain = "nav"
             self.speak("Navigating Brain Activated")
-            self.logger.log("Navigating Brain Activated")
             self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
             self.brain.add(FieldBehaviors.KeepMoving())
             self.brain.add(FieldBehaviors.BumperReact())
             self.brain.add(FieldBehaviors.CliffReact())
+            self.goalSeeker = FieldBehaviors.seekGoal()
+            self.brain.add(self.goalSeeker)
             numPieces = 6
             widthPieces = int(math.floor(self.fWidth / float(numPieces)))
             speedMultiplier = 50
             for i in range(0, numPieces):
-                self.brain.add(FieldBehaviors.ObstacleForce(i * widthPieces, widthPieces / 2, speedMultiplier))
+                obstBehavior = FieldBehaviors.ObstacleForce(i * widthPieces,
+                                                            widthPieces / 2,
+                                                            speedMultiplier,
+                                                            self.fWidth,
+                                                            self.fHeight)
+                self.brain.add(obstBehavior)
             #     The way these pieces are made leads to the being slightly more responsive to its left side
             #     further investigation into this could lead to a more uniform obstacle reacting
 
@@ -207,7 +216,7 @@ class MatchPlanner(object):
         confidently "not close enough" is what we expect, then make sure heading is right. Otherwise,
         if it is a neighbor of one of the expected nodes, then turn to move toward that node.
         If it is further in the path, should do something, but not doing it now.
-        MatchInfo format: (nearNode, heading, (x, y), description)"""
+        MatchInfo format: (nearNode, heading, (x, y))"""
         currPath = self.pathLoc.getCurrentPath()
         if currPath is None:
             return
@@ -217,25 +226,32 @@ class MatchPlanner(object):
         currLoc = matchInfo[2]
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
+
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
             tAngle = self.olinGraph.getAngle(currLoc, immediateGoalNode)
-            #self.logger.log("tAngle is " + str(tAngle))
+            tDist = self.olinGraph.straightDist(currLoc,immediateGoalNode)
             self.logger.log("Node is close to either previous node or current goal.")
         elif nearNode in currPath:
             self.logger.log("Node is in the current path, may have missed current goal, doing nothing for now...")
             tAngle = heading
+            tDist = self.olinGraph.straightDist(currLoc,nearNode)
             # TODO: figure out a response in this case?
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(immediateGoalNode)]:
             self.logger.log("Node is adjacent to current goal, " + str(immediateGoalNode) + "but not in path")
             self.logger.log("  Adjusting heading to move toward current goal")
             tAngle = self.olinGraph.getAngle(currLoc, immediateGoalNode)
+            tDist = self.olinGraph.straightDist(currLoc, immediateGoalNode)
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(justVisitedNode)]:
             # If near node just visited, but not near next goal, and not in path already, return to just visited
             self.logger.log("Node is adjacent to node just visited, " + str(justVisitedNode) + "but not in current goal or path")
             self.logger.log("  Adjusting heading to move toward just visited")
             tAngle = self.olinGraph.getAngle(currLoc, justVisitedNode)
-        else:  # Don't know what to do
+            tDist = self.olinGraph.straightDist(currLoc,justVisitedNode)
+        else:  # near a node but you don't need to be there!
             tAngle = heading
+            tDist = self.olinGraph.straightDist(currLoc,nearNode)
+
+        self.goalSeeker.setGoal(tDist,tAngle,heading)
 
         self.logger.log("tAngle is " + str(tAngle))
         # adjust heading based on previous if statement
@@ -243,7 +259,7 @@ class MatchPlanner(object):
         angle1 = abs(heading - tAngle)
         angle2 = 360 - angle1
 
-        if min(angle1, angle2) >= 5:
+        if min(angle1, angle2) >= 90:
             self.logger.log("Readjusting heading.")
             self.speak("Adjusting heading.")
             self.moveHandle.turnToNextTarget(heading, tAngle)
@@ -254,6 +270,7 @@ class MatchPlanner(object):
         espeak.set_voice("english-us", gender=2, age=10)
         espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
         self.pub.publish(speakStr)
+        self.logger.log(speakStr)
 
 
 if __name__ == "__main__":
