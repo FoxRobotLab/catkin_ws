@@ -13,16 +13,13 @@ of closest matches.
 ======================================================================== """
 
 
-# import sys
 import os
 
 import numpy as np
 from scipy import spatial
 import cv2
-# from espeak import espeak
 
 import ImageFeatures
-# from OSPathDefine import basePath, ImageDirectory, locData
 
 
 class ImageDataset(object):
