@@ -47,7 +47,7 @@ class MatchPlanner(object):
 
         self.locator = Localizer.Localizer(self.robot, self.olinGraph, self.logger)
 
-        self.ignoreSignTime = 0
+        self.ignoreLocationCount = 0
 
         self.pub = rospy.Publisher('chatter', String, queue_size=10)
 
@@ -127,6 +127,18 @@ class MatchPlanner(object):
                     return userNum
 
 
+    # def setupLocBrain(self):
+    #     """Sets up the potential field brain with access to the robot's sensors and motors, and add the
+    #     KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
+    #     of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
+    #     if self.whichBrain != "loc":
+    #         self.whichBrain = "loc"
+    #         self.speak("Location Brain Activated")
+    #         self.logger.log("Location Brain Activated")
+    #         self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+    #         self.brain.add(FieldBehaviors.LookAround())
+    #
+    #
     def setupLocBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
@@ -180,7 +192,7 @@ class MatchPlanner(object):
 
         self.logger.log("*******")
         self.logger.log("Responding to Location Reached")
-        self.ignoreSignTime += 1  # Incrementing time counter to avoid responding to location for a while
+        self.ignoreLocationCount += 1  # Incrementing time counter to avoid responding to location for a while
 
         path = self.pathLoc.getPathTraveled()
         nearNode = matchInfo[0]
@@ -190,8 +202,8 @@ class MatchPlanner(object):
         else:
             last = path[-1]
 
-        if last != nearNode or self.ignoreSignTime > 50:
-            self.ignoreSignTime = 0
+        if last != nearNode or self.ignoreLocationCount > 50:
+            self.ignoreLocationCount = 0
             result = self.pathLoc.continueJourney(matchInfo)
 
             if result is None:
