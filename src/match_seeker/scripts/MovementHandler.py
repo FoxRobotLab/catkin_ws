@@ -20,13 +20,12 @@ class MovementHandler(object):
     def __init__(self, bot, logWriter):
         """Needs the turtlebot and logger objects """
         self.robot = bot
-        # self.d2s = 0.046 # converts degrees to seconds for Create
-        self.d2s = 0.039
+
         self.logger = logWriter
 
     def lookAround(self):
         """turns. stops. waits."""
-        self.turnByAngle(-35)
+        self.robot.turnByAngle(-35)
         self.robot.stop()
 
 
@@ -49,20 +48,10 @@ class MovementHandler(object):
         self.logger.log("  angleToTurn = " + str(angleToTurn))
         self.logger.log("-------------------------------------------------")
 
-        self.turnByAngle(angleToTurn)
+        self.robot.turnByAngle(angleToTurn)
 
 
-    def turnByAngle(self, angle):
-        """Turns the robot by the given angle, where negative is left and positive is right"""
-        # turnSec = abs(angle * self.d2s)        # Create
-        turnSec = abs(angle * self.d2s)  # Kobuki
-        if angle > 0:
-            self.robot.turnLeft(0.5, turnSec)
-        elif angle < 0:
-            self.robot.turnRight(0.5, turnSec)
-        else:
-            # No need to turn, keep going
-            pass
+
 
 
 
