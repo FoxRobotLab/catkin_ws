@@ -11,7 +11,7 @@ class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
 
     def update(self):
         """set zero magnitude and current heading"""
-        self.setVector(0.075, 0.0)
+        self.setVector(0.09, 0.0)
 
 
 class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
@@ -73,11 +73,10 @@ class seekGoal(PotentialFieldBrain.PotentialFieldBehavior):
             if self.goalDist < 1.0:
                 mag = 0.05
             else:
-                mag = 0.1
+                mag = 0.09
             self.setVector(mag,angle)
 
     def setGoal(self,gDist,gHeading,currHeading):
-        print("        Updating goalSeeker: ", gDist, gHeading, currHeading)
         self.goalHeading = gHeading
         self.goalDist = gDist
         self.currHeading = currHeading

@@ -73,17 +73,21 @@ class MatchPlanner(object):
             if iterationCount % 30 == 0 or self.whichBrain == "loc":
                 self.logger.log("-------------- New Match ---------------")
                 status, matchInfo = self.locator.findLocation(image)
-                if status == "continue":
-                    pass
-                elif status == "keep-going":
+                if status == "continue":            #bestMatch score > 90 but lostCount < 10
+                    self.goalSeeker.setGoal(None, None, None)
+                    self.logger.log("======Goal seeker off")
+                elif status == "keep-going":        #LookAround found a match
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
+                        self.robot.turnByAngle(90)         #turn back 90 degrees bc the behavior is faster than the matching
+                        self.checkCoordinates(matchInfo)    #react to the location data of the match
                     self.whichBrain = "nav"
-                elif status == "look":
+                elif status == "look":          #enter LookAround behavior
                     if self.whichBrain != "loc":
                         self.speak("Localizing...")
                     self.whichBrain = "loc"
                     self.goalSeeker.setGoal(None,None,None)
+                    self.logger.log("======Goal seeker off")
                 else:                                       # found a node
                     self.whichBrain = "nav"
                     if status == "at node":
@@ -94,9 +98,11 @@ class MatchPlanner(object):
                             self.robot.stop()
                             ready = self.getNextGoalDestination()
                             self.goalSeeker.setGoal(None,None,None)
+                            self.logger.log("======Goal seeker off")
                         else:
                             h = self.pathLoc.getTargetAngle()
                             self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,h)
+                            self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " + str(h) + " " + str(h))
                     elif status == "check coord":
                         self.checkCoordinates(matchInfo)
             iterationCount += 1
@@ -112,6 +118,7 @@ class MatchPlanner(object):
         self.destination = self._userGoalDest(self.olinGraph.getSize())
         if self.destination == 99:
             return False
+        self.locator.setLastLoc(self.pathLoc.getPathTraveled()[-1])  #TODO: this line is untested
         self.pathLoc.beginJourney(self.destination)
         self.speak("Heading to " + str(self.destination))
         return True
@@ -137,17 +144,6 @@ class MatchPlanner(object):
     #         self.logger.log("Location Brain Activated")
     #         self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
     #         self.brain.add(FieldBehaviors.LookAround())
-    #
-    #
-    def setupLocBrain(self):
-        """Sets up the potential field brain with access to the robot's sensors and motors, and add the
-        KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
-        of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
-        if self.whichBrain != "loc":
-            self.whichBrain = "loc"
-            self.speak("Location Brain Activated")
-            self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
-            self.brain.add(FieldBehaviors.LookAround())
 
 
 
@@ -174,8 +170,8 @@ class MatchPlanner(object):
                                                             self.fWidth,
                                                             self.fHeight)
                 self.brain.add(obstBehavior)
-            #     The way these pieces are made leads to the being slightly more responsive to its left side
-            #     further investigation into this could lead to a more uniform obstacle reacting
+                # The way these pieces are made leads to the being slightly more responsive to its left side
+                # further investigation into this could lead to a more uniform obstacle reacting
 
 
     def respondToLocation(self, matchInfo):
@@ -209,7 +205,7 @@ class MatchPlanner(object):
             if result is None:
                 # We have reached our destination
                 self.prevPath.extend(self.pathLoc.getPathTraveled())
-                print(self.prevPath)
+                self.logger.log("The total path is : " + self.prevPath)
                 return True
 
             else:
@@ -261,9 +257,11 @@ class MatchPlanner(object):
             tDist = self.olinGraph.straightDist(currLoc,justVisitedNode)
         else:  # near a node but you don't need to be there!
             tAngle = heading
-            tDist = self.olinGraph.straightDist(currLoc,nearNode)
+            if type(nearNode) == "string":
+                tDist = self.olinGraph.straightDist(currLoc,immediateGoalNode)
+            else:
+                tDist = self.olinGraph.straightDist(currLoc,nearNode)
 
-        self.goalSeeker.setGoal(tDist,tAngle,heading)
 
         self.logger.log("tAngle is " + str(tAngle))
         # adjust heading based on previous if statement
@@ -275,6 +273,11 @@ class MatchPlanner(object):
             self.logger.log("Readjusting heading.")
             self.speak("Adjusting heading.")
             self.moveHandle.turnToNextTarget(heading, tAngle)
+            self.goalSeeker.setGoal(None, None, None)
+            self.logger.log("======Goal seeker off")
+        else:
+            self.goalSeeker.setGoal(tDist, tAngle, heading)
+            self.logger.log("=====Updating goalSeeker: " + str(tDist) + " " + str(tAngle) + " " + str(heading))
 
 
     def speak(self, speakStr):
