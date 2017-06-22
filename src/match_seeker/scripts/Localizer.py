@@ -43,8 +43,8 @@ class Localizer(object):
                 self.lastKnownLoc = None
                 self.confidence = 0
             elif self.lostCount >= 10:
-                return "look"
-            return "continue"
+                return "look", None
+            return "continue", None
         else:
             self.lostCount = 0
 
@@ -53,11 +53,13 @@ class Localizer(object):
 
             if conf == "very confident." or conf == "close, but guessing.":
                 # print "I found my location."
-                return guess, head, probLoc, "at node"
+                return "at node", (guess, head, probLoc)
             elif conf == "confident, but far away.":
-                return guess, head, probLoc, "check coord"
+                return "check coord", (guess, head, probLoc)
             else:
-                return "keep-going"
+                #this match exited the look around behavior
+                localizerGuess, localizerHead, localizerProbLoc,locConf = self._guessLocation(matches)
+                return "keep-going", (localizerGuess,localizerHead,localizerProbLoc)
 
 
     def _displayMatch(self, match):
@@ -80,6 +82,7 @@ class Localizer(object):
         idNum = bestFeat.getIdNum()
         bestX, bestY, bestHead = self.dataset.getLoc(idNum)
         (bestNodeNum, nodeX, nodeY, bestDist) = self._findClosestNode((bestX, bestY))
+
 
         self.logger.log("This match is tagged at " + str(bestX) + ", " + str(bestY) + ".")
         self.logger.log("The closest node is " + str(bestNodeNum) + " at " + str(bestDist) + "  meters.")
@@ -152,6 +155,8 @@ class Localizer(object):
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY, bestVal)
 
+    def setLastLoc(self,oldDest):
+        self.lastKnownLoc = oldDest
 
 
     def _euclidDist(self, (x1, y1), (x2, y2)):

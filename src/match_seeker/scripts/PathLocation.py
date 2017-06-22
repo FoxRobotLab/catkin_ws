@@ -33,7 +33,7 @@ class PathLocation(object):
         """This is given information about the marker that is currently seen. It adds it to the path traveled,
         and then it gets the best path from this point to the destination. This is used to determine the next
         direction and target node for the robot. Computing the shortest path is done by the MapGraph itself, as needed."""
-        nodeNum, currHead = matchInfo
+        nodeNum, currHead, loc = matchInfo
 
         self.logger.log("Location is number " + str(nodeNum))
         self.pathTraveled.append(nodeNum)

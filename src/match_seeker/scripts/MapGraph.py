@@ -48,7 +48,7 @@ class MapGraph(WeightedListGraph):
         to compute the straightline distance between the two nodes, and sets
         the weight to be that"""
         if weight == "default":
-            weight = self._straightDist(node1, node2)
+            weight = self.straightDist(node1, node2)
         WeightedListGraph.addEdge(self, node1, node2, weight)
 
 
@@ -62,11 +62,21 @@ class MapGraph(WeightedListGraph):
         """Given a node, returns the marker data, if any, or None if none."""
         return self.markerMap.get(node, None)
 
+    def nodeToCoord(self,node):
+        if type(node) is int:
+            n1x, n1y = self.getData(node)
+            return n1x, n1y
+        elif type(node) in [tuple, list]:
+            (n1x, n1y) = node
+            return n1x, n1y
+        else:  # bad data for node
+            return None
 
-    def _straightDist(self, node1, node2):
+
+    def straightDist(self, node1, node2):
         """For estimating the straightline distance between two points for short term"""
-        loc1 = self.getData(node1)
-        loc2 = self.getData(node2)
+        loc1 = self.nodeToCoord(node1)
+        loc2 = self.nodeToCoord(node2)
         return math.hypot(loc1[0] - loc2[0], loc1[1] - loc2[1])
 
 
@@ -74,19 +84,9 @@ class MapGraph(WeightedListGraph):
         """Input: two node numbers, or either one may be a tuple giving an (x, y) coordinate in the map space.
         Returns the angle direction of the line between the two nodes. 0 being
         north and going clockwise around"""
-        if type(pos1) is int:
-            n1x, n1y = self.getData(pos1)
-        elif type(pos1) in [tuple, list]:
-            (n1x, n1y) = pos1
-        else:  # bad data for pos1
-            return None
+        (n1x, n1y) = self.nodeToCoord(pos1)
 
-        if type(pos2) is int:
-            n2x, n2y = self.getData(pos2)
-        elif type(pos2) in [tuple, list]:
-            (n2x, n2y) = pos2
-        else:  # bad data for pos2
-            return None
+        (n2x, n2y) = self.nodeToCoord(pos2)
 
         # translate node1 and node2 so that node1 is at origin
         t2x, t2y = n2x - n1x, n2y - n1y
@@ -94,7 +94,7 @@ class MapGraph(WeightedListGraph):
         radianAngle = math.atan2(t2y, t2x)
         degAngle = math.degrees(radianAngle)
 
-        if -180 <= degAngle <= 0:
+        if -180.0 <= degAngle <= 0:
             degAngle += 360
         # else:
         #    degAngle = 360 - degAngle

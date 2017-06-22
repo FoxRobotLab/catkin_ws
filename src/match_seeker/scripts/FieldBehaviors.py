@@ -11,7 +11,7 @@ class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
 
     def update(self):
         """set zero magnitude and current heading"""
-        self.setVector(0.15, 0.0)
+        self.setVector(0.09, 0.0)
 
 
 class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
@@ -57,7 +57,29 @@ class LookAround(PotentialFieldBrain.PotentialFieldBehavior):
         self.toggle = not self.toggle
 
 
+class seekGoal(PotentialFieldBrain.PotentialFieldBehavior):
 
+    def __init__(self):
+        super(seekGoal,self).__init__()
+        self.goalHeading = None
+        self.goalDist = None
+        self.currHeading = None
+
+    def update(self):
+        if self.goalHeading == None:
+            self.setVector(0, 0)
+        else:
+            angle = self.goalHeading - self.currHeading
+            if self.goalDist < 1.0:
+                mag = 0.05
+            else:
+                mag = 0.09
+            self.setVector(mag,angle)
+
+    def setGoal(self,gDist,gHeading,currHeading):
+        self.goalHeading = gHeading
+        self.goalDist = gDist
+        self.currHeading = currHeading
 
 
 
