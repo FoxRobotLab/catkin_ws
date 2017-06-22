@@ -21,6 +21,7 @@ class PathLocation(object):
         self.pathTraveled = None
         self.goalPath = None
         self.targetAngle = None
+        self.prevPath = []
 
 
     def beginJourney(self, destNode):
@@ -41,18 +42,31 @@ class PathLocation(object):
         self.logger.log(str(self.pathTraveled))
         if nodeNum == self.destination:
             self.logger.log("ARRIVED AT GOAL!!")
-            return None
+            self.prevPath.extend(self.pathTraveled)
+            self.logger.log("The total path traveled is: " + str(self.prevPath))
 
         self.goalPath = self.olin.getShortestPath(nodeNum, self.destination)
         self.targetAngle = self.nextAngle()
 
-        return self.targetAngle, self.goalPath[1]
 
     def nextAngle(self,):
         currentNode, nextNode = self.goalPath[0], self.goalPath[1]
         probAngle = self.olin.getAngle(currentNode, nextNode)
         self.logger.log("Turning from node " + str(currentNode) + " to node " + str(nextNode))
         return probAngle
+
+
+    def visitNewNode(self, node):
+        if self.pathTraveled == None:
+            return True
+        elif node == self.pathTraveled[-1]:
+            return False
+        else:
+            return True
+
+
+    def atDestination(self,node):
+        return node == self.destination
 
 
     def getCurrentPath(self):
@@ -63,6 +77,9 @@ class PathLocation(object):
     def getPathTraveled(self):
         """Returns the current path traveled."""
         return self.pathTraveled
+
+    def getTotalPath(self):
+        return self.prevPath
 
     def getTargetAngle(self):
         """returns the target angle"""

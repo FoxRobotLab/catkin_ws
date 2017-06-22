@@ -15,7 +15,7 @@ import math
 import cv2
 import rospy
 from espeak import espeak
-
+import numpy as np
 import turtleControl
 import MovementHandler
 import PotentialFieldBrain
@@ -42,7 +42,6 @@ class MatchPlanner(object):
         self.olinGraph = MapGraph.readMapFile(basePath + graphMapData)
         self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinGraph, self.logger)
-        self.prevPath = []
         self.destination = None
 
         self.locator = Localizer.Localizer(self.robot, self.olinGraph, self.logger)
@@ -61,6 +60,11 @@ class MatchPlanner(object):
         while ready and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
             cv2.imshow("Turtlebot View", image)
+            cv_image = self.robot.getDepth()
+            cv_image = cv_image.astype(np.uint8)
+            im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
+            # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
+            cv2.imshow("Depth View", im)
             cv2.waitKey(20)
 
             if iterationCount > 20 and self.whichBrain == "nav":
@@ -79,7 +83,7 @@ class MatchPlanner(object):
                 elif status == "keep-going":        #LookAround found a match
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
-                        self.robot.turnByAngle(90)         #turn back 90 degrees bc the behavior is faster than the matching
+                        self.robot.turnByAngle(35)         #turn back 90 degrees bc the behavior is faster than the matching
                         self.checkCoordinates(matchInfo)    #react to the location data of the match
                     self.whichBrain = "nav"
                 elif status == "look":          #enter LookAround behavior
@@ -92,7 +96,8 @@ class MatchPlanner(object):
                     self.whichBrain = "nav"
                     if status == "at node":
                         self.logger.log("Found a good enough match: " + str(matchInfo))
-                        if self.respondToLocation(matchInfo):
+                        self.respondToLocation(matchInfo)
+                        if self.pathLoc.atDestination(matchInfo[0]):
                             # reached destination. ask for new destination again. returns false if you're not at the final node
                             self.speak("Destination reached")
                             self.robot.stop()
@@ -100,9 +105,12 @@ class MatchPlanner(object):
                             self.goalSeeker.setGoal(None,None,None)
                             self.logger.log("======Goal seeker off")
                         else:
-                            h = self.pathLoc.getTargetAngle()
-                            self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,h)
-                            self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " + str(h) + " " + str(h))
+                            # h = self.pathLoc.getTargetAngle()
+                            # currHead = matchInfo[1]
+                            # self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
+                            self.checkCoordinates(matchInfo)
+                            # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
+                            #                 str(h) + " " + str(currHead))
                     elif status == "check coord":
                         self.checkCoordinates(matchInfo)
             iterationCount += 1
@@ -118,7 +126,9 @@ class MatchPlanner(object):
         self.destination = self._userGoalDest(self.olinGraph.getSize())
         if self.destination == 99:
             return False
-        self.locator.setLastLoc(self.pathLoc.getPathTraveled()[-1])  #TODO: this line is untested
+        if self.pathLoc.getPathTraveled() is not None:
+            nodeLoc = self.olinGraph.getData(self.pathLoc.getPathTraveled()[-1])
+            self.locator.setLastLoc(nodeLoc)
         self.pathLoc.beginJourney(self.destination)
         self.speak("Heading to " + str(self.destination))
         return True
@@ -190,33 +200,15 @@ class MatchPlanner(object):
         self.logger.log("Responding to Location Reached")
         self.ignoreLocationCount += 1  # Incrementing time counter to avoid responding to location for a while
 
-        path = self.pathLoc.getPathTraveled()
         nearNode = matchInfo[0]
-        heading = matchInfo[1]
-        if not path:
-            last = -1
-        else:
-            last = path[-1]
 
-        if last != nearNode or self.ignoreLocationCount > 50:
+
+        if self.pathLoc.visitNewNode(nearNode) or self.ignoreLocationCount > 50:
             self.ignoreLocationCount = 0
-            result = self.pathLoc.continueJourney(matchInfo)
+            self.pathLoc.continueJourney(matchInfo)
 
-            if result is None:
-                # We have reached our destination
-                self.prevPath.extend(self.pathLoc.getPathTraveled())
-                self.logger.log("The total path is : " + self.prevPath)
-                return True
-
-            else:
-                targetAngle, nextNode = result
-                speakStr = "At node " + str(nearNode) + " Looking for node " + str(nextNode)
-                self.speak(speakStr)
-
-                # We know where we are and need to turn
-                self.moveHandle.turnToNextTarget(heading, targetAngle)
-
-        return False
+            speakStr = "At node " + str(nearNode)
+            self.speak(speakStr)
 
 
     def checkCoordinates(self, matchInfo):
@@ -236,33 +228,36 @@ class MatchPlanner(object):
         immediateGoalNode = currPath[1]
 
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
-            tAngle = self.olinGraph.getAngle(currLoc, immediateGoalNode)
-            tDist = self.olinGraph.straightDist(currLoc,immediateGoalNode)
+            nextNode = immediateGoalNode
             self.logger.log("Node is close to either previous node or current goal.")
         elif nearNode in currPath:
             self.logger.log("Node is in the current path, may have missed current goal, doing nothing for now...")
-            tAngle = heading
-            tDist = self.olinGraph.straightDist(currLoc,nearNode)
+            # tAngle = heading
+            nextNode = nearNode
             # TODO: figure out a response in this case?
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(immediateGoalNode)]:
             self.logger.log("Node is adjacent to current goal, " + str(immediateGoalNode) + "but not in path")
             self.logger.log("  Adjusting heading to move toward current goal")
-            tAngle = self.olinGraph.getAngle(currLoc, immediateGoalNode)
-            tDist = self.olinGraph.straightDist(currLoc, immediateGoalNode)
+            nextNode = immediateGoalNode
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(justVisitedNode)]:
             # If near node just visited, but not near next goal, and not in path already, return to just visited
             self.logger.log("Node is adjacent to node just visited, " + str(justVisitedNode) + "but not in current goal or path")
             self.logger.log("  Adjusting heading to move toward just visited")
-            tAngle = self.olinGraph.getAngle(currLoc, justVisitedNode)
-            tDist = self.olinGraph.straightDist(currLoc,justVisitedNode)
+            nextNode = justVisitedNode
         else:  # near a node but you don't need to be there!
-            tAngle = heading
-            if type(nearNode) == "string":
-                tDist = self.olinGraph.straightDist(currLoc,immediateGoalNode)
+            # tAngle = heading
+            if type(nearNode) == str:  #when node is x or y
+                nextNode = immediateGoalNode
             else:
-                tDist = self.olinGraph.straightDist(currLoc,nearNode)
+                nextNode = nearNode
+
+        tAngle = self.olinGraph.getAngle(currLoc,nextNode)
+        tDist = self.olinGraph.straightDist(currLoc,nextNode)
+        self.turn(nextNode, heading, tAngle, tDist)
 
 
+
+    def turn(self, node, heading, tAngle, tDist):
         self.logger.log("tAngle is " + str(tAngle))
         # adjust heading based on previous if statement
         tAngle = tAngle % 360
@@ -270,8 +265,7 @@ class MatchPlanner(object):
         angle2 = 360 - angle1
 
         if min(angle1, angle2) >= 90:
-            self.logger.log("Readjusting heading.")
-            self.speak("Adjusting heading.")
+            self.speak("Adjusting heading to node " + str(node))
             self.moveHandle.turnToNextTarget(heading, tAngle)
             self.goalSeeker.setGoal(None, None, None)
             self.logger.log("======Goal seeker off")

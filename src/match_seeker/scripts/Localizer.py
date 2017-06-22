@@ -155,6 +155,7 @@ class Localizer(object):
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY, bestVal)
 
+
     def setLastLoc(self,oldDest):
         self.lastKnownLoc = oldDest
 

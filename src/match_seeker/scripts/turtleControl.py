@@ -415,6 +415,7 @@ class DepthSensorThread(threading.Thread):
             self.depth_array = data
 
 
+
     def getDims(self):
         """Method typically called by another thread, it returns the botWidth and botHeight of the depth data, if available,
         or (0, 0) if it is not yet ready."""
@@ -454,6 +455,7 @@ class DepthSensorThread(threading.Thread):
         numpy_array = numpy.asarray(cv_image)
         retval = numpy_array[y:y + height, x:x + width]
         return retval
+
 
     def exit(self):
         """Method typically called by another thread, it triggerse the shutdown of this thread."""

@@ -70,6 +70,7 @@ class MapGraph(WeightedListGraph):
             (n1x, n1y) = node
             return n1x, n1y
         else:  # bad data for node
+            print "++++nordToCoord: Return None++++ " + str(node) + " " + str(type(node))
             return None
 
 

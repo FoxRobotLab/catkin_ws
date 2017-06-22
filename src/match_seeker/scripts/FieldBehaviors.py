@@ -3,7 +3,7 @@
 import PotentialFieldBrain
 import numpy
 import random
-
+import cv2
 
 class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
     """This is a brain-dead class that just reports a fixed magnitude and a heading that
@@ -121,7 +121,6 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
         a speed multiplier, and optionally a setting for the size of the depth
         image, botWidth and botHeight. Sets up the section of the depth image to use."""
         super(ObstacleForce, self).__init__()
-
         self.depthImWid = imWid
         self.depthImHgt = imHgt
         self.startCol = startCol
@@ -145,6 +144,13 @@ class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
 
         obstVals = self.robot.getDepth(self.startCol, self.startRow,
                                        self.sampleWidth, self.sampleHeight)
+
+        # if self.startCol == 0:
+        #     cv_image = obstVals.astype(numpy.uint8)
+        #     im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
+        #     # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
+        #     cv2.imshow("depth data", im)
+        #     cv2.waitKey(20)
 
         masked_obstVals = numpy.ma.masked_array(obstVals, obstVals == 0)
 

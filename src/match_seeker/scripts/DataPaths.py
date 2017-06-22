@@ -19,7 +19,7 @@ if turtleBase == "create":
     locData = "res/locations/SUSANcreate0607.txt"
 elif turtleBase == "kobuki":
     imageDirectory = "res/kobuki0615/"
-    locData = "res/locations/kobuki0615.txt"
+    locData = "res/locations/Susankobuki0615.txt"
 
 
 graphMapData = "res/map/olinGraph.txt"
