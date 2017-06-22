@@ -81,6 +81,7 @@ ch = 'a'
 outf = open("origEqMatchResults.txt", 'w')
 
 for i in range(len(images) - 1):
+    print i
     for j in range(i+1, len(images)):
         firstIm = images[i]
         firstEq = eqImages[i]
