@@ -43,10 +43,12 @@ class PathLocation(object):
         if nodeNum == self.destination:
             self.logger.log("ARRIVED AT GOAL!!")
             self.prevPath.extend(self.pathTraveled)
+            self.goalPath = []
+            self.targetAngle = None
             self.logger.log("The total path traveled is: " + str(self.prevPath))
-
-        self.goalPath = self.olin.getShortestPath(nodeNum, self.destination)
-        self.targetAngle = self.nextAngle()
+        else:
+            self.goalPath = self.olin.getShortestPath(nodeNum, self.destination)
+            self.targetAngle = self.nextAngle()
 
 
     def nextAngle(self,):
@@ -57,7 +59,7 @@ class PathLocation(object):
 
 
     def visitNewNode(self, node):
-        if self.pathTraveled == None:
+        if self.pathTraveled == None or self.pathTraveled == []:
             return True
         elif node == self.pathTraveled[-1]:
             return False
