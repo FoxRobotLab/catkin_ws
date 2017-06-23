@@ -79,7 +79,7 @@ class MatchPlanner(object):
                 status, matchInfo = self.locator.findLocation(image)
                 if status == "continue":            #bestMatch score > 90 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
-                    self.logger.log("======Goal seeker off")
+                    # self.logger.log("======Goal seeker off")
                 elif status == "keep-going":        #LookAround found a match
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
@@ -91,11 +91,11 @@ class MatchPlanner(object):
                         self.speak("Localizing...")
                     self.whichBrain = "loc"
                     self.goalSeeker.setGoal(None,None,None)
-                    self.logger.log("======Goal seeker off")
+                    # self.logger.log("======Goal seeker off")
                 else:                                       # found a node
                     self.whichBrain = "nav"
                     if status == "at node":
-                        self.logger.log("Found a good enough match: " + str(matchInfo))
+                        # self.logger.log("Found a good enough match: " + str(matchInfo))
                         self.respondToLocation(matchInfo)
                         if self.pathLoc.atDestination(matchInfo[0]):
                             # reached destination. ask for new destination again. returns false if you're not at the final node
@@ -103,7 +103,7 @@ class MatchPlanner(object):
                             self.robot.stop()
                             ready = self.getNextGoalDestination()
                             self.goalSeeker.setGoal(None,None,None)
-                            self.logger.log("======Goal seeker off")
+                            # self.logger.log("======Goal seeker off")
                         else:
                             # h = self.pathLoc.getTargetAngle()
                             # currHead = matchInfo[1]
@@ -142,19 +142,6 @@ class MatchPlanner(object):
                 userNum = int(userInp)
                 if (0 <= userNum < graphSize) or userNum == 99:
                     return userNum
-
-
-    # def setupLocBrain(self):
-    #     """Sets up the potential field brain with access to the robot's sensors and motors, and add the
-    #     KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
-    #     of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
-    #     if self.whichBrain != "loc":
-    #         self.whichBrain = "loc"
-    #         self.speak("Location Brain Activated")
-    #         self.logger.log("Location Brain Activated")
-    #         self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
-    #         self.brain.add(FieldBehaviors.LookAround())
-
 
 
     def setupNavBrain(self):
@@ -196,12 +183,11 @@ class MatchPlanner(object):
 
         assert matchInfo is not None
 
-        self.logger.log("*******")
-        self.logger.log("Responding to Location Reached")
+        # self.logger.log("*******")
+        # self.logger.log("Responding to Location Reached")
         self.ignoreLocationCount += 1  # Incrementing time counter to avoid responding to location for a while
 
         nearNode = matchInfo[0]
-
 
         if self.pathLoc.visitNewNode(nearNode) or self.ignoreLocationCount > 50:
             self.ignoreLocationCount = 0
@@ -268,7 +254,7 @@ class MatchPlanner(object):
             self.speak("Adjusting heading to node " + str(node))
             self.moveHandle.turnToNextTarget(heading, tAngle)
             self.goalSeeker.setGoal(None, None, None)
-            self.logger.log("======Goal seeker off")
+            # self.logger.log("======Goal seeker off")
         else:
             self.goalSeeker.setGoal(tDist, tAngle, heading)
             self.logger.log("=====Updating goalSeeker: " + str(tDist) + " " + str(tAngle) + " " + str(heading))

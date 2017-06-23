@@ -8,14 +8,12 @@ def callback(data):
     espeak.set_voice("english-us", gender=2, age=10)
     rospy.loginfo(data.data)
     print data.data
-
     espeak.synth(data.data)
+
 
 def listener():
     rospy.init_node('listener',anonymous=True)
-
     rospy.Subscriber("chatter",String,callback)
-
     rospy.spin()
 
 

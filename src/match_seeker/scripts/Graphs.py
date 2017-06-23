@@ -366,14 +366,14 @@ class WeightedListGraph(ListGraph):
         it generates and stores the paths in the self.pathPreds dictionary."""
         if startVert < self._numVerts and goalVert < self._numVerts:
             if goalVert == self.goalNode:
-                print "simple lookup"
+                # print "simple lookup"
                 path = self.reconstructPath(startVert)
                 path.reverse()
                 return path
             elif startVert == goalVert:
                 return []
             else:
-                print "rerunning dijkstra's"
+                # print "rerunning dijkstra's"
                 self.goalNode = goalVert
                 q = PriorityQueue()
                 visited = set()

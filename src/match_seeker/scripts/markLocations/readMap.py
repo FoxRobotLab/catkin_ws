@@ -2,7 +2,7 @@
 """
 File: readMap.py
 Author: Susan Fox
-Date: Februar 2017
+Date: February 2017
 
 This file contains code to read in the Olin-Rice map data from a file and construct
 an image of a chosen scale for the map data.

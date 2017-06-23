@@ -32,6 +32,8 @@ class Localizer(object):
          in the olin graph) with a high confidence. If the robot IS somewhere significant and confidence is high
          enough, then the information about the location is returned so the planner can respond to it."""
 
+        self.odometer()
+
         matches = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
         bestMatch = matches[0]
         self._displayMatch(bestMatch)
@@ -155,6 +157,9 @@ class Localizer(object):
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY, bestVal)
 
+    def odometer(self):
+        x, y, yaw = self.robot.getOdomData()
+        self.logger.log("********Odometer : ({0:f}, {1:f}) at heading {2:f}".format(x, y, yaw))
 
     def setLastLoc(self,oldDest):
         self.lastKnownLoc = oldDest
