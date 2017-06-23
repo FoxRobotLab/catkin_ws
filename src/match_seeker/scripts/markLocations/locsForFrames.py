@@ -62,10 +62,10 @@ class LabeledFrames(object):
         goodFrame = self._getNextImage()
         if not goodFrame:
             self.dataDone = True
-        cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
 
         # run main loop until user quits or run out of frames
         while (not self.dataDone) and (ch != 'q'):
+            cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
             cv2.imshow("Image", self.currFrame)
             x = cv2.waitKey(20)
             ch = chr(x & 0xFF)
