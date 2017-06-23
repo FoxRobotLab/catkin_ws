@@ -176,7 +176,7 @@ class ImageDataset(object):
                 potentialMatches.extend(self.numByLoc[tup])
             if potentialMatches == []:
                 potentialMatches = self.featureCollection.keys()
-        self.logger.log("Potential matches length: " + str(len(potentialMatches)))
+        # self.logger.log("Potential matches length: " + str(len(potentialMatches)))
         self.logger.log("Last Known Location: " + str(lastKnown) + " Radius: " + str(radius))
         return potentialMatches
 

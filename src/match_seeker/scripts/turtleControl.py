@@ -21,13 +21,17 @@ import sys
 import os
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
+import tf
+from tf import transformations
 import numpy
 from Utils import *
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 from create_node.msg import TurtlebotSensorState
 from kobuki_msgs.msg import SensorState
-
+from std_msgs.msg import Empty
+from time import time
 
 
 class TurtleBot(object):
@@ -54,6 +58,10 @@ class TurtleBot(object):
 
         self.imageControl = ImageSensorThread(self.robotType)
         self.imageControl.start()
+
+        self.odom = odometryListener(self.robotType)
+        self.odom.start()
+        self.odom.resetOdometer()
 
         rospy.on_shutdown(self.exit)
 
@@ -147,9 +155,17 @@ class TurtleBot(object):
 
     def getImage(self, x = 0, y = 0, width = 640, height = 480):
         """Takes in (x, y), the upper left corner of a rectangle, and the rectangle's botWidth and botHeight, all optional
-        inputs. It access the camera image and returns the specified section of the camera image. The default values are
+        inputs. It accesses the camera image and returns the specified section of the camera image. The default values are
         to return the entire camera image for the Kinect's sensor."""
         return self.imageControl.getImage(x, y, width, height)
+
+    def getOdomData(self):
+        return self.odom.getData()
+
+    def updateOdomLocation(self,x = 0, y = 0, yaw = 0.0):
+        """updates an offset for all the odometry data, when skews are introduced by human or environmental interference.
+        has a default of 0 for all inputs, to reset the offsets."""
+        return self.odom.updateOdomLoc(x, y, yaw )
 
     def getBumperStatus(self):
         """Accesses the robot base sensor data and reports whether the bumper has triggered."""
@@ -389,6 +405,7 @@ class DepthSensorThread(threading.Thread):
 
         self.runFlag = True
 
+
     def run(self):
         """Thread's run method. Does nothing, as the work is done either by callbacks being triggered or by other threads requesting data."""
         with self.lock:
@@ -413,7 +430,6 @@ class DepthSensorThread(threading.Thread):
         """Callback function triggered when depth data is available, Just copies data to instance variable."""
         with self.lock:
             self.depth_array = data
-
 
 
     def getDims(self):
@@ -463,6 +479,84 @@ class DepthSensorThread(threading.Thread):
         with self.lock:
             self.runFlag = False
 
+class odometryListener(threading.Thread):
+    """This thread communicates with the robot's odometry node, providing updated odometry data upon request."""
+
+
+    def __init__(self, robotType):
+        """Creates the connections to ROS, and initializes
+        the thread."""
+        threading.Thread.__init__(self)
+        self.lock = threading.Lock()
+        self.odomSub = rospy.Subscriber("odom", Odometry, self._odomCallback)
+        self.runFlag = True
+        self.robotType = robotType
+
+        self.x = None
+        self.y = None
+        self.yaw = None
+        self.offsetX = 22.2
+        self.offsetY = 6.5
+        self.offsetYaw = 0.0
+
+
+    def run(self):
+        """The thread's run method.  Does nothing active, just keeps running so that the other methods
+        may be accessed from other threads."""
+        with self.lock:
+            self.runFlag = True
+        runFlag = True
+        while runFlag:
+            rospy.sleep(0.2)
+            with self.lock:
+                runFlag = self.runFlag
+
+
+    def _odomCallback(self, data):
+        """Callback function connected to ROS odometry data, gets called whenever the odometry object
+        produces any data."""
+        with self.lock:
+            self.x = data.pose.pose.position.x
+            self.y = data.pose.pose.position.y
+            #converts weird quarternian data points from the robots orientation to radians.
+            (roll, pitch, self.yaw) = tf.transformations.euler_from_quaternion([data.pose.pose.orientation.x,
+                                                                                data.pose.pose.orientation.y,
+                                                                                data.pose.pose.orientation.z,
+                                                                                data.pose.pose.orientation.w])
+            #roll and pitch are only useful if your robot can move in the z plane. our turtlebots cannot fly.
+            self.yaw = math.degrees(self.yaw)
+
+    def updateOdomLoc(self, x, y, yaw):
+        """Lets you offset the odometry data, in case of outside input to the robots location,
+        like a chair or some helping hands."""
+        self.offsetX, self.offsetX, self.OffsetYaw = x, y, yaw
+        return self.offsetX, self.offsetY, self.offsetYaw
+
+    def getData(self):
+        """Method typically called by other threads, gets the available odometry data. If no data is available yet,
+        this method blocks until some becomes available."""
+
+        with self.lock:
+            x, y, yaw = self.x, self.y, self.yaw
+        return x + self.offsetX, y+self.offsetY, yaw + self.offsetYaw
+
+    def resetOdometer(self):
+        if self.robotType == 'kobuki':
+            # set up the odometry reset publisher
+            reset_odom = rospy.Publisher('/mobile_base/commands/reset_odometry', Empty, queue_size=10)
+
+            # reset odometry (these messages take a few iterations to get through)
+            timer = time()
+            while time() - timer < 0.25:
+                reset_odom.publish(Empty())
+        else:
+            pass
+
+    def exit(self):
+        """Method typically called by other threads, to shut down this thread."""
+        print "odometry shutdown received"
+        with self.lock:
+            self.runFlag = False
 
 
 if __name__ == "__main__":
