@@ -75,8 +75,12 @@ class MatchPlanner(object):
 
 
             if iterationCount % 30 == 0 or self.whichBrain == "loc":
+                # odomInfo = self.locator.odometer()
+                # self.checkCoordinates(odomInfo)
+
                 self.logger.log("-------------- New Match ---------------")
                 status, matchInfo = self.locator.findLocation(image)
+
                 if status == "continue":            #bestMatch score > 90 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
                     # self.logger.log("======Goal seeker off")

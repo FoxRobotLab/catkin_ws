@@ -9,7 +9,7 @@ from DataPaths import basePath
 
 
 
-class drawPos():
+class drawOdom():
     """draws the odometry data on a map of olin rice"""
 
     def __init__(self):
@@ -97,6 +97,6 @@ class drawPos():
 
 if __name__ == "__main__":
     rospy.init_node('Report Odometry')
-    draw = drawPos()
+    draw = drawOdom()
     draw.run()
     rospy.spin()

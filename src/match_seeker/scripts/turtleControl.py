@@ -542,6 +542,7 @@ class odometryListener(threading.Thread):
 
     def resetOdometer(self):
         if self.robotType == 'kobuki':
+
             # set up the odometry reset publisher
             reset_odom = rospy.Publisher('/mobile_base/commands/reset_odometry', Empty, queue_size=10)
 

@@ -32,36 +32,41 @@ class Localizer(object):
          in the olin graph) with a high confidence. If the robot IS somewhere significant and confidence is high
          enough, then the information about the location is returned so the planner can respond to it."""
 
-        self.odometer()
+        odomInfo = self.odometer()
 
-        matches = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
-        bestMatch = matches[0]
-        self._displayMatch(bestMatch)
-        if bestMatch[0] > 90:
-            self.logger.log("I have no idea where I am. Lost Count = " + str(self.lostCount))
-            self.lostCount += 1
-            self.beenGuessing = False
-            if self.lostCount == 5:
-                self.lastKnownLoc = None
-                self.confidence = 0
-            elif self.lostCount >= 10:
-                return "look", None
-            return "continue", None
+        if odomInfo[3] <= 1.0:
+            return "at node", (odomInfo[0], odomInfo[1], odomInfo[2])
         else:
-            self.lostCount = 0
+            return "check coord", (odomInfo[0], odomInfo[1], odomInfo[2])
 
-            guess, head, probLoc, conf = self._guessLocation(matches)
-            self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
-
-            if conf == "very confident." or conf == "close, but guessing.":
-                # print "I found my location."
-                return "at node", (guess, head, probLoc)
-            elif conf == "confident, but far away.":
-                return "check coord", (guess, head, probLoc)
-            else:
-                #this match exited the look around behavior
-                localizerGuess, localizerHead, localizerProbLoc,locConf = self._guessLocation(matches)
-                return "keep-going", (localizerGuess,localizerHead,localizerProbLoc)
+        # matches = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
+        # bestMatch = matches[0]
+        # self._displayMatch(bestMatch)
+        # if bestMatch[0] > 90:
+        #     self.logger.log("I have no idea where I am. Lost Count = " + str(self.lostCount))
+        #     self.lostCount += 1
+        #     self.beenGuessing = False
+        #     if self.lostCount == 5:
+        #         self.lastKnownLoc = None
+        #         self.confidence = 0
+        #     elif self.lostCount >= 10:
+        #         return "look", None
+        #     return "continue", None
+        # else:
+        #     self.lostCount = 0
+        #
+        #     guess, head, probLoc, conf = self._guessLocation(matches)
+        #     self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
+        #
+        #     if conf == "very confident." or conf == "close, but guessing.":
+        #         # print "I found my location."
+        #         return "at node", (guess, head, probLoc)
+        #     elif conf == "confident, but far away.":
+        #         return "check coord", (guess, head, probLoc)
+        #     else:
+        #         #this match exited the look around behavior
+        #         localizerGuess, localizerHead, localizerProbLoc,locConf = self._guessLocation(matches)
+        #         return "keep-going", (localizerGuess,localizerHead,localizerProbLoc)
 
 
     def _displayMatch(self, match):
@@ -159,7 +164,9 @@ class Localizer(object):
 
     def odometer(self):
         x, y, yaw = self.robot.getOdomData()
+        (nearNode, closeX, closeY, bestVal) = self._findClosestNode((x,y))
         self.logger.log("********Odometer : ({0:f}, {1:f}) at heading {2:f}".format(x, y, yaw))
+        return nearNode, yaw, (x, y), bestVal
 
     def setLastLoc(self,oldDest):
         self.lastKnownLoc = oldDest
