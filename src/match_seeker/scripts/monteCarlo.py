@@ -16,40 +16,49 @@ import math
 class monteCarloLoc():
 
     def __init__(self):
-        self.mapWid = 1203
-        self.mapHgt = 816
-        self.worldX, self.worldY = self.convertMapToWorld(self.mapWid, self.mapHgt)
+        self.worldX = 41.0   # meters
+        self.worldY = 61.0   # meters
+        self.mapWid = 1203   # pixels
+        self.mapHgt = 816    # pixels
+        # self.worldX, self.worldY = self.convertMapToWorld(self.mapWid, self.mapHgt)
         print self.worldX, self.worldY
         self.mapFile =  basePath + "res/map/olinNewMap.txt"
 
         # x1, y1, x2, y2 (x1 <= x2; y1 <= y2)
          # bounding tuples of rectangles that represent classrooms, stairs, and walls
-        self.obstacles = [(50.4, 60.1, 32.5, 0.0), (32.5, 5.5, 23.7, 0.0),
-                          (17.5, 5.5, 0.0, 0.0), (30.0, 42.2, 21.0, 7.2),
-                          (18.9, 42.4, 9.7, 7.2), (9.7, 41.8, 7.0, 11.4),
-                          (5.4, 60.1, 0.0, 5.5), (32.5, 60.1, 5.4, 58.5)]
+        self.obstacles = [(32.5, 0.0, 50.4,  60.1),   # top obstacle across classrooms
+                          (23.7, 0.0, 32.5, 5.5),    # ES office more or less
+                          (0.0, 0.0, 17.5, 5.5),     # Near the origin
+                          (21.0, 7.2, 30.0, 42.2),   # Covers 205 and 250
+                          (9.7, 7.2, 18.9, 42.4),    # Covers 258 etc
+                          (7.0, 11.4, 9.7, 41.8),    # The dropoff
+                          (0.0, 5.5, 5.4, 60.1),     # Faculty offices
+                          (5.4, 58.5, 32.5, 60.1)]   # Biology territory
 
         self.validPosList = []
-        for i in range(5):
+        self.olinMap = None
+        self.currentMap = None
+        self.getOlinMap()
+
+
+
+
+    def initializeParticles(self, partNum):
+        for i in range(partNum):
             self.addRandomParticle()
+
+
 
     def addRandomParticle(self):
         """generating a new list with random possibility all over the map"""
         print "adding random particles"
-        posAngle = np.random.uniform(-2*np.pi, 2*np.pi)  # radians :P
-        # posAngle = math.radians(0) + math.pi/2
-        # posX = 22.2
-        # posY = 6.5
-        # posX, posY = np.random.uniform(0, self.mapWid, 2)
+        posAngle = np.random.uniform(0, 2*np.pi)  # radians :P       WHY NOT JUST 0 TO 2Pi?
         posX = np.random.uniform(0, self.worldX)
         posY = np.random.uniform(0, self.worldY)
-        posX = int(posX)
-        posY= int(posY)
-        # self.validPosList.append((posX, posY, posAngle))
         if self.isValid((posX,posY)):
             self.validPosList.append((posX, posY, posAngle))
-        # else:
-        #     self.addRandomParticle()
+        else:
+            self.addRandomParticle()
 
 
     def addNearbyParticle(self):
@@ -68,8 +77,6 @@ class monteCarloLoc():
             if self.isValid((newX, newY)):
                 addList.append((newX, newY, newAngle))
         self.validPosList.extend(addList)
-
-
 
 
 
@@ -127,6 +134,7 @@ class monteCarloLoc():
         posY = posPoint[1]
 
         for rect in self.obstacles:
+
             if (posX >= rect[0] and posX <= rect[2]) and (posY >= rect[1] and posY <= rect[3]):
                 print "out of bounds"
                 return False
@@ -141,35 +149,46 @@ class monteCarloLoc():
         perhaps."""
         origMap = readMap.createMapImage(self.mapFile, 20)
         map2 = np.flipud(origMap)
-        self.olinMap = np.rot90(map2)
+        orientMap = np.rot90(map2)
+        self.olinMap = orientMap.copy()
         (self.mapHgt, self.mapWid, self.mapDep) = self.olinMap.shape
+        self.drawObstacles()
+        self.currentMap = self.olinMap.copy()
 
 
-    def drawLocOnMap(self, x, y, heading):
-        """Draws the current location on the map"""
-        nextMapImg = self.olinMap.copy()
-
-        self.drawPosition(nextMapImg, x,y, heading, (255, 0, 0))
-
-        #printing stuff
-        # positionTemplate = "({1:5.2f}, {2:5.2f}, {3:f})"
-        # offsetTemplate = "(Offsets: {0:5.2f}, {1:5.2f}, {2:f})"
-        # posInfo = positionTemplate.format(self.startX, self.startY, self.startYaw)
-        # offsInfo = offsetTemplate.format(offsetX, offsetY, offsetYaw)
-        # cv2.putText(nextMapImg, posInfo, (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
-        # cv2.putText(nextMapImg, offsInfo, (40, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
-
-        return nextMapImg
+    def drawObstacles(self):
+        """Draws the obstacles on the currently passed image
+        NOTE: the obstacle positions must be converted."""
+        for obst in self.obstacles:
+            (lrX, lrY, ulX, ulY) = obst
+            mapUL = self.convertWorldToMap(ulX, ulY)
+            mapLR = self.convertWorldToMap(lrX, lrY)
+            cv2.rectangle(self.olinMap, mapUL, mapLR, (255, 0, 0), thickness=2)
 
 
-    def drawPosition(self, image, x, y, heading, color):
-        cv2.circle(image, (x, y), 6, color, -1)
+    def drawParticles(self, color):
+        # self.currentMap = self.olinMap.copy()        # Ultimately we want this line, but for debugging
+        for part in self.validPosList:
+            (x, y, head) = part
+            self.drawSingleParticle(self.currentMap, x, y, head, color)
+        cv2.imshow("Particles", self.currentMap  )
+        cv2.waitKey(20)
 
-        line = 20
-        newX = int(x + (line * math.cos(heading)))
-        newY = int(y + (line * math.sin(heading)))
 
-        cv2.line(image, (x, y), (newX, newY), color)
+    def drawSingleParticle(self, image, wldX, wldY, heading, color):
+        pointLen = 1.0  # meters
+        pointX = wldX + (pointLen * math.cos(heading))
+        pointY = wldY + (pointLen * math.sin(heading))
+        print "WLD Center:", (wldX, wldY), "   Point:", (pointX, pointY), "Heading: ", np.degrees(heading)
+
+
+        mapCenter = self.convertWorldToMap(wldX, wldX)
+        mapPoint = self.convertWorldToMap(pointX, pointY)
+        print "MAP Center:", mapCenter, "   Point:", mapPoint
+        cv2.circle(image, mapCenter, 6, color, -1)
+        cv2.line(image, mapCenter, mapPoint, color)
+
+
 
     def drawBlank(self):
         width = self.mapWid
@@ -178,6 +197,7 @@ class monteCarloLoc():
 
     def getParticles(self):
         return self.validPosList
+
 
     def convertMapToWorld(self, mapX, mapY):
         """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
@@ -202,34 +222,20 @@ class monteCarloLoc():
         mapY = self.mapHgt - 1 - pixelX
         return int(mapX), int(mapY)
 
-    def drawParticles(self,color):
-        for i in range(len(self.validPosList)):
-            (x, y, head) = self.validPosList[i]
-            drawX = int(x)
-            drawY = int(y)
-            test.drawPosition(map, drawX, drawY, head, color)
+
+
 
 test = monteCarloLoc()
-test.getOlinMap()
-map = test.olinMap.copy()
-# blank = test.drawBlank()
+test.initializeParticles(5)
+
 list = test.getParticles()
-# blank[194:194+map.shape[0], 0:map.shape[1]] = map
-for rect in test.obstacles:
-    cv2.rectangle(map,(rect[0],rect[1]),(rect[2],rect[3]),(255,0,0),thickness=2)
-
 test.drawParticles((255,100,0))
-cv2.imshow("points", map)
 cv2.waitKey(0)
-
-# im = cv2.resize(blank,(900,900), interpolation = cv2.INTER_AREA)
-# cv2.imshow("drawing", map)
 
 for i in range(20):
     print "in the for loop"
-    test.particleMove(20,0)
-    test.drawParticles((0,0,255-i*20))
-    cv2.imshow("points", map)
+    test.particleMove(1.0,0)
+    test.drawParticles((0,0,255-i*12))
     cv2.waitKey(0)
 
 cv2.destroyAllWindows()
