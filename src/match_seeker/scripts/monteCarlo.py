@@ -11,17 +11,17 @@ from markLocations import readMap
 import math
 
 
-
-
 class monteCarloLoc():
 
     def __init__(self):
-        self.worldX = 41.0   # meters
-        self.worldY = 61.0   # meters
+        self.worldX = 40.75   # meters
+        self.worldY = 60.1   # meters
         self.mapWid = 1203   # pixels
         self.mapHgt = 816    # pixels
-        # self.worldX, self.worldY = self.convertMapToWorld(self.mapWid, self.mapHgt)
-        print self.worldX, self.worldY
+        self.maxLen = 1000   # num of particles
+        # self.worldX, self.worldY = self.convertMapToWorld(self.mapWid - 1, self.mapHgt - 1)
+        # print self.worldX, self.worldY
+
         self.mapFile =  basePath + "res/map/olinNewMap.txt"
 
         # x1, y1, x2, y2 (x1 <= x2; y1 <= y2)
@@ -36,112 +36,10 @@ class monteCarloLoc():
                           (5.4, 58.5, 32.5, 60.1)]   # Biology territory
 
         self.validPosList = []
+        self.weightedList = []
         self.olinMap = None
         self.currentMap = None
         self.getOlinMap()
-
-
-
-
-    def initializeParticles(self, partNum):
-        for i in range(partNum):
-            self.addRandomParticle()
-
-
-
-    def addRandomParticle(self):
-        """generating a new list with random possibility all over the map"""
-        print "adding random particles"
-        posAngle = np.random.uniform(0, 2*np.pi)  # radians :P       WHY NOT JUST 0 TO 2Pi?
-        posX = np.random.uniform(0, self.worldX)
-        posY = np.random.uniform(0, self.worldY)
-        if self.isValid((posX,posY)):
-            self.validPosList.append((posX, posY, posAngle))
-        else:
-            self.addRandomParticle()
-
-
-    def addNearbyParticle(self):
-        print "adding nearby particles"
-        addList = []
-        for part in self.validPosList:
-            posX = part[0]
-            posY = part[1]
-            posAngle = part[2]
-            newAngle = np.random.uniform(posAngle - np.pi/2, posAngle + np.pi/2)
-            newX = np.random.uniform(posX - 5, posX + 5)
-            newY = np.random.uniform(posY - 5, posY + 5)
-            newX = int(newX)
-            newY = int(newY)
-
-            if self.isValid((newX, newY)):
-                addList.append((newX, newY, newAngle))
-        self.validPosList.extend(addList)
-
-
-
-    def particleMove(self, moveDist, moveAngle):
-        """updating the information of the points when the robot moves"""
-        print "in particleMove"
-        moveList = []
-        for i in range(len(self.validPosList)):
-            posPoint = self.validPosList[i]
-            posAngle = posPoint[2] + moveAngle
-            if posAngle>2*np.pi:
-                posAngle -= 2*np.pi
-            print "new angle ", np.degrees(posAngle)
-
-            posX = posPoint[0] + moveDist * math.cos(posAngle)
-            posY = posPoint[1] + moveDist * math.sin(posAngle)
-            print "old loc: ", posPoint[0], posPoint[1]
-            print "new loc: ", posX, posY
-
-            moveList.append((posX, posY, posAngle))
-
-        self.validPosList = moveList
-        print "length ", len(self.validPosList)
-        self.update(self.validPosList)
-
-
-
-    def update(self, posList):
-        """Updating the possibility list and removing the not valid ones"""
-        print "in update ", "length ", len(self.validPosList)
-        updatedList = []
-
-        #removing any nodes that are now invalid and adding particles nearby the ones that remain
-        for particle in posList:
-            print "removing invalid nodes"
-            if self.isValid(particle):
-                updatedList.append(particle)
-                print "updated list ", len(updatedList)
-
-        self.validPosList = updatedList
-        print "length ", len(self.validPosList)
-        #self.addNearbyParticle()
-        # Adding randomized particles to the map
-        # for i in range(4):
-        #     self.addRandomParticle()
-        print "length ", len(self.validPosList)
-
-
-
-
-    def isValid(self, posPoint):
-        """checking if the particle is within the obstacle areas
-        return false if it's no longer a valid point"""
-        posX = posPoint[0]
-        posY = posPoint[1]
-
-        for rect in self.obstacles:
-
-            if (posX >= rect[0] and posX <= rect[2]) and (posY >= rect[1] and posY <= rect[3]):
-                print "out of bounds"
-                return False
-
-        return True
-
-
 
     def getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
@@ -156,6 +54,141 @@ class monteCarloLoc():
         self.currentMap = self.olinMap.copy()
 
 
+    def initializeParticles(self, partNum):
+        print "initializing particles"
+        for i in range(partNum):
+            self.addRandomParticle()
+
+
+    def addRandomParticle(self):
+        """generating a new list with random possibility all over the map"""
+        # print "adding random particles"
+        addList = []
+        posAngle = np.random.uniform(0, 2*np.pi)  # radians :P
+        posX = np.random.uniform(0, self.worldX)
+        posY = np.random.uniform(0, self.worldY)
+        if self.isValid((posX,posY)):
+            addList.append((posX, posY, posAngle))
+        else:
+            self.addRandomParticle()
+
+        self.validPosList.extend(addList)
+
+
+    def addNearbyParticle(self,particles):
+        # print "adding nearby particles"
+        addList = []
+        for part in particles:
+            posX = part[0]
+            posY = part[1]
+            posAngle = part[2]
+            newAngle = np.random.uniform(posAngle - np.pi/2, posAngle + np.pi/2)
+            newX = np.random.uniform(posX - 1.0, posX + 1.0)
+            newY = np.random.uniform(posY - 1.0, posY + 1.0)
+            newX = newX
+            newY = newY
+
+            if self.isValid((newX, newY)):
+                addList.append((newX, newY, newAngle))
+            return addList
+
+
+    def particleMove(self, moveDist, moveAngle):
+        """updating the information of the points when the robot moves"""
+        # print "in particleMove"
+        moveList = []
+        for i in range(len(self.validPosList)):
+            posPoint = self.validPosList[i]
+            posAngle = posPoint[2] + moveAngle
+            if posAngle>2*np.pi:
+                posAngle -= 2*np.pi
+
+            posX = posPoint[0] + moveDist * math.cos(posAngle)
+            posY = posPoint[1] + moveDist * math.sin(posAngle)
+
+            moveList.append((posX, posY, posAngle))
+
+        self.validPosList = moveList
+        self.update(self.validPosList)
+
+
+    def update(self, posList):
+        """Updating the possibility list and removing the not valid ones"""
+        # print "in update ", "length ", len(self.validPosList)
+        updatedList = []
+
+        #removing any nodes that are now invalid and adding particles nearby the ones that remain
+        for particle in posList:
+            # print "removing invalid nodes"
+            if self.isValid(particle):
+                updatedList.append(particle)
+                # print "updated list ", len(updatedList)
+        self.validPosList = updatedList
+
+        addList = self.addNearbyParticle(self.validPosList)         # add one point near every valid particle
+
+        self.validPosList.extend(addList)
+        for i in range(2):
+            self.addRandomParticle()    # add a few particles in random locations
+        print "length at update ", len(self.validPosList)
+
+
+    def isValid(self, posPoint):
+        """checking if the particle is within the obstacle areas
+        return false if it's no longer a valid point"""
+        posX = posPoint[0]
+        posY = posPoint[1]
+
+        for rect in self.obstacles:
+            if (posX >= rect[0] and posX <= rect[2]) and (posY >= rect[1] and posY <= rect[3]):
+                # print "out of bounds"
+                return False
+        return True
+
+
+    def calcWeights(self):
+        '''faked'''
+        keyX = 7.0
+        keyY = 7.0
+        weights = []
+        for i in range(len(self.validPosList)):
+            x = self.validPosList[i][0]
+            y = self.validPosList[i][1]
+            dist = self._euclidDist((keyX, keyY), (x, y))
+            wht = 60 - dist
+            weights.append(wht)
+        arrayWeights = np.array(weights, np.float64)
+        self.normedWeights = arrayWeights / arrayWeights.sum()
+        # for i in range(len(self.validPosList)):
+        #     part = self.validPosList[i]
+        #     self.weightedList.append((normedWeights[i],part[0],part[1],part[2]))
+
+
+    def getSample(self):
+        # weights = [ x[0] for x in self.weightedList]
+        list_idx_choices = np.random.multinomial(len(self.normedWeights), self.normedWeights)
+        # list_idx_choices of form [0, 0, 2, 0, 1, 0, 4] for length 7 list_to_sample
+        # print list_idx_choices
+        total_particles = 0
+        sampleList = []
+        for idx, count in enumerate(list_idx_choices):
+            while count > 0:
+                total_particles += 1
+                if count == 1:
+                    sampleList.append(self.validPosList[idx])
+                elif count < 3 or total_particles < self.maxLen:  # Stop duplicating if max reached
+                    # Need to add copies to new list, not just identical references!
+                    new_particle = self.addNearbyParticle([self.validPosList[idx]])
+                    sampleList.extend(new_particle)
+                count -= 1
+        return sampleList
+
+    def _euclidDist(self, (x1, y1), (x2, y2)):
+        """Given two tuples containing two (x, y) points, this computes the straight-line distsance
+        between the two points"""
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
     def drawObstacles(self):
         """Draws the obstacles on the currently passed image
         NOTE: the obstacle positions must be converted."""
@@ -167,7 +200,7 @@ class monteCarloLoc():
 
 
     def drawParticles(self, color):
-        # self.currentMap = self.olinMap.copy()        # Ultimately we want this line, but for debugging
+        self.currentMap = self.olinMap.copy()        # Ultimately we want this line, but for debugging
         for part in self.validPosList:
             (x, y, head) = part
             self.drawSingleParticle(self.currentMap, x, y, head, color)
@@ -176,18 +209,17 @@ class monteCarloLoc():
 
 
     def drawSingleParticle(self, image, wldX, wldY, heading, color):
-        pointLen = 1.0  # meters
+        pointLen = 0.75  # meters
         pointX = wldX + (pointLen * math.cos(heading))
         pointY = wldY + (pointLen * math.sin(heading))
-        print "WLD Center:", (wldX, wldY), "   Point:", (pointX, pointY), "Heading: ", np.degrees(heading)
+        # print "WLD Center:", (wldX, wldY), "   Point:", (pointX, pointY), "Heading: ", np.degrees(heading)
 
 
-        mapCenter = self.convertWorldToMap(wldX, wldX)
+        mapCenter = self.convertWorldToMap(wldX, wldY)
         mapPoint = self.convertWorldToMap(pointX, pointY)
-        print "MAP Center:", mapCenter, "   Point:", mapPoint
+        # print "MAP Center:", mapCenter, "   Point:", mapPoint
         cv2.circle(image, mapCenter, 6, color, -1)
         cv2.line(image, mapCenter, mapPoint, color)
-
 
 
     def drawBlank(self):
@@ -195,16 +227,21 @@ class monteCarloLoc():
         blank_image = np.zeros((width, width, 3), np.uint8)
         return blank_image
 
+
     def getParticles(self):
         return self.validPosList
 
 
+    # Not working properly.
     def convertMapToWorld(self, mapX, mapY):
         """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
         meters. Note that this also has to adjust for the rotation and flipping of the map."""
         # First flip x and y values around...
         flipY = self.mapWid - 1 - mapX
         flipX = self.mapHgt - 1 - mapY
+
+        # flipY = mapX + self.mapWid - 1
+        # flipX = mapY + self.mapHgt - 1
         # Next convert to meters from pixels, assuming 20 pixels per meter
         mapXMeters = flipX / 20.0
         mapYMeters = flipY / 20.0
@@ -223,20 +260,24 @@ class monteCarloLoc():
         return int(mapX), int(mapY)
 
 
-
-
 test = monteCarloLoc()
-test.initializeParticles(5)
-
-list = test.getParticles()
+test.initializeParticles(1000)
+print "total len ", len(test.validPosList)
 test.drawParticles((255,100,0))
 cv2.waitKey(0)
 
-for i in range(20):
-    print "in the for loop"
-    test.particleMove(1.0,0)
-    test.drawParticles((0,0,255-i*12))
-    cv2.waitKey(0)
+for i in range(50):
+    print "in the for loop", i
 
+    test.calcWeights()
+    list = test.getSample()
+    print "total len ", len(test.validPosList)
+    print "sample len ", len(list)
+    test.validPosList = list
+    # test.particleMove(1.0,0)
+    test.drawParticles((0,0,255-i*12))
+    cv2.waitKey(20)
+
+cv2.waitKey(0)
 cv2.destroyAllWindows()
 
