@@ -5,6 +5,7 @@ import os
 
 # base path on Susan's computer
 # basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
+
 # base path on Enterprise
 basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 

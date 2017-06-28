@@ -21,10 +21,7 @@ class monteCarloLoc():
         self.maxLen = 1000   # num of particles
         # self.worldX, self.worldY = self.convertMapToWorld(self.mapWid - 1, self.mapHgt - 1)
         # print self.worldX, self.worldY
-
-        self.mapFile =  basePath + "res/map/olinNewMap.txt"
-
-        # x1, y1, x2, y2 (x1 <= x2; y1 <= y2)
+       # x1, y1, x2, y2 (x1 <= x2; y1 <= y2)
          # bounding tuples of rectangles that represent classrooms, stairs, and walls
         self.obstacles = [(32.5, 0.0, 50.4,  60.1),   # top obstacle across classrooms
                           (23.7, 0.0, 32.5, 5.5),    # ES office more or less
@@ -37,15 +34,23 @@ class monteCarloLoc():
 
         self.validPosList = []
         self.weightedList = []
+
+        # Map stuff
         self.olinMap = None
         self.currentMap = None
-        self.getOlinMap()
+        self.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
-    def getOlinMap(self):
+        # random perturbation constants: std dev for movement and turning as a percentage of movement
+        # so if movement in x direction is 500 cm, then the std dev is 100
+        self.sigma_fwd_pct = 0.2
+        self.sigma_theta_pct = 0.05
+
+
+    def getOlinMap(self, mapFile):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
         perhaps."""
-        origMap = readMap.createMapImage(self.mapFile, 20)
+        origMap = readMap.createMapImage(mapFile, 20)
         map2 = np.flipud(origMap)
         orientMap = np.rot90(map2)
         self.olinMap = orientMap.copy()
@@ -79,18 +84,23 @@ class monteCarloLoc():
         # print "adding nearby particles"
         addList = []
         for part in particles:
-            posX = part[0]
-            posY = part[1]
-            posAngle = part[2]
-            newAngle = np.random.uniform(posAngle - np.pi/2, posAngle + np.pi/2)
-            newX = np.random.uniform(posX - 1.0, posX + 1.0)
-            newY = np.random.uniform(posY - 1.0, posY + 1.0)
-            newX = newX
-            newY = newY
+            (posX, posY, posAngle) = part
+            while True:
+                deltaTh = 2 * test.sigma_theta_pct * np.random.normal()
+                deltaX = 5 * test.sigma_fwd_pct * np.random.normal()
+                deltaY = 5 * test.sigma_fwd_pct * np.random.normal()
 
-            if self.isValid((newX, newY)):
-                addList.append((newX, newY, newAngle))
-            return addList
+                newAngle = posAngle + deltaTh
+                newX = posX + deltaX
+                newY = posY + deltaY
+                # newAngle = np.random.uniform(posAngle - np.pi/2, posAngle + np.pi/2)
+                # newX = np.random.uniform(posX - 1.0, posX + 1.0)
+                # newY = np.random.uniform(posY - 1.0, posY + 1.0)
+
+                if self.isValid((newX, newY)):
+                    addList.append((newX, newY, newAngle))
+                    break
+        return addList
 
 
     def particleMove(self, moveDist, moveAngle):
@@ -260,24 +270,26 @@ class monteCarloLoc():
         return int(mapX), int(mapY)
 
 
-test = monteCarloLoc()
-test.initializeParticles(1000)
-print "total len ", len(test.validPosList)
-test.drawParticles((255,100,0))
-cv2.waitKey(0)
 
-for i in range(50):
-    print "in the for loop", i
-
-    test.calcWeights()
-    list = test.getSample()
+if __name__ == '__main__':
+    test = monteCarloLoc()
+    test.initializeParticles(1000)
     print "total len ", len(test.validPosList)
-    print "sample len ", len(list)
-    test.validPosList = list
-    # test.particleMove(1.0,0)
-    test.drawParticles((0,0,255-i*12))
-    cv2.waitKey(20)
+    test.drawParticles((255,100,0))
+    cv2.waitKey(0)
 
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    for i in range(50):
+        print "in the for loop", i
+
+        test.calcWeights()
+        list = test.getSample()
+        print "total len ", len(test.validPosList)
+        print "sample len ", len(list)
+        test.validPosList = list
+        # test.particleMove(1.0,0)
+        test.drawParticles((0,0,255-i*12))
+        cv2.waitKey(20)
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
