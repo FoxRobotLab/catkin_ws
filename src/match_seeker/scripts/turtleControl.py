@@ -59,7 +59,7 @@ class TurtleBot(object):
         self.imageControl = ImageSensorThread(self.robotType)
         self.imageControl.start()
 
-        self.odom = odometryListener(self.robotType)
+        self.odom = OdometryListener(self.robotType)
         self.odom.start()
         self.odom.resetOdometer()
 
@@ -162,10 +162,14 @@ class TurtleBot(object):
     def getOdomData(self):
         return self.odom.getData()
 
+
     def updateOdomLocation(self,x = 0, y = 0, yaw = 0.0):
         """updates an offset for all the odometry data, when skews are introduced by human or environmental interference.
         has a default of 0 for all inputs, to reset the offsets."""
         return self.odom.updateOdomLoc(x, y, yaw )
+
+    def hasWheelDrop(self):
+        return self.depthControl.hasBeenWheelDrop()
 
     def getBumperStatus(self):
         """Accesses the robot base sensor data and reports whether the bumper has triggered."""
@@ -174,6 +178,15 @@ class TurtleBot(object):
             return 0
         if self.robotType == "kobuki":
             return state.bumper
+        else:
+            return state.bumps_wheeldrops
+
+    def getWheelDropStatus(self):
+        state = self.depthControl.getSensorState()
+        if state is None:
+            return 0
+        if self.robotType == "kobuki":
+            return state.wheel_drop
         else:
             return state.bumps_wheeldrops
 
@@ -196,6 +209,8 @@ class TurtleBot(object):
         self.depthControl.join()
         self.imageControl.exit()
         self.imageControl.join()
+        self.odom.exit()
+        self.odom.join()
 
 
 
@@ -404,6 +419,7 @@ class DepthSensorThread(threading.Thread):
             self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.sensor_callback)
 
         self.runFlag = True
+        self.wheelFlag = False
 
 
     def run(self):
@@ -423,7 +439,15 @@ class DepthSensorThread(threading.Thread):
         """Callback function triggered when sensor data is available. Just copies to instance variable."""
         with self.lock:
             self.sensor_state = data
+        if data.wheel_drop>0:
+            self.wheelFlag = True
         # print self.sensor_state
+
+    def hasBeenWheelDrop(self):
+        with self.lock:
+            hasDrop = self.wheelFlag
+            self.wheelFlag = False
+        return hasDrop
 
 
     def depth_callback(self, data):
@@ -479,7 +503,7 @@ class DepthSensorThread(threading.Thread):
         with self.lock:
             self.runFlag = False
 
-class odometryListener(threading.Thread):
+class OdometryListener(threading.Thread):
     """This thread communicates with the robot's odometry node, providing updated odometry data upon request."""
 
 
@@ -529,7 +553,10 @@ class odometryListener(threading.Thread):
     def updateOdomLoc(self, x, y, yaw):
         """Lets you offset the odometry data, in case of outside input to the robots location,
         like a chair or some helping hands."""
-        self.offsetX, self.offsetX, self.OffsetYaw = x, y, yaw
+        self.offsetX = x - self.x
+        self.offsetY = y - self.y
+        self.offsetYaw = yaw - self.yaw
+        print "Offsets: ", str(self.offsetX), str(self.offsetY), str(self.offsetYaw)
         return self.offsetX, self.offsetY, self.offsetYaw
 
     def getData(self):
@@ -542,13 +569,12 @@ class odometryListener(threading.Thread):
 
     def resetOdometer(self):
         if self.robotType == 'kobuki':
-
             # set up the odometry reset publisher
             reset_odom = rospy.Publisher('/mobile_base/commands/reset_odometry', Empty, queue_size=10)
 
             # reset odometry (these messages take a few iterations to get through)
             timer = time()
-            while time() - timer < 0.25:
+            while time() - timer < 1.0: #was 0.25
                 reset_odom.publish(Empty())
         else:
             pass

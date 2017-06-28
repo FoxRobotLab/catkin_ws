@@ -208,7 +208,7 @@ class MatchPlanner(object):
         If it is further in the path, should do something, but not doing it now.
         MatchInfo format: (nearNode, heading, (x, y))"""
         currPath = self.pathLoc.getCurrentPath()
-        if currPath is None:
+        if currPath is None or currPath == []:
             return
 
         nearNode = matchInfo[0]

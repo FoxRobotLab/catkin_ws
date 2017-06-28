@@ -50,7 +50,7 @@ class ORBFeatures(FeatureType.FeatureType):
         # Match descriptors.
         self.matches = self.matcher.match(self.des, otherFeature.des)
         sortedMatches = sorted(self.matches, key=lambda x: x.distance)
-        self.goodMatches = [mat for mat in sortedMatches if mat.distance < 35] #orig 25
+        self.goodMatches = [mat for mat in sortedMatches if mat.distance <35] #orig 25
 
         betterMatches = []
         removed = []
@@ -65,7 +65,7 @@ class ORBFeatures(FeatureType.FeatureType):
                 removed.append(m)
 
         matchNum = min(200, len(betterMatches))
-        normedMatchNum = (200-matchNum)/2.0
+        normedMatchNum = (matchNum)/2.0   # TODO:changed from (200-matchNum)/2.0
         if verbose:
             img, offset = self.joinImages(self.image,otherFeature.image)
             matchImage = self.drawMatches(img, offset, self.kp, otherFeature.kp, betterMatches, removed,

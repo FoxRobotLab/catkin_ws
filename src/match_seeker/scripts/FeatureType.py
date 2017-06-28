@@ -44,20 +44,37 @@ class FeatureType:
         # Override this in the child class
         return self.maxValue
 
+    # def _normalizeSimValue(self, simValue):
+    #     """Takes in a similarity value and normalizes it to be between 0 and 100. However, it divides the
+    #     range of possible values (given by self.maxValue, into two parts, the "good" side, values less than
+    #     self.goodThresh, and the "bad" side, values greater than self.goodThresh. This way, it stretches the "good"
+    #     side to be values between 0 and 50, and the bad side to be values between 50 and 100."""
+    #     if simValue < self.goodThresh:
+    #         ratio = simValue / float(self.goodThresh)
+    #         normedVal = ratio * 50.0
+    #     else:
+    #         rangeSize = self.maxValue - self.goodThresh
+    #         distFromBottom = simValue - self.goodThresh
+    #         ratio = distFromBottom / rangeSize
+    #         normedVal = 50.0 + (ratio * 50.0)
+    #     return normedVal
+
+
+
+    #TODO:switched the content of if and else
     def _normalizeSimValue(self, simValue):
         """Takes in a similarity value and normalizes it to be between 0 and 100. However, it divides the
         range of possible values (given by self.maxValue, into two parts, the "good" side, values less than
         self.goodThresh, and the "bad" side, values greater than self.goodThresh. This way, it stretches the "good"
         side to be values between 0 and 50, and the bad side to be values between 50 and 100."""
         if simValue < self.goodThresh:
-            ratio = simValue / float(self.goodThresh)
-            normedVal = ratio * 50.0
-        else:
             rangeSize = self.maxValue - self.goodThresh
             distFromBottom = simValue - self.goodThresh
             ratio = distFromBottom / rangeSize
             normedVal = 50.0 + (ratio * 50.0)
+        else:
+            ratio = simValue / float(self.goodThresh)
+            normedVal = ratio * 50.0
         return normedVal
-
 
 

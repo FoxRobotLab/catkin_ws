@@ -201,7 +201,7 @@ class ImageDataset(object):
         """Given a score and a feature, inserts it to keep the scorelist in increasing order, inserting the feature in the
         feature list at the same point."""
         indx = 0
-        while indx < len(scoreList) and (score > scoreList[indx]):
+        while indx < len(scoreList) and (score < scoreList[indx]): #TODO:changed the second part from >
             indx += 1
 
         if indx == len(scoreList):
@@ -210,6 +210,7 @@ class ImageDataset(object):
         else:
             scoreList.insert(indx, score)
             featList.insert(indx, feat)
+
 
 
     def _confidenceToRadius(self, confidence):
