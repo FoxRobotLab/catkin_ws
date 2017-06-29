@@ -59,13 +59,13 @@ class MatchPlanner(object):
 
         while ready and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            cv2.imshow("Turtlebot View", image)
+            # cv2.imshow("Turtlebot View", image)                TODO: PUT THIS BACK LATER!
             # cv_image = self.robot.getDepth()
             # cv_image = cv_image.astype(np.uint8)
             # im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
             # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
             # cv2.imshaow("Depth View", im)
-            cv2.waitKey(20)
+            # cv2.waitKey(20)
 
             if iterationCount > 20 and self.whichBrain == "nav":
                 self.brain.step()
@@ -117,8 +117,8 @@ class MatchPlanner(object):
                             #                 str(h) + " " + str(currHead))
                     elif status == "check coord":
                         self.checkCoordinates(matchInfo)
+                self.logger.log("-------------- End New Match ---------------")
             iterationCount += 1
-            self.logger.log("-------------- End New Match ---------------")
 
         self.logger.log("Quitting...")
         self.robot.stop()

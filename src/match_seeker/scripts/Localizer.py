@@ -54,7 +54,7 @@ class Localizer(object):
         bestX, bestY, bestHead = self.dataset.getLoc(bestPicNum)
         bestLoc = (bestX, bestY)
 
-        self._displayMatch(bestPicNum, bestScore, bestFeat)
+        # self._displayMatch(bestPicNum, bestScore, bestFeat)           TODO: PUT THIS BACK LATER!!
         picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
         self.logger.log( picLocSt.format(bestX, bestY, bestHead, bestScore) )
 
@@ -109,7 +109,7 @@ class Localizer(object):
         if bestScore > 30: #TODO:changed from <70
             self.beenGuessing = False
             if bestDist <= 0.8:
-                self.lastKnownLoc = bestLoc
+                self.lastKnownLoc = (bestX, bestY, bestHead)
                 self.confidence = 10.0
                 if self.odomScore < 50 and bestScore >= self.odomScore:
                     self.logger.log( odoUpdateStr.format(bestX, bestY, bestHead) )
@@ -117,7 +117,7 @@ class Localizer(object):
                     self.robot.updateOdomLocation(bestX, bestY, bestHead)
                 return bestNodeNum, "very confident."
             else:
-                self.lastKnownLoc = bestLoc
+                self.lastKnownLoc = (bestX, bestY, bestHead)
                 if self.odomScore < 50 and bestScore > 90:
                     self.logger.log( odoUpdateStr.format(bestX, bestY, bestHead) )
                     self.odomScore = 100.0
@@ -139,7 +139,7 @@ class Localizer(object):
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
             if len(guessNodes) == 1 and bestDist <= 0.8:
-                self.lastKnownLoc = bestLoc
+                self.lastKnownLoc = (bestX, bestY, bestHead)
                 if self.beenGuessing:
                     self.confidence = max(0.0, self.confidence - 0.5)
                 else:
@@ -147,7 +147,7 @@ class Localizer(object):
                     self.beenGuessing = True
                 return guessNodes[0], "close, but guessing."
             elif len(guessNodes) == 1:
-                self.lastKnownLoc = bestLoc
+                self.lastKnownLoc = (bestX, bestY, bestHead)
                 self.confidence = 5.0
                 self.beenGuessing = False
                 return guessNodes[0], "far and guessing."

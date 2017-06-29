@@ -177,7 +177,7 @@ class ImageDataset(object):
         if lastKnown is None or confidence == 0.0:
             potentialMatches = self.featureCollection.keys()
         else:
-            pt = np.array([lastKnown])
+            pt = np.array([lastKnown[:2]])
             i = self.tree.query_ball_point(pt, radius)
             for loc in self.xyArray[i[0]]:
                 tup = tuple(loc)
@@ -185,7 +185,7 @@ class ImageDataset(object):
             if potentialMatches == []:
                 potentialMatches = self.featureCollection.keys()
         # self.logger.log("Potential matches length: " + str(len(potentialMatches)))
-        self.logger.log("Last Known Location: " + str(lastKnown) + " Radius: " + str(radius))
+        self.logger.log("      Searching with radius " + str(radius))
         return potentialMatches
 
 
