@@ -74,8 +74,7 @@ class Localizer(object):
 
             guess, conf = self._guessLocation(bestScore, bestLoc, bestHead, matches)
             matchInfo = (guess, bestLoc, bestHead)
-            nnSt = "      Nearest node: {0:d}  Confidence = {1:s}"
-            self.logger.log( nnSt.format(guess, conf) )
+            self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
 
             if conf == "very confident." or conf == "close, but guessing.":
                 return "at node", matchInfo
