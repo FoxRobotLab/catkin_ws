@@ -39,9 +39,14 @@ class Localizer(object):
         #     return "at node", (odomInfo[0], odomInfo[1], odomInfo[2])
         # else:
         #     return "check coord", (odomInfo[0], odomInfo[1], odomInfo[2])
-        lklSt = "Last known loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   confidence = {3:4.2f}"
-        (x, y, h) = self.lastKnownLoc
-        self.logger.log( lklSt.format(x, y, h, self.confidence) )
+
+        if self.lastKnownLoc is None:
+            lklSt = "Last known loc: None so far   confidence = {0:4.2f}"
+            self.logger.log( lklSt.format(self.confidence) )
+        else:
+            lklSt = "Last known loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   confidence = {3:4.2f}"
+            (x, y, h) = self.lastKnownLoc
+            self.logger.log( lklSt.format(x, y, h, self.confidence) )
 
         matches = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
         (bestScore, bestFeat) = matches[0]
