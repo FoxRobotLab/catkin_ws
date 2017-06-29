@@ -60,11 +60,11 @@ class MatchPlanner(object):
         while ready and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
             cv2.imshow("Turtlebot View", image)
-            cv_image = self.robot.getDepth()
-            cv_image = cv_image.astype(np.uint8)
-            im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
+            # cv_image = self.robot.getDepth()
+            # cv_image = cv_image.astype(np.uint8)
+            # im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
             # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
-            cv2.imshow("Depth View", im)
+            # cv2.imshaow("Depth View", im)
             cv2.waitKey(20)
 
             if iterationCount > 20 and self.whichBrain == "nav":
@@ -118,6 +118,7 @@ class MatchPlanner(object):
                     elif status == "check coord":
                         self.checkCoordinates(matchInfo)
             iterationCount += 1
+            self.logger.log("-------------- End New Match ---------------")
 
         self.logger.log("Quitting...")
         self.robot.stop()
@@ -183,7 +184,7 @@ class MatchPlanner(object):
         match information, OR if they are the same but a long time has passed, then record that the robot
         has reached this location, determine which direction the robot should go next, and turn toward that
         direction.
-        matchInfo format = [nearNode, heading, (x, y), descr]"""
+        matchInfo format = [nearNode, (x, y), heading)]"""
 
         assert matchInfo is not None
 
@@ -206,62 +207,55 @@ class MatchPlanner(object):
         confidently "not close enough" is what we expect, then make sure heading is right. Otherwise,
         if it is a neighbor of one of the expected nodes, then turn to move toward that node.
         If it is further in the path, should do something, but not doing it now.
-        MatchInfo format: (nearNode, heading, (x, y))"""
+        MatchInfo format: (nearNode, (x, y), heading)"""
         currPath = self.pathLoc.getCurrentPath()
         if currPath is None or currPath == []:
             return
 
-        nearNode = matchInfo[0]
-        heading = matchInfo[1]
-        currLoc = matchInfo[2]
+        (nearNode, currLoc, heading) = matchInfo
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
 
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
             nextNode = immediateGoalNode
-            self.logger.log("Node is close to either previous node or current goal.")
+            self.logger.log("      Nearest node is previous node or current goal")
         elif nearNode in currPath:
-            self.logger.log("Node is in the current path, may have missed current goal, doing nothing for now...")
-            # tAngle = heading
+            self.logger.log("      Nearest node is on current path, may have missed current goal")  # TODO: What is best response here
             nextNode = nearNode
-            # TODO: figure out a response in this case?
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(immediateGoalNode)]:
-            self.logger.log("Node is adjacent to current goal, " + str(immediateGoalNode) + "but not in path")
-            self.logger.log("  Adjusting heading to move toward current goal")
+            self.logger.log("      Nearest node is adjacent to current goal but not in path")
             nextNode = immediateGoalNode
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(justVisitedNode)]:
             # If near node just visited, but not near next goal, and not in path already, return to just visited
-            self.logger.log("Node is adjacent to node just visited, " + str(justVisitedNode) + "but not in current goal or path")
-            self.logger.log("  Adjusting heading to move toward just visited")
+            self.logger.log("      Nearest node is adjacent to previous node but not in path")
             nextNode = justVisitedNode
         else:  # near a node but you don't need to be there!
-            # tAngle = heading
+            self.logger.log("     Nearest node is not on/near path")
             if type(nearNode) == str:  #when node is x or y
                 nextNode = immediateGoalNode
             else:
                 nextNode = nearNode
 
-        tAngle = self.olinGraph.getAngle(currLoc,nextNode)
-        tDist = self.olinGraph.straightDist(currLoc,nextNode)
-        self.turn(nextNode, heading, tAngle, tDist)
+        targetAngle = self.olinGraph.getAngle(currLoc, nextNode)
+        tDist = self.olinGraph.straightDist(currLoc, nextNode)
+        self.turn(nextNode, heading, targetAngle, tDist)
 
 
 
-    def turn(self, node, heading, tAngle, tDist):
-        self.logger.log("tAngle is " + str(tAngle))
+    def turn(self, node, heading, targetHeading, tDist):
         # adjust heading based on previous if statement
-        tAngle = tAngle % 360
-        angle1 = abs(heading - tAngle)
+        targetHeading = targetHeading % 360
+        angle1 = abs(heading - targetHeading)
         angle2 = 360 - angle1
 
         if min(angle1, angle2) >= 90:
             self.speak("Adjusting heading to node " + str(node))
-            self.moveHandle.turnToNextTarget(heading, tAngle)
+            self.moveHandle.turnToNextTarget(heading, targetHeading)
             self.goalSeeker.setGoal(None, None, None)
-            # self.logger.log("======Goal seeker off")
         else:
-            self.goalSeeker.setGoal(tDist, tAngle, heading)
-            self.logger.log("=====Updating goalSeeker: " + str(tDist) + " " + str(tAngle) + " " + str(heading))
+            self.goalSeeker.setGoal(tDist, targetHeading, heading)
+            formSt = "=====Updating goalSeeker: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
+            self.logger.log( formSt.format(tDist, targetHeading, heading) )
 
 
     def speak(self, speakStr):

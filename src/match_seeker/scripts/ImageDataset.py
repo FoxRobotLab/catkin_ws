@@ -59,7 +59,7 @@ class ImageDataset(object):
         if (currDir is None):
             self.logger.log("ERROR: cannot run makeCollection without a directory")
             return
-
+        self.logger.log("Reading image dataset...")
         listDir = os.listdir(currDir)
         for filename in listDir:
             # Check if the next file is the right form, and extract the number part, if it is
@@ -71,7 +71,7 @@ class ImageDataset(object):
             if picNum in self.featureCollection:
                 self.logger.log("ERROR: duplicate number: " +  str(picNum))
             self.featureCollection[picNum] = features
-        self.logger.log("Length of collection = " + str(len(self.featureCollection)))
+        # self.logger.log("Length of collection = " + str(len(self.featureCollection)))
 
 
     def makeLocDict(self, locFile):
@@ -157,7 +157,8 @@ class ImageDataset(object):
         bestFeat = bestZipped[0][1]
         # This is just to print the details of the similarity measures!!
         # currImFeatures.evaluateSimilarity(bestFeat, True)
-        self.logger.log("Best matches have scores: " + str([x[0]for x in bestZipped]))
+        formSt = "{0:4.2f}"
+        self.logger.log("Best matches have scores: " + " ".join([ formSt.format(x[0]) for x in bestZipped]))
         return bestZipped
 
 
