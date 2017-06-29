@@ -30,7 +30,9 @@ class monteCarloLoc():
                           (9.7, 7.2, 18.9, 42.4),    # Covers 258 etc
                           (7.0, 11.4, 9.7, 41.8),    # The dropoff
                           (0.0, 5.5, 5.4, 60.1),     # Faculty offices
-                          (5.4, 58.5, 32.5, 60.1)]   # Biology territory
+                          (5.4, 58.5, 32.5, 60.1),   # Biology territory
+                          (21.7, 5.5, 17.5, 5),       # long wall of robot lab
+                          (23.7, 5.5, 22.8, 5)]      # short wall of robot lab
 
         self.validPosList = []
         self.weightedList = []
@@ -60,24 +62,22 @@ class monteCarloLoc():
 
 
     def initializeParticles(self, partNum):
+        self.maxLen = partNum
         print "initializing particles"
         for i in range(partNum):
-            self.addRandomParticle()
+            self.validPosList.append(self.addRandomParticle())
 
 
     def addRandomParticle(self):
         """generating a new list with random possibility all over the map"""
         # print "adding random particles"
-        addList = []
         posAngle = np.random.uniform(0, 2*np.pi)  # radians :P
         posX = np.random.uniform(0, self.worldX)
         posY = np.random.uniform(0, self.worldY)
         if self.isValid((posX,posY)):
-            addList.append((posX, posY, posAngle))
+            return (posX, posY, posAngle)
         else:
-            self.addRandomParticle()
-
-        self.validPosList.extend(addList)
+            return self.addRandomParticle()
 
 
     def addNearbyParticle(self,particles):
@@ -86,9 +86,9 @@ class monteCarloLoc():
         for part in particles:
             (posX, posY, posAngle) = part
             while True:
-                deltaTh = 2 * test.sigma_theta_pct * np.random.normal()
-                deltaX = 5 * test.sigma_fwd_pct * np.random.normal()
-                deltaY = 5 * test.sigma_fwd_pct * np.random.normal()
+                deltaTh = 2 * self.sigma_theta_pct * np.random.normal()
+                deltaX = 5 * self.sigma_fwd_pct * np.random.normal()
+                deltaY = 5 * self.sigma_fwd_pct * np.random.normal()
 
                 newAngle = posAngle + deltaTh
                 newX = posX + deltaX
@@ -106,6 +106,7 @@ class monteCarloLoc():
     def particleMove(self, moveDist, moveAngle):
         """updating the information of the points when the robot moves"""
         # print "in particleMove"
+        moveAngle = np.radians(moveAngle)
         moveList = []
         for i in range(len(self.validPosList)):
             posPoint = self.validPosList[i]
@@ -116,12 +117,19 @@ class monteCarloLoc():
             posX = posPoint[0] + moveDist * math.cos(posAngle)
             posY = posPoint[1] + moveDist * math.sin(posAngle)
 
-            moveList.append((posX, posY, posAngle))
+            if (self.isValid((posX, posY, posAngle))):
+                moveList.append((posX, posY, posAngle))
+            else:
+                self.addRandomParticle()
+                #TODO: add normal distribution nodes.
 
+        print "Moving", moveDist, moveAngle
         self.validPosList = moveList
-        self.update(self.validPosList)
+        #self.update(self.validPosList)
 
 
+    #Add random particle part is not up-to-date.
+    #But we are not calling update.
     def update(self, posList):
         """Updating the possibility list and removing the not valid ones"""
         # print "in update ", "length ", len(self.validPosList)
@@ -158,14 +166,13 @@ class monteCarloLoc():
 
     def mclCycle(self, matchLocs, matchScores, odometry, odomScore):
         """ Takes in important Localizer information and calls all relevant methods in the MCL"""
-        self.calcWeights(self, matchLocs, matchScores, odometry, odomScore)
+        self.calcWeights(matchLocs, matchScores, odometry, odomScore)
         self.validPosList = self.getSample()
-        self.update(self.validPosList)
+        # self.update(self.validPosList)
 
 
     def calcWeights(self, matchLocs, matchScores, odometry, odomScore):
         """ Weight for each particle based on if it is a possible location given the Localizer data. """
-
         ### our faked calculations based on proximity to a hardcoded keypoint
         # keyX = 7.0
         # keyY = 7.0
@@ -181,24 +188,27 @@ class monteCarloLoc():
         # # for i in range(len(self.validPosList)):
         # #     part = self.validPosList[i]
         # #     self.weightedList.append((normedWeights[i],part[0],part[1],part[2]))
-
         weights = []
         for i in range(len(self.validPosList)):
             # for each particle, look at its distance from the odomLoc & each matchLoc scaled by the location's certainty score
-            posWeights = []
             x = self.validPosList[i][0]
             y = self.validPosList[i][1]
-            oDist = self._euclidDist((odometry[0], odometry[1]), (x, y))
-            posWeights.append(oDist*(odomScore/100))
+            minDist = self._euclidDist((odometry[0], odometry[1]), (x, y))
+            minScore = odomScore
+
             for m in range(len(matchLocs)):
-                mDist = self._euclidDist((matchLocs[m][0], matchLocs[m][1]), (x, y))
-                posWeights.append(mDist * (matchScores[m] / 100))
+                matchDist = self._euclidDist((matchLocs[m][0], matchLocs[m][1]), (x, y))
+                if minDist > matchDist:
+                    minDist = matchDist
+                    minScore = matchScores[m]
 
-            weights.append(max(posWeights))     # append the maximum weight for each particle
-
+            weights.append( (75 - minDist) * (minScore / 100))     # append the maximum weight for each particle
+            # print "x and y: ", x, " ", y, "min dist index: ", str(minIndex)
         arrayWeights = np.array(weights, np.float64)
         self.normedWeights = arrayWeights / arrayWeights.sum()      # normalize the weights for all particles
 
+        # index = np.where(self.normedWeights == max(self.normedWeights))
+        # print "most likely loc", str(self.validPosList[index[0]][0]) + " " + str(self.validPosList[index[0]][1])
 
     def getSample(self):
         # weights = [ x[0] for x in self.weightedList]
@@ -212,10 +222,13 @@ class monteCarloLoc():
                 total_particles += 1
                 if count == 1:
                     sampleList.append(self.validPosList[idx])
-                elif count < 3 or total_particles < self.maxLen:  # Stop duplicating if max reached
+                elif count < 3 or total_particles < self.maxLen - 10:  # Stop duplicating if max reached
                     # Need to add copies to new list, not just identical references!
-                    new_particle = self.addNearbyParticle([self.validPosList[idx]])
-                    sampleList.extend(new_particle)
+                    new_particle_list = self.addNearbyParticle([self.validPosList[idx]])
+                    sampleList.extend(new_particle_list)
+                elif count < 3 or total_particles < self.maxLen:
+                    new_particle = self.addRandomParticle()
+                    sampleList.append(new_particle)
                 count -= 1
         return sampleList
 
@@ -246,7 +259,7 @@ class monteCarloLoc():
 
 
     def drawSingleParticle(self, image, wldX, wldY, heading, color):
-        pointLen = 0.75  # meters
+        pointLen = 0.5  # meters
         pointX = wldX + (pointLen * math.cos(heading))
         pointY = wldY + (pointLen * math.sin(heading))
         # print "WLD Center:", (wldX, wldY), "   Point:", (pointX, pointY), "Heading: ", np.degrees(heading)
@@ -255,7 +268,7 @@ class monteCarloLoc():
         mapCenter = self.convertWorldToMap(wldX, wldY)
         mapPoint = self.convertWorldToMap(pointX, pointY)
         # print "MAP Center:", mapCenter, "   Point:", mapPoint
-        cv2.circle(image, mapCenter, 6, color, -1)
+        cv2.circle(image, mapCenter, 4, color, -1)
         cv2.line(image, mapCenter, mapPoint, color)
 
 

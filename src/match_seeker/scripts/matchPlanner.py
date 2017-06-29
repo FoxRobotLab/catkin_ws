@@ -28,6 +28,7 @@ from DataPaths import basePath, graphMapData
 from std_msgs.msg import String
 
 
+
 class MatchPlanner(object):
 
     def __init__(self):
@@ -59,16 +60,19 @@ class MatchPlanner(object):
 
         while ready and not rospy.is_shutdown():
             image = self.robot.getImage()[0]
-            # cv2.imshow("Turtlebot View", image)                TODO: PUT THIS BACK LATER!
+            cv2.imshow("Turtlebot View", image)
             # cv_image = self.robot.getDepth()
             # cv_image = cv_image.astype(np.uint8)
             # im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
             # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
             # cv2.imshaow("Depth View", im)
-            # cv2.waitKey(20)
+            cv2.waitKey(20)
 
             if iterationCount > 20 and self.whichBrain == "nav":
-                self.brain.step()
+                stepDist, stepAngle =self.brain.step()
+                if iterationCount % 30 == 0:
+                    self.locator.robotMove(stepDist, stepAngle)
+                    print "step: ", stepDist, stepAngle
 
             if self.whichBrain == "loc":
                 self.moveHandle.lookAround()
@@ -88,6 +92,7 @@ class MatchPlanner(object):
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
                         self.robot.turnByAngle(35)         #turn back 90 degrees bc the behavior is faster than the matching
+                        self.locator.robotMove(0, np.radians(35))
                         self.checkCoordinates(matchInfo)    #react to the location data of the match
                     self.whichBrain = "nav"
                 elif status == "look":          #enter LookAround behavior
@@ -255,6 +260,8 @@ class MatchPlanner(object):
             self.goalSeeker.setGoal(tDist, targetHeading, heading)
             formSt = "=====Updating goalSeeker: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
             self.logger.log( formSt.format(tDist, targetHeading, heading) )
+
+
 
 
     def speak(self, speakStr):

@@ -21,15 +21,18 @@ class Localizer(object):
 
         self.lastKnownLoc = None
         self.confidence = 0
+        self.currLoc = None
 
         self.dataset = ImageDataset.ImageDataset(logger, numMatches = 5)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
 
         self.mcl = monteCarlo.monteCarloLoc()
-        self.mcl.initializeParticles(100)
+        self.mcl.initializeParticles(500)
         self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
+
+
 
 
     def findLocation(self, cameraIm):
@@ -57,9 +60,9 @@ class Localizer(object):
         (bestScore, bestFeat) = matches[0]
         bestPicNum = bestFeat.getIdNum()
         bestX, bestY, bestHead = self.dataset.getLoc(bestPicNum)
-        bestLoc = (bestX, bestY)
+        self.currLoc = (bestX, bestY)
 
-        # self._displayMatch(bestPicNum, bestScore, bestFeat)           TODO: PUT THIS BACK LATER!!
+        self._displayMatch(bestPicNum, bestScore, bestFeat)
         picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
         self.logger.log( picLocSt.format(bestX, bestY, bestHead, bestScore) )
 
@@ -88,8 +91,8 @@ class Localizer(object):
         else:
             self.lostCount = 0
 
-            guess, conf = self._guessLocation(bestScore, bestLoc, bestHead, matches)
-            matchInfo = (guess, bestLoc, bestHead)
+            guess, conf = self._guessLocation(bestScore, self.currLoc, bestHead, matches)
+            matchInfo = (guess, self.currLoc, bestHead)
             self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
 
             if conf == "very confident." or conf == "close, but guessing.":
@@ -122,7 +125,7 @@ class Localizer(object):
         self.logger.log( closeDistStr.format(bestNodeNum, bestDist) )
 
         odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
-        if bestScore > 30: #TODO:changed from <70
+        if bestScore > 30:
             self.beenGuessing = False
             if bestDist <= 0.8:
                 self.lastKnownLoc = (bestX, bestY, bestHead)
@@ -176,6 +179,10 @@ class Localizer(object):
                 # TODO: figure out if bestHead is the right result, but for now it's probably ignored anyway
                 return nodes, "totally unsure."
 
+
+    def robotMove(self,distance, heading):
+        # distance = self._euclidDist((self.lastKnownLoc[0],self.lastKnownLoc[1]), self.currLoc)
+        self.mcl.particleMove(distance, heading)
 
 
     def _findClosestNode(self, (x, y)):

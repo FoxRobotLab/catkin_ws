@@ -40,6 +40,8 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
 
         if vectors == "STOP":
             self.myRobot.stop()
+            transValue = 0
+            angle = 0
         else:
             (magnitude, angle) = self._vectorAdd(vectors)
 
@@ -67,6 +69,7 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
                 scaledSpeed = 0.0
 
             self.myRobot.move(transValue, scaledSpeed)
+        return transValue, angle
 
 
     def _updateBehaviors(self):
