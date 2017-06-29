@@ -168,6 +168,9 @@ class Localizer(object):
             if (val <= bestVal):
                 bestVal = val
                 closestNode = nodeNum
+                ////.0
+
+
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY, bestVal)
 
