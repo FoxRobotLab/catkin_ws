@@ -5,6 +5,7 @@ import cv2
 
 from DataPaths import basePath, imageDirectory, locData
 import ImageDataset
+import monteCarlo
 
 
 class Localizer(object):
@@ -21,8 +22,12 @@ class Localizer(object):
         self.lastKnownLoc = None
         self.confidence = 0
 
-        self.dataset = ImageDataset.ImageDataset(logger, numMatches = 3)
+        self.dataset = ImageDataset.ImageDataset(logger, numMatches = 5)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
+
+        self.mcl = monteCarlo.monteCarloLoc()
+        self.mcl.initializeParticles(100)
+        self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
 
@@ -58,6 +63,17 @@ class Localizer(object):
         picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
         self.logger.log( picLocSt.format(bestX, bestY, bestHead, bestScore) )
 
+        matchLocs = []
+        matchScores = []
+        for i in range(len(matches)):
+            (nextScore, nextMatch) = matches[i]
+            idNum = nextMatch.getIdNum()
+            locX, locY, locHead = self.dataset.getLoc(idNum)
+            matchLocs.append((locX, locY))
+            matchScores.append(nextScore)
+
+        self.mcl.mclCycle(matchLocs, matchScores, odomInfo[2], self.odomScore)
+        self.mcl.drawParticles((0,0,255))
 
         if bestScore < 5: #TODO:changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))

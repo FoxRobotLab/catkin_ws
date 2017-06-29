@@ -156,22 +156,48 @@ class monteCarloLoc():
         return True
 
 
-    def calcWeights(self):
-        '''faked'''
-        keyX = 7.0
-        keyY = 7.0
+    def mclCycle(self, matchLocs, matchScores, odometry, odomScore):
+        """ Takes in important Localizer information and calls all relevant methods in the MCL"""
+        self.calcWeights(self, matchLocs, matchScores, odometry, odomScore)
+        self.validPosList = self.getSample()
+        self.update(self.validPosList)
+
+
+    def calcWeights(self, matchLocs, matchScores, odometry, odomScore):
+        """ Weight for each particle based on if it is a possible location given the Localizer data. """
+
+        ### our faked calculations based on proximity to a hardcoded keypoint
+        # keyX = 7.0
+        # keyY = 7.0
+        # weights = []
+        # for i in range(len(self.validPosList)):
+        #     x = self.validPosList[i][0]
+        #     y = self.validPosList[i][1]
+        #     dist = self._euclidDist((keyX, keyY), (x, y))
+        #     wht = 60 - dist
+        #     weights.append(wht)
+        # arrayWeights = np.array(weights, np.float64)
+        # self.normedWeights = arrayWeights / arrayWeights.sum()
+        # # for i in range(len(self.validPosList)):
+        # #     part = self.validPosList[i]
+        # #     self.weightedList.append((normedWeights[i],part[0],part[1],part[2]))
+
         weights = []
         for i in range(len(self.validPosList)):
+            # for each particle, look at its distance from the odomLoc & each matchLoc scaled by the location's certainty score
+            posWeights = []
             x = self.validPosList[i][0]
             y = self.validPosList[i][1]
-            dist = self._euclidDist((keyX, keyY), (x, y))
-            wht = 60 - dist
-            weights.append(wht)
+            oDist = self._euclidDist((odometry[0], odometry[1]), (x, y))
+            posWeights.append(oDist*(odomScore/100))
+            for m in range(len(matchLocs)):
+                mDist = self._euclidDist((matchLocs[m][0], matchLocs[m][1]), (x, y))
+                posWeights.append(mDist * (matchScores[m] / 100))
+
+            weights.append(max(posWeights))     # append the maximum weight for each particle
+
         arrayWeights = np.array(weights, np.float64)
-        self.normedWeights = arrayWeights / arrayWeights.sum()
-        # for i in range(len(self.validPosList)):
-        #     part = self.validPosList[i]
-        #     self.weightedList.append((normedWeights[i],part[0],part[1],part[2]))
+        self.normedWeights = arrayWeights / arrayWeights.sum()      # normalize the weights for all particles
 
 
     def getSample(self):
@@ -192,6 +218,7 @@ class monteCarloLoc():
                     sampleList.extend(new_particle)
                 count -= 1
         return sampleList
+
 
     def _euclidDist(self, (x1, y1), (x2, y2)):
         """Given two tuples containing two (x, y) points, this computes the straight-line distsance
@@ -214,7 +241,7 @@ class monteCarloLoc():
         for part in self.validPosList:
             (x, y, head) = part
             self.drawSingleParticle(self.currentMap, x, y, head, color)
-        cv2.imshow("Particles", self.currentMap  )
+        cv2.imshow("Particles", self.currentMap)
         cv2.waitKey(20)
 
 
