@@ -317,6 +317,7 @@ class ImageSensorThread(threading.Thread):
         """Creates the connections to ROS, sets up CvBridge to translate ROS images to OpenCV ones, and initializes
         the thread."""
         threading.Thread.__init__(self)
+        print "Image sensor thread init"
         self.lock = threading.Lock()
         self.bridge = CvBridge()
 
@@ -393,7 +394,7 @@ class ImageSensorThread(threading.Thread):
 
     def exit(self):
         """Method typically called by other threads, to shut down this thread."""
-        print "image sensor shutdown received"
+        print "Image sensor shutdown received"
         with self.lock:
             self.runFlag = False
 
@@ -403,7 +404,7 @@ class DepthSensorThread(threading.Thread):
 
     def __init__(self, robotType):
         """Sets up the thread, connects to the ROS depth data (with a callback) and to the ROS sensor data with a callback."""
-        print "depth sensor thread init"
+        print "Depth sensor thread init"
         threading.Thread.__init__(self)
         self.lock = threading.Lock()
         self.bridge = CvBridge()
@@ -499,7 +500,7 @@ class DepthSensorThread(threading.Thread):
 
     def exit(self):
         """Method typically called by another thread, it triggerse the shutdown of this thread."""
-        print "depth sensor shutdown received"
+        print "Depth sensor shutdown received"
         with self.lock:
             self.runFlag = False
 

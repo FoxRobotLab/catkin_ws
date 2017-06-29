@@ -15,6 +15,8 @@ of closest matches.
 
 import os
 
+import sys
+
 import numpy as np
 from scipy import spatial
 import cv2
@@ -61,6 +63,7 @@ class ImageDataset(object):
             return
         self.logger.log("Reading image dataset...")
         listDir = os.listdir(currDir)
+        cnt = 0
         for filename in listDir:
             # Check if the next file is the right form, and extract the number part, if it is
             (picNum, foundNum) = self._extractNumber(filename, baseName, ext)
@@ -71,6 +74,10 @@ class ImageDataset(object):
             if picNum in self.featureCollection:
                 self.logger.log("ERROR: duplicate number: " +  str(picNum))
             self.featureCollection[picNum] = features
+            if cnt % 100 == 0:
+                sys.stdout.write(".")
+                sys.stdout.flush()
+            cnt += 1
         # self.logger.log("Length of collection = " + str(len(self.featureCollection)))
 
 
