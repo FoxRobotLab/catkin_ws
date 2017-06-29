@@ -196,8 +196,13 @@ class Localizer(object):
         return nearNode, yaw, (x, y), bestVal
 
 
-    def setLastLoc(self, oldDest):
-        self.lastKnownLoc = oldDest
+    def setLastLoc(self, prevDestXY):
+        (x, y) = prevDestXY
+        if self.lastKnownLoc == None:
+            self.lastKnownLoc = (x, y, 0)
+        else:
+            (oldX, oldY, oldH) = self.lastKnownLoc
+            self.lastKnownLoc = (x, y, oldH)
 
 
     def _euclidDist(self, (x1, y1), (x2, y2)):

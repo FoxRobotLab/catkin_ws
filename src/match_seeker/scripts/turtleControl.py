@@ -523,7 +523,7 @@ class OdometryListener(threading.Thread):
         self.yaw = None
         self.offsetX = 6.1
         self.offsetY = 8.5
-        self.offsetYaw = 0.0
+        self.offsetYaw = 90.0
 
 
     def run(self):
