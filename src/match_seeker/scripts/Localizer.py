@@ -106,7 +106,7 @@ class Localizer(object):
         closeDistStr = "      The closest node is {0:d} at {1:4.2f} meters."
         self.logger.log( closeDistStr.format(bestNodeNum, bestDist) )
 
-        odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"\
+        odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
         if bestScore > 30: #TODO:changed from <70
             self.beenGuessing = False
             if bestDist <= 0.8:
@@ -180,9 +180,6 @@ class Localizer(object):
             if (val <= bestVal):
                 bestVal = val
                 closestNode = nodeNum
-                ////.0
-
-
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY, bestVal)
 

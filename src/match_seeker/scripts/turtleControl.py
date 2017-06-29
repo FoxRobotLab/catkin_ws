@@ -512,6 +512,7 @@ class OdometryListener(threading.Thread):
         """Creates the connections to ROS, and initializes
         the thread."""
         threading.Thread.__init__(self)
+        print "Odometry listener thread init"
         self.lock = threading.Lock()
         self.odomSub = rospy.Subscriber("odom", Odometry, self._odomCallback)
         self.runFlag = True
@@ -520,8 +521,8 @@ class OdometryListener(threading.Thread):
         self.x = None
         self.y = None
         self.yaw = None
-        self.offsetX = 22.2
-        self.offsetY = 6.5
+        self.offsetX = 6.1
+        self.offsetY = 8.5
         self.offsetYaw = 0.0
 
 
@@ -582,7 +583,7 @@ class OdometryListener(threading.Thread):
 
     def exit(self):
         """Method typically called by other threads, to shut down this thread."""
-        print "odometry shutdown received"
+        print "Odometry shutdown received"
         with self.lock:
             self.runFlag = False
 
