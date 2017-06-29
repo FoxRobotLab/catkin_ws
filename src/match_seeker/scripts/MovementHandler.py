@@ -41,12 +41,10 @@ class MovementHandler(object):
         elif 180 < angleToTurn:
             angleToTurn -= 360
 
-        self.logger.log("-------------------------------------------------")
         self.logger.log("Turning to next target...")
         self.logger.log("  currHeading = " + str(currHeading))
         self.logger.log("  targetAngle = " + str(targetAngle))
         self.logger.log("  angleToTurn = " + str(angleToTurn))
-        self.logger.log("-------------------------------------------------")
 
         self.robot.turnByAngle(angleToTurn)
 

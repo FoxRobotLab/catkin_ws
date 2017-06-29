@@ -117,7 +117,6 @@ class MatchPlanner(object):
                             #                 str(h) + " " + str(currHead))
                     elif status == "check coord":
                         self.checkCoordinates(matchInfo)
-                self.logger.log("-------------- End New Match ---------------")
             iterationCount += 1
 
         self.logger.log("Quitting...")
@@ -215,22 +214,22 @@ class MatchPlanner(object):
         (nearNode, currLoc, heading) = matchInfo
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
-
+        self.logger.log("------------- Checking coordinates -----")
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
             nextNode = immediateGoalNode
-            self.logger.log("      Nearest node is previous node or current goal")
+            self.logger.log("Nearest node is previous node or current goal")
         elif nearNode in currPath:
-            self.logger.log("      Nearest node is on current path, may have missed current goal")  # TODO: What is best response here
+            self.logger.log("Nearest node is on current path, may have missed current goal")  # TODO: What is best response here
             nextNode = nearNode
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(immediateGoalNode)]:
-            self.logger.log("      Nearest node is adjacent to current goal but not in path")
+            self.logger.log("Nearest node is adjacent to current goal but not in path")
             nextNode = immediateGoalNode
         elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(justVisitedNode)]:
             # If near node just visited, but not near next goal, and not in path already, return to just visited
-            self.logger.log("      Nearest node is adjacent to previous node but not in path")
+            self.logger.log("Nearest node is adjacent to previous node but not in path")
             nextNode = justVisitedNode
         else:  # near a node but you don't need to be there!
-            self.logger.log("     Nearest node is not on/near path")
+            self.logger.log("Nearest node is not on/near path")
             if type(nearNode) == str:  #when node is x or y
                 nextNode = immediateGoalNode
             else:
