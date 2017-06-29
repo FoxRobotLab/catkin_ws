@@ -39,12 +39,23 @@ class Localizer(object):
         #     return "at node", (odomInfo[0], odomInfo[1], odomInfo[2])
         # else:
         #     return "check coord", (odomInfo[0], odomInfo[1], odomInfo[2])
+        lklSt = "Last known loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   confidence = {3:4.2f}"
+        (x, y, h) = self.lastKnownLoc
+        self.logger.log( lklSt.format(x, y, h, self.confidence) )
 
         matches = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
-        bestMatch = matches[0]
-        self._displayMatch(bestMatch)
-        if bestMatch[0] < 10: #TODO:changed from >90
-            self.logger.log("I have no idea where I am. Lost Count = " + str(self.lostCount))
+        (bestScore, bestFeat) = matches[0]
+        bestPicNum = bestFeat.getIdNum()
+        bestX, bestY, bestHead = self.dataset.getLoc(bestPicNum)
+        bestLoc = (bestX, bestY)
+
+        self._displayMatch(bestPicNum, bestScore, bestFeat)
+        picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
+        self.logger.log( picLocSt.format(bestX, bestY, bestHead, bestScore) )
+
+
+        if bestScore < 5: #TODO:changed from >90
+            self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
             self.lostCount += 1
             self.beenGuessing = False
             if self.lostCount == 5:
@@ -56,27 +67,26 @@ class Localizer(object):
         else:
             self.lostCount = 0
 
-            guess, head, probLoc, conf = self._guessLocation(matches)
-            self.logger.log("I think I am at node " + str(guess) + ", and I am " + conf)
+            guess, conf = self._guessLocation(bestScore, bestLoc, bestHead, matches)
+            matchInfo = (guess, bestLoc, bestHead)
+            nnSt = "      Nearest node: {0:d}  Confidence = {1:s}"
+            self.logger.log( nnSt.format(guess, conf) )
 
             if conf == "very confident." or conf == "close, but guessing.":
-                # print "I found my location."
-                return "at node", (guess, head, probLoc)
+                return "at node", matchInfo
             elif conf == "confident, but far away.":
-                return "check coord", (guess, head, probLoc)
+                return "check coord", matchInfo
             else:
-                #this match exited the look around behavior
-                localizerGuess, localizerHead, localizerProbLoc,locConf = self._guessLocation(matches)
-                return "keep-going", (localizerGuess,localizerHead,localizerProbLoc)
+                # Guessing but not close...
+                return "keep-going", matchInfo
 
 
-    def _displayMatch(self, match):
+    def _displayMatch(self, bestPicNum, bestScore, bestFeat):
         """Given match information, of the form (score, ImageFeatures), it displays the match with the score
         written in the lower left corner."""
         dispTemplate = "{0:d}: {1:3.1f}"
-        (score, imFeat) = match
-        dispString = dispTemplate.format(imFeat.getIdNum(), score)
-        matchIm = imFeat.getImage()
+        dispString = dispTemplate.format(bestPicNum, bestScore)
+        matchIm = bestFeat.getImage()
         matchIm = matchIm.copy()
         cv2.putText(matchIm, dispString, (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
         cv2.imshow("Match Picture", matchIm)
@@ -85,30 +95,27 @@ class Localizer(object):
 
 
 
-    def _guessLocation(self, bestMatches):
-        (bestScore, bestFeat) = bestMatches[0]
-        idNum = bestFeat.getIdNum()
-        bestX, bestY, bestHead = self.dataset.getLoc(idNum)
-        (bestNodeNum, nodeX, nodeY, bestDist) = self._findClosestNode((bestX, bestY))
+    def _guessLocation(self, bestScore, bestLoc, bestHead, bestMatches):
+        (bestX, bestY) = bestLoc
+        (bestNodeNum, nodeX, nodeY, bestDist) = self._findClosestNode(bestLoc)
+        closeDistStr = "      The closest node is {0:d} at {1:4.2f} meters."
+        self.logger.log( closeDistStr.format(bestNodeNum, bestDist) )
 
-
-        self.logger.log("This match is tagged at " + str(bestX) + ", " + str(bestY) + ".")
-        self.logger.log("The closest node is " + str(bestNodeNum) + " at " + str(bestDist) + "  meters.")
-
+        odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"\
         if bestScore > 30: #TODO:changed from <70
             self.beenGuessing = False
             if bestDist <= 0.8:
-                self.lastKnownLoc = (bestX, bestY)
+                self.lastKnownLoc = bestLoc
                 self.confidence = 10.0
                 if self.odomScore < 50 and bestScore >= self.odomScore:
-                    self.logger.log("UPDATING ODOMETRY TO: " + str((bestX, bestY, bestHead)))
+                    self.logger.log( odoUpdateStr.format(bestX, bestY, bestHead) )
                     self.odomScore = 100.0
                     self.robot.updateOdomLocation(bestX, bestY, bestHead)
-                return bestNodeNum, bestHead, (bestX,bestY), "very confident."
+                return bestNodeNum, "very confident."
             else:
-                self.lastKnownLoc = (bestX, bestY)
+                self.lastKnownLoc = bestLoc
                 if self.odomScore < 50 and bestScore > 90:
-                    self.logger.log("UPDATING ODOMETRY TO: " + str((bestX, bestY, bestHead)))
+                    self.logger.log( odoUpdateStr.format(bestX, bestY, bestHead) )
                     self.odomScore = 100.0
                     self.robot.updateOdomLocation(bestX, bestY, bestHead)
                 if self.beenGuessing:
@@ -116,7 +123,7 @@ class Localizer(object):
                 else:
                     self.confidence = 10.0
                     self.beenGuessing = True
-                return bestNodeNum, bestHead, (bestX,bestY), "confident, but far away."
+                return bestNodeNum, "confident, but far away."
         else:
             guessNodes = [bestNodeNum]
             dist = 0
@@ -128,18 +135,18 @@ class Localizer(object):
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
             if len(guessNodes) == 1 and bestDist <= 0.8:
-                self.lastKnownLoc = (bestX, bestY)
+                self.lastKnownLoc = bestLoc
                 if self.beenGuessing:
                     self.confidence = max(0.0, self.confidence - 0.5)
                 else:
                     self.confidence = 10.0
                     self.beenGuessing = True
-                return guessNodes[0], bestHead, (bestX,bestY), "close, but guessing."
+                return guessNodes[0], "close, but guessing."
             elif len(guessNodes) == 1:
-                self.lastKnownLoc = (bestX, bestY)
+                self.lastKnownLoc = bestLoc
                 self.confidence = 5.0
                 self.beenGuessing = False
-                return guessNodes[0], bestHead, (bestX,bestY), "far and guessing."
+                return guessNodes[0], "far and guessing."
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1,len(guessNodes)):
@@ -147,7 +154,7 @@ class Localizer(object):
                 self.confidence = 0.0
                 self.beenGuessing = False
                 # TODO: figure out if bestHead is the right result, but for now it's probably ignored anyway
-                return nodes, bestHead, (bestX,bestY), "totally unsure."
+                return nodes, "totally unsure."
 
 
 
@@ -171,11 +178,12 @@ class Localizer(object):
                 closestX, closestY = (nodeX,nodeY)
         return (closestNode, closestX, closestY, bestVal)
 
+
     def odometer(self):
-        formStr = "********Odometer : ({0:4.2f}, {1:4.2f}) at heading {2:4.2f}      {3:4.2f}"
+        formStr = "Odometer loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})  confidence = {3:4.2f}"
         x, y, yaw = self.robot.getOdomData()
         (nearNode, closeX, closeY, bestVal) = self._findClosestNode((x,y))
-        self.logger.log(formStr.format(x, y, yaw, self.odomScore))
+        self.logger.log( formStr.format(x, y, yaw, self.odomScore) )
         self.odomScore = max(0.0, self.odomScore - 0.5)
 
         if self.robot.hasWheelDrop():
@@ -183,7 +191,8 @@ class Localizer(object):
 
         return nearNode, yaw, (x, y), bestVal
 
-    def setLastLoc(self,oldDest):
+
+    def setLastLoc(self, oldDest):
         self.lastKnownLoc = oldDest
 
 
