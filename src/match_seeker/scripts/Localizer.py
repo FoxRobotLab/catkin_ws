@@ -75,8 +75,21 @@ class Localizer(object):
             matchLocs.append((locX, locY))
             matchScores.append(nextScore)
 
-        self.mcl.mclCycle(matchLocs, matchScores, odomInfo[2], self.odomScore)
+        moveInfo = self.robot.getTravelDist()
+        print "Move Info", moveInfo
+        self.mcl.mclCycle(matchLocs, matchScores, odomInfo[2], self.odomScore, moveInfo)
         self.mcl.drawParticles((0,0,255))
+
+        centerX, centerY, centerAngle = self.mcl.centerOfMass()
+        centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
+        self.mcl.drawSingleParticle(self.mcl.currentMap, centerX, centerY, centerAngle, (0, 255, 0))
+        self.logger.log(centerStr.format(centerX, centerY, centerAngle))
+        # probX, probY, probAngle = self.mcl.probableLocation()
+        # probStr = "   MOST LIKELY LOCATION: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
+        # self.mcl.drawSingleParticle(self.mcl.currentMap, probX, probY, probAngle, (255, 255, 0))
+        # self.logger.log(probStr.format(probX, probY, probAngle))
+
+        cv2.imshow("Particles", self.mcl.currentMap)
 
         if bestScore < 5: #TODO:changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
@@ -178,11 +191,6 @@ class Localizer(object):
                 self.beenGuessing = False
                 # TODO: figure out if bestHead is the right result, but for now it's probably ignored anyway
                 return nodes, "totally unsure."
-
-
-    def robotMove(self,distance, heading):
-        # distance = self._euclidDist((self.lastKnownLoc[0],self.lastKnownLoc[1]), self.currLoc)
-        self.mcl.particleMove(distance, heading)
 
 
     def _findClosestNode(self, (x, y)):
