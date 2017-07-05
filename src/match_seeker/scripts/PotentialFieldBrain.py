@@ -69,7 +69,7 @@ class PotentialFieldBrain(ReactiveBrain.ReactiveBrain):
                 scaledSpeed = 0.0
 
             self.myRobot.move(transValue, scaledSpeed)
-        return transValue, angle
+
 
 
     def _updateBehaviors(self):

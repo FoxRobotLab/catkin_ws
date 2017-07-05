@@ -75,8 +75,22 @@ class Localizer(object):
             matchLocs.append((locX, locY))
             matchScores.append(nextScore)
 
-        self.mcl.mclCycle(matchLocs, matchScores, odomInfo[2], self.odomScore)
+        moveInfo = self.robot.getTravelDist()
+        print "Move Info", moveInfo
+        self.mcl.mclCycle(matchLocs, matchScores, odomInfo[2], self.odomScore, moveInfo)
         self.mcl.drawParticles((0,0,255))
+
+        centerParticle = self.mcl.centerOfMass()
+        centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
+        self.mcl.drawSingleParticle(self.mcl.currentMap, centerParticle, (0, 255, 0))
+        centerX, centerY, centerAngle = centerParticle.getLoc()
+        self.logger.log(centerStr.format(centerX, centerY, centerAngle))
+        # probX, probY, probAngle = self.mcl.probableLocation()
+        # probStr = "   MOST LIKELY LOCATION: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
+        # self.mcl.drawSingleParticle(self.mcl.currentMap, probX, probY, probAngle, (255, 255, 0))
+        # self.logger.log(probStr.format(probX, probY, probAngle))
+
+        cv2.imshow("Particles", self.mcl.currentMap)
 
         if bestScore < 5: #TODO:changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
@@ -180,11 +194,6 @@ class Localizer(object):
                 return nodes, "totally unsure."
 
 
-    def robotMove(self,distance, heading):
-        # distance = self._euclidDist((self.lastKnownLoc[0],self.lastKnownLoc[1]), self.currLoc)
-        self.mcl.particleMove(distance, heading)
-
-
     def _findClosestNode(self, (x, y)):
         """uses the location of a matched image and the distance formula to determine the node on the olingraph
         closest to each match/guess"""
@@ -211,10 +220,10 @@ class Localizer(object):
         x, y, yaw = self.robot.getOdomData()
         (nearNode, closeX, closeY, bestVal) = self._findClosestNode((x,y))
         self.logger.log( formStr.format(x, y, yaw, self.odomScore) )
-        self.odomScore = max(0.0, self.odomScore - 0.5)
+        self.odomScore = max(0.001, self.odomScore - 0.5)
 
         if self.robot.hasWheelDrop():
-            self.odomScore = 0.0
+            self.odomScore = 0.001
 
         return nearNode, yaw, (x, y), bestVal
 

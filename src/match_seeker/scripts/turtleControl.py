@@ -163,6 +163,10 @@ class TurtleBot(object):
         return self.odom.getData()
 
 
+    def getTravelDist(self):
+        return self.odom.getTravelDistance()
+
+
     def updateOdomLocation(self,x = 0, y = 0, yaw = 0.0):
         """updates an offset for all the odometry data, when skews are introduced by human or environmental interference.
         has a default of 0 for all inputs, to reset the offsets."""
@@ -200,6 +204,9 @@ class TurtleBot(object):
             return state.cliff
         else:
             return state.cliff_left + state.cliff_right + state.cliff_front_left + state.cliff_front_right
+
+
+
 
     def exit(self):
         """A method that shuts down the three threads of the robot."""
@@ -521,13 +528,15 @@ class OdometryListener(threading.Thread):
         self.runFlag = True
         self.robotType = robotType
 
-        self.x = None
-        self.y = None
-        self.yaw = None
+        self.x = 0.0
+        self.y = 0.0
+        self.yaw = 0.0
+
         self.offsetX = 22.2
         self.offsetY = 6.5
         self.offsetYaw = 0.0
 
+        self.prevX, self.prevY, self.prevYaw = self.getData()
 
     def run(self):
         """The thread's run method.  Does nothing active, just keeps running so that the other methods
@@ -555,6 +564,25 @@ class OdometryListener(threading.Thread):
             #roll and pitch are only useful if your robot can move in the z plane. our turtlebots cannot fly.
             self.yaw = math.degrees(self.yaw)
 
+
+    def getTravelDistance(self):
+
+        currX, currY, currYaw = self.getData()
+        dx = currX - self.prevX
+        dy = currY - self.prevY
+        dyaw = currYaw - self.prevYaw
+
+        print "prevX", self.prevX, "prevY", self.prevY, "prevYaw", self.prevYaw
+        print "currX", currX, "currY", currY, "currYaw", currYaw
+        self.prevX = currX
+        self.prevY = currY
+        self.prevYaw = currYaw
+
+
+
+        return dx, dy, dyaw
+
+
     def updateOdomLoc(self, x, y, yaw):
         """Lets you offset the odometry data, in case of outside input to the robots location,
         like a chair or some helping hands."""
@@ -570,6 +598,8 @@ class OdometryListener(threading.Thread):
         this method blocks until some becomes available."""
         with self.lock:
             x, y, yaw = self.x, self.y, self.yaw
+
+        print "in get data, x:", x, "y:", y, "yaw:", yaw
         return x + self.offsetX, y+self.offsetY, yaw + self.offsetYaw
 
 

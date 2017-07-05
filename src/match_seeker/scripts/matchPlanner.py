@@ -69,10 +69,8 @@ class MatchPlanner(object):
             cv2.waitKey(20)
 
             if iterationCount > 20 and self.whichBrain == "nav":
-                stepDist, stepAngle =self.brain.step()
-                if iterationCount % 30 == 0:
-                    self.locator.robotMove(stepDist, stepAngle)
-                    print "step: ", stepDist, stepAngle
+                self.brain.step()
+
 
             if self.whichBrain == "loc":
                 self.moveHandle.lookAround()
@@ -92,7 +90,6 @@ class MatchPlanner(object):
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
                         self.robot.turnByAngle(35)         #turn back 90 degrees bc the behavior is faster than the matching
-                        self.locator.robotMove(0, np.radians(35))
                         self.checkCoordinates(matchInfo)    #react to the location data of the match
                     self.whichBrain = "nav"
                 elif status == "look":          #enter LookAround behavior
