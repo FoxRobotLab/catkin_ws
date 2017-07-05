@@ -114,6 +114,7 @@ class monteCarloLoc():
 
         moveX, moveY, moveAngle = moveInfo
         moveAngle = np.radians(moveAngle)
+        print "moveInfo in Monte Carlo", moveX, moveY, moveAngle
         moveList = []
         for posPoint in self.validPosList:
             posPoint.moveParticle(moveX, moveY, moveAngle)
@@ -131,6 +132,7 @@ class monteCarloLoc():
             #     newPoint = self.addNormParticles(posPoint[0], posPoint[1], posPoint[2])
             #     moveList.append(newPoint)
 
+        # print [p.getLoc()[2] for p in moveList]
         # print "Moving", moveDist, moveAngle
         self.validPosList = moveList
 
@@ -195,9 +197,11 @@ class monteCarloLoc():
     def mclCycle(self, matchLocs, matchScores, odometry, odomScore, moveInfo):
         """ Takes in important Localizer information and calls all relevant methods in the MCL"""
         self.particleMove(moveInfo)
+        print "after particle move", len(self.validPosList)
         self.calcWeights(matchLocs, matchScores, odometry, odomScore)
-        self.validPosList = self.getSample()
-        self.calcWeights(matchLocs, matchScores, odometry, odomScore)
+        # self.validPosList = self.getSample()
+        # self.calcWeights(matchLocs, matchScores, odometry, odomScore)
+
         # self.update(self.validPosList)
 
 
@@ -236,9 +240,11 @@ class monteCarloLoc():
             # print "x and y: ", x, " ", y, "min dist index: ", str(minIndex)
 
         weights = [p.getWeight() for p in self.validPosList]
+        print "Length of pos list", len(self.validPosList)
         self.maxWeight = max(weights)
+        sumWeight = sum(weights)
         for particle in self.validPosList:
-            particle.normWeight(self.maxWeight)
+            particle.normWeight(sumWeight)
 
         # arrayWeights = np.array(weights, np.float64)
         # self.normedWeights = arrayWeights / arrayWeights.sum()      # normalize the weights for all particles
@@ -262,6 +268,8 @@ class monteCarloLoc():
         # weights = [ x[0] for x in self.weightedList]
 
         weights = [p.getWeight() for p in self.validPosList]
+        # print "Sum of weights", sum(weights)
+
 
         list_idx_choices = np.random.multinomial(self.maxLen, weights)
         # list_idx_choices of form [0, 0, 2, 0, 1, 0, 4] for length 7 list_to_sample
@@ -296,22 +304,24 @@ class monteCarloLoc():
 
         # print "Center of Mass, length: ", len(self.validPosList)
 
-        #TODO:need to work on it.
+        weightedSumX = 0
+        weightedSumY = 0
+        weightedSumAngle = 0
+        totalWeight = 0
 
+        for particle in self.validPosList:
+            weightedSumX += particle.getScaledX()
+            weightedSumY += particle.getScaledY()
+            weightedSumAngle += particle.getScaledAngle()
+            totalWeight += particle.getWeight()
 
-        xList = [pos[0] for pos in self.validPosList]
-        yList = [pos[1] for pos in self.validPosList]
-        angleList = [pos[2] for pos in self.validPosList]
+        cgx = weightedSumX/totalWeight
+        cgy = weightedSumY/totalWeight
+        cgAngle = weightedSumAngle/totalWeight
 
-        cgx = np.sum(xList*self.normedWeights)/np.sum(self.normedWeights)
-        cgy = np.sum(yList*self.normedWeights)/np.sum(self.normedWeights)
-        cgAngle = np.sum(angleList*self.normedWeights)/np.sum(self.normedWeights)
-
-        cgx = cgx.take(0)
-        cgy = cgy.take(0)
-        cgAngle = cgAngle.take(0)
+        cgParticle = Particle(cgx, cgy, cgAngle)
         # print "cgx", cgx, "cgy", cgy, "cgangle", cgAngle
-        return cgx,cgy, cgAngle
+        return cgParticle
 
 
 
@@ -412,16 +422,26 @@ class Particle():
 
     def moveParticle(self, moveX, moveY, moveAngle):
 
-        self.x += moveX
-        self.y += moveY
+    #     self.x += moveX
+    #     self.y += moveY
+    #
+    #     self.heading = self.heading + moveAngle
+    #     if self.heading > 2 * np.pi:
+    #         self.heading -= 2 * np.pi
 
-        self.heading = self.heading + moveAngle
-        if self.heading > 2 * np.pi:
-            self.heading -= 2 * np.pi
 
+        oldHead =  self.heading
+        gx = moveX * math.cos(self.heading) + moveY * math.sin(self.heading)
+        gy = moveX * math.sin(self.heading) + moveY * math.cos(self.heading)
 
-    def normWeight(self, maxWeight):
-        self.weight = self.weight/maxWeight
+        self.x += gx
+        self.y += gy
+
+        self.heading += moveAngle
+        self.heading = self.heading % (2*np.pi)
+
+    def normWeight(self, sumWeight):
+        self.weight = self.weight/sumWeight
 
 
     def setLoc(self, x, y, heading):
@@ -440,6 +460,16 @@ class Particle():
 
     def getWeight(self):
         return self.weight
+
+
+    def getScaledX(self):
+        return self.x*self.weight
+
+    def getScaledY(self):
+        return self.y*self.weight
+
+    def getScaledAngle(self):
+        return self.heading*self.weight
 
 
 

@@ -80,9 +80,10 @@ class Localizer(object):
         self.mcl.mclCycle(matchLocs, matchScores, odomInfo[2], self.odomScore, moveInfo)
         self.mcl.drawParticles((0,0,255))
 
-        centerX, centerY, centerAngle = self.mcl.centerOfMass()
+        centerParticle = self.mcl.centerOfMass()
         centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
-        self.mcl.drawSingleParticle(self.mcl.currentMap, centerX, centerY, centerAngle, (0, 255, 0))
+        self.mcl.drawSingleParticle(self.mcl.currentMap, centerParticle, (0, 255, 0))
+        centerX, centerY, centerAngle = centerParticle.getLoc()
         self.logger.log(centerStr.format(centerX, centerY, centerAngle))
         # probX, probY, probAngle = self.mcl.probableLocation()
         # probStr = "   MOST LIKELY LOCATION: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
@@ -219,10 +220,10 @@ class Localizer(object):
         x, y, yaw = self.robot.getOdomData()
         (nearNode, closeX, closeY, bestVal) = self._findClosestNode((x,y))
         self.logger.log( formStr.format(x, y, yaw, self.odomScore) )
-        self.odomScore = max(0.0, self.odomScore - 0.5)
+        self.odomScore = max(0.001, self.odomScore - 0.5)
 
         if self.robot.hasWheelDrop():
-            self.odomScore = 0.0
+            self.odomScore = 0.001
 
         return nearNode, yaw, (x, y), bestVal
 
