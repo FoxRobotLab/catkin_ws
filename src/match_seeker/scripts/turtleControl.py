@@ -569,12 +569,9 @@ class OdometryListener(threading.Thread):
         dy = currY - self.prevY
         dyaw = currYaw - self.prevYaw
 
-        print "prevX", self.prevX, "prevY", self.prevY, "prevYaw", self.prevYaw
-        print "currX", currX, "currY", currY, "currYaw", currYaw
         self.prevX = currX
         self.prevY = currY
         self.prevYaw = currYaw
-
 
 
         return dx, dy, dyaw
@@ -597,7 +594,6 @@ class OdometryListener(threading.Thread):
         with self.lock:
             x, y, yaw = self.x, self.y, self.yaw
 
-        print "in get data, x:", x, "y:", y, "yaw:", yaw
         return x + self.offsetX, y+self.offsetY, yaw + self.offsetYaw
 
 

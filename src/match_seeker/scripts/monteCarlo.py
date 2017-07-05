@@ -16,8 +16,8 @@ class monteCarloLoc():
     def __init__(self):
         self.worldX = 40.75   # meters
         self.worldY = 60.1   # meters
-        self.mapWid = 1203   # pixels
-        self.mapHgt = 816    # pixels
+        # self.mapWid = 1203   # pixels
+        # self.mapHgt = 816    # pixels
         self.maxLen = 500   # num of particles
         self.maxWeight = 0.0
         # self.worldX, self.worldY = self.convertMapToWorld(self.mapWid - 1, self.mapHgt - 1)
@@ -69,14 +69,14 @@ class monteCarloLoc():
             self.validPosList.append(self.addRandomParticle())
 
 
-
     def addRandomParticle(self):
         """generating a new list with random possibility all over the map"""
         # print "adding random particles"
-        posAngle = np.random.uniform(0, 2*np.pi)  # radians :P
+        posAngle = np.random.uniform(0, 360)
         posX = np.random.uniform(0, self.worldX)
         posY = np.random.uniform(0, self.worldY)
         posParticle = Particle(posX, posY, posAngle)
+
         if self.isValid(posParticle):
             return posParticle
         else:
@@ -113,8 +113,6 @@ class monteCarloLoc():
         # print "in particleMove"
 
         moveX, moveY, moveAngle = moveInfo
-        moveAngle = np.radians(moveAngle)
-        print "moveInfo in Monte Carlo", moveX, moveY, moveAngle
         moveList = []
         for posPoint in self.validPosList:
             posPoint.moveParticle(moveX, moveY, moveAngle)
@@ -139,23 +137,30 @@ class monteCarloLoc():
         # print "Moving", len(self.validPosList)
         #self.update(self.validPosList)
 
+    def seedNodesAtMatches(self,matchLocs,odomLoc):
+        particles = [Particle(odomLoc[0], odomLoc[1], odomLoc[2])]
+        for loc in matchLocs:
+            particles.append(Particle(loc[0],loc[1],loc[2]))
+
+        return particles
+
+
+
     def addNormParticles(self, particle):
 
-        # print "Adding normal distribution particles"
+        for i in range(10):
+            posX, posY, posAngle = particle.getLoc()
 
-        posX, posY, posAngle = particle.getLoc()
+            newAngle = np.random.normal(posAngle, 5.0)
+            newX = np.random.normal(posX, 0.5)
+            newY = np.random.normal(posY, 0.5)
 
-        newAngle = np.random.normal(posAngle, np.pi/4)
-        newX = np.random.normal(posX, 1.0)
-        newY = np.random.normal(posY, 1.0)
+            posParticle = Particle(newX, newY, newAngle)
 
-        posParticle = Particle(newX, newY, newAngle)
-
-        if self.isValid(posParticle):
-            return posParticle
-            # print newX, newY, newAngle
+            if self.isValid(posParticle):
+                return posParticle
         else:
-            return self.addNormParticles(particle)
+            return self.addRandomParticle()
 
 
     #Add random particle part is not up-to-date.
@@ -187,9 +192,11 @@ class monteCarloLoc():
 
         posX, posY, posHead = posPoint.getLoc()
 
+        if posX > self.worldX or posY > self.worldY:    # out of bounds of the map
+            return False
+
         for rect in self.obstacles:
-            if (posX >= rect[0] and posX <= rect[2]) and (posY >= rect[1] and posY <= rect[3]):
-                # print "out of bounds"
+            if (posX >= rect[0] and posX <= rect[2]) and (posY >= rect[1] and posY <= rect[3]): # within an obstacle
                 return False
         return True
 
@@ -197,10 +204,17 @@ class monteCarloLoc():
     def mclCycle(self, matchLocs, matchScores, odometry, odomScore, moveInfo):
         """ Takes in important Localizer information and calls all relevant methods in the MCL"""
         self.particleMove(moveInfo)
-        print "after particle move", len(self.validPosList)
+        # print "after particle move", len(self.validPosList)
+        matchParticles = self.seedNodesAtMatches(matchLocs,odometry)
+        self.validPosList.extend(matchParticles)
         self.calcWeights(matchLocs, matchScores, odometry, odomScore)
         self.validPosList = self.getSample()
         self.calcWeights(matchLocs, matchScores, odometry, odomScore)
+
+        self.drawParticles((0,0,255))
+        for part in matchParticles:
+            self.drawSingleParticle(self.currentMap,part,(255,0,255))
+
 
         # self.update(self.validPosList)
 
@@ -227,20 +241,23 @@ class monteCarloLoc():
         for posPoint in self.validPosList:
             # for each particle, look at its distance from the odomLoc & each matchLoc scaled by the location's certainty score
             x, y, heading = posPoint.getLoc()
-            minDist = self._euclidDist((odometry[0], odometry[1]), (x, y))
+            minDist = self._euclidDist((odometry[0], odometry[1], odometry[2]), (x, y,heading))
             minScore = odomScore
 
             for m in range(len(matchLocs)):
-                matchDist = self._euclidDist((matchLocs[m][0], matchLocs[m][1]), (x, y))
+                matchDist = self._euclidDist((matchLocs[m][0], matchLocs[m][1], matchLocs[m][2]), (x, y, heading))
                 if minDist > matchDist:
                     minDist = matchDist
                     minScore = matchScores[m]
 
-            posPoint.setWeight( (75 - minDist) * (minScore / 100))  # append the maximum weight for each particle
+            assert minDist>=0
+
+            posPoint.setWeight((90 - minDist) * (minScore / 100))  # append the maximum weight for each particle
             # print "x and y: ", x, " ", y, "min dist index: ", str(minIndex)
 
         weights = [p.getWeight() for p in self.validPosList]
         print "Length of pos list", len(self.validPosList)
+        self.maxWeight = max(weights)
         self.maxWeight = max(weights)
         sumWeight = sum(weights)
         for particle in self.validPosList:
@@ -250,7 +267,7 @@ class monteCarloLoc():
         # self.normedWeights = arrayWeights / arrayWeights.sum()      # normalize the weights for all particles
         print "arrayWeights sum:", sum(weights)
         if sum(weights) == 0:
-            print "arryaWeights sum is zero."
+            print "arrayWeights sum is zero."
 
 
     #
@@ -269,7 +286,6 @@ class monteCarloLoc():
 
         weights = [p.getWeight() for p in self.validPosList]
         # print "Sum of weights", sum(weights)
-
 
         list_idx_choices = np.random.multinomial(self.maxLen, weights)
         # list_idx_choices of form [0, 0, 2, 0, 1, 0, 4] for length 7 list_to_sample
@@ -297,7 +313,6 @@ class monteCarloLoc():
 
 
     def centerOfMass(self):
-
         """Calculating the center of mass of the position cluster in order to
         give a prediction about where the robot is.
         Returns the possible location of the robot"""
@@ -325,10 +340,14 @@ class monteCarloLoc():
 
 
 
-    def _euclidDist(self, (x1, y1), (x2, y2)):
+    def _euclidDist(self, (x1, y1, h1), (x2, y2, h2)):
         """Given two tuples containing two (x, y) points, this computes the straight-line distsance
         between the two points"""
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        hDiff = abs(h2-h1)
+        if hDiff > 180.0:
+            hDiff = 360 - hDiff
+        hDiff = hDiff * (50/180.0)
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + hDiff ** 2)
 
 
     def drawObstacles(self):
@@ -344,10 +363,8 @@ class monteCarloLoc():
     def drawParticles(self, color):
         self.currentMap = self.olinMap.copy()        # Ultimately we want this line, but for debugging
 
-
-
         for point in self.validPosList:
-            weight = point.getWeight() / self.maxWeight
+            weight = point.getWeight() * self.maxWeight
             b, g, r = color
             newColor = (b*weight, g*weight, r*weight)
             self.drawSingleParticle(self.currentMap, point, newColor)
@@ -358,8 +375,9 @@ class monteCarloLoc():
     def drawSingleParticle(self, image, particle, color):
         pointLen = 0.5  # meters
         wldX, wldY, heading = particle.getLoc()
-        pointX = wldX + (pointLen * math.cos(heading))
-        pointY = wldY + (pointLen * math.sin(heading))
+        radHead = math.radians(heading)
+        pointX = wldX + (pointLen * math.cos(radHead))
+        pointY = wldY + (pointLen * math.sin(radHead))
         # print "WLD Center:", (wldX, wldY), "   Point:", (pointX, pointY), "Heading: ", np.degrees(heading)
 
 
@@ -428,17 +446,15 @@ class Particle():
     #     self.heading = self.heading + moveAngle
     #     if self.heading > 2 * np.pi:
     #         self.heading -= 2 * np.pi
-
-
-        oldHead =  self.heading
-        gx = moveX * math.cos(self.heading) + moveY * math.sin(self.heading)
-        gy = moveX * math.sin(self.heading) + moveY * math.cos(self.heading)
+        radHead = math.radians(self.heading)
+        gx = moveX * math.cos(radHead) + moveY * math.sin(radHead)
+        gy = moveX * math.sin(radHead) + moveY * math.cos(radHead)
 
         self.x += gx
         self.y += gy
 
         self.heading += moveAngle
-        self.heading = self.heading % (2*np.pi)
+        self.heading = self.heading % 360
 
     def normWeight(self, sumWeight):
         self.weight = self.weight/sumWeight
@@ -455,6 +471,7 @@ class Particle():
 
 
     def setWeight(self, weight):
+        assert weight>=0
         self. weight = weight
 
 
@@ -477,7 +494,7 @@ if __name__ == '__main__':
     test = monteCarloLoc()
     test.initializeParticles(1000)
     # print "total len ", len(test.validPosList)
-    test.drawParticles((255,100,0))
+    test.drawParticles(test.validPosList, (255,100,0))
     cv2.waitKey(0)
 
     for i in range(50):
@@ -496,7 +513,7 @@ if __name__ == '__main__':
         test.calcWeights(0, 0, 0, 0)
         x, y, head = test.centerOfMass()
         print "Center of mass", x, y, head
-        test.drawParticles((0,0,255-i*12))
+        test.drawParticles(test.validPosList, (0,0,255-i*12))
         test.drawSingleParticle(test.currentMap, x, y, head, (0, 255, 0))
 
 
