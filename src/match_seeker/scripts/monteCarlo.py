@@ -199,8 +199,8 @@ class monteCarloLoc():
         self.particleMove(moveInfo)
         print "after particle move", len(self.validPosList)
         self.calcWeights(matchLocs, matchScores, odometry, odomScore)
-        # self.validPosList = self.getSample()
-        # self.calcWeights(matchLocs, matchScores, odometry, odomScore)
+        self.validPosList = self.getSample()
+        self.calcWeights(matchLocs, matchScores, odometry, odomScore)
 
         # self.update(self.validPosList)
 
