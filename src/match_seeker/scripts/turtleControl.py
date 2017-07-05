@@ -171,6 +171,7 @@ class TurtleBot(object):
     def hasWheelDrop(self):
         return self.depthControl.hasBeenWheelDrop()
 
+
     def getBumperStatus(self):
         """Accesses the robot base sensor data and reports whether the bumper has triggered."""
         state = self.depthControl.getSensorState()
@@ -504,6 +505,8 @@ class DepthSensorThread(threading.Thread):
         with self.lock:
             self.runFlag = False
 
+
+
 class OdometryListener(threading.Thread):
     """This thread communicates with the robot's odometry node, providing updated odometry data upon request."""
 
@@ -561,25 +564,26 @@ class OdometryListener(threading.Thread):
         print "Offsets: ", str(self.offsetX), str(self.offsetY), str(self.offsetYaw)
         return self.offsetX, self.offsetY, self.offsetYaw
 
+
     def getData(self):
         """Method typically called by other threads, gets the available odometry data. If no data is available yet,
         this method blocks until some becomes available."""
-
         with self.lock:
             x, y, yaw = self.x, self.y, self.yaw
         return x + self.offsetX, y+self.offsetY, yaw + self.offsetYaw
+
 
     def resetOdometer(self):
         if self.robotType == 'kobuki':
             # set up the odometry reset publisher
             reset_odom = rospy.Publisher('/mobile_base/commands/reset_odometry', Empty, queue_size=10)
-
             # reset odometry (these messages take a few iterations to get through)
             timer = time()
             while time() - timer < 1.0: #was 0.25
                 reset_odom.publish(Empty())
         else:
             pass
+
 
     def exit(self):
         """Method typically called by other threads, to shut down this thread."""
