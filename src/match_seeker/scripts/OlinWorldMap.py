@@ -1,0 +1,406 @@
+"""=================================
+File: OlinWorldMap.py
+Author: Susan Fox
+Date: July, 2017
+
+The purpose of this file/class is to combine together the code about the graph view of the map, and the more continuous
+view of the map. This includes utilities for drawing the map, maybe even drawing the graph on the map eventually,
+calculating straight-line distances, graph search for finding shortest paths in the map, and other tools related
+to the map.
+
+matchPlanner: getData(node), getSize(),    getNeighbors(node), getAngle(), straightDist()
+
+pathLocation: getAngle(), getShortestPath()
+Localizer: getVertices(), getData, straightDist()  but all in one method could become part of new class
+"""
+
+import math
+import random
+
+import cv2
+import numpy as np
+
+from DataPaths import basePath, graphMapData, mapLineData
+# from Particle import Particle
+import MapGraph
+
+
+class WorldMap(object):
+
+
+    def __init__(self):
+        self.olinGraph = None
+        self.invalidBoxes = []
+        self.markerMap = {}
+
+        self.olinImage = None
+        self.currentMapImg = None
+
+        self.mapLines = []
+        self.scaledLines = []
+        self.mapParams = {}
+        (self.mapMinX, self.mapMinY) = (0, 0)
+        (self.mapMaxX, self.mapMaxY) = (0, 0)
+        (self.mapTotalXDim, self.mapTotalYDim) = (0, 0)
+        (self.imageWidth, self.imageHeight) = (0, 0)
+        self.mapScaleFactor = None
+        self.pixelsPerMeter = 20
+
+        self._readGraphMap(basePath + graphMapData)
+        self._readContinuousMap(basePath + mapLineData)
+        self.clearView()
+
+    # -------------------------------------------------------------------
+    # These methods access graph data as needed
+
+    def getLocation(self, graphNode):
+        try:
+            loc = self.olinGraph.getData(graphNode)
+        except Exception:
+            print "BAD NODE"
+            return None
+        return loc
+
+
+    # -------------------------------------------------------------------
+    # These methods update and display the map and poses or particles on it
+
+    def clearView(self):
+        """Set the current map image to be a clean copy of the original."""
+        self.currentMapImg = self.olinImage.copy()
+
+
+    def displayMap(self, window = "Map Image"):
+        """Make a copy of the original image, and display it."""
+        cv2.imshow(window, self.currentMapImg)
+        cv2.waitKey(20)
+
+
+    def drawPose(self, particle, size = 4, color = (0, 0, 0)):
+        if size >= 3:
+            pointLen = 0.5  # meters
+        elif size > 1:
+            pointLen = 0.25 # meters
+        else:
+            pointLen = 0.0 # meters
+
+        if type(particle) == tuple:
+            wldX, wldY, heading = particle
+        else:   # elif isinstance(particle, Particle)  TODO: Eventually fix this
+            wldX, wldY, heading = particle.getLoc()
+        pointX = wldX + (pointLen * math.cos(heading))
+        pointY = wldY + (pointLen * math.sin(heading))
+
+        poseCenter = self._convertWorldToPixels((wldX, wldY))
+        posePoint = self._convertWorldToPixels((pointX, pointY))
+        cv2.circle(self.currentMapImg, poseCenter, size, color, -1)
+        cv2.line(self.currentMapImg, poseCenter, posePoint, color)
+
+
+    # -------------------------------------------------------------------
+    # These public methods access those features that should be accessed
+
+    def getGraphSize(self):
+        """Returns the number of vertices in the graph"""
+        return self.olinGraph.getSize()
+
+    def getMapSize(self):
+        """Returns a tuple of the width and height (x, y) of the map, in meters."""
+        return self.mapTotalXDim, self.mapTotalYDim
+
+    # -------------------------------------------------------------------
+    # These public methods calculate angles and straightline distances.
+
+    def calcAngle(self, fll):
+        pass
+
+
+    # -------------------------------------------------------------------
+    # These public methods add marker information to this class (somewhat deprecated)
+
+    def addMarkerInfo(self, node, markerData):
+        """Adds to a dictionary of information about markers. Each marker occurs
+        at a node of the graph, so the node is the key, and the data is whatever makese sense."""
+        self.markerMap[node] = markerData
+
+
+    def getMarkerInfo(self, node):
+        """Given a node, returns the marker data, if any, or None if none."""
+        return self.markerMap.get(node, None)
+
+
+    # -------------------------------------------------------------------
+    # The following methods read in the graph data file and make a MapGraph to represent the data
+    def _readGraphMap(self, filePath):
+        """Takes in a filename for a occupancy-grid map graph, and it reads
+        in the data from the file. It then generates the map appropriately."""
+        try:
+            filObj = open(filePath, 'r')
+        except IOError:
+            print("ERROR READING FILE, ABORTING")
+            return
+        readingIntro = True
+        readingNodes = False
+        readingMarkers = False
+        readingInvalidBoxes = False
+        readingEdges = False
+        allData = []
+        numNodes = -1
+        row = -1
+        graph = None
+        for line in filObj:
+            line = line.strip()
+            lowerLine = line.lower()
+
+            if line == "" or line[0] == '#':
+                # ignore blank lines or lines that start with #
+                continue
+            elif readingIntro and lowerLine.startswith("number"):
+                # If at the start and line starts with number, then last value is # of nodes
+                words = line.split()
+                numNodes = int(words[-1])
+                readingIntro = False
+            elif (not readingIntro) and lowerLine.startswith('nodes:'):
+                # If have seen # of nodes and now see Nodes:, start reading node data
+                readingNodes = True
+                row = 0
+            elif readingNodes and row < numNodes:
+                # If reading nodes, and haven't finished (must be data for every node)
+                try:
+                    [nodeNumStr, locStr, descr] = line.split("   ")
+                except ValueError:
+                    print "ERROR IN FILE AT LINE: ", line, "ABORTING"
+                    return
+                nodeNum = int(nodeNumStr)
+                if nodeNum != row:
+                    print "ROW DOESN'T MATCH, SKIPPING"
+                else:
+                    dataList = locStr.split()
+                    nodeData = [part.strip("(),") for part in dataList]
+                    allData.append((float(nodeData[0]), float(nodeData[1])))
+                row += 1
+                if row == numNodes:
+                    # If reading nodes, and should be done, then go on
+                    readingNodes = False
+                    graph = MapGraph.MapGraph(numNodes, allData)
+            elif (not readingNodes) and lowerLine.startswith('markers:'):
+                # If there are markers, then start reading them
+                readingMarkers = True
+            elif (not readingNodes) and lowerLine.startswith("invalid"):
+                readingInvalidBoxes = True
+                readingMarkers = False
+            elif (not readingNodes) and lowerLine.startswith('edges:'):
+                # If you see "Edges:", then start reading edges
+                readingInvalidBoxes = False
+                readingEdges = True
+            elif readingMarkers:
+                # If reading a marker, data is node and heading facing marker
+                markerData = line.split()
+                node = int(markerData[0])
+                heading = float(markerData[1])
+                self.addMarkerInfo(node, heading)
+            elif readingInvalidBoxes:
+                boxData = line.split()
+                [ulx, uly, lrx, lry] = [float(v) for v in boxData[:4]]
+                self.invalidBoxes.append((ulx, uly, lrx, lry))
+            elif readingEdges:
+                # If reading edges, then data is pair of nodes, add edge
+                [fromNode, toNode] = [int(x) for x in line.split()]
+                graph.addEdge(fromNode, toNode)
+            else:
+                print "Shouldn't get here", line
+        self.olinGraph = graph
+
+    # -------------------------------------------------------------------
+    # The following methods read in the continuous map data file and make an image representation of the map
+    def _readContinuousMap(self, filename):
+        """Takes in a filename containing map information, and the number of pixels per meter in the final image,
+        and it reads in the data from the file, and creates an image of the map accordingly."""
+        params, lines = self._inputMap(filename)
+        self.mapLines = lines
+        self.mapParams = params
+        self._setupContMapParameters()
+        self._drawMap()
+
+
+    def _inputMap(self, filename):
+        """Given a filename, it reads in the data about the map from the file, returning the parameters of the map
+        and a list of the lines specified in it."""
+        fil = open(filename, 'r')
+        parameters = self._readHeader(fil)
+        lineList = self._readLines(fil)
+        fil.close()
+        return parameters, lineList
+
+
+    def _readHeader(self, fil):
+        """Read in the header information, which includes the size of the map, its scale, and
+        how many lines make up its walls."""
+        # Loop until you see the LINES line
+        params = dict()
+        while True:
+            nextLine = fil.readline()
+            nextLine = nextLine.strip()
+            # If reach the end of the header section, stop
+            if nextLine == "LINES" or nextLine == "":
+                break
+            lineWords = nextLine.split()
+            if lineWords[0] == "LineMinPos:":
+                params["minPos"] = [int(v) for v in lineWords[1:]]
+            elif lineWords[0] == "LineMaxPos:":
+                params["maxPos"] = [int(v) for v in lineWords[1:]]
+            elif lineWords[0] == "NumLines:":
+                params["numLines"] = [int(v) for v in lineWords[1:]]
+            elif lineWords[0] == "Scale:":
+                params["scale"] = int(lineWords[1])
+        return params
+
+
+    def _readLines(self, fil):
+        """Read in the lines, making a list of them. Each line is defined by four values, forming
+        two points, which are the endpoints of the line."""
+        lines = []
+        biggestY = 0
+        biggestX = 0
+        while True:
+            nextText = fil.readline()
+            nextText = nextText.strip()
+            # If read the end of the lines, stop
+            if nextText == "DATA" or nextText == "":
+                break
+            elif nextText[0] == '#':  # line is a comment, skip it
+                continue
+            else:
+                nextLine = [int(v) for v in nextText.split()]
+                if nextLine[0] > biggestX:
+                    biggestX = nextLine[0]
+                if nextLine[2] > biggestX:
+                    biggestX = nextLine[2]
+                if nextLine[1] > biggestY:
+                    biggestY = nextLine[1]
+                if nextLine[3] > biggestY:
+                    biggestY = nextLine[3]
+                lines.append(nextLine)
+        return lines
+
+
+    def _setupContMapParameters(self):
+        """Computes the map's size in meters based on the given scale."""
+        self.mapScaleFactor = self.mapParams['scale']
+        [minX, minY] = self.mapParams["minPos"]
+        [maxX, maxY] = self.mapParams["maxPos"]
+        self.mapMinX = self._scaleRawToMeters(minX)
+        self.mapMinY = self._scaleRawToMeters(minY)
+        self.mapMaxX = self._scaleRawToMeters(maxX)
+        self.mapMaxY = self._scaleRawToMeters(maxY)
+
+        self.mapTotalXDim = self._scaleRawToMeters(maxX - minX + 1)
+        self.mapTotalYDim = self._scaleRawToMeters(maxY - minY + 1)
+        self.imageHeight = self._scaleMetersToPixels(self.mapTotalXDim)
+        self.imageWidth = self._scaleMetersToPixels(self.mapTotalYDim)
+
+
+    def _drawMap(self):
+        """This should use the parameters from the map to make a picture of the map.
+         Draws the grid first, then the lines, and returns the new map image fo"""
+        self.olinImage = 255 * np.ones((self.imageHeight, self.imageWidth, 3), np.uint8)
+        self._drawGrid()
+
+        lineColor = (0, 0, 0)
+        i = 0
+        for line in self.mapLines:
+            scaledLine = [self._scaleRawToMeters(val) for val in line]
+            self.scaledLines.append(scaledLine)
+            pt1 = scaledLine[0:2]
+            pt2 = scaledLine[2:4]
+            pixPt1 = self._convertWorldToPixels(pt1)
+            pixPt2 = self._convertWorldToPixels(pt2)
+            cv2.line(self.olinImage, pixPt1, pixPt2, lineColor, 1)
+            i += 1
+
+
+
+    def _drawGrid(self):
+        """Draw horizontal and vertical lines marking each square meter on the picture."""
+        # First, horizontal lines
+        for x in range(0, int(self.mapTotalXDim)):
+            if x == 0:
+                lineCol = (0, 0, 0)
+            elif x % 5 == 0:
+                lineCol = (0, 255, 255)
+            else:
+                lineCol = (255, 255, 0)
+            pt1 = self._convertWorldToPixels((x, 0.0))
+            pt2 = self._convertWorldToPixels((x, self.mapTotalYDim))
+            cv2.line(self.olinImage, pt1, pt2, lineCol)
+        # Next, vertical lines
+        for y in range(0, int(self.mapTotalYDim)):
+            if y == 0:
+                lineCol = (0, 0, 0 )
+            elif y % 5 == 0:
+                lineCol = (0, 255, 255)
+            else:
+                lineCol = (255, 255, 0)
+            pt1 = self._convertWorldToPixels((0.0, y))
+            pt2 = self._convertWorldToPixels((self.mapTotalXDim, y))
+            cv2.line(self.olinImage, pt1, pt2, lineCol)
+
+    # -------------------------------------------------------------------
+    # The following methods convert from the data file's representation to meters, and from meters to pixels and vice
+    # versa, handling the fact that (0, 0) in pixels is in the upper left of the map image, and (0, 0) in meters is
+    # at the lower right covern of the map image
+
+    def _scaleRawToMeters(self, distance):
+        """Convert the distance in mapfile units into meters using the given scale."""
+        return distance / float(self.mapParams['scale'])
+
+
+    def _scaleMetersToPixels(self, distance):
+        """Convert the distance in meters into pixels using the pre-defined scale"""
+        return int(distance * self.pixelsPerMeter)
+
+
+
+
+    def _convertPixelsToWorld(self, (mapX, mapY)):
+        """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
+        meters. Note that this also has to adjust for the rotation and flipping of the map."""
+        # First flip x and y values around...
+        flipY = self.mapTotalXDim - 1 - mapX
+        flipX = self.mapTotalYDim - 1 - mapY
+        # Next convert to meters from pixels, assuming 20 pixels per meter
+        mapXMeters = flipX / 20.0
+        mapYMeters = flipY / 20.0
+        return (mapXMeters, mapYMeters)
+
+
+    def _convertWorldToPixels(self, (worldX, worldY)):
+        """Converts coordinates in meters in the world to integer coordinates on the map
+        Note that this also has to adjust for the rotation and flipping of the map."""
+        # First convert from meters to pixels, assuming 20 pixels per meter
+        pixelX = worldX * 20.0
+        pixelY = worldY * 20.0
+        # Next flip x and y values around
+        mapX = self.imageWidth - 1 - pixelY
+        mapY = self.imageHeight - 1 - pixelX
+        return (int(mapX), int(mapY))
+
+
+
+
+if __name__ == '__main__':
+    mapper = WorldMap()
+    mapper.displayMap()
+
+    poseList =[]
+    for i in range(20):
+        posX = random.random() * mapper.mapTotalXDim
+        posY = random.random() * mapper.mapTotalYDim
+        posH = random.randint(0, 360)
+        pose = (posX, posY, posH)
+        poseList.append(pose)
+        mapper.drawPose(pose, color=(i*12, 0, 0))
+        mapper.displayMap()
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()

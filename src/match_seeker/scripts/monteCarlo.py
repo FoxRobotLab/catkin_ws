@@ -344,8 +344,7 @@ class monteCarloLoc():
     def drawParticles(self, color):
         self.currentMap = self.olinMap.copy()        # Ultimately we want this line, but for debugging
 
-
-
+\
         for point in self.validPosList:
             weight = point.getWeight() / self.maxWeight
             b, g, r = color

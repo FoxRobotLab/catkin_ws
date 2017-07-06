@@ -22,7 +22,6 @@ class MapGraph(WeightedListGraph):
             raise(BadNodeDataException())
         else:
             WeightedListGraph.__init__(self, n, nodeData)
-            self.markerMap = {}
 
     def _goodNodeData(self, nodeData):
         """Checks if the data given is valid, namely if the data for each node
@@ -51,16 +50,6 @@ class MapGraph(WeightedListGraph):
             weight = self.straightDist(node1, node2)
         WeightedListGraph.addEdge(self, node1, node2, weight)
 
-
-    def addMarkerInfo(self, node, markerData):
-        """Adds to a dictionary of information about markers. Each marker occurs
-        at a node of the graph, so the node is the key, and the data is whatever makese sense."""
-        self.markerMap[node] = markerData
-
-
-    def getMarkerInfo(self, node):
-        """Given a node, returns the marker data, if any, or None if none."""
-        return self.markerMap.get(node, None)
 
     def nodeToCoord(self,node):
         if type(node) is int:
@@ -116,74 +105,3 @@ class BadNodeDataException(Exception):
 # Function for creating a MapGraph from a file of data
 # TODO: Think about whether this should be part of MapGraph itself?
 
-def readMapFile(mapFile):
-    """Takes in a filename for a occupancy-grid map graph, and it reads
-    in the data from the file. It then generates the map appropriately."""
-    try:
-        filObj = open(mapFile, 'r')
-    except IOError:
-        print("ERROR READING FILE, ABORTING")
-        return
-    readingIntro = True
-    readingNodes = False
-    readingMarkers = False
-    readingEdges = False
-    allData = []
-    numNodes = -1
-    row = -1
-    graph = None
-    for line in filObj:
-        line = line.strip()
-        lowerLine = line.lower()
-
-        if line == "" or line[0] == '#':
-            # ignore blank lines or lines that start with #
-            continue
-        elif readingIntro and lowerLine.startswith("number"):
-            # If at the start and line starts with number, then last value is # of nodes
-            words = line.split()
-            numNodes = int(words[-1])
-            readingIntro = False
-        elif (not readingIntro) and lowerLine.startswith('nodes:'):
-            # If have seen # of nodes and now see Nodes:, start reading node data
-            readingNodes = True
-            row = 0
-        elif readingNodes and row < numNodes:
-            # If reading nodes, and haven't finished (must be data for every node)
-            try:
-                [nodeNumStr, locStr, descr] = line.split("   ")
-            except ValueError:
-                print "ERROR IN FILE AT LINE: ", line, "ABORTING"
-                return
-            nodeNum = int(nodeNumStr)
-            if nodeNum != row:
-                print "ROW DOESN'T MATCH, SKIPPING"
-            else:
-                dataList = locStr.split()
-                nodeData = [part.strip("(),") for part in dataList]
-                allData.append((float(nodeData[0]), float(nodeData[1])))
-            row += 1
-            if row == numNodes:
-                # If reading nodes, and should be done, then go on
-                readingNodes = False
-                graph = MapGraph(numNodes, allData)
-        elif (not readingNodes) and lowerLine.startswith('markers:'):
-            # If there are markers, then start reading them
-            readingMarkers = True
-        elif (not readingNodes) and lowerLine.startswith('edges:'):
-            # If you see "Edges:", then start reading edges
-            readingMarkers = False
-            readingEdges = True
-        elif readingMarkers:
-            # If reading a marker, data is node and heading facing marker
-            markerData = line.split()
-            node = int(markerData[0])
-            heading = float(markerData[1])
-            graph.addMarkerInfo(node, heading)
-        elif readingEdges:
-            # If reading edges, then data is pair of nodes, add edge
-            [fromNode, toNode] = [int(x) for x in line.split()]
-            graph.addEdge(fromNode, toNode)
-        else:
-            print "Shouldn't get here", line
-    return graph
