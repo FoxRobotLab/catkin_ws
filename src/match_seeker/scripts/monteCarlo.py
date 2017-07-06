@@ -10,6 +10,8 @@ from DataPaths import basePath
 from markLocations import readMap
 import math
 
+import matplotlib.pyplot as plt
+
 
 class monteCarloLoc():
 
@@ -47,6 +49,10 @@ class monteCarloLoc():
         # so if movement in x direction is 500 cm, then the std dev is 100
         self.sigma_fwd_pct = 0.2
         self.sigma_theta_pct = 0.05
+
+        # plt
+        plt.ion()
+        plt.show()
 
 
     def getOlinMap(self, mapFile):
@@ -141,6 +147,7 @@ class monteCarloLoc():
         particles = [Particle(odomLoc[0], odomLoc[1], odomLoc[2])]
         for loc in matchLocs:
             particles.append(Particle(loc[0],loc[1],loc[2]))
+            particles.append(Particle(loc[0], loc[1], loc[2]))
 
         return particles
 
@@ -151,9 +158,9 @@ class monteCarloLoc():
         for i in range(10):
             posX, posY, posAngle = particle.getLoc()
 
-            newAngle = np.random.normal(posAngle, 5.0)
-            newX = np.random.normal(posX, 0.5)
-            newY = np.random.normal(posY, 0.5)
+            newAngle = np.random.normal(posAngle, 3.0)
+            newX = np.random.normal(posX, 0.25)
+            newY = np.random.normal(posY, 0.25)
 
             posParticle = Particle(newX, newY, newAngle)
 
@@ -208,6 +215,7 @@ class monteCarloLoc():
         matchParticles = self.seedNodesAtMatches(matchLocs,odometry)
         self.validPosList.extend(matchParticles)
         self.calcWeights(matchLocs, matchScores, odometry, odomScore)
+        self.validPosList.sort(key = lambda p: p.weight)
         self.validPosList = self.getSample()
         self.calcWeights(matchLocs, matchScores, odometry, odomScore)
 
@@ -252,7 +260,7 @@ class monteCarloLoc():
 
             assert minDist>=0
 
-            posPoint.setWeight((90 - minDist) * (minScore / 100))  # append the maximum weight for each particle
+            posPoint.setWeight((90 - minDist)) # * (minScore / 100))  # append the maximum weight for each particle
             # print "x and y: ", x, " ", y, "min dist index: ", str(minIndex)
 
         weights = [p.getWeight() for p in self.validPosList]
@@ -288,6 +296,15 @@ class monteCarloLoc():
         # print "Sum of weights", sum(weights)
 
         list_idx_choices = np.random.multinomial(self.maxLen, weights)
+
+        #plt
+        plt.clf()
+        plt.plot(weights)
+        plt.draw()
+        plt.pause(0.001)
+
+
+        # print list_idx_choices
         # list_idx_choices of form [0, 0, 2, 0, 1, 0, 4] for length 7 list_to_sample
         # print list_idx_choices
         total_particles = 0
@@ -447,7 +464,7 @@ class Particle():
     #     if self.heading > 2 * np.pi:
     #         self.heading -= 2 * np.pi
         radHead = math.radians(self.heading)
-        gx = moveX * math.cos(radHead) + moveY * math.sin(radHead)
+        gx = moveX * math.cos(radHead) - moveY * math.sin(radHead)
         gy = moveX * math.sin(radHead) + moveY * math.cos(radHead)
 
         self.x += gx
@@ -486,47 +503,100 @@ class Particle():
         return self.y*self.weight
 
     def getScaledAngle(self):
+        if self.heading<0:
+            self.heading += 360.0
         return self.heading*self.weight
+
+    def __str__(self):
+        formatStr = "Particle info: ({0: 4.2f}, {1:4.2f}, {2:4.2f}, {3:4.2f}))"
+        return formatStr.format(self.x, self.y, self.heading, self.weight)
 
 
 
 if __name__ == '__main__':
+    # test = monteCarloLoc()
+    # test.initializeParticles(1000)
+    # # print "total len ", len(test.validPosList)
+    # test.drawParticles(test.validPosList, (255,100,0))
+    # cv2.waitKey(0)
+    #
+    # for i in range(50):
+    #     # print "in the for loop", i
+    #
+    #     test.calcWeights(0, 0, 0, 0)
+    #     list = test.getSample()
+    #
+    #     # print "total len ", len(test.validPosList)
+    #     # print "sample len ", len(list)
+    #     test.validPosList = list
+    #
+    #     # test.particleMove(1.0,0)
+    #     # print test.validPosList[0]
+    #     # test.addNormParticles(test.validPosList[0][0], test.validPosList[0][1], test.validPosList[0][2])
+    #     test.calcWeights(0, 0, 0, 0)
+    #     x, y, head = test.centerOfMass()
+    #     print "Center of mass", x, y, head
+    #     test.drawParticles(test.validPosList, (0,0,255-i*12))
+    #     test.drawSingleParticle(test.currentMap, x, y, head, (0, 255, 0))
+    #
+    #
+    #     index = np.where(test.normedWeights == max(test.normedWeights))
+    #     probX, probY, probAngle = test.validPosList[index[0]]
+    #     print "most likely loc", probX, probY, probAngle
+    #     test.drawSingleParticle(test.currentMap, probX, probY, probAngle, (255, 255, 0))
+    #
+    #
+    #     cv2.imshow("Particles", test.currentMap)
+    #     cv2.waitKey( 0)
+    #
+    #
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
     test = monteCarloLoc()
-    test.initializeParticles(1000)
-    # print "total len ", len(test.validPosList)
-    test.drawParticles(test.validPosList, (255,100,0))
-    cv2.waitKey(0)
+    test.initializeParticles(1)
+    part = test.validPosList[0]
+    part.setLoc(15.0,50.0,112)
+    test.drawParticles((0,0,255))
 
     for i in range(50):
-        # print "in the for loop", i
+        test.particleMove((-1.0,-1.0,0.0))
+        print test.validPosList[0]
+        test.drawParticles((0,0,255))
+        if len(test.validPosList) == 0:
+            break
+        cv2.waitKey(0)
 
-        test.calcWeights(0, 0, 0, 0)
-        list = test.getSample()
-
-        # print "total len ", len(test.validPosList)
-        # print "sample len ", len(list)
-        test.validPosList = list
-
-        # test.particleMove(1.0,0)
-        # print test.validPosList[0]
-        # test.addNormParticles(test.validPosList[0][0], test.validPosList[0][1], test.validPosList[0][2])
-        test.calcWeights(0, 0, 0, 0)
-        x, y, head = test.centerOfMass()
-        print "Center of mass", x, y, head
-        test.drawParticles(test.validPosList, (0,0,255-i*12))
-        test.drawSingleParticle(test.currentMap, x, y, head, (0, 255, 0))
-
-
-        index = np.where(test.normedWeights == max(test.normedWeights))
-        probX, probY, probAngle = test.validPosList[index[0]]
-        print "most likely loc", probX, probY, probAngle
-        test.drawSingleParticle(test.currentMap, probX, probY, probAngle, (255, 255, 0))
-
-
-        cv2.imshow("Particles", test.currentMap)
-        cv2.waitKey( 0)
-
-
-    cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+
+    # test.maxLen = 10
+
+    # for i in range(len(test.validPosList)):
+    #     particle = test.validPosList[i]
+    #     particle.setWeight(float(i))
+    #
+    #
+    # weights = [p.getWeight() for p in test.validPosList]
+    # print "Weights before normalized", weights
+    # sumWeight = sum(weights)
+    #
+    # for particle in test.validPosList:
+    #     particle.normWeight(sumWeight)
+    #
+    # weights = [p.getWeight() for p in test.validPosList]
+    # print "Weights after normalized", weights
+    #
+    # sampleList = test.getSample()
+    #
+    # print "Here"
+    #
+    # str = raw_input("Say something")
+    # # plt.show()
+
+
+
+
+
+    # for particle in sampleList:
+    #     print particle

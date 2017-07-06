@@ -23,7 +23,7 @@ class Localizer(object):
         self.confidence = 0
         self.currLoc = None
 
-        self.dataset = ImageDataset.ImageDataset(logger, numMatches = 5)
+        self.dataset = ImageDataset.ImageDataset(logger, numMatches = 3)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
 
         self.mcl = monteCarlo.monteCarloLoc()

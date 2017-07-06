@@ -31,7 +31,7 @@ from nav_msgs.msg import Odometry
 from create_node.msg import TurtlebotSensorState
 from kobuki_msgs.msg import SensorState
 from std_msgs.msg import Empty
-from time import time
+from time import time, sleep
 
 
 class TurtleBot(object):
@@ -68,14 +68,37 @@ class TurtleBot(object):
 
     def turnByAngle(self, angle):
         """Turns the robot by the given angle, where negative is left and positive is right"""
-        turnSec = abs(angle * self.degreeToSeconds)
+        # turnSec = abs(angle * self.degreeToSeconds)
+        # if angle > 0:
+        #     self.turnLeft(self.angleTurnSpeed, turnSec)
+        # elif angle < 0:
+        #     self.turnRight(self.angleTurnSpeed, turnSec)
+        # else:
+        #     # No need to turn, keep going
+        #     pass
+
+        currX, currY, currHead = self.odom.getData()
+        goalHead = currHead + angle
+        if goalHead > 180:
+            goalHead -= 360
+        elif goalHead < -180:
+            goalHead += 360
+
         if angle > 0:
-            self.turnLeft(self.angleTurnSpeed, turnSec)
+            print "turning left", goalHead, "by", angle
+            self.turnLeft(self.angleTurnSpeed)
         elif angle < 0:
-            self.turnRight(self.angleTurnSpeed, turnSec)
+            print "turning right", goalHead, "by", angle
+            self.turnRight(self.angleTurnSpeed)
         else:
             # No need to turn, keep going
             pass
+
+        while currHead > goalHead + 5 or currHead < goalHead - 5:
+            currHead = self.odom.getData()[2]
+            print currHead
+            sleep(0.2)
+        self.stop()
 
 
     def findAngleToWall(self):
@@ -204,8 +227,6 @@ class TurtleBot(object):
             return state.cliff
         else:
             return state.cliff_left + state.cliff_right + state.cliff_front_left + state.cliff_front_right
-
-
 
 
     def exit(self):
@@ -571,13 +592,17 @@ class OdometryListener(threading.Thread):
         dx = currX - self.prevX
         dy = currY - self.prevY
         dyaw = currYaw - self.prevYaw
+        radYaw = math.radians(self.prevYaw)
+
+        rx = dx * math.cos(radYaw) + dy * math.sin(radYaw)
+        ry = -dx * math.sin(radYaw) + dy * math.cos(radYaw)
+
 
         self.prevX = currX
         self.prevY = currY
         self.prevYaw = currYaw
 
-
-        return dx, dy, dyaw
+        return rx, ry, dyaw
 
 
     def updateOdomLoc(self, x, y, yaw):
@@ -585,7 +610,7 @@ class OdometryListener(threading.Thread):
         like a chair or some helping hands."""
         self.offsetX = x - self.x
         self.offsetY = y - self.y
-        self.offsetYaw = yaw - self.yaw
+        self.offsetYaw = (yaw - self.yaw) % 360
         print "Offsets: ", str(self.offsetX), str(self.offsetY), str(self.offsetYaw)
         return self.offsetX, self.offsetY, self.offsetYaw
 
@@ -596,7 +621,13 @@ class OdometryListener(threading.Thread):
         with self.lock:
             x, y, yaw = self.x, self.y, self.yaw
 
-        return x + self.offsetX, y+self.offsetY, yaw + self.offsetYaw
+        newYaw = yaw + self.offsetYaw
+        if newYaw > 180:
+            newYaw -= 360
+        elif newYaw < -180:
+            newYaw += 360
+
+        return x + self.offsetX, y+self.offsetY, newYaw
 
 
     def resetOdometer(self):
