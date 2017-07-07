@@ -23,7 +23,7 @@ class Localizer(object):
         self.confidence = 0
         self.currLoc = None
 
-        self.dataset = ImageDataset.ImageDataset(logger, numMatches = 5)
+        self.dataset = ImageDataset.ImageDataset(logger, numMatches = 3)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
 
         self.mcl = monteCarlo.monteCarloLoc()
@@ -42,6 +42,7 @@ class Localizer(object):
          enough, then the information about the location is returned so the planner can respond to it."""
 
         odomInfo = self.odometer()
+        odomLoc = (odomInfo[2][0], odomInfo[2][1], odomInfo[1])
 
         # if odomInfo[3] <= 1.0:
         #     return "at node", (odomInfo[0], odomInfo[1], odomInfo[2])
@@ -72,13 +73,12 @@ class Localizer(object):
             (nextScore, nextMatch) = matches[i]
             idNum = nextMatch.getIdNum()
             locX, locY, locHead = self.dataset.getLoc(idNum)
-            matchLocs.append((locX, locY))
+            matchLocs.append((locX, locY,locHead))
             matchScores.append(nextScore)
 
         moveInfo = self.robot.getTravelDist()
         print "Move Info", moveInfo
-        self.mcl.mclCycle(matchLocs, matchScores, odomInfo[2], self.odomScore, moveInfo)
-        self.mcl.drawParticles((0,0,255))
+        self.mcl.mclCycle(matchLocs, matchScores, odomLoc, self.odomScore, moveInfo)
 
         centerParticle = self.mcl.centerOfMass()
         centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"

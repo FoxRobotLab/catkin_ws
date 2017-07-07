@@ -21,7 +21,7 @@ class testerMovement(object):
         while True:
             angle = raw_input("Please type in the desired angle. ")
             if angle != "q":
-                self.move.turnByAngle(int(angle))
+                self.robot.turnByAngle(int(angle))
             else:
                 break
 

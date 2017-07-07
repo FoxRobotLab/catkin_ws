@@ -242,7 +242,6 @@ class MatchPlanner(object):
         self.turn(nextNode, heading, targetAngle, tDist)
 
 
-
     def turn(self, node, heading, targetHeading, tDist):
         # adjust heading based on previous if statement
         targetHeading = targetHeading % 360
@@ -253,12 +252,13 @@ class MatchPlanner(object):
             self.speak("Adjusting heading to node " + str(node))
             self.moveHandle.turnToNextTarget(heading, targetHeading)
             self.goalSeeker.setGoal(None, None, None)
+        elif min(angle1, angle2) >= 15:
+            self.moveHandle.turnToNextTarget(heading, targetHeading)
         else:
-            self.goalSeeker.setGoal(tDist, targetHeading, heading)
-            formSt = "=====Updating goalSeeker: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
-            self.logger.log( formSt.format(tDist, targetHeading, heading) )
-
-
+            # self.goalSeeker.setGoal(tDist, targetHeading, heading)
+            self.goalSeeker.setGoal(None,None,None)
+            formSt = "=====Not Updating goalSeeker" #: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
+            self.logger.log( formSt)#.format(tDist, targetHeading, heading) )
 
 
     def speak(self, speakStr):
