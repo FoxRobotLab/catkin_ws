@@ -6,6 +6,7 @@
 
 import numpy as np
 import cv2
+import math
 
 from Particle import Particle
 from OlinWorldMap import WorldMap
@@ -68,18 +69,36 @@ class monteCarloLoc(object):
         self.normalizeWeights()
         self.validPosList.sort(key = lambda p: p.weight)
         self.resampleParticles()
+        # self.normalizeWeights()
+        self.calcWeights()
         self.normalizeWeights()
-        # self.calcWeights(matchLocs, matchScores, odometry, odomScore)
         centerParticle = self.centerOfMass()
 
+        var = self.calculateVariance(centerParticle)
 
         self.olinMap.cleanMapImage(obstacles=True)
         self.drawParticles(self.validPosList, (0, 0, 255), shading = True)      # draw set of particles  in red
         self.drawParticles(matchParticles[1:], (255, 0, 255))   # draw particles for matched images in magenta
-        self.drawParticles(matchParticles[:1], (255, 0, 0))   # draw particle for odometry location in blue
+        self.drawParticles(matchParticles[:1], (255, 255, 0))   # draw particle for odometry location in blue
         self.drawParticles([centerParticle], (0, 255, 0))
         self.olinMap.displayMap(windowName)
-        return centerParticle.getLoc()
+        return centerParticle.getLoc(), var
+
+
+    def calculateVariance(self, centerParticle):
+
+        centerX, centerY, centerAngle = centerParticle.getLoc()
+        vx = 0
+        vy = 0
+
+        for particle in self.validPosList:
+            x, y, angle = particle.getLoc()
+            weight = particle.getWeight()
+            vx += weight * (x - centerX)**2
+            vy += weight * (y - centerY)**2
+
+        variance = vx+vy
+        return variance
 
 
     def particleMove(self, moveInfo):
@@ -154,12 +173,14 @@ class monteCarloLoc(object):
                 total_particles += 1
                 if count == 1:
                     sampleList.append(currParticle)
+                    # print "currParticle", currParticle.heading
                 else:
                     newParticle = currParticle.makePerturbedCopy()
-                    newParticle.calculateWeight(self.currentData)
+                    # newParticle.calculateWeight(self.currentData)
                     sampleList.append(newParticle)
+                    # print "newParticle heading", newParticle.heading
                 count -= 1
-        return sampleList
+        self.validPosList = sampleList
 
 
     def centerOfMass(self):
@@ -172,22 +193,36 @@ class monteCarloLoc(object):
         weightedSumX = 0
         weightedSumY = 0
         weightedSumAngle = 0
-        totalWeight = 0
+        weightList = []
+        angleList = []
 
         for particle in self.validPosList:
             weightedSumX += particle.getScaledX()
             weightedSumY += particle.getScaledY()
-            weightedSumAngle += particle.getScaledAngle()
-            totalWeight += particle.getWeight()
+            weightList.append(particle.getWeight())
+            angleList.append(particle.getLoc()[2])
+
+        totalWeight = sum(weightList)
+
 
         cgx = weightedSumX / totalWeight
         cgy = weightedSumY / totalWeight
-        cgAngle = weightedSumAngle / totalWeight
+        cgAngle = self.circular_mean(weightList, angleList)
 
         cgParticle = Particle(self.olinMap, (cgx, cgy, cgAngle))
         # print "cgx", cgx, "cgy", cgy, "cgangle", cgAngle
         return cgParticle
 
+
+    def circular_mean(self, weights, angles):
+        """The helper function to calculate weighted average of angles."""
+        x = y = 0.
+        for angle, weight in zip(angles, weights):
+            x += math.cos(math.radians(angle)) * weight
+            y += math.sin(math.radians(angle)) * weight
+
+        mean = math.degrees(math.atan2(y, x))
+        return mean
 
 
     def drawParticles(self, particleList, color = (0, 0, 0), size = 4, shading = False):
@@ -246,28 +281,31 @@ if __name__ == '__main__':
 
     olinMap = WorldMap()
     test = monteCarloLoc(olinMap)
-    test.initializeParticles(1000)
-    mclDataFake = {'matchPoses': [(12.8, 6.3, 180), (10.0, 6.1, 180), (13.1, 6.5, 0)],
-                   'matchScores': [67.0, 55.2, 41.3],
-                   'odomPose': (12.4, 6.45, 169),
-                   'odomScore': 89.0}
-    centerPos = test.mclCycle(mclDataFake, (0.24, 0.003, 0.1))
-    print centerPos
-    cv2.waitKey()
+    test.initializeParticles(1)
+    # mclDataFake = {'matchPoses': [(12.8, 6.3, 180), (10.0, 6.1, 180), (13.1, 6.5, 0)],
+    #                'matchScores': [67.0, 55.2, 41.3],
+    #                'odomPose': (12.4, 6.45, 169),
+    #                'odomScore': 89.0}
+    # centerPos = test.mclCycle(mclDataFake, (0.24, 0.003, 0.1))
+    # print centerPos
+    # cv2.waitKey()
 
-    # part = test.validPosList[0]
-    # part.setLoc(15.0,50.0,112)
-    # test.drawParticles((0,0,255))
-    #
-    # for i in range(50):
-    #     test.particleMove((-1.0,-1.0,0.0))
-    #     print test.validPosList[0]
-    #     test.drawParticles((0,0,255))
-    #     if len(test.validPosList) == 0:
-    #         break
-    #     cv2.waitKey(0)
-    #
-    # cv2.destroyAllWindows()
+
+
+    part = test.validPosList[0]
+    part.setLoc(15.0,50.0,112)
+    test.drawParticles(test.validPosList, (0,0,255))
+
+    for i in range(50):
+        test.particleMove((-1.0,-1.0,0.0))
+        print test.validPosList[0]
+        test.drawParticles(test.validPosList, (0,0,255))
+        if len(test.validPosList) == 0:
+            break
+        test.olinMap.displayMap()
+        cv2.waitKey(0)
+
+    cv2.destroyAllWindows()
 
 
     # test.maxLen = 10

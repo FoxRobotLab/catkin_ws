@@ -4,24 +4,24 @@ computers more easily."""
 import os
 
 # base path on Susan's computer
-basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
+# basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
 
 # base path on Enterprise
-# basePath = "/home/macalester/catkin_ws/src/match_seeker/"
+basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 
 
 # base path on FoxVoyager (aka Speedy)
 # basePath = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/"
 
-#
-# turtleBase = os.environ["TURTLEBOT_BASE"]
-#
-# if turtleBase == "create":
-#     imageDirectory = "res/create060717/"
-#     locData = "res/locations/SUSANcreate0607.txt"
-# elif turtleBase == "kobuki":
-#     imageDirectory = "res/kobuki0615/"
-#     locData = "res/locations/Susankobuki0615.txt"
+
+turtleBase = os.environ["TURTLEBOT_BASE"]
+
+if turtleBase == "create":
+    imageDirectory = "res/create060717/"
+    locData = "res/locations/SUSANcreate0607.txt"
+elif turtleBase == "kobuki":
+    imageDirectory = "res/kobuki0615/"
+    locData = "res/locations/Susankobuki0615.txt"
 
 
 graphMapData = "res/map/olinGraph.txt"

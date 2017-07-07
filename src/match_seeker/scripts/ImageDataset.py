@@ -146,27 +146,32 @@ class ImageDataset(object):
             return
 
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
-        bestMatches = self._findBestNMatches(features, lastKnown, confidence)
-        return bestMatches
+        bestScores, bestMatches = self._findBestNMatches(features, lastKnown, confidence)
+
+        matchLocs = []
+        for match in bestMatches:
+            idNum = match.getIdNum()
+            loc = self.getLoc(idNum)
+            matchLocs.append(loc)
+
+        bestX, bestY, bestHead = matchLocs[0]
+
+        self._displayMatch(bestScores[0], bestMatches[0])
+        picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
+        self.logger.log(picLocSt.format(bestX, bestY, bestHead, bestScores[0]))
+
+        return bestScores, matchLocs
 
 
     def _findBestNMatches(self, currImFeatures, lastKnown, confidence):
         """Looks through the collection of features and keeps the numMatches
         best matches. It zips them together"""
-        bestMatches = []
-        bestScores = []
-
         potentialMatches = self._findPotentialMatches(lastKnown, confidence)
         (bestScores, bestMatches) = self._selectBestN(potentialMatches, currImFeatures)
 
-        bestZipped = zip(bestScores, bestMatches)
-        # bestZipped.sort(cmp = lambda a, b: int(a[0] - b[0]))
-        bestFeat = bestZipped[0][1]
-        # This is just to print the details of the similarity measures!!
-        # currImFeatures.evaluateSimilarity(bestFeat, True)
         formSt = "{0:4.2f}"
-        self.logger.log("Best matches have scores: " + " ".join([ formSt.format(x[0]) for x in bestZipped]))
-        return bestZipped
+        self.logger.log("Best matches have scores: " + " ".join([ formSt.format(x) for x in bestScores]))
+        return  bestScores, bestMatches
 
 
     def _findPotentialMatches(self, lastKnown, confidence):
@@ -220,6 +225,17 @@ class ImageDataset(object):
             featList.insert(indx, feat)
 
 
+    def _displayMatch(self, bestScore, bestFeat):
+        """Given match information, of the form (score, ImageFeatures), it displays the match with the score
+        written in the lower left corner."""
+        dispTemplate = "{0:3.1f}"
+        dispString = dispTemplate.format(bestScore)
+        matchIm = bestFeat.getImage()
+        matchIm = matchIm.copy()
+        cv2.putText(matchIm, dispString, (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
+        cv2.imshow("Match Picture", matchIm)
+        # cv2.moveWindow("Match Picture", self.width + 10, 0)
+        cv2.waitKey(20)
 
     def _confidenceToRadius(self, confidence):
         """Maps the confidence level that comes from outside into a radius for use in searching for

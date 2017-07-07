@@ -21,17 +21,15 @@ class Localizer(object):
 
         self.lastKnownLoc = None
         self.confidence = 0
-        self.currLoc = None
 
         self.dataset = ImageDataset.ImageDataset(logger, numMatches = 3)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
 
-        self.mcl = MonteCarloLocalize.monteCarloLoc()
+        self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
         self.mcl.initializeParticles(500)
-        self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
+        # self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
-
 
 
 
@@ -40,15 +38,6 @@ class Localizer(object):
         with that location. This method returns None if the robot is not at a "significant" location (one of the points
          in the olin graph) with a high confidence. If the robot IS somewhere significant and confidence is high
          enough, then the information about the location is returned so the planner can respond to it."""
-
-        odomInfo = self.odometer()
-        odomLoc = (odomInfo[2][0], odomInfo[2][1], odomInfo[1])
-
-        # if odomInfo[3] <= 1.0:
-        #     return "at node", (odomInfo[0], odomInfo[1], odomInfo[2])
-        # else:
-        #     return "check coord", (odomInfo[0], odomInfo[1], odomInfo[2])
-
         if self.lastKnownLoc is None:
             lklSt = "Last known loc: None so far   confidence = {0:4.2f}"
             self.logger.log( lklSt.format(self.confidence) )
@@ -57,39 +46,45 @@ class Localizer(object):
             (x, y, h) = self.lastKnownLoc
             self.logger.log( lklSt.format(x, y, h, self.confidence) )
 
-        matches = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
-        (bestScore, bestFeat) = matches[0]
-        bestPicNum = bestFeat.getIdNum()
-        bestX, bestY, bestHead = self.dataset.getLoc(bestPicNum)
-        self.currLoc = (bestX, bestY)
-
-        self._displayMatch(bestPicNum, bestScore, bestFeat)
-        picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
-        self.logger.log( picLocSt.format(bestX, bestY, bestHead, bestScore) )
-
-        matchLocs = []
-        matchScores = []
-        for i in range(len(matches)):
-            (nextScore, nextMatch) = matches[i]
-            idNum = nextMatch.getIdNum()
-            locX, locY, locHead = self.dataset.getLoc(idNum)
-            matchLocs.append((locX, locY,locHead))
-            matchScores.append(nextScore)
-
+        odomLoc = self.odometer()
         moveInfo = self.robot.getTravelDist()
+        scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
 
         mclData = {'matchPoses': matchLocs,
-                   'matchScores': matchScores,
+                   'matchScores': scores,
                    'odomPose': odomLoc,
                    'odomScore': self.odomScore}
-        comPose = self.mcl.mclCycle(mclData, moveInfo)
+        comPose, var = self.mcl.mclCycle(mclData, moveInfo)
         (centerX, centerY, centerHead) = comPose
-        centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
-        self.logger.log(centerStr.format(centerX, centerY, cenerHead))
+        centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f}), VARIANCE: ({3:4.2f})"
+        self.logger.log(centerStr.format(centerX, centerY, centerHead, var))
+
+        bestScore = scores[0]
+        bestX, bestY, bestHead = matchLocs[0]
+
+        odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
+        if self.odomScore < 50 and bestScore >= self.odomScore:
+            self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
+            self.odomScore = bestScore
+            self.robot.updateOdomLocation(bestX, bestY, bestHead)
+
+        return self.matchResponse(matchLocs, scores)
 
 
+    def mclResponse(self,comPose,var):
+        """takes in center of mass data as determined by the monte carlo localizer and interprets it to tell 
+         matchPlanner what to do."""
+        pass
 
-        if bestScore < 5: #TODO:changed from >90
+
+    def matchResponse(self,matchLocs, scores):
+        """a messy if statement chain that takes in match scores and locations and spits out arbitrary information that
+        manages behavior in matchPlanner"""
+
+        bestScore = scores[0]
+        bestLoc = matchLocs[0]
+
+        if bestScore < 5: #changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
             self.lostCount += 1
             self.beenGuessing = False
@@ -102,8 +97,8 @@ class Localizer(object):
         else:
             self.lostCount = 0
 
-            guess, conf = self._guessLocation(bestScore, self.currLoc, bestHead, matches)
-            matchInfo = (guess, self.currLoc, bestHead)
+            guess, conf = self._guessLocation(bestScore, bestLoc, matchLocs)
+            matchInfo = (guess, bestLoc)
             self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
 
             if conf == "very confident." or conf == "close, but guessing.":
@@ -115,43 +110,21 @@ class Localizer(object):
                 return "keep-going", matchInfo
 
 
-    def _displayMatch(self, bestPicNum, bestScore, bestFeat):
-        """Given match information, of the form (score, ImageFeatures), it displays the match with the score
-        written in the lower left corner."""
-        dispTemplate = "{0:d}: {1:3.1f}"
-        dispString = dispTemplate.format(bestPicNum, bestScore)
-        matchIm = bestFeat.getImage()
-        matchIm = matchIm.copy()
-        cv2.putText(matchIm, dispString, (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
-        cv2.imshow("Match Picture", matchIm)
-        # cv2.moveWindow("Match Picture", self.width + 10, 0)
-        cv2.waitKey(20)
-
-
-
-    def _guessLocation(self, bestScore, bestLoc, bestHead, bestMatches):
-        (bestX, bestY) = bestLoc
-        (bestNodeNum, nodeX, nodeY, bestDist) = self._findClosestNode(bestLoc)
+    def _guessLocation(self, bestScore, bestLoc, matchLocs):
+        (bestX, bestY, bestHead) = bestLoc
+        (bestNodeNum, nodeX, nodeY, bestDist) = self.olin.findClosestNode(bestLoc)
         closeDistStr = "      The closest node is {0:d} at {1:4.2f} meters."
         self.logger.log( closeDistStr.format(bestNodeNum, bestDist) )
 
-        odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
         if bestScore > 30:
             self.beenGuessing = False
+
             if bestDist <= 0.8:
                 self.lastKnownLoc = (bestX, bestY, bestHead)
                 self.confidence = 10.0
-                if self.odomScore < 50 and bestScore >= self.odomScore:
-                    self.logger.log( odoUpdateStr.format(bestX, bestY, bestHead) )
-                    self.odomScore = 100.0
-                    self.robot.updateOdomLocation(bestX, bestY, bestHead)
                 return bestNodeNum, "very confident."
             else:
                 self.lastKnownLoc = (bestX, bestY, bestHead)
-                if self.odomScore < 50 and bestScore > 90:
-                    self.logger.log( odoUpdateStr.format(bestX, bestY, bestHead) )
-                    self.odomScore = 100.0
-                    self.robot.updateOdomLocation(bestX, bestY, bestHead)
                 if self.beenGuessing:
                     self.confidence = max(0.0, self.confidence - 0.5)
                 else:
@@ -161,13 +134,11 @@ class Localizer(object):
         else:
             guessNodes = [bestNodeNum]
             dist = 0
-            for j in range(1, len(bestMatches)):
-                (nextScore, nextMatch) = bestMatches[j]
-                idNum = nextMatch.getIdNum()
-                locX, locY, locHead = self.dataset.getLoc(idNum)
-                (nodeNum, x, y, dist) = self._findClosestNode((locX, locY))
+            for j in range(1, len(matchLocs)):
+                (nodeNum, x, y, dist) = self.olin.findClosestNode(matchLocs[j])
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
+
             if len(guessNodes) == 1 and bestDist <= 0.8:
                 self.lastKnownLoc = (bestX, bestY, bestHead)
                 if self.beenGuessing:
@@ -191,50 +162,28 @@ class Localizer(object):
                 return nodes, "totally unsure."
 
 
-    def _findClosestNode(self, (x, y)):
-        """uses the location of a matched image and the distance formula to determine the node on the olingraph
-        closest to each match/guess"""
-        closestNode = None
-        closestX = None
-        closestY = None
-        bestVal = None
-        for nodeNum in self.olin.getVertices():
-            if closestNode is None:
-                closestNode = nodeNum
-                closestX, closestY = self.olin.getData(nodeNum)
-                bestVal = self._euclidDist( (closestX, closestY), (x, y) )
-            (nodeX,nodeY) = self.olin.getData(nodeNum)
-            val = self._euclidDist( (nodeX, nodeY), (x, y) )
-            if (val <= bestVal):
-                bestVal = val
-                closestNode = nodeNum
-                closestX, closestY = (nodeX,nodeY)
-        return (closestNode, closestX, closestY, bestVal)
-
 
     def odometer(self):
         formStr = "Odometer loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})  confidence = {3:4.2f}"
         x, y, yaw = self.robot.getOdomData()
-        (nearNode, closeX, closeY, bestVal) = self._findClosestNode((x,y))
+        # (nearNode, closeX, closeY, bestVal) = self.olin.findClosestNode((x,y,yaw))
         self.logger.log( formStr.format(x, y, yaw, self.odomScore) )
-        self.odomScore = max(0.001, self.odomScore - 0.5)
+        self.odomScore = max(0.001, self.odomScore - 0.75)
 
         if self.robot.hasWheelDrop():
             self.odomScore = 0.001
 
-        return nearNode, yaw, (x, y), bestVal
+        if not self.olin.isAllowedLocation((x,y)):
+            self.odomScore = 0.001
+
+        return x, y, yaw
 
 
-    def setLastLoc(self, prevDestXY):
-        (x, y) = prevDestXY
-        if self.lastKnownLoc == None:
-            self.lastKnownLoc = (x, y, 0)
-        else:
-            (oldX, oldY, oldH) = self.lastKnownLoc
-            self.lastKnownLoc = (x, y, oldH)
+    # def setLastLoc(self, prevDestXY):
+    #     (x, y) = prevDestXY
+    #     if self.lastKnownLoc == None:
+    #         self.lastKnownLoc = (x, y, 0)
+    #     else:
+    #         (oldX, oldY, oldH) = self.lastKnownLoc
+    #         self.lastKnownLoc = (x, y, oldH)
 
-
-    def _euclidDist(self, (x1, y1), (x2, y2)):
-        """Given two tuples containing two (x, y) points, this computes the straight-line distsance
-        between the two points"""
-        return math.sqrt( (x2 - x1) ** 2 + (y2 - y1) ** 2 )

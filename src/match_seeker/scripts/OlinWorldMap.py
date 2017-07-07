@@ -116,8 +116,8 @@ class WorldMap(object):
             wldX, wldY, heading = particle
         else:   # elif isinstance(particle, Particle)  TODO: Eventually fix this
             wldX, wldY, heading = particle.getLoc()
-        pointX = wldX + (pointLen * math.cos(heading))
-        pointY = wldY + (pointLen * math.sin(heading))
+        pointX = wldX + (pointLen * math.cos(math.radians(heading)))
+        pointY = wldY + (pointLen * math.sin(math.radians(heading)))
 
         poseCenter = self._convertWorldToPixels((wldX, wldY))
         posePoint = self._convertWorldToPixels((pointX, pointY))
@@ -200,6 +200,8 @@ class WorldMap(object):
         obstacles that are stored."""
         x = pose[0]
         y = pose[1]
+        if x > self.mapMaxX or x < self.mapMinX or y > self.mapMaxY or y < self.mapMinY:
+            return False
         for box in self.illegalBoxes:
             [x1, y1, x2, y2] = box
             minX = min(x1, x2)
@@ -270,6 +272,26 @@ class WorldMap(object):
         return path
 
 
+    def findClosestNode(self, location):
+        """uses the location of a matched image and the distance formula to determine the node on the olingraph
+        closest to each match/guess"""
+        x, y, head = location
+        closestNode = None
+        closestX = None
+        closestY = None
+        bestVal = None
+        for nodeNum in self.olinGraph.getVertices():
+            if closestNode is None:
+                closestNode = nodeNum
+                closestX, closestY = self.olinGraph.getData(nodeNum)
+                bestVal = self.straightDist2d((closestX, closestY), (x, y))
+            (nodeX, nodeY) = self.olinGraph.getData(nodeNum)
+            val = self.straightDist2d((nodeX, nodeY), (x, y))
+            if (val <= bestVal):
+                bestVal = val
+                closestNode = nodeNum
+                closestX, closestY = (nodeX, nodeY)
+        return (closestNode, closestX, closestY, bestVal)
 
     # -------------------------------------------------------------------
     # These public methods add marker information to this class (somewhat deprecated)

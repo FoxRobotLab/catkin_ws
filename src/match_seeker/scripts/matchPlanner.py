@@ -133,10 +133,6 @@ class MatchPlanner(object):
         self.destination = self._userGoalDest()
         if self.destination == 99:
             return False
-        pathTraveled = self.pathLoc.getPathTraveled()
-        if pathTraveled is not None:
-            nodeLoc = self.olinMap.getLocation(pathTraveled[-1])
-            self.locator.setLastLoc(nodeLoc)
         self.pathLoc.beginJourney(self.destination)
         self.speak("Heading to " + str(self.destination))
         return True
@@ -199,7 +195,7 @@ class MatchPlanner(object):
 
         if self.pathLoc.visitNewNode(nearNode) or self.ignoreLocationCount > 50:
             self.ignoreLocationCount = 0
-            self.pathLoc.continueJourney(matchInfo)
+            self.pathLoc.continueJourney(nearNode)
 
             speakStr = "At node " + str(nearNode)
             self.speak(speakStr)
@@ -210,12 +206,12 @@ class MatchPlanner(object):
         confidently "not close enough" is what we expect, then make sure heading is right. Otherwise,
         if it is a neighbor of one of the expected nodes, then turn to move toward that node.
         If it is further in the path, should do something, but not doing it now.
-        MatchInfo format: (nearNode, (x, y), heading)"""
+        MatchInfo format: (nearNode, location of x, y, and heading)"""
         currPath = self.pathLoc.getCurrentPath()
         if currPath is None or currPath == []:
             return
 
-        (nearNode, currLoc, heading) = matchInfo
+        (nearNode, currLoc) = matchInfo
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
         self.logger.log("------------- Checking coordinates -----")
@@ -241,7 +237,7 @@ class MatchPlanner(object):
 
         targetAngle = self.olinMap.calcAngle(currLoc, nextNode)
         tDist = self.olinMap.straightDist2d(currLoc, nextNode)
-        self.turn(nextNode, heading, targetAngle, tDist)
+        self.turn(nextNode, currLoc[2], targetAngle, tDist)
 
 
     def turn(self, node, heading, targetHeading, tDist):
