@@ -13,7 +13,7 @@ import math
 # import matplotlib.pyplot as plt
 
 
-class monteCarloLoc(object):
+class MonteCarloLoc(object):
 
     def __init__(self, olinMap):
         self.olinMap = olinMap
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    test = monteCarloLoc()
+    test = MonteCarloLoc()
     test.initializeParticles(1)
     part = test.validPosList[0]
     part.setLoc(15.0,50.0,112)
