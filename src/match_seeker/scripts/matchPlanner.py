@@ -23,8 +23,9 @@ import FieldBehaviors
 import Localizer
 import PathLocation
 import OutputLogger
-import MapGraph
+import OlinWorldMap
 from DataPaths import basePath, graphMapData
+
 from std_msgs.msg import String
 
 
@@ -40,12 +41,12 @@ class MatchPlanner(object):
         self.whichBrain = ""
 
         self.logger = OutputLogger.OutputLogger(True, True)
-        self.olinGraph = MapGraph.readMapFile(basePath + graphMapData)
+        self.olinMap = OlinWorldMap.WorldMap()
         self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
-        self.pathLoc = PathLocation.PathLocation(self.olinGraph, self.logger)
+        self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
         self.destination = None
 
-        self.locator = Localizer.Localizer(self.robot, self.olinGraph, self.logger)
+        self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger)
 
         self.ignoreLocationCount = 0
 
@@ -129,24 +130,25 @@ class MatchPlanner(object):
     def getNextGoalDestination(self):
         """Gets goal from user and sets up path location tracker etc. Returns False if
         the user wants to quit."""
-        self.destination = self._userGoalDest(self.olinGraph.getSize())
+        self.destination = self._userGoalDest()
         if self.destination == 99:
             return False
-        if self.pathLoc.getPathTraveled() is not None:
-            nodeLoc = self.olinGraph.getData(self.pathLoc.getPathTraveled()[-1])
+        pathTraveled = self.pathLoc.getPathTraveled()
+        if pathTraveled is not None:
+            nodeLoc = self.olinMap.getLocation(pathTraveled[-1])
             self.locator.setLastLoc(nodeLoc)
         self.pathLoc.beginJourney(self.destination)
         self.speak("Heading to " + str(self.destination))
         return True
 
 
-    def _userGoalDest(self, graphSize):
+    def _userGoalDest(self):
         """Asks the user for a goal destination or 99 to cause the robot to shut down."""
         while True:
             userInp = raw_input("Enter destination index (99 to quit): ")
             if userInp.isdigit():
                 userNum = int(userInp)
-                if (0 <= userNum < graphSize) or userNum == 99:
+                if self.olinMap.isValidNode(userNum) or userNum == 99:
                     return userNum
 
 
@@ -223,10 +225,10 @@ class MatchPlanner(object):
         elif nearNode in currPath:
             self.logger.log("Nearest node is on current path, may have missed current goal")  # TODO: What is best response here
             nextNode = nearNode
-        elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(immediateGoalNode)]:
+        elif self.olinMap.areNeighbors(nearNode, immediateGoalNode):
             self.logger.log("Nearest node is adjacent to current goal but not in path")
             nextNode = immediateGoalNode
-        elif nearNode in [x[0] for x in self.olinGraph.getNeighbors(justVisitedNode)]:
+        elif self.olinMap.areNeighbors(nearNode, justVisitedNode):
             # If near node just visited, but not near next goal, and not in path already, return to just visited
             self.logger.log("Nearest node is adjacent to previous node but not in path")
             nextNode = justVisitedNode
@@ -237,8 +239,8 @@ class MatchPlanner(object):
             else:
                 nextNode = nearNode
 
-        targetAngle = self.olinGraph.getAngle(currLoc, nextNode)
-        tDist = self.olinGraph.straightDist(currLoc, nextNode)
+        targetAngle = self.olinMap.calcAngle(currLoc, nextNode)
+        tDist = self.olinMap.straightDist2d(currLoc, nextNode)
         self.turn(nextNode, heading, targetAngle, tDist)
 
 

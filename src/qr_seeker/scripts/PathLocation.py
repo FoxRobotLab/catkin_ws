@@ -55,7 +55,7 @@ class PathLocation(object):
 
         path = self.olin.getShortestPath(nodeNum, self.destination)
         currentNode, nextNode = path[0], path[1]
-        targetAngle = self.olin.getAngle(currentNode, nextNode)
+        targetAngle = self.olin.calcAngle(currentNode, nextNode)
 
         print("Turning from node ", str(currentNode), " to node ", str(nextNode))
 

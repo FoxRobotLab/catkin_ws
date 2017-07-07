@@ -14,8 +14,8 @@ turn to get to the next node in its calculated path.
 
 class PathLocation(object):
     """Handles the path planning component of the robot, interacting with the Olin MapGraph"""
-    def __init__(self, mapPath, logWriter):
-        self.olin = mapPath
+    def __init__(self, mapObj, logWriter):
+        self.olinMap = mapObj
         self.logger = logWriter
         self.destination = None
         self.pathTraveled = None
@@ -47,13 +47,13 @@ class PathLocation(object):
             self.targetAngle = None
             self.logger.log("The total path traveled is: " + str(self.prevPath))
         else:
-            self.goalPath = self.olin.getShortestPath(nodeNum, self.destination)
+            self.goalPath = self.olinMap.getShortestPath(nodeNum, self.destination)
             self.targetAngle = self.nextAngle()
 
 
     def nextAngle(self,):
         currentNode, nextNode = self.goalPath[0], self.goalPath[1]
-        probAngle = self.olin.getAngle(currentNode, nextNode)
+        probAngle = self.olinMap.calcAngle(currentNode, nextNode)
         self.logger.log("Turning from node " + str(currentNode) + " to node " + str(nextNode))
         return probAngle
 

@@ -33,7 +33,7 @@ class FixedActions(object):
 				pattern, (x, y), relativeArea, wallAngle = patternInfo
 				difference = x - centerX
 				print "patternX", x, ", centerX ", centerX, ", difference, ", difference
-				if abs(difference) > 10: 
+				if abs(difference) > 10:
 					if x < centerX:
 						self.turnByAngle(-10)
 					else:
@@ -43,7 +43,7 @@ class FixedActions(object):
 				cv2.waitKey(800)
 				correction = (90 - abs(wallAngle)) / 90
 				adjustedTargetArea = max(correction * targetRelativeArea, 0.12)
-				if abs(adjustedTargetArea-relativeArea) > 0.04:					
+				if abs(adjustedTargetArea-relativeArea) > 0.04:
 					if relativeArea < adjustedTargetArea:
 						print 'forward'
 						# causes the robot to slow down as it gets closer to the target
@@ -56,9 +56,9 @@ class FixedActions(object):
 					break
 
 
-		for i in range(20):		
+		for i in range(20):
 			patternInfo = self.mcs.getHorzPatterns()
-			cv2.waitKey(200)			
+			cv2.waitKey(200)
 			if patternInfo != None:
 				break
 		else:  # if for loop does not break
@@ -71,13 +71,13 @@ class FixedActions(object):
 	def turnToNextTarget(self, path, patternOrientation):
 		wallAngle = self.robot.findAngleToWall()
 		currentNode, nextNode = path[0], path[1]
-		targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
+		targetAngle = OlinGraph.olin.calcAngle(currentNode, nextNode)
 
 		#determines actual orrientation given where the robot would face if it was directly
 		#looking at the pattern (patternOrientation) and the currect angle to the pattern
 		#(wallAngle)
 		actualAngle = (patternOrientation - 90 + wallAngle) % 360
-		
+
 		angleToTurn = targetAngle - actualAngle
 		if angleToTurn < -180:
 			angleToTurn += 360
@@ -87,7 +87,7 @@ class FixedActions(object):
 		print "Turning from node " , str(currentNode) , " to node " , str(nextNode)
 		self.turnByAngle(angleToTurn)
 
-		
+
 	def bumperRecovery(self, bumper_state):
 		self.robot.backward(0.2, 2)
 		cv2.waitKey(300)
