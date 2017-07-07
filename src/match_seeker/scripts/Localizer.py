@@ -5,7 +5,7 @@ import cv2
 
 from DataPaths import basePath, imageDirectory, locData
 import ImageDataset
-import monteCarlo
+import MonteCarloLocalize
 
 
 class Localizer(object):
@@ -26,7 +26,7 @@ class Localizer(object):
         self.dataset = ImageDataset.ImageDataset(logger, numMatches = 3)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
 
-        self.mcl = monteCarlo.monteCarloLoc()
+        self.mcl = MonteCarloLocalize.monteCarloLoc()
         self.mcl.initializeParticles(500)
         self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
@@ -77,20 +77,17 @@ class Localizer(object):
             matchScores.append(nextScore)
 
         moveInfo = self.robot.getTravelDist()
-        print "Move Info", moveInfo
-        self.mcl.mclCycle(matchLocs, matchScores, odomLoc, self.odomScore, moveInfo)
 
-        centerParticle = self.mcl.centerOfMass()
+        mclData = {'matchPoses': matchLocs,
+                   'matchScores': matchScores,
+                   'odomPose': odomLoc,
+                   'odomScore': self.odomScore}
+        comPose = self.mcl.mclCycle(mclData, moveInfo)
+        (centerX, centerY, centerHead) = comPose
         centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
-        self.mcl.drawSingleParticle(self.mcl.currentMap, centerParticle, (0, 255, 0))
-        centerX, centerY, centerAngle = centerParticle.getLoc()
-        self.logger.log(centerStr.format(centerX, centerY, centerAngle))
-        # probX, probY, probAngle = self.mcl.probableLocation()
-        # probStr = "   MOST LIKELY LOCATION: ({0: 4.2f}, {1:4.2f}, {2:4.2f})"
-        # self.mcl.drawSingleParticle(self.mcl.currentMap, probX, probY, probAngle, (255, 255, 0))
-        # self.logger.log(probStr.format(probX, probY, probAngle))
+        self.logger.log(centerStr.format(centerX, centerY, cenerHead))
 
-        cv2.imshow("Particles", self.mcl.currentMap)
+
 
         if bestScore < 5: #TODO:changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))

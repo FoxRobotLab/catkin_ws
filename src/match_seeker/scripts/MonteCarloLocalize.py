@@ -6,14 +6,13 @@
 
 import numpy as np
 import cv2
-from DataPaths import basePath
-from Particle import Particle
-import math
 
+from Particle import Particle
+from OlinWorldMap import WorldMap
 # import matplotlib.pyplot as plt
 
 
-class MonteCarloLoc(object):
+class monteCarloLoc(object):
 
     def __init__(self, olinMap):
         self.olinMap = olinMap
@@ -35,7 +34,7 @@ class MonteCarloLoc(object):
         #
 
         self.validPosList = []
-        self.weightedList = []
+        self.currentData = {}
 
 
         # random perturbation constants: std dev for movement and turning as a percentage of movement
@@ -58,25 +57,29 @@ class MonteCarloLoc(object):
             self.validPosList.append(newParticle)
 
 
-    def mclCycle(self, matchLocs, matchScores, odometry, odomScore, moveInfo):
+    def mclCycle(self, mclData, moveInfo, windowName = "MCL Display"):
         """ Takes in important Localizer information and calls all relevant methods in the MCL"""
+        self.currentData = mclData
         self.particleMove(moveInfo)
         # print "after particle move", len(self.validPosList)
-        matchParticles = self.seedNodesAtMatches(matchLocs,odometry)
+        matchParticles = self.seedNodesAtMatches()
         self.validPosList.extend(matchParticles)
-        self.calcWeights(matchLocs, matchScores, odometry, odomScore)
+        self.calcWeights()
         self.normalizeWeights()
         self.validPosList.sort(key = lambda p: p.weight)
-        self.resampleParticles(matchLocs, matchScores, odometry, odomScore)
+        self.resampleParticles()
         self.normalizeWeights()
         # self.calcWeights(matchLocs, matchScores, odometry, odomScore)
+        centerParticle = self.centerOfMass()
+
 
         self.olinMap.cleanMapImage(obstacles=True)
-        self.drawParticles(self.validPosList, (0,0,255))      # draw set of particles  in red
-        self.drawParticles(matchParticles[1:], (255,0,255))   # draw particles for matched images in magenta
+        self.drawParticles(self.validPosList, (0, 0, 255), shading = True)      # draw set of particles  in red
+        self.drawParticles(matchParticles[1:], (255, 0, 255))   # draw particles for matched images in magenta
         self.drawParticles(matchParticles[:1], (255, 0, 0))   # draw particle for odometry location in blue
-        self.olinMap.displayMap()
-
+        self.drawParticles([centerParticle], (0, 255, 0))
+        self.olinMap.displayMap(windowName)
+        return centerParticle.getLoc()
 
 
     def particleMove(self, moveInfo):
@@ -91,18 +94,18 @@ class MonteCarloLoc(object):
         self.validPosList = moveList
 
 
-    def seedNodesAtMatches(self, matchLocs, odomLoc):
+    def seedNodesAtMatches(self):
         """Given the odometry location, odomLoc, and the current match locations, matchLocs, generate
         a set of particles at those locations, two for each matched-image location."""
-        particles = [Particle(self.olinMap, odomLoc)]
-        for loc in matchLocs:
+        particles = [Particle(self.olinMap, self.currentData['odomPose'])]
+        for loc in self.currentData['matchPoses']:
             particles.append(Particle(self.olinMap, loc))
             particles.append(Particle(self.olinMap, loc))
         return particles
 
 
 
-    def calcWeights(self, matchLocs, matchScores, odometry, odomScore):
+    def calcWeights(self):
         """ Weight for each particle based on if it is a possible location given the Localizer data.
         Inputs:
         matchLocs: the list of (3) locations for the best matching images
@@ -111,7 +114,7 @@ class MonteCarloLoc(object):
         odomScore: the confidence score for odometry: degrades over time"""
         for posPoint in self.validPosList:
             # for each particle, look at its distance from the odomLoc & each matchLoc scaled by the location's certainty score
-            posPoint.calculateWeight(matchLocs, matchScores, odometry, odomScore)
+            posPoint.calculateWeight(self.currentData)
 
         weights = self.weightList()
         self.maxWeight = max(weights)
@@ -125,7 +128,7 @@ class MonteCarloLoc(object):
             particle.normWeight(self.sumWeight)
 
 
-    def resampleParticles(self, matchLocs, matchScores, odomLoc, odomScore):
+    def resampleParticles(self):
         """Generate the next set of particles by resampling based on their current weights, which should
         sum to one as a probability distribution. If generating more than one copy of a current particle,
         all after the first are perturbed copies."""
@@ -145,7 +148,7 @@ class MonteCarloLoc(object):
         total_particles = 0
         sampleList = []
         for idx, count in enumerate(list_idx_choices):
-            print idx, count
+            # print idx, count
             currParticle = self.validPosList[idx]
             while count > 0:
                 total_particles += 1
@@ -153,7 +156,7 @@ class MonteCarloLoc(object):
                     sampleList.append(currParticle)
                 else:
                     newParticle = currParticle.makePerturbedCopy()
-                    newParticle.calculateWeight(matchLocs, matchScores, odomPose, odomScore)
+                    newParticle.calculateWeight(self.currentData)
                     sampleList.append(newParticle)
                 count -= 1
         return sampleList
@@ -177,22 +180,23 @@ class MonteCarloLoc(object):
             weightedSumAngle += particle.getScaledAngle()
             totalWeight += particle.getWeight()
 
-        cgx = weightedSumX/totalWeight
-        cgy = weightedSumY/totalWeight
-        cgAngle = weightedSumAngle/totalWeight
+        cgx = weightedSumX / totalWeight
+        cgy = weightedSumY / totalWeight
+        cgAngle = weightedSumAngle / totalWeight
 
-        cgParticle = Particle(cgx, cgy, cgAngle)
+        cgParticle = Particle(self.olinMap, (cgx, cgy, cgAngle))
         # print "cgx", cgx, "cgy", cgy, "cgangle", cgAngle
         return cgParticle
 
 
 
-    def drawParticles(self, particleList, color):
+    def drawParticles(self, particleList, color = (0, 0, 0), size = 4, shading = False):
         for point in particleList:
-            weight = point.getWeight() * self.maxWeight
-            b, g, r = color
-            newColor = (b * weight, g * weight, r * weight)
-            self.olinMap.drawPose(point, color = newColor)
+            if shading:
+                weight = point.getWeight() * self.maxWeight
+                b, g, r = color
+                color = (b * weight, g * weight, r * weight)
+            self.olinMap.drawPose(point, size, color)
 
     def weightList(self):
         """Builds and returns a list of the weights of the current valid particle list."""
@@ -240,21 +244,30 @@ if __name__ == '__main__':
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    test = MonteCarloLoc()
-    test.initializeParticles(1)
-    part = test.validPosList[0]
-    part.setLoc(15.0,50.0,112)
-    test.drawParticles((0,0,255))
+    olinMap = WorldMap()
+    test = monteCarloLoc(olinMap)
+    test.initializeParticles(1000)
+    mclDataFake = {'matchPoses': [(12.8, 6.3, 180), (10.0, 6.1, 180), (13.1, 6.5, 0)],
+                   'matchScores': [67.0, 55.2, 41.3],
+                   'odomPose': (12.4, 6.45, 169),
+                   'odomScore': 89.0}
+    centerPos = test.mclCycle(mclDataFake, (0.24, 0.003, 0.1))
+    print centerPos
+    cv2.waitKey()
 
-    for i in range(50):
-        test.particleMove((-1.0,-1.0,0.0))
-        print test.validPosList[0]
-        test.drawParticles((0,0,255))
-        if len(test.validPosList) == 0:
-            break
-        cv2.waitKey(0)
-
-    cv2.destroyAllWindows()
+    # part = test.validPosList[0]
+    # part.setLoc(15.0,50.0,112)
+    # test.drawParticles((0,0,255))
+    #
+    # for i in range(50):
+    #     test.particleMove((-1.0,-1.0,0.0))
+    #     print test.validPosList[0]
+    #     test.drawParticles((0,0,255))
+    #     if len(test.validPosList) == 0:
+    #         break
+    #     cv2.waitKey(0)
+    #
+    # cv2.destroyAllWindows()
 
 
     # test.maxLen = 10

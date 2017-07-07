@@ -11,7 +11,6 @@ and weighted subclasses"""
 # Improvements that could be made...
 # -- Make invalid indices raise an exception instead of returning -1...
 
-from FoxQueue import PriorityQueue
 
 
 
@@ -106,7 +105,7 @@ class Graph:
         pass
 
 
-    def areConnected(self, node1, node2):
+    def areNeighbors(self, node1, node2):
         """Takes in two node indices, and returns True if they are connected
         and False if they are not.
         NOTE:  This method does nothing in this class, and must be instantiated
@@ -181,7 +180,7 @@ class ListGraph(Graph):
             raise NodeIndexOutOfRangeException(0, self._numVerts, node)
 
 
-    def areConnected(self, node1, node2):
+    def areNeighbors(self, node1, node2):
         """Takes in two node indices, and returns True if they are connected
         and False if they are not."""
         if node1 < self._numVerts and node2 < self._numVerts:
@@ -265,7 +264,7 @@ class MatrixGraph(Graph):
 
 
 
-    def areConnected(self, node1, node2):
+    def areNeighbors(self, node1, node2):
         """Takes in two node indices, and returns True if they are connected
         and False if they are not.  If the node indices are not valid, it raises an
         exception."""
@@ -331,7 +330,7 @@ class WeightedListGraph(ListGraph):
             raise NodeIndexOutOfRangeException(0, self._numVerts, node2)
 
 
-    def areConnected(self, node1, node2):
+    def areNeighbors(self, node1, node2):
         """Takes in two node indices, and returns True if they are connected
         and False if they are not."""
         if node1 < self._numVerts and node2 < self._numVerts:
@@ -358,66 +357,6 @@ class WeightedListGraph(ListGraph):
         else:
             raise NodeIndexOutOfRangeException(0, self._numVerts, node2)
 
-
-
-    def getShortestPath(self, startVert, goalVert):
-        """Given two nodes, finds the shortest weighted path between the two. Dijkstra's algorithm.
-        If the set of shortest paths has already been created, then it looks up the solution, otherwise
-        it generates and stores the paths in the self.pathPreds dictionary."""
-        if startVert < self._numVerts and goalVert < self._numVerts:
-            if goalVert == self.goalNode:
-                # print "simple lookup"
-                path = self.reconstructPath(startVert)
-                path.reverse()
-                return path
-            elif startVert == goalVert:
-                return []
-            else:
-                # print "rerunning dijkstra's"
-                self.goalNode = goalVert
-                q = PriorityQueue()
-                visited = set()
-                self.pathPreds = {}
-                cost = {}
-                for vert in range(self._numVerts):
-                    cost[vert] = 1000.0
-                    self.pathPreds[vert] = None
-                    q.insert(cost[vert], vert)
-                visited.add(goalVert)
-                cost[goalVert] = 0
-                q.update(cost[goalVert], goalVert)
-                while not q.isEmpty():
-                    (nextCTG, nextVert) = q.firstElement()
-                    q.delete()
-                    visited.add(nextVert)
-                    neighbors = self.getNeighbors(nextVert)
-                    for n in neighbors:
-                        neighNode = n[0]
-                        edgeCost = n[1]
-                        if neighNode not in visited and\
-                           cost[neighNode] > nextCTG + edgeCost:
-                            cost[neighNode] = nextCTG + edgeCost
-                            self.pathPreds[neighNode] = nextVert
-                            q.update( cost[neighNode], neighNode )
-                finalPath = self.reconstructPath(startVert)
-                finalPath.reverse()
-                return finalPath
-        elif startVert >= self._numVerts:
-            raise NodeIndexOutOfRangeException(0, self._numVerts, startVert)
-        else:
-            raise NodeIndexOutOfRangeException(0, self._numVerts, goalVert)
-
-
-    def reconstructPath(self, currVert):
-        """ Given the current vertex, this will reconstruct the shortest path
-        from here to the goal node."""
-
-        path = [currVert]
-        p = self.pathPreds[currVert]
-        while p != None:
-            path.insert(0, p)
-            p = self.pathPreds[p]
-        return path
 
 
 

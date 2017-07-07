@@ -6,7 +6,6 @@
 from Graphs import WeightedListGraph
 import math
 
-
 class MapGraph(WeightedListGraph):
     """The purpose of this subclass is to require the user to provide
     the required data for each node, which must be a coordinate pair,
@@ -47,48 +46,16 @@ class MapGraph(WeightedListGraph):
         to compute the straightline distance between the two nodes, and sets
         the weight to be that"""
         if weight == "default":
-            weight = self.straightDist(node1, node2)
+            weight = self._straightDist(node1, node2)
         WeightedListGraph.addEdge(self, node1, node2, weight)
 
+    def _straightDist(self, node1, node2):
+        """For estimating the straightline distance between two (x,y) coordinates given either as a graph
+        node or as locations. """
+        (x1, y1) = self.getData(node1)
+        (x2, y2) = self.getData(node2)
+        return math.hypot(x1 - x2, y1 - y2)
 
-    def nodeToCoord(self,node):
-        if type(node) is int:
-            n1x, n1y = self.getData(node)
-            return n1x, n1y
-        elif type(node) in [tuple, list]:
-            (n1x, n1y) = node
-            return n1x, n1y
-        else:  # bad data for node
-            print "++++nordToCoord: Return None++++ " + str(node) + " " + str(type(node))
-            return None
-
-
-    def straightDist(self, node1, node2):
-        """For estimating the straightline distance between two points for short term"""
-        loc1 = self.nodeToCoord(node1)
-        loc2 = self.nodeToCoord(node2)
-        return math.hypot(loc1[0] - loc2[0], loc1[1] - loc2[1])
-
-
-    def getAngle(self, pos1, pos2):
-        """Input: two node numbers, or either one may be a tuple giving an (x, y) coordinate in the map space.
-        Returns the angle direction of the line between the two nodes. 0 being
-        north and going clockwise around"""
-        (n1x, n1y) = self.nodeToCoord(pos1)
-
-        (n2x, n2y) = self.nodeToCoord(pos2)
-
-        # translate node1 and node2 so that node1 is at origin
-        t2x, t2y = n2x - n1x, n2y - n1y
-
-        radianAngle = math.atan2(t2y, t2x)
-        degAngle = math.degrees(radianAngle)
-
-        if -180.0 <= degAngle <= 0:
-            degAngle += 360
-        # else:
-        #    degAngle = 360 - degAngle
-        return degAngle
 
 
 class BadNodeDataException(Exception):

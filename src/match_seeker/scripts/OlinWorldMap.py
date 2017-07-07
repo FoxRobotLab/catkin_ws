@@ -8,10 +8,8 @@ view of the map. This includes utilities for drawing the map, maybe even drawing
 calculating straight-line distances, graph search for finding shortest paths in the map, and other tools related
 to the map.
 
-matchPlanner: getData(node), getSize(),    getNeighbors(node), getAngle(), straightDist()
-
-pathLocation: getAngle(), getShortestPath()
 Localizer: getVertices(), getData, straightDist()  but all in one method could become part of new class
+monteCarlo: has a bunch that should change
 """
 
 import math
@@ -20,6 +18,8 @@ import random
 import cv2
 import numpy as np
 
+from FoxQueue import PriorityQueue
+import Graphs
 from DataPaths import basePath, graphMapData, mapLineData
 # from Particle import Particle
 import MapGraph
@@ -30,8 +30,12 @@ class WorldMap(object):
 
     def __init__(self):
         self.olinGraph = None
-        self.invalidBoxes = []
+        self.illegalBoxes = []
         self.markerMap = {}
+        self.graphSize = None
+
+        self.goalNode = None
+        self.pathPreds = {}
 
         self.olinImage = None
         self.currentMapImg = None
@@ -48,32 +52,56 @@ class WorldMap(object):
 
         self._readGraphMap(basePath + graphMapData)
         self._readContinuousMap(basePath + mapLineData)
-        self.clearView()
+        self.cleanMapImage()
 
     # -------------------------------------------------------------------
     # These methods access graph data as needed
 
     def getLocation(self, graphNode):
-        try:
+        """Returns the location data for a node in the graph."""
+        if self.isValidNode(graphNode):
             loc = self.olinGraph.getData(graphNode)
-        except Exception:
-            print "BAD NODE"
-            return None
-        return loc
+            return loc
+        print "ERROR in WorldMap: bad node to getLocation:", graphNode
+        return None
+
+
+    def isValidNode(self, graphNode):
+        """Takes in a graph node and returns True if the node is valid in the graph and False otherwise"""
+        return (type(graphNode) == int) and (graphNode >= 0) and (graphNode < self.getGraphSize())
+
+
+    def areNeighbors(self, node1, node2):
+        """Asks if these two nodes are neighbors. A pass-through method."""
+        if self.isValidNode(node1) and self.isValidNode(node2):
+            return self.olinGraph.areNeighbors(node1, node2)
+        print "ERROR in WorldMap: invalid node one of:", node1, node2
+        return False
 
 
     # -------------------------------------------------------------------
     # These methods update and display the map and poses or particles on it
 
-    def clearView(self):
+    def cleanMapImage(self, obstacles = False):
         """Set the current map image to be a clean copy of the original."""
         self.currentMapImg = self.olinImage.copy()
+        if obstacles:
+            self.drawObstacles()
 
 
     def displayMap(self, window = "Map Image"):
         """Make a copy of the original image, and display it."""
         cv2.imshow(window, self.currentMapImg)
         cv2.waitKey(20)
+
+
+    def drawObstacles(self):
+        """Draws the obstacles on the current image."""
+        for obst in self.illegalBoxes:
+            (lrX, lrY, ulX, ulY) = obst
+            mapUL = self._convertWorldToPixels((ulX, ulY))
+            mapLR = self._convertWorldToPixels((lrX, lrY))
+            cv2.rectangle(self.currentMapImg, mapUL, mapLR, (255, 0, 0), thickness=2)
 
 
     def drawPose(self, particle, size = 4, color = (0, 0, 0)):
@@ -102,7 +130,7 @@ class WorldMap(object):
 
     def getGraphSize(self):
         """Returns the number of vertices in the graph"""
-        return self.olinGraph.getSize()
+        return self.graphSize
 
     def getMapSize(self):
         """Returns a tuple of the width and height (x, y) of the map, in meters."""
@@ -111,8 +139,136 @@ class WorldMap(object):
     # -------------------------------------------------------------------
     # These public methods calculate angles and straightline distances.
 
-    def calcAngle(self, fll):
-        pass
+
+    def calcAngle(self, pos1, pos2):
+        """Input: two (x, y) locations, given either as graph nodes or a tuple giving an (x, y) coordinate in the map space.
+        Returns the angle direction of the line between the two nodes. 0 being north and going clockwise around"""
+        (n1x, n1y) = self._nodeToCoord(pos1)
+
+        (n2x, n2y) = self._nodeToCoord(pos2)
+
+        # translate node1 and node2 so that node1 is at origin
+        t2x, t2y = n2x - n1x, n2y - n1y
+
+        radianAngle = math.atan2(t2y, t2x)
+        degAngle = math.degrees(radianAngle)
+
+        if -180.0 <= degAngle <= 0:
+            degAngle += 360
+        # else:
+        #    degAngle = 360 - degAngle
+        return degAngle
+
+
+    def _nodeToCoord(self,node):
+        if type(node) is int:
+            n1x, n1y = self.getLocation(node)
+            return n1x, n1y
+        elif type(node) in [tuple, list]:
+            (n1x, n1y) = node[0:2]    # the slicing allows for poses as well as locations, ignores the angle
+            return n1x, n1y
+        else:  # bad data for node
+            print "ERROR in WorldMap: Data cannot be converted to (x, y) location:", node, type(node)
+            return None
+
+
+    def straightDist2d(self, node1, node2):
+        """For estimating the straightline distance between two (x,y) coordinates given either as a graph
+        node or as locations. """
+        (x1, y1) = self._nodeToCoord(node1)
+        (x2, y2) = self._nodeToCoord(node2)
+        return math.hypot(x1 - x2, y1 - y2)
+
+
+    def straightDist3d(self, pose1, pose2):
+        """This must take in two poses (x, y, h) triples, as tuples, and it computes a "straight-line" distance
+        using the Euclidean distance for the first two and scaling the difference in heading to match."""
+        (x1, y1, h1) = pose1
+        (x2, y2, h2) = pose2
+        hDiff = abs(h2 - h1)
+        if hDiff > 180.0:
+            hDiff = 360 - hDiff       # TODO: IS THIS RIGHT?
+        hDiff = hDiff * (50/180.0)    # Scale heading difference
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + hDiff ** 2)
+
+
+    # -------------------------------------------------------------------
+    # Other calculations
+
+    def isAllowedLocation(self, pose):
+        """This takes a tuple containing 2 or 3 values and checks to see if it is valid by comparing it to the
+        obstacles that are stored."""
+        x = pose[0]
+        y = pose[1]
+        for box in self.illegalBoxes:
+            [x1, y1, x2, y2] = box
+            minX = min(x1, x2)
+            maxX = max(x1, x2)
+            minY = min(y1, y2)
+            maxY = max(y1, y2)
+            if (minX <= x <= maxX) and (minY <= y <= maxY):
+                return False
+        return True
+
+
+    def getShortestPath(self, startVert, goalVert):
+        """Given two nodes, finds the shortest weighted path between the two. Dijkstra's algorithm.
+        If the set of shortest paths has already been created, then it looks up the solution, otherwise
+        it generates and stores the paths in the self.pathPreds dictionary."""
+        if self.isValidNode(startVert) and self.isValidNode(goalVert):
+            if goalVert == self.goalNode:
+                # print "simple lookup"
+                path = self.reconstructPath(startVert)
+                path.reverse()
+                return path
+            elif startVert == goalVert:
+                return []
+            else:
+                # print "rerunning dijkstra's"
+                self.goalNode = goalVert
+                q = PriorityQueue()
+                visited = set()
+                self.pathPreds = {}
+                cost = {}
+                for vert in range(self.graphSize):
+                    cost[vert] = 1000.0
+                    self.pathPreds[vert] = None
+                    q.insert(cost[vert], vert)
+                visited.add(goalVert)
+                cost[goalVert] = 0
+                q.update(cost[goalVert], goalVert)
+                while not q.isEmpty():
+                    (nextCTG, nextVert) = q.firstElement()
+                    q.delete()
+                    visited.add(nextVert)
+                    neighbors = self.olinGraph.getNeighbors(nextVert)
+                    for n in neighbors:
+                        neighNode = n[0]
+                        edgeCost = n[1]
+                        if neighNode not in visited and cost[neighNode] > nextCTG + edgeCost:
+                            cost[neighNode] = nextCTG + edgeCost
+                            self.pathPreds[neighNode] = nextVert
+                            q.update(cost[neighNode], neighNode)
+                finalPath = self.reconstructPath(startVert)
+                finalPath.reverse()
+                return finalPath
+        elif startVert >= self.graphSize:
+            raise Graphs.NodeIndexOutOfRangeException(0, self.graphSize, startVert)
+        else:
+            raise Graphs.NodeIndexOutOfRangeException(0, self.graphSize, goalVert)
+
+
+    def reconstructPath(self, currVert):
+        """ Given the current vertex, this will reconstruct the shortest path
+        from here to the goal node."""
+
+        path = [currVert]
+        p = self.pathPreds[currVert]
+        while p != None:
+            path.insert(0, p)
+            p = self.pathPreds[p]
+        return path
+
 
 
     # -------------------------------------------------------------------
@@ -202,7 +358,7 @@ class WorldMap(object):
             elif readingInvalidBoxes:
                 boxData = line.split()
                 [ulx, uly, lrx, lry] = [float(v) for v in boxData[:4]]
-                self.invalidBoxes.append((ulx, uly, lrx, lry))
+                self.illegalBoxes.append((ulx, uly, lrx, lry))
             elif readingEdges:
                 # If reading edges, then data is pair of nodes, add edge
                 [fromNode, toNode] = [int(x) for x in line.split()]
@@ -210,6 +366,7 @@ class WorldMap(object):
             else:
                 print "Shouldn't get here", line
         self.olinGraph = graph
+        self.graphSize = graph.getSize()
 
     # -------------------------------------------------------------------
     # The following methods read in the continuous map data file and make an image representation of the map
@@ -393,13 +550,13 @@ if __name__ == '__main__':
     mapper.displayMap()
 
     poseList =[]
-    for i in range(20):
+    for i in range(200):
         posX = random.random() * mapper.mapTotalXDim
         posY = random.random() * mapper.mapTotalYDim
         posH = random.randint(0, 360)
         pose = (posX, posY, posH)
         poseList.append(pose)
-        mapper.drawPose(pose, color=(i*12, 0, 0))
+        mapper.drawPose(pose, size = 5, color=(i*12, 0, 0))
         mapper.displayMap()
 
     cv2.waitKey(0)

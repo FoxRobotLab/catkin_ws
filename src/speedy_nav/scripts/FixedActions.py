@@ -72,7 +72,7 @@ class FixedActions(object):
 		wallAngle = self.robot.findAngleToWall()
 		path = OlinGraph.olin.getShortestPath(location, destination)
 		currentNode, nextNode = path[0], path[1]
-		targetAngle = OlinGraph.olin.getAngle(currentNode, nextNode)
+		targetAngle = OlinGraph.olin.calcAngle(currentNode, nextNode)
 
 		#determines actual orrientation given where the robot would face if it was directly
 		#looking at the pattern (patternOrientation) and the currect angle to the pattern
