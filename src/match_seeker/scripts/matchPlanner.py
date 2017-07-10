@@ -82,7 +82,7 @@ class MatchPlanner(object):
                 # self.checkCoordinates(odomInfo)
 
                 self.logger.log("-------------- New Match ---------------")
-                status, matchInfo = self.locator.findLocation(image)
+                status, currPose = self.locator.findLocation(image)
 
                 if status == "continue":            #bestMatch score > 90 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
@@ -91,7 +91,7 @@ class MatchPlanner(object):
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
                         self.robot.turnByAngle(35)         #turn back 90 degrees bc the behavior is faster than the matching
-                        self.checkCoordinates(matchInfo)    #react to the location data of the match
+                        self.checkCoordinates(currPose)    #react to the location data of the match
                     self.whichBrain = "nav"
                 elif status == "look":          #enter LookAround behavior
                     if self.whichBrain != "loc":
@@ -103,23 +103,23 @@ class MatchPlanner(object):
                     self.whichBrain = "nav"
                     if status == "at node":
                         # self.logger.log("Found a good enough match: " + str(matchInfo))
-                        self.respondToLocation(matchInfo)
-                        if self.pathLoc.atDestination(matchInfo[0]):
+                        self.respondToLocation(currPose)
+                        if self.pathLoc.atDestination(currPose[0]):
                             # reached destination. ask for new destination again. returns false if you're not at the final node
                             self.speak("Destination reached")
                             self.robot.stop()
                             ready = self.getNextGoalDestination()
-                            self.goalSeeker.setGoal(None,None,None)
+                            self.goalSeeker.setGoal(None, None, None)
                             # self.logger.log("======Goal seeker off")
                         else:
                             # h = self.pathLoc.getTargetAngle()
                             # currHead = matchInfo[1]
                             # self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
-                            self.checkCoordinates(matchInfo)
+                            self.checkCoordinates(currPose)
                             # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
                             #                 str(h) + " " + str(currHead))
                     elif status == "check coord":
-                        self.checkCoordinates(matchInfo)
+                        self.checkCoordinates(currPose)
             iterationCount += 1
 
         self.logger.log("Quitting...")
@@ -201,6 +201,9 @@ class MatchPlanner(object):
             self.speak(speakStr)
 
 
+
+
+
     def checkCoordinates(self, matchInfo):
         """Check the current match information to see if we should change headings. If node that is
         confidently "not close enough" is what we expect, then make sure heading is right. Otherwise,
@@ -215,12 +218,20 @@ class MatchPlanner(object):
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
         self.logger.log("------------- Checking coordinates -----")
+
+        # if nearNode == currPath[-1]:
+        #     self.respondToLocation(matchInfo)
+
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
             nextNode = immediateGoalNode
             self.logger.log("Nearest node is previous node or current goal")
         elif nearNode in currPath:
             self.logger.log("Nearest node is on current path, may have missed current goal")  # TODO: What is best response here
-            nextNode = nearNode
+            pathInd = currPath.index(nearNode)
+            if len(currPath)>pathInd+1 and self.olinMap.calcAngle(currLoc,currPath[pathInd+1])<20:
+                nextNode = currPath[pathInd+1]
+            else:
+                nextNode = nearNode
         elif self.olinMap.areNeighbors(nearNode, immediateGoalNode):
             self.logger.log("Nearest node is adjacent to current goal but not in path")
             nextNode = immediateGoalNode
@@ -237,7 +248,8 @@ class MatchPlanner(object):
 
         targetAngle = self.olinMap.calcAngle(currLoc, nextNode)
         tDist = self.olinMap.straightDist2d(currLoc, nextNode)
-        self.turn(nextNode, currLoc[2], targetAngle, tDist)
+        if tDist >= 1.5:
+            self.turn(nextNode, currLoc[2], targetAngle, tDist)
 
 
     def turn(self, node, heading, targetHeading, tDist):
@@ -257,6 +269,8 @@ class MatchPlanner(object):
             self.goalSeeker.setGoal(None,None,None)
             formSt = "=====Not Updating goalSeeker" #: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
             self.logger.log( formSt)#.format(tDist, targetHeading, heading) )
+
+        self.logger.log("  targetDistance = " + str(tDist))
 
 
     def speak(self, speakStr):

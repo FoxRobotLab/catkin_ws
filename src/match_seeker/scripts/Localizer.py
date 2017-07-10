@@ -17,7 +17,6 @@ class Localizer(object):
         self.logger = logger
 
         self.lostCount = 0
-        self.beenGuessing = False
 
         self.lastKnownLoc = None
         self.confidence = 0
@@ -63,18 +62,31 @@ class Localizer(object):
         bestX, bestY, bestHead = matchLocs[0]
 
         odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
-        if self.odomScore < 50 and bestScore >= self.odomScore:
+        if self.odomScore < 50 and var < 5.0:
+            self.logger.log(odoUpdateStr.format(centerX,centerY, centerHead))
+            self.odomScore = 60
+            self.robot.updateOdomLocation(centerX, centerY, centerHead)
+        elif self.odomScore < 50 and bestScore >= 50:
             self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
             self.odomScore = bestScore
             self.robot.updateOdomLocation(bestX, bestY, bestHead)
 
-        return self.matchResponse(matchLocs, scores)
+        if var < 50:
+           return self.mclResponse(comPose)
+        else:
+            return self.matchResponse(matchLocs, scores)
 
 
-    def mclResponse(self,comPose,var):
-        """takes in center of mass data as determined by the monte carlo localizer and interprets it to tell 
-         matchPlanner what to do."""
-        pass
+    def mclResponse(self, comPose):
+        (bestNodeNum, nodeX, nodeY, bestDist) = self.olin.findClosestNode(comPose)
+        mclInfo = (bestNodeNum, comPose)
+        self.lastKnownLoc = comPose[0:2]
+        self.confidence = 10.0
+
+        if bestDist <= 0.8:
+            return "at node", mclInfo
+        else:
+            return "check coord", mclInfo
 
 
     def matchResponse(self,matchLocs, scores):
@@ -87,18 +99,16 @@ class Localizer(object):
         if bestScore < 5: #changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
             self.lostCount += 1
-            self.beenGuessing = False
             if self.lostCount == 5:
-                self.lastKnownLoc = None
-                self.confidence = 0
+                self.setLocation("lost", None)
             elif self.lostCount >= 10:
                 return "look", None
             return "continue", None
         else:
             self.lostCount = 0
-
             guess, conf = self._guessLocation(bestScore, bestLoc, matchLocs)
             matchInfo = (guess, bestLoc)
+            self.setLocation(conf, bestLoc)
             self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
 
             if conf == "very confident." or conf == "close, but guessing.":
@@ -111,57 +121,49 @@ class Localizer(object):
 
 
     def _guessLocation(self, bestScore, bestLoc, matchLocs):
-        (bestX, bestY, bestHead) = bestLoc
         (bestNodeNum, nodeX, nodeY, bestDist) = self.olin.findClosestNode(bestLoc)
         closeDistStr = "      The closest node is {0:d} at {1:4.2f} meters."
         self.logger.log( closeDistStr.format(bestNodeNum, bestDist) )
 
         if bestScore > 30:
-            self.beenGuessing = False
-
             if bestDist <= 0.8:
-                self.lastKnownLoc = (bestX, bestY, bestHead)
-                self.confidence = 10.0
                 return bestNodeNum, "very confident."
             else:
-                self.lastKnownLoc = (bestX, bestY, bestHead)
-                if self.beenGuessing:
-                    self.confidence = max(0.0, self.confidence - 0.5)
-                else:
-                    self.confidence = 10.0
-                    self.beenGuessing = True
                 return bestNodeNum, "confident, but far away."
         else:
             guessNodes = [bestNodeNum]
-            dist = 0
             for j in range(1, len(matchLocs)):
                 (nodeNum, x, y, dist) = self.olin.findClosestNode(matchLocs[j])
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
 
             if len(guessNodes) == 1 and bestDist <= 0.8:
-                self.lastKnownLoc = (bestX, bestY, bestHead)
-                if self.beenGuessing:
-                    self.confidence = max(0.0, self.confidence - 0.5)
-                else:
-                    self.confidence = 10.0
-                    self.beenGuessing = True
                 return guessNodes[0], "close, but guessing."
             elif len(guessNodes) == 1:
-                self.lastKnownLoc = (bestX, bestY, bestHead)
-                self.confidence = 5.0
-                self.beenGuessing = False
                 return guessNodes[0], "far and guessing."
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1,len(guessNodes)):
                     nodes += " or " + str(guessNodes[i])
-                self.confidence = 0.0
-                self.beenGuessing = False
                 # TODO: figure out if bestHead is the right result, but for now it's probably ignored anyway
                 return nodes, "totally unsure."
 
 
+    def setLocation(self, conf, loc):
+        if conf == "very confident." or conf == "confident, but far away.":
+            self.lastKnownLoc = loc
+            self.confidence = 10.0
+        elif conf == "close, but guessing.":
+            self.lastKnownLoc = loc
+            self.confidence = max(0.0, self.confidence - 0.5)
+        elif conf == "far and guessing.":
+            self.lastKnownLoc = loc
+            self.confidence = 5.0
+        elif conf == "lost":
+            self.lastKnownLoc = None
+            self.confidence = 0.0
+        else:
+            self.confidence = 0.0
 
     def odometer(self):
         formStr = "Odometer loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})  confidence = {3:4.2f}"
