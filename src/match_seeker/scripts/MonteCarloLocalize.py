@@ -20,6 +20,7 @@ class monteCarloLoc(object):
         self.maxLen = 500   # num of particles
         self.maxWeight = 0.0
         self.sumWeight = 0.9
+        self.centerParticle = None
 
         # bounding tuples of rectangles that represent classrooms, stairs, and walls
         #  self.obstacles = [(32.5, 0.0, 50.4,  60.1),   # top obstacle across classrooms
@@ -61,10 +62,15 @@ class monteCarloLoc(object):
     def mclCycle(self, mclData, moveInfo, windowName = "MCL Display"):
         """ Takes in important Localizer information and calls all relevant methods in the MCL"""
         self.currentData = mclData
+        if self.currentData["odomScore"] < 1:
+            self.scatter()
+            print "scattering points"
+
         self.particleMove(moveInfo)
         # print "after particle move", len(self.validPosList)
         matchParticles = self.seedNodesAtMatches()
         self.validPosList.extend(matchParticles)
+
         self.calcWeights()
         self.normalizeWeights()
         self.validPosList.sort(key = lambda p: p.weight)
@@ -72,22 +78,28 @@ class monteCarloLoc(object):
         # self.normalizeWeights()
         self.calcWeights()
         self.normalizeWeights()
-        centerParticle = self.centerOfMass()
+        self.centerOfMass()
+        var = self.calculateVariance()
 
-        var = self.calculateVariance(centerParticle)
 
         self.olinMap.cleanMapImage(obstacles=True)
         self.drawParticles(self.validPosList, (0, 0, 255), shading = True)      # draw set of particles  in red
         self.drawParticles(matchParticles[1:], (255, 0, 255))   # draw particles for matched images in magenta
         self.drawParticles(matchParticles[:1], (255, 255, 0))   # draw particle for odometry location in blue
-        self.drawParticles([centerParticle], (0, 255, 0))
+        self.drawParticles([self.centerParticle], (0, 255, 0))
         self.olinMap.displayMap(windowName)
-        return centerParticle.getLoc(), var
+        if self.centerParticle.isValid():
+            return self.centerParticle.getLoc(), var
+        else:
+            return self.centerParticle.getLoc(), 300.0
 
 
-    def calculateVariance(self, centerParticle):
+    def calculateVariance(self):
 
-        centerX, centerY, centerAngle = centerParticle.getLoc()
+        if self.centerParticle == None:
+            return 300.0
+
+        centerX, centerY, centerAngle = self.centerParticle.getLoc()
         vx = 0
         vy = 0
 
@@ -146,6 +158,17 @@ class monteCarloLoc(object):
         for particle in self.validPosList:
             particle.normWeight(self.sumWeight)
 
+    def scatter(self, loc = None):
+        """sends the x, y, of the center of mass to the particle class for every particle.
+        this generates a new particle in a uniform area around the center of mass with a random heading."""
+        if loc == None:
+            particle = self.centerParticle
+            x, y, heading = particle.getLoc()
+        else:
+            x, y, heading = loc
+
+        for part in self.validPosList:
+            part.scatter(x, y)
 
     def resampleParticles(self):
         """Generate the next set of particles by resampling based on their current weights, which should
@@ -211,7 +234,7 @@ class monteCarloLoc(object):
 
         cgParticle = Particle(self.olinMap, (cgx, cgy, cgAngle))
         # print "cgx", cgx, "cgy", cgy, "cgangle", cgAngle
-        return cgParticle
+        self.centerParticle = cgParticle
 
 
     def circular_mean(self, weights, angles):

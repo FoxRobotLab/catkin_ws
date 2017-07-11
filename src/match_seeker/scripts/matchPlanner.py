@@ -262,7 +262,7 @@ class MatchPlanner(object):
             self.speak("Adjusting heading to node " + str(node))
             self.moveHandle.turnToNextTarget(heading, targetHeading)
             self.goalSeeker.setGoal(None, None, None)
-        elif min(angle1, angle2) >= 15:
+        elif min(angle1, angle2) >= 30:
             self.moveHandle.turnToNextTarget(heading, targetHeading)
         else:
             # self.goalSeeker.setGoal(tDist, targetHeading, heading)

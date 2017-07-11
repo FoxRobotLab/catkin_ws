@@ -46,6 +46,7 @@ class Localizer(object):
             self.logger.log( lklSt.format(x, y, h, self.confidence) )
 
         odomLoc = self.odometer()
+
         moveInfo = self.robot.getTravelDist()
         scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
 
@@ -53,6 +54,8 @@ class Localizer(object):
                    'matchScores': scores,
                    'odomPose': odomLoc,
                    'odomScore': self.odomScore}
+
+
         comPose, var = self.mcl.mclCycle(mclData, moveInfo)
         (centerX, centerY, centerHead) = comPose
         centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f}), VARIANCE: ({3:4.2f})"
@@ -71,17 +74,23 @@ class Localizer(object):
             self.odomScore = bestScore
             self.robot.updateOdomLocation(bestX, bestY, bestHead)
 
-        if var < 50:
-           return self.mclResponse(comPose)
+
+        if var < 10.0:
+           return self.mclResponse(comPose, var)
         else:
             return self.matchResponse(matchLocs, scores)
 
 
-    def mclResponse(self, comPose):
+    def mclResponse(self, comPose, var):
         (bestNodeNum, nodeX, nodeY, bestDist) = self.olin.findClosestNode(comPose)
         mclInfo = (bestNodeNum, comPose)
-        self.lastKnownLoc = comPose[0:2]
-        self.confidence = 10.0
+        self.lastKnownLoc = comPose
+        if var < 5.0:
+            self.confidence = 10.0
+        elif var < 10.0:
+            self.confidence = 5.0
+        else:
+            self.confidence = max(0.0, self.confidence-0.5)
 
         if bestDist <= 0.8:
             return "at node", mclInfo
@@ -112,6 +121,7 @@ class Localizer(object):
             self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
 
             if conf == "very confident." or conf == "close, but guessing.":
+                self.mcl.scatter(matchInfo[1])
                 return "at node", matchInfo
             elif conf == "confident, but far away.":
                 return "check coord", matchInfo

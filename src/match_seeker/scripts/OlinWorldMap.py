@@ -569,17 +569,20 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     mapper = WorldMap()
-    mapper.displayMap()
+    mapper.cleanMapImage(obstacles=True)
 
-    poseList =[]
-    for i in range(200):
-        posX = random.random() * mapper.mapTotalXDim
-        posY = random.random() * mapper.mapTotalYDim
-        posH = random.randint(0, 360)
-        pose = (posX, posY, posH)
-        poseList.append(pose)
-        mapper.drawPose(pose, size = 5, color=(i*12, 0, 0))
-        mapper.displayMap()
+
+    mapper.drawPose((7.5, 6.4, 0.0))
+    mapper.displayMap()
+    # poseList =[]
+    # for i in range(200):
+    #     posX = random.random() * mapper.mapTotalXDim
+    #     posY = random.random() * mapper.mapTotalYDim
+    #     posH = random.randint(0, 360)
+    #     pose = (posX, posY, posH)
+    #     poseList.append(pose)
+    #     mapper.drawPose(pose, size = 5, color=(i*12, 0, 0))
+    #     mapper.displayMap()
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()

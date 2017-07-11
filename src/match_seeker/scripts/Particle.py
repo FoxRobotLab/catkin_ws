@@ -38,15 +38,31 @@ class Particle():
                 return
 
 
-    def makePerturbedCopy(self):
+    def scatter(self, x, y):
+        """generates a new x, y in a uniform distribution around a given point and a random heading between 0-360"""
+        range = 5.0
+        while True:
+            self.x = np.random.uniform(x-range, x+range)
+            self.y = np.random.uniform(y-range, y+range)
+            self.heading = np.random.uniform(0, 360)
+            if self.isValid():
+                return
+
+
+    def makePerturbedCopy(self, scatter = False):
         """Makes a new copy that is nearby, but randomly perturbed using
         Gaussian distributions. Note: If enough attempts are made to generate
         a nearby copy and they fail, then a random particle is created."""
 
+        if scatter == True:
+            mult = 5
+        else:
+            mult = 1
+
         for i in range(10):
-            newAngle = np.random.normal(self.heading, 3.0) % 360
-            newX = np.random.normal(self.x, 0.25)
-            newY = np.random.normal(self.y, 0.25)
+            newAngle = np.random.normal(self.heading, 3.0 * mult) % 360
+            newX = np.random.normal(self.x, 0.25 * mult)
+            newY = np.random.normal(self.y, 0.25 * mult)
 
             posParticle = Particle(self.mapObj, (newX, newY, newAngle))
 

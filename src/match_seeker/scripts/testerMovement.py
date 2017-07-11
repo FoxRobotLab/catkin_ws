@@ -34,8 +34,12 @@ class testerMovement(object):
             else:
                 break
 
+    def odom(self):
+        while True:
+            print self.robot.getOdomData()
+
 
 if __name__ == "__main__":
     rospy.init_node('Tester')
     tester = testerMovement()
-    tester.turn()
+    tester.odom()
