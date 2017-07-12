@@ -18,7 +18,7 @@ from espeak import espeak
 import numpy as np
 import turtleControl
 import MovementHandler
-import PotentialFieldBrain
+import PotentialFieldThread
 import FieldBehaviors
 import Localizer
 import PathLocation
@@ -42,7 +42,7 @@ class MatchPlanner(object):
 
         self.logger = OutputLogger.OutputLogger(True, True)
         self.olinMap = OlinWorldMap.WorldMap()
-        self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
+        # self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
         self.destination = None
 
@@ -69,12 +69,12 @@ class MatchPlanner(object):
             # cv2.imshaow("Depth View", im)
             cv2.waitKey(20)
 
-            if iterationCount > 20 and self.whichBrain == "nav":
-                self.brain.step()
+            # if iterationCount > 20 and self.whichBrain == "nav":
+            #     self.brain.step()
 
 
             if self.whichBrain == "loc":
-                self.moveHandle.lookAround()
+                self.lookAround()
 
 
             if iterationCount % 30 == 0 or self.whichBrain == "loc":
@@ -90,17 +90,20 @@ class MatchPlanner(object):
                 elif status == "keep-going":        #LookAround found a match
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
-                        self.robot.turnByAngle(35)         #turn back 90 degrees bc the behavior is faster than the matching
+                        self.robot.turnByAngle(35)         #turn back 35 degrees bc the behavior is faster than the matching
+                        self.brain.unpause()
                         self.checkCoordinates(currPose)    #react to the location data of the match
-                    self.whichBrain = "nav"
+                        self.whichBrain = "nav"
                 elif status == "look":          #enter LookAround behavior
                     if self.whichBrain != "loc":
                         self.speak("Localizing...")
-                    self.whichBrain = "loc"
+                        self.brain.pause()
+                        self.whichBrain = "loc"
                     self.goalSeeker.setGoal(None,None,None)
                     # self.logger.log("======Goal seeker off")
                 else:                                       # found a node
                     self.whichBrain = "nav"
+                    self.brain.unpause()
                     if status == "at node":
                         # self.logger.log("Found a good enough match: " + str(matchInfo))
                         self.respondToLocation(currPose)
@@ -124,17 +127,19 @@ class MatchPlanner(object):
 
         self.logger.log("Quitting...")
         self.robot.stop()
-        self.brain.stopAll()
+        self.brain.stop()       # was stopAll
 
 
     def getNextGoalDestination(self):
         """Gets goal from user and sets up path location tracker etc. Returns False if
         the user wants to quit."""
+        self.brain.pause()
         self.destination = self._userGoalDest()
         if self.destination == 99:
             return False
         self.pathLoc.beginJourney(self.destination)
         self.speak("Heading to " + str(self.destination))
+        self.brain.unpause()
         return True
 
 
@@ -155,7 +160,7 @@ class MatchPlanner(object):
         if self.whichBrain != 'nav':
             self.whichBrain = "nav"
             self.speak("Navigating Brain Activated")
-            self.brain = PotentialFieldBrain.PotentialFieldBrain(self.robot)
+            self.brain = PotentialFieldThread.PotentialFieldBrain(self.robot)
             self.brain.add(FieldBehaviors.KeepMoving())
             self.brain.add(FieldBehaviors.BumperReact())
             self.brain.add(FieldBehaviors.CliffReact())
@@ -173,6 +178,7 @@ class MatchPlanner(object):
                 self.brain.add(obstBehavior)
                 # The way these pieces are made leads to the being slightly more responsive to its left side
                 # further investigation into this could lead to a more uniform obstacle reacting
+            self.brain.start()
 
 
     def respondToLocation(self, matchInfo):
@@ -199,8 +205,6 @@ class MatchPlanner(object):
 
             speakStr = "At node " + str(nearNode)
             self.speak(speakStr)
-
-
 
 
 
@@ -250,6 +254,8 @@ class MatchPlanner(object):
         tDist = self.olinMap.straightDist2d(currLoc, nextNode)
         if tDist >= 1.5:
             self.turn(nextNode, currLoc[2], targetAngle, tDist)
+        else:
+            self.logger.log("Not Turning. TDist = " + str(tDist))
 
 
     def turn(self, node, heading, targetHeading, tDist):
@@ -260,18 +266,43 @@ class MatchPlanner(object):
 
         if min(angle1, angle2) >= 90:
             self.speak("Adjusting heading to node " + str(node))
-            self.moveHandle.turnToNextTarget(heading, targetHeading)
+            self.turnToNextTarget(heading, targetHeading)
             self.goalSeeker.setGoal(None, None, None)
         elif min(angle1, angle2) >= 30:
-            self.moveHandle.turnToNextTarget(heading, targetHeading)
+            self.turnToNextTarget(heading, targetHeading)
         else:
             # self.goalSeeker.setGoal(tDist, targetHeading, heading)
             self.goalSeeker.setGoal(None,None,None)
-            formSt = "=====Not Updating goalSeeker" #: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
-            self.logger.log( formSt)#.format(tDist, targetHeading, heading) )
+            formSt = "Angle1 = {0:4.2f}     Angle2 = {1:4.2f}" #: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
+            self.logger.log( formSt.format(angle1,angle2))#.format(tDist, targetHeading, heading) )
 
         self.logger.log("  targetDistance = " + str(tDist))
 
+    def lookAround(self):
+        """turns. stops. waits."""
+        self.robot.turnByAngle(-35)
+        self.robot.stop()
+
+    def turnToNextTarget(self, currHeading, targetAngle):
+        """Takes in the currentHeading, which comes from the heading attached to the current best matching picture,
+        given in global coordinates. Also takes in the target angle, also in global coordinates. This function computes
+        the angle the robot should turn.
+        NOTE: Could try to use depth data to modify angle if facing a wall well enough..."""
+
+        angleToTurn = targetAngle - (currHeading % 360)
+        if angleToTurn < -180:
+            angleToTurn += 360
+        elif 180 < angleToTurn:
+            angleToTurn -= 360
+
+        self.logger.log("Turning to next target...")
+        self.logger.log("  currHeading = " + str(currHeading))
+        self.logger.log("  targetAngle = " + str(targetAngle))
+        self.logger.log("  angleToTurn = " + str(angleToTurn))
+
+        self.brain.pause()
+        self.robot.turnByAngle(angleToTurn)
+        self.brain.unpause()
 
     def speak(self, speakStr):
         """Takes in a string and "speaks" it to the base station and also to the  robot's computer."""

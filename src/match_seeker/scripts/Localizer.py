@@ -17,7 +17,7 @@ class Localizer(object):
         self.logger = logger
 
         self.lostCount = 0
-
+        self.closeEnough = 0.6  # was 0.8
         self.lastKnownLoc = None
         self.confidence = 0
 
@@ -25,7 +25,7 @@ class Localizer(object):
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
-        self.mcl.initializeParticles(500)
+        self.mcl.initializeParticles(250)
         # self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
@@ -69,7 +69,7 @@ class Localizer(object):
             self.logger.log(odoUpdateStr.format(centerX,centerY, centerHead))
             self.odomScore = 60
             self.robot.updateOdomLocation(centerX, centerY, centerHead)
-        elif self.odomScore < 50 and bestScore >= 50:
+        elif self.odomScore < 50 and bestScore >= 30 and var > 10:
             self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
             self.odomScore = bestScore
             self.robot.updateOdomLocation(bestX, bestY, bestHead)
@@ -92,7 +92,7 @@ class Localizer(object):
         else:
             self.confidence = max(0.0, self.confidence-0.5)
 
-        if bestDist <= 0.8:
+        if bestDist <= self.closeEnough:
             return "at node", mclInfo
         else:
             return "check coord", mclInfo
@@ -121,7 +121,7 @@ class Localizer(object):
             self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
 
             if conf == "very confident." or conf == "close, but guessing.":
-                self.mcl.scatter(matchInfo[1])
+                self.mcl.scatter(bestLoc)
                 return "at node", matchInfo
             elif conf == "confident, but far away.":
                 return "check coord", matchInfo
@@ -136,7 +136,7 @@ class Localizer(object):
         self.logger.log( closeDistStr.format(bestNodeNum, bestDist) )
 
         if bestScore > 30:
-            if bestDist <= 0.8:
+            if bestDist <=self.closeEnough:
                 return bestNodeNum, "very confident."
             else:
                 return bestNodeNum, "confident, but far away."
@@ -147,7 +147,7 @@ class Localizer(object):
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
 
-            if len(guessNodes) == 1 and bestDist <= 0.8:
+            if len(guessNodes) == 1 and bestDist <= self.closeEnough:
                 return guessNodes[0], "close, but guessing."
             elif len(guessNodes) == 1:
                 return guessNodes[0], "far and guessing."

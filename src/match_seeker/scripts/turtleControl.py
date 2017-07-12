@@ -68,14 +68,6 @@ class TurtleBot(object):
 
     def turnByAngle(self, angle):
         """Turns the robot by the given angle, where negative is left and positive is right"""
-        # turnSec = abs(angle * self.degreeToSeconds)
-        # if angle > 0:
-        #     self.turnLeft(self.angleTurnSpeed, turnSec)
-        # elif angle < 0:
-        #     self.turnRight(self.angleTurnSpeed, turnSec)
-        # else:
-        #     # No need to turn, keep going
-        #     pass
 
         currX, currY, currHead = self.odom.getData()
         goalHead = currHead + angle
@@ -84,17 +76,16 @@ class TurtleBot(object):
         elif goalHead < -180:
             goalHead += 360
 
-        if angle > 0:
-            # print "turning left", goalHead, "by", angle
-            self.turnLeft(self.angleTurnSpeed)
-        elif angle < 0:
-            # print "turning right", goalHead, "by", angle
-            self.turnRight(self.angleTurnSpeed)
-        else:
-            # No need to turn, keep going
-            pass
-
         while currHead > goalHead + 5 or currHead < goalHead - 5:
+
+            if angle > 0:
+                self.turnLeft(self.angleTurnSpeed)
+            elif angle < 0:
+                self.turnRight(self.angleTurnSpeed)
+            else:
+                # No need to turn, keep going
+                pass
+
             currHead = self.odom.getData()[2]
             # print currHead
             sleep(0.2)
