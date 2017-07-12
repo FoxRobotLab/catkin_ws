@@ -571,18 +571,13 @@ if __name__ == '__main__':
     mapper = WorldMap()
     mapper.cleanMapImage(obstacles=True)
 
+    numVerts = mapper.getGraphSize()
+    for vert in range(numVerts):
+        (verX, verY) = mapper.getLocation(vert)
+        verPos = (verX, verY, 0)
 
-    mapper.drawPose((7.5, 6.4, 0.0))
-    mapper.displayMap()
-    # poseList =[]
-    # for i in range(200):
-    #     posX = random.random() * mapper.mapTotalXDim
-    #     posY = random.random() * mapper.mapTotalYDim
-    #     posH = random.randint(0, 360)
-    #     pose = (posX, posY, posH)
-    #     poseList.append(pose)
-    #     mapper.drawPose(pose, size = 5, color=(i*12, 0, 0))
-    #     mapper.displayMap()
-
+        mapper.drawPose(verPos)
+        mapper.displayMap()
+        cv2.waitKey(20)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
