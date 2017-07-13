@@ -24,6 +24,7 @@ import Localizer
 import PathLocation
 import OutputLogger
 import OlinWorldMap
+import SeekerGUI
 from DataPaths import basePath, graphMapData
 
 from std_msgs.msg import String
@@ -41,12 +42,13 @@ class MatchPlanner(object):
         self.whichBrain = ""
 
         self.logger = OutputLogger.OutputLogger(True, True)
+        self.gui = SeekerGUI.SeekerGUI()
         self.olinMap = OlinWorldMap.WorldMap()
         # self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
         self.destination = None
 
-        self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger)
+        self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger,self.gui)
 
         self.ignoreLocationCount = 0
 
@@ -60,6 +62,8 @@ class MatchPlanner(object):
         ready = self.getNextGoalDestination()
 
         while ready and not rospy.is_shutdown():
+            self.gui.update()
+
             image = self.robot.getImage()[0]
             cv2.imshow("Turtlebot View", image)
             # cv_image = self.robot.getDepth()
@@ -90,6 +94,7 @@ class MatchPlanner(object):
                 elif status == "keep-going":        #LookAround found a match
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
+                        self.gui.navigatingMode()
                         self.robot.turnByAngle(35)         #turn back 35 degrees bc the behavior is faster than the matching
                         self.brain.unpause()
                         self.checkCoordinates(currPose)    #react to the location data of the match
@@ -97,6 +102,7 @@ class MatchPlanner(object):
                 elif status == "look":          #enter LookAround behavior
                     if self.whichBrain != "loc":
                         self.speak("Localizing...")
+                        self.gui.localizingMode()
                         self.brain.pause()
                         self.whichBrain = "loc"
                     self.goalSeeker.setGoal(None,None,None)
@@ -126,7 +132,9 @@ class MatchPlanner(object):
             iterationCount += 1
 
         self.logger.log("Quitting...")
+        self.gui.updateMessageText("Quitting...")
         self.robot.stop()
+        self.gui.stop()
         self.brain.stop()       # was stopAll
 
 
@@ -253,6 +261,7 @@ class MatchPlanner(object):
         targetAngle = self.olinMap.calcAngle(currLoc, nextNode)
         tDist = self.olinMap.straightDist2d(currLoc, nextNode)
         if tDist >= 1.5:
+            self.gui.updateTurnState("Turning to node " + str(nextNode))
             self.turn(nextNode, currLoc[2], targetAngle, tDist)
         else:
             self.logger.log("Not Turning. TDist = " + str(tDist))
@@ -277,6 +286,7 @@ class MatchPlanner(object):
             self.logger.log( formSt.format(angle1,angle2))#.format(tDist, targetHeading, heading) )
 
         self.logger.log("  targetDistance = " + str(tDist))
+        self.gui.updateTDist(tDist)
 
     def lookAround(self):
         """turns. stops. waits."""
@@ -300,6 +310,8 @@ class MatchPlanner(object):
         self.logger.log("  targetAngle = " + str(targetAngle))
         self.logger.log("  angleToTurn = " + str(angleToTurn))
 
+        self.gui.updateTurnInfo([currHeading,targetAngle,angleToTurn])
+
         self.brain.pause()
         self.robot.turnByAngle(angleToTurn)
         self.brain.unpause()
@@ -309,6 +321,7 @@ class MatchPlanner(object):
         espeak.set_voice("english-us", gender=2, age=10)
         espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
         self.pub.publish(speakStr)
+        self.gui.updateMessageText(speakStr)
         self.logger.log(speakStr)
 
 

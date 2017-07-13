@@ -29,11 +29,12 @@ class ImageDataset(object):
     image, and also to select images that lie within some boundary of a given location."""
 
 
-    def __init__(self, logWriter, numMatches = 4):
+    def __init__(self, logWriter, gui, numMatches = 4):
         self.numMatches = numMatches
         self.threshold = 800.0
 
         self.logger = logWriter
+        self.gui = gui
 
         # Add line to debug ORB
         cv2.ocl.setUseOpenCL(False)
@@ -62,6 +63,7 @@ class ImageDataset(object):
             self.logger.log("ERROR: cannot run makeCollection without a directory")
             return
         self.logger.log("Reading image dataset...")
+        self.gui.updateMessageText("Reading image dataset...")
         listDir = os.listdir(currDir)
         cnt = 0
         for filename in listDir:
@@ -191,6 +193,7 @@ class ImageDataset(object):
                 potentialMatches = self.featureCollection.keys()
         # self.logger.log("Potential matches length: " + str(len(potentialMatches)))
         self.logger.log("      Searching with radius " + str(radius))
+        self.gui.updateRadius(radius)
         return potentialMatches
 
 

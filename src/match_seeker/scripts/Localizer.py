@@ -8,20 +8,23 @@ import ImageDataset
 import MonteCarloLocalize
 
 
+
 class Localizer(object):
 
 
-    def __init__(self, bot, mapGraph, logger):
+    def __init__(self, bot, mapGraph, logger,gui):
         self.robot = bot
         self.olin = mapGraph
         self.logger = logger
+        self.gui = gui
 
         self.lostCount = 0
         self.closeEnough = 0.6  # was 0.8
         self.lastKnownLoc = None
         self.confidence = 0
+        self.navType = "Images"
 
-        self.dataset = ImageDataset.ImageDataset(logger, numMatches = 3)
+        self.dataset = ImageDataset.ImageDataset(logger, gui, numMatches = 3)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
@@ -29,7 +32,6 @@ class Localizer(object):
         # self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
-
 
 
     def findLocation(self, cameraIm):
@@ -40,15 +42,20 @@ class Localizer(object):
         if self.lastKnownLoc is None:
             lklSt = "Last known loc: None so far   confidence = {0:4.2f}"
             self.logger.log( lklSt.format(self.confidence) )
+            self.gui.updateLastKnownList([0,0,0,self.confidence])
         else:
             lklSt = "Last known loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   confidence = {3:4.2f}"
             (x, y, h) = self.lastKnownLoc
             self.logger.log( lklSt.format(x, y, h, self.confidence) )
+            self.gui.updateLastKnownList([x,y,h,self.confidence])
 
         odomLoc = self.odometer()
 
         moveInfo = self.robot.getTravelDist()
         scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
+
+        self.gui.updatePicLocs(matchLocs[0],matchLocs[1],matchLocs[2])
+        self.gui.updatePicConf(scores)
 
         mclData = {'matchPoses': matchLocs,
                    'matchScores': scores,
@@ -60,17 +67,22 @@ class Localizer(object):
         (centerX, centerY, centerHead) = comPose
         centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f}), VARIANCE: ({3:4.2f})"
         self.logger.log(centerStr.format(centerX, centerY, centerHead, var))
+        self.gui.updateMCLList([centerX,centerY,centerHead,var])
 
         bestScore = scores[0]
         bestX, bestY, bestHead = matchLocs[0]
 
         odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
         if self.odomScore < 50 and var < 5.0:
-            self.logger.log(odoUpdateStr.format(centerX,centerY, centerHead))
+            self.logger.log(odoUpdateStr.format(centerX,centerY, 60.0))
+            self.gui.updateOdomList([centerX,centerY,centerHead,var])
+            self.gui.updateMessageText("Updating Odometry with MCL.")
             self.odomScore = 60
             self.robot.updateOdomLocation(centerX, centerY, centerHead)
         elif self.odomScore < 50 and bestScore >= 30 and var > 10:
             self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
+            self.gui.updateOdomList([bestX,bestY,bestHead,bestScore])
+            self.gui.updateMessageText("Updating Odometry with Images")
             self.odomScore = bestScore
             self.robot.updateOdomLocation(bestX, bestY, bestHead)
 
@@ -82,15 +94,24 @@ class Localizer(object):
 
 
     def mclResponse(self, comPose, var):
+        if self.navType != "MCL":
+            self.navType = "MCL"
+            self.gui.updateNavType(self.navType)
         (bestNodeNum, nodeX, nodeY, bestDist) = self.olin.findClosestNode(comPose)
         mclInfo = (bestNodeNum, comPose)
         self.lastKnownLoc = comPose
         if var < 5.0:
             self.confidence = 10.0
+            conf = "very confident."
         elif var < 10.0:
             self.confidence = 5.0
+            conf = "guessing."
         else:
             self.confidence = max(0.0, self.confidence-0.5)
+            conf = "not sure."
+
+        self.gui.updateCNode(bestNodeNum)
+        self.gui.updateMatchStatus(conf)
 
         if bestDist <= self.closeEnough:
             return "at node", mclInfo
@@ -102,11 +123,16 @@ class Localizer(object):
         """a messy if statement chain that takes in match scores and locations and spits out arbitrary information that
         manages behavior in matchPlanner"""
 
+        if self.navType != "Images":
+            self.navType = "Images"
+            self.gui.updateNavType(self.navType)
+
         bestScore = scores[0]
         bestLoc = matchLocs[0]
 
         if bestScore < 5: #changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
+            self.gui.updateMatchStatus("I have no idea where I am. Lost Count = " + str(self.lostCount))
             self.lostCount += 1
             if self.lostCount == 5:
                 self.setLocation("lost", None)
@@ -118,7 +144,10 @@ class Localizer(object):
             guess, conf = self._guessLocation(bestScore, bestLoc, matchLocs)
             matchInfo = (guess, bestLoc)
             self.setLocation(conf, bestLoc)
+
             self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
+            self.gui.updateCNode(guess)
+            self.gui.updateMatchStatus(conf)
 
             if conf == "very confident." or conf == "close, but guessing.":
                 self.mcl.scatter(bestLoc)
@@ -180,6 +209,7 @@ class Localizer(object):
         x, y, yaw = self.robot.getOdomData()
         # (nearNode, closeX, closeY, bestVal) = self.olin.findClosestNode((x,y,yaw))
         self.logger.log( formStr.format(x, y, yaw, self.odomScore) )
+        self.gui.updateOdomList([x,y,yaw,self.odomScore])
         self.odomScore = max(0.001, self.odomScore - 0.75)
 
         if self.robot.hasWheelDrop():
