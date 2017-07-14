@@ -104,7 +104,7 @@ class WorldMap(object):
             cv2.rectangle(self.currentMapImg, mapUL, mapLR, (255, 0, 0), thickness=2)
 
 
-    def drawPose(self, particle, size = 4, color = (0, 0, 0)):
+    def drawPose(self, particle, size = 4, color = (0, 0, 0), fill = True):
         if size >= 3:
             pointLen = 0.5  # meters
         elif size > 1:
@@ -121,7 +121,10 @@ class WorldMap(object):
 
         poseCenter = self._convertWorldToPixels((wldX, wldY))
         posePoint = self._convertWorldToPixels((pointX, pointY))
-        cv2.circle(self.currentMapImg, poseCenter, size, color, -1)
+        if fill:
+            cv2.circle(self.currentMapImg, poseCenter, size, color, -1)
+        else:
+            cv2.circle(self.currentMapImg, poseCenter, size, color)
         cv2.line(self.currentMapImg, poseCenter, posePoint, color)
 
 

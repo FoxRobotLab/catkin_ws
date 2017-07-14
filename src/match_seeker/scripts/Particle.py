@@ -55,7 +55,7 @@ class Particle():
         a nearby copy and they fail, then a random particle is created."""
 
         for i in range(10):
-            newAngle = np.random.normal(self.heading, 3.0) % 360
+            newAngle = np.random.normal(self.heading, 6.0) % 360
             newX = np.random.normal(self.x, 0.25)
             newY = np.random.normal(self.y, 0.25)
 

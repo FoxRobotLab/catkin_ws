@@ -62,13 +62,12 @@ class monteCarloLoc(object):
     def mclCycle(self, mclData, moveInfo, windowName = "MCL Display"):
         """ Takes in important Localizer information and calls all relevant methods in the MCL"""
         self.currentData = mclData
-        if self.currentData["odomScore"] < 1:
-            self.scatter()
-            print "scattering points"
+
 
         self.particleMove(moveInfo)
         # print "after particle move", len(self.validPosList)
         matchParticles = self.seedNodesAtMatches()
+        matchCopies = self.seedNodesAtMatches()
         self.validPosList.extend(matchParticles)
 
         self.calcWeights()
@@ -80,12 +79,13 @@ class monteCarloLoc(object):
         self.normalizeWeights()
         self.centerOfMass()
         var = self.calculateVariance()
-
+        if self.currentData["odomScore"] < 1 and var < 5.0:
+            self.scatter()
 
         self.olinMap.cleanMapImage(obstacles=True)
-        self.drawParticles(self.validPosList, (0, 0, 255), shading = True)      # draw set of particles  in red
-        self.drawParticles(matchParticles[1:], (255, 0, 255))   # draw particles for matched images in magenta
-        self.drawParticles(matchParticles[:1], (255, 255, 0))   # draw particle for odometry location in blue
+        self.drawParticles(self.validPosList, (0, 0, 0), fill = False)      # draw set of particles  in black
+        self.drawParticles(matchCopies[1:], (255, 0, 255))   # draw particles for matched images in magenta
+        self.drawParticles(matchCopies[:1], (0, 170, 255))   # draw particle for odometry location in orange
         self.drawParticles([self.centerParticle], (0, 255, 0))
         self.olinMap.displayMap(windowName)
         if self.centerParticle.isValid():
@@ -248,13 +248,13 @@ class monteCarloLoc(object):
         return mean
 
 
-    def drawParticles(self, particleList, color = (0, 0, 0), size = 4, shading = False):
+    def drawParticles(self, particleList, color = (0, 0, 0), size = 4, fill = True, shading = False):
         for point in particleList:
             if shading:
                 weight = point.getWeight() * self.maxWeight
                 b, g, r = color
                 color = (b * weight, g * weight, r * weight)
-            self.olinMap.drawPose(point, size, color)
+            self.olinMap.drawPose(point, size, color, fill)
 
     def weightList(self):
         """Builds and returns a list of the weights of the current valid particle list."""

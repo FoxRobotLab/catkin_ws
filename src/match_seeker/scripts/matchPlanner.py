@@ -41,6 +41,11 @@ class MatchPlanner(object):
         self.goalSeeker = None
         self.whichBrain = ""
 
+        cv2.namedWindow("Turtlebot View")
+        cv2.moveWindow("Turtlebot View",820,25)
+        cv2.namedWindow("MCL Display")
+        cv2.moveWindow("MCL Display", 1500,25)
+
         self.logger = OutputLogger.OutputLogger(True, True)
         self.gui = SeekerGUI.SeekerGUI()
         self.olinMap = OlinWorldMap.WorldMap()
@@ -81,7 +86,7 @@ class MatchPlanner(object):
                 self.lookAround()
 
 
-            if iterationCount % 30 == 0 or self.whichBrain == "loc":
+            if iterationCount % 1 == 0 or self.whichBrain == "loc":
                 # odomInfo = self.locator.odometer()
                 # self.checkCoordinates(odomInfo)
 
@@ -108,8 +113,11 @@ class MatchPlanner(object):
                     self.goalSeeker.setGoal(None,None,None)
                     # self.logger.log("======Goal seeker off")
                 else:                                       # found a node
-                    self.whichBrain = "nav"
-                    self.brain.unpause()
+                    if self.whichBrain == "loc":
+                        self.whichBrain = "nav"
+                        self.speak("Navigating...")
+                        self.gui.navigatingMode()
+                        self.brain.unpause()
                     if status == "at node":
                         # self.logger.log("Found a good enough match: " + str(matchInfo))
                         self.respondToLocation(currPose)
@@ -260,9 +268,11 @@ class MatchPlanner(object):
 
         targetAngle = self.olinMap.calcAngle(currLoc, nextNode)
         tDist = self.olinMap.straightDist2d(currLoc, nextNode)
+        self.gui.updateNextNode(nextNode)
         if tDist >= 1.5:
             self.gui.updateTurnState("Turning to node " + str(nextNode))
             self.turn(nextNode, currLoc[2], targetAngle, tDist)
+            self.gui.endTurn()
         else:
             self.logger.log("Not Turning. TDist = " + str(tDist))
 
@@ -311,6 +321,7 @@ class MatchPlanner(object):
         self.logger.log("  angleToTurn = " + str(angleToTurn))
 
         self.gui.updateTurnInfo([currHeading,targetAngle,angleToTurn])
+        self.gui.update()
 
         self.brain.pause()
         self.robot.turnByAngle(angleToTurn)

@@ -8,11 +8,18 @@ class SeekerGUI():
         """Sets up all the GUI elements"""
         self.mainWin = tk.Tk()
         self.mainWin.title("Match Seeker")
+        self.mainWin.geometry("+550+600")
 
         self.mode = tk.StringVar()
         self.mode.set("Navigating")
         self.navType = tk.StringVar()
         self.navType.set("Images")
+        # self.mclColor = tk.StringVar()
+        # self.mclColor.set("light blue")
+        # self.imageColor = tk.StringVar()
+        # self.imageColor.set("light blue")
+        self.MCLConf = None
+        self.bestPicConf = None
 
         self.odomList = []
         self.lastKnownList = []
@@ -29,11 +36,16 @@ class SeekerGUI():
         self.turnState.set("turn status")
         self.turnInfo = []
         self.setupTurnList()
+        self.currHead2 = None
+        self.targetAngle2 = None
+        self.angleToTurn2 = None
+
         self.tDist = tk.StringVar()
         self.tDist.set(0.0)
-
         self.cNode = tk.StringVar()
         self.cNode.set(1)
+        self.nextNode = tk.StringVar()
+        self.nextNode.set(-1)
         self.radius = tk.StringVar()
         self.radius.set(15)
         self.matchStatusInfo = tk.StringVar()
@@ -82,27 +94,27 @@ class SeekerGUI():
         locationsFrame.grid(row = 1, column = 0)
 
         #row heading
-        odomLabel = tk.Label(locationsFrame, bg="cornflower blue", text="Odometry Location:", font="DroidSans 16", width=20)
+        odomLabel = tk.Label(locationsFrame, bg="cornflower blue", text="Odometry:", font="DroidSans 16", width=16)
         odomLabel.grid(row = 1, column = 0)
-        lastKnownLabel = tk.Label(locationsFrame, bg="cornflower blue", text="Last Known Loc:", font="DroidSans 16", width=20)
+        lastKnownLabel = tk.Label(locationsFrame, bg="cornflower blue", text="Last Known Loc:", font="DroidSans 16", width=16)
         lastKnownLabel.grid(row = 2, column = 0)
-        MCLLabel = tk.Label(locationsFrame, bg="cornflower blue", text="MCL Center:", font="DroidSans 16", width=20)
+        MCLLabel = tk.Label(locationsFrame, bg="cornflower blue", text="MCL Center:", font="DroidSans 16", width=16)
         MCLLabel.grid(row = 3, column = 0)
-        ClosestPic = tk.Label(locationsFrame, bg="cornflower blue", text="Best Match:", font="DroidSans 16", width=20)
+        ClosestPic = tk.Label(locationsFrame, bg="cornflower blue", text="Best Match:", font="DroidSans 16", width=16)
         ClosestPic.grid(row = 4, column = 0)
-        secondPic = tk.Label(locationsFrame, bg="cornflower blue", text="Second Match:", font="DroidSans 16", width=20)
+        secondPic = tk.Label(locationsFrame, bg="cornflower blue", text="Second Match:", font="DroidSans 16", width=16)
         secondPic.grid(row = 5, column = 0)
-        thirdPic = tk.Label(locationsFrame, bg="cornflower blue", text="Third Match:", font="DroidSans 16", width=20)
+        thirdPic = tk.Label(locationsFrame, bg="cornflower blue", text="Third Match:", font="DroidSans 16", width=16)
         thirdPic.grid(row = 6, column = 0)
 
         #column heading
-        xLabel = tk.Label(locationsFrame, bg="cornflower blue", text="x", font="DroidSans 16", width=5)
+        xLabel = tk.Label(locationsFrame, bg="cornflower blue", text="x", font="DroidSans 16", width=6)
         xLabel.grid(row = 0, column = 1)
-        yLabel = tk.Label(locationsFrame, bg="cornflower blue", text="y", font="DroidSans 16", width=5)
+        yLabel = tk.Label(locationsFrame, bg="cornflower blue", text="y", font="DroidSans 16", width=6)
         yLabel.grid(row = 0, column = 2)
-        hLabel = tk.Label(locationsFrame, bg="cornflower blue", text="h", font="DroidSans 16", width=5)
+        hLabel = tk.Label(locationsFrame, bg="cornflower blue", text="h", font="DroidSans 16", width=6)
         hLabel.grid(row = 0, column = 3)
-        confLabel = tk.Label(locationsFrame, bg="cornflower blue", text="conf", font="DroidSans 16", width=5)
+        confLabel = tk.Label(locationsFrame, bg="cornflower blue", text="conf", font="DroidSans 16", width=6)
         confLabel.grid(row = 0, column = 4)
 
         #value display, odom info
@@ -111,7 +123,7 @@ class SeekerGUI():
         odomX.grid(row = 1, column = 1)
         odomY = tk.Label(locationsFrame, textvariable=self.odomList[1], bg="light blue", font="DroidSans 16", width=5)
         odomY.grid(row = 1, column = 2)
-        odomH = tk.Label(locationsFrame, textvariable=self.odomList[2], bg="light blue", font="DroidSans 16", width=5)
+        odomH = tk.Label(locationsFrame, textvariable=self.odomList[2], bg="light blue", font="DroidSans 16", width=6)
         odomH.grid(row = 1, column = 3)
         odomConf = tk.Label(locationsFrame, textvariable=self.odomList[3], bg="light blue", font="DroidSans 16", width=5)
         odomConf.grid(row = 1, column = 4)
@@ -121,7 +133,7 @@ class SeekerGUI():
         lastKnownX.grid(row = 2, column = 1)
         lastKnownY = tk.Label(locationsFrame, textvariable=self.lastKnownList[1], bg="light blue", font="DroidSans 16", width=5)
         lastKnownY.grid(row = 2, column = 2)
-        lastKnownH = tk.Label(locationsFrame, textvariable=self.lastKnownList[2], bg="light blue", font="DroidSans 16", width=5)
+        lastKnownH = tk.Label(locationsFrame, textvariable=self.lastKnownList[2], bg="light blue", font="DroidSans 16", width=6)
         lastKnownH.grid(row = 2, column = 3)
         lastKnownConf = tk.Label(locationsFrame, textvariable=self.lastKnownList[3], bg="light blue", font="DroidSans 16", width=5)
         lastKnownConf.grid(row = 2, column = 4)
@@ -131,27 +143,27 @@ class SeekerGUI():
         MCLX.grid(row = 3, column = 1)
         MCLY = tk.Label(locationsFrame, textvariable=self.MCLList[1], bg="light blue", font="DroidSans 16", width=5)
         MCLY.grid(row = 3, column = 2)
-        MCLH = tk.Label(locationsFrame, textvariable=self.MCLList[2], bg="light blue", font="DroidSans 16", width=5)
+        MCLH = tk.Label(locationsFrame, textvariable=self.MCLList[2], bg="light blue", font="DroidSans 16", width=6)
         MCLH.grid(row = 3, column = 3)
-        MCLConf = tk.Label(locationsFrame, textvariable=self.MCLList[3], bg="light blue", font="DroidSans 16", width=5)
-        MCLConf.grid(row = 3, column = 4)
+        self.MCLConf = tk.Label(locationsFrame, textvariable=self.MCLList[3], bg="light blue", font="DroidSans 16", width=5)
+        self.MCLConf.grid(row = 3, column = 4)
 
         #value display, best pic
         bestPicX = tk.Label(locationsFrame, textvariable=self.bestPicList[0], bg="light blue", font="DroidSans 16", width=5)
         bestPicX.grid(row = 4, column = 1)
         bestPicY = tk.Label(locationsFrame, textvariable=self.bestPicList[1], bg="light blue", font="DroidSans 16", width=5)
         bestPicY.grid(row = 4, column = 2)
-        bestPicH = tk.Label(locationsFrame, textvariable=self.bestPicList[2], bg="light blue", font="DroidSans 16", width=5)
+        bestPicH = tk.Label(locationsFrame, textvariable=self.bestPicList[2], bg="light blue", font="DroidSans 16", width=6)
         bestPicH.grid(row = 4, column = 3)
-        bestPicConf = tk.Label(locationsFrame, textvariable=self.bestPicList[3], bg="light blue", font="DroidSans 16", width=5)
-        bestPicConf.grid(row = 4, column = 4)
+        self.bestPicConf = tk.Label(locationsFrame, textvariable=self.bestPicList[3], bg="light blue", font="DroidSans 16", width=5)
+        self.bestPicConf.grid(row = 4, column = 4)
 
         #value display, second closest pic
         secondPicX = tk.Label(locationsFrame, textvariable=self.secondPicList[0], bg="light blue", font="DroidSans 16", width=5)
         secondPicX.grid(row = 5, column = 1)
         secondPicY = tk.Label(locationsFrame, textvariable=self.secondPicList[1], bg="light blue", font="DroidSans 16", width=5)
         secondPicY.grid(row = 5, column = 2)
-        secondPicH = tk.Label(locationsFrame, textvariable=self.secondPicList[2], bg="light blue", font="DroidSans 16", width=5)
+        secondPicH = tk.Label(locationsFrame, textvariable=self.secondPicList[2], bg="light blue", font="DroidSans 16", width=6)
         secondPicH.grid(row = 5, column = 3)
         secondPicConf = tk.Label(locationsFrame, textvariable=self.secondPicList[3], bg="light blue", font="DroidSans 16", width=5)
         secondPicConf.grid(row = 5, column = 4)
@@ -161,7 +173,7 @@ class SeekerGUI():
         thirdPicX.grid(row = 6, column = 1)
         thirdPicY = tk.Label(locationsFrame, textvariable=self.thirdPicList[1], bg="light blue", font="DroidSans 16", width=5)
         thirdPicY.grid(row = 6, column = 2)
-        thirdPicH = tk.Label(locationsFrame, textvariable=self.thirdPicList[2], bg="light blue", font="DroidSans 16", width=5)
+        thirdPicH = tk.Label(locationsFrame, textvariable=self.thirdPicList[2], bg="light blue", font="DroidSans 16", width=6)
         thirdPicH.grid(row = 6, column = 3)
         thirdPicConf = tk.Label(locationsFrame, textvariable=self.thirdPicList[3], bg="light blue", font="DroidSans 16", width=5)
         thirdPicConf.grid(row = 6, column = 4)
@@ -190,64 +202,70 @@ class SeekerGUI():
     def setUpturnInfo(self):
         # Coordinate check frame
         turnCheckFrame = tk.Frame(self.mainWin, bg="pink", bd=2, relief=tk.GROOVE)
-        turnCheckFrame.grid(row = 1, column = 1)
+        turnCheckFrame.grid(row = 2, column = 1)
         coordCheck= tk.Label(turnCheckFrame, bg="pale violet red", text="Turn Info", font="DroidSans 22 bold", width=25)
         coordCheck.grid(row = 0, column = 0, columnspan = 2)
 
         # display info, turning information
         turn = tk.Label(turnCheckFrame, textvariable = self.turnState, bg="pink", font = "DroidSans 15", width =30)
-        turn.grid(row = 1, column = 0, columnspan = 2, pady = 15)
+        turn.grid(row = 1, column = 0, columnspan = 2, pady = 5)
 
         #display info, currHead
         currHead1 = tk.Label(turnCheckFrame, text= "currHead =", bg = "pink", font = "DroidSans 15", width = 10)
-        currHead1.grid(row = 2, column = 0)
-        currHead2 = tk.Label(turnCheckFrame, textvariable=self.turnInfo[0], bg="pink", font = "DroidSans 15", width = 10)
-        currHead2.grid(row = 2, column = 1)
+        currHead1.grid(row = 2, column = 0, pady = 1)
+        self.currHead2 = tk.Label(turnCheckFrame, textvariable=self.turnInfo[0], bg="pink", font = "DroidSans 15", width = 10)
+        self.currHead2.grid(row = 2, column = 1, pady = 1)
 
         # display info, targetAngle
         targetAngle1 = tk.Label(turnCheckFrame, text="tAngle =", bg="pink", font="DroidSans 15", width=10)
-        targetAngle1.grid(row = 3, column = 0)
-        targetAngle2 = tk.Label(turnCheckFrame, textvariable=self.turnInfo[1], bg="pink", font="DroidSans 15", width=10)
-        targetAngle2.grid(row = 3, column = 1)
+        targetAngle1.grid(row = 3, column = 0, pady = 1)
+        self.targetAngle2 = tk.Label(turnCheckFrame, textvariable=self.turnInfo[1], bg="pink", font="DroidSans 15", width=10)
+        self.targetAngle2.grid(row = 3, column = 1, pady = 1)
 
         # display info, AngleToTurn
         angleToTurn1= tk.Label(turnCheckFrame, text="turnAngle =", bg="pink", font="DroidSans 15", width=10)
-        angleToTurn1.grid(row = 4, column = 0)
-        angleToTurn2 = tk.Label(turnCheckFrame, textvariable=self.turnInfo[2], bg="pink", font="DroidSans 15", width=10)
-        angleToTurn2.grid(row =4, column = 1)
-
-        # display info, tDist
-        tDist1= tk.Label(turnCheckFrame, text="tDist =", bg="pink", font="DroidSans 15", width=10)
-        tDist1.grid(row = 5, column = 0)
-        tDist2 = tk.Label(turnCheckFrame, textvariable=self.tDist, bg="pink", font="DroidSans 15", width=10)
-        tDist2.grid(row =5, column = 1)
+        angleToTurn1.grid(row = 4, column = 0, pady = 1)
+        self.angleToTurn2 = tk.Label(turnCheckFrame, textvariable=self.turnInfo[2], bg="pink", font="DroidSans 15", width=10)
+        self.angleToTurn2.grid(row =4, column = 1, pady = 1)
 
 
     def setUpImgMatch(self):
         # Image matching frame
         imageMatchFrame = tk.Frame(self.mainWin, bg="plum1", bd=2, relief=tk.GROOVE)
-        imageMatchFrame.grid(row = 2, column = 1)
+        imageMatchFrame.grid(row = 1, column = 1)
         imageMatchInfo = tk.Label(imageMatchFrame, bg="plum3", text="Image Matching Info", font="DroidSans 22 bold", width=25)
         imageMatchInfo.grid(row = 0, column = 0, columnspan = 2)
 
         #display info, closest node
-        closestNode1 = tk.Label(imageMatchFrame, text="Closest Node: ", bg="plum1", font="DroidSans 15", width=15)
+        closestNode1 = tk.Label(imageMatchFrame, text="Closest Node: ", bg="plum1", font="DroidSans 15", width=13)
         closestNode1.grid(row = 1, column = 0)
-        closestNode2 = tk.Label(imageMatchFrame, textvariable=self.cNode, bg="plum1", font="DroidSans 15", width=10)
+        closestNode2 = tk.Label(imageMatchFrame, textvariable=self.cNode, bg="plum1", font="DroidSans 15", width=12)
         closestNode2.grid(row = 1, column = 1)
 
+        #display info, next node
+        nextNode1 = tk.Label(imageMatchFrame, text="Next Node: ", bg="plum1", font="DroidSans 15", width=13)
+        nextNode1.grid(row=2, column=0)
+        nextNode2 = tk.Label(imageMatchFrame, textvariable=self.nextNode, bg="plum1", font="DroidSans 15", width=12)
+        nextNode2.grid(row=2, column=1)
+
+        # display info, tDist
+        tDist1 = tk.Label(imageMatchFrame, text="Target Dist:", bg="plum1", font="DroidSans 15", width=10)
+        tDist1.grid(row=3, column=0)
+        tDist2 = tk.Label(imageMatchFrame, textvariable=self.tDist, bg="plum1", font="DroidSans 15", width=10)
+        tDist2.grid(row=3, column=1)
+
         #display info, search radius
-        searchRadius1 = tk.Label(imageMatchFrame, text="Search Radius: ", bg="plum1", font="DroidSans 15", width=15)
-        searchRadius1.grid(row = 2, column = 0)
-        searchRadius2 = tk.Label(imageMatchFrame, textvariable=self.radius, bg="plum1", font="DroidSans 15", width=10)
-        searchRadius2.grid(row = 2, column = 1)
+        searchRadius1 = tk.Label(imageMatchFrame, text="Search Radius: ", bg="plum1", font="DroidSans 15", width=13)
+        searchRadius1.grid(row = 4, column = 0)
+        searchRadius2 = tk.Label(imageMatchFrame, textvariable=self.radius, bg="plum1", font="DroidSans 15", width=12)
+        searchRadius2.grid(row = 4, column = 1)
 
 
         #display info, match status
-        matchStatus1 = tk.Label(imageMatchFrame, text="Match Status: ", bg="plum1", font="DroidSans 15", width=15)
-        matchStatus1.grid(row = 3, column = 0, pady =2)
+        matchStatus1 = tk.Label(imageMatchFrame, text="Match Status: ", bg="plum1", font="DroidSans 15", width=13)
+        matchStatus1.grid(row = 5, column = 0, pady = 1)
         matchStatus2 = tk.Label(imageMatchFrame, textvariable=self.matchStatusInfo, bg="plum1", font="DroidSans 15", width=25, justify="right")
-        matchStatus2.grid(row = 4, column = 0, columnspan=2, pady = 3)
+        matchStatus2.grid(row = 6, column = 0, columnspan=2)
 
 
     def updateOdomList(self,loc):
@@ -259,10 +277,20 @@ class SeekerGUI():
             self.lastKnownList[i].set('%.2f'%loc[i])
 
     def updateMCLList(self,loc):
+        if self.navType.get() == "MCL":
+            self.MCLConf.configure(bg="cornflower blue")
+        else:
+            self.MCLConf.configure(bg="light blue")
+
         for i in range(len(self.MCLList)):
             self.MCLList[i].set('%.2f'%loc[i])
 
     def updatePicLocs(self,loc1, loc2, loc3):
+        if self.navType.get() == "Images":
+            self.bestPicConf.configure(bg="cornflower blue")
+        else:
+            self.bestPicConf.configure(bg="light blue")
+
         for i in range(len(loc1)):
             self.bestPicList[i].set('%.2f'%loc1[i])
             self.secondPicList[i].set('%.2f'%loc2[i])
@@ -280,8 +308,19 @@ class SeekerGUI():
         self.turnState.set(statement)
 
     def updateTurnInfo(self,turnData):
+        self.currHead2.configure(bg="pink")
+        self.targetAngle2.configure(bg="pink")
+        self.angleToTurn2.configure(bg="pink")
         for i in range(len(turnData)):
             self.turnInfo[i].set('%.2f'%turnData[i])
+
+    def endTurn(self):
+        s= "Was " + self.turnState.get()
+        self.updateTurnState(s)
+        self.currHead2.configure(bg="MistyRose2")
+        self.targetAngle2.configure(bg="MistyRose2")
+        self.angleToTurn2.configure(bg="MistyRose2")
+
 
     def updateTDist(self,dist):
         self.tDist.set('%.2f'%dist)
@@ -289,8 +328,11 @@ class SeekerGUI():
     def updateCNode(self,closestNode):
         self.cNode.set(closestNode)
 
+    def updateNextNode(self,node):
+        self.nextNode.set(node)
+
     def updateRadius(self,radius):
-        self.radius.set(radius)
+        self.radius.set('%.2f'%radius)
 
     def updateMatchStatus(self,status):
         self.matchStatusInfo.set(status)
@@ -314,6 +356,6 @@ class SeekerGUI():
         except tk.TclError:
             pass
 
-# if __name__ == '__main__':
-#     gui = SeekerGUI()
-#     gui.go()
+if __name__ == '__main__':
+    gui = SeekerGUI()
+    gui.mainWin.mainloop()

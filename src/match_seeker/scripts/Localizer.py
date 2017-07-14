@@ -62,12 +62,14 @@ class Localizer(object):
                    'odomPose': odomLoc,
                    'odomScore': self.odomScore}
 
-
         comPose, var = self.mcl.mclCycle(mclData, moveInfo)
         (centerX, centerY, centerHead) = comPose
         centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f}), VARIANCE: ({3:4.2f})"
         self.logger.log(centerStr.format(centerX, centerY, centerHead, var))
         self.gui.updateMCLList([centerX,centerY,centerHead,var])
+
+        if self.odomScore < 1 and var < 10.0:
+            self.gui.updateMessageText("Scattering points around MCL")
 
         bestScore = scores[0]
         bestX, bestY, bestHead = matchLocs[0]
@@ -79,7 +81,7 @@ class Localizer(object):
             self.gui.updateMessageText("Updating Odometry with MCL.")
             self.odomScore = 60
             self.robot.updateOdomLocation(centerX, centerY, centerHead)
-        elif self.odomScore < 50 and bestScore >= 30 and var > 10:
+        elif self.odomScore < 50 and bestScore >= 30 and var > 5:
             self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
             self.gui.updateOdomList([bestX,bestY,bestHead,bestScore])
             self.gui.updateMessageText("Updating Odometry with Images")
@@ -87,7 +89,7 @@ class Localizer(object):
             self.robot.updateOdomLocation(bestX, bestY, bestHead)
 
 
-        if var < 10.0:
+        if var < 5.0:
            return self.mclResponse(comPose, var)
         else:
             return self.matchResponse(matchLocs, scores)
@@ -132,7 +134,7 @@ class Localizer(object):
 
         if bestScore < 5: #changed from >90
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
-            self.gui.updateMatchStatus("I have no idea where I am. Lost Count = " + str(self.lostCount))
+            self.gui.updateMatchStatus("no idea. Lost Count = " + str(self.lostCount))
             self.lostCount += 1
             if self.lostCount == 5:
                 self.setLocation("lost", None)
@@ -151,6 +153,7 @@ class Localizer(object):
 
             if conf == "very confident." or conf == "close, but guessing.":
                 self.mcl.scatter(bestLoc)
+                self.gui.updateMessageText("Scatter around Image Match")
                 return "at node", matchInfo
             elif conf == "confident, but far away.":
                 return "check coord", matchInfo

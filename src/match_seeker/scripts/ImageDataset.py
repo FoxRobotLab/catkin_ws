@@ -158,7 +158,7 @@ class ImageDataset(object):
 
         bestX, bestY, bestHead = matchLocs[0]
 
-        self._displayMatch(bestScores[0], bestMatches[0])
+        # self._displayMatch(bestScores[0], bestMatches[0])
         picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
         self.logger.log(picLocSt.format(bestX, bestY, bestHead, bestScores[0]))
 
@@ -228,17 +228,17 @@ class ImageDataset(object):
             featList.insert(indx, feat)
 
 
-    def _displayMatch(self, bestScore, bestFeat):
-        """Given match information, of the form (score, ImageFeatures), it displays the match with the score
-        written in the lower left corner."""
-        dispTemplate = "{0:3.1f}"
-        dispString = dispTemplate.format(bestScore)
-        matchIm = bestFeat.getImage()
-        matchIm = matchIm.copy()
-        cv2.putText(matchIm, dispString, (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
-        cv2.imshow("Match Picture", matchIm)
-        # cv2.moveWindow("Match Picture", self.width + 10, 0)
-        cv2.waitKey(20)
+    # def _displayMatch(self, bestScore, bestFeat):
+    #     """Given match information, of the form (score, ImageFeatures), it displays the match with the score
+    #     written in the lower left corner."""
+    #     dispTemplate = "{0:3.1f}"
+    #     dispString = dispTemplate.format(bestScore)
+    #     matchIm = bestFeat.getImage()
+    #     matchIm = matchIm.copy()
+    #     cv2.putText(matchIm, dispString, (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0))
+    #     cv2.imshow("Match Picture", matchIm)
+    #     # cv2.moveWindow("Match Picture", self.width + 10, 0)
+    #     cv2.waitKey(20)
 
     def _confidenceToRadius(self, confidence):
         """Maps the confidence level that comes from outside into a radius for use in searching for
@@ -257,4 +257,4 @@ class ImageDataset(object):
 #     # Demo code
 #     matcher = ImageDataset(None, None, 3)
 #     matcher.setupData(basePath + ImageDirectory, locData, "frame", "jpg")
-#
+
