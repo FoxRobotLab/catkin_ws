@@ -21,6 +21,9 @@ class SeekerGUI():
         self.MCLConf = None
         self.bestPicConf = None
 
+        self.userInput = tk.StringVar()
+        self.confirmClicked = False
+
         self.odomList = []
         self.lastKnownList = []
         self.MCLList = []
@@ -30,8 +33,7 @@ class SeekerGUI():
         self.setupLocLists()
 
         self.messageText = "Booting up..."
-        # self.messageText.set()
-
+        self.oddMessColor = True
         self.turnState = tk.StringVar()
         self.turnState.set("turn status")
         self.turnInfo = []
@@ -57,6 +59,36 @@ class SeekerGUI():
         self.setUpMessages()
         self.setUpturnInfo()
         self.setUpImgMatch()
+
+
+    def popup(self):
+        popupWin = tk.Toplevel()
+        popupWin.wm_title("Input destination")
+        popupWin.geometry("+550+400")
+        self.userInput.set("")
+
+        self.confirmClicked = False
+
+        popupFrame = tk.Frame(popupWin, bg="indian red", bd=2, relief=tk.GROOVE)
+        popupFrame.grid(row=0, column=0)
+
+        info = tk.Label(popupFrame, bg="indian red", fg="snow", text = "Enter destination index (99 to quit): ")
+        info.grid(row=0, column=0)
+
+        input = tk.Entry(popupFrame, textvariable = self.userInput)
+        input.grid(row=1, column=0)
+
+        confirmButton = tk.Button(popupFrame,  bg="indian red", fg="snow", text = "Confirm", command= popupWin.destroy)
+        confirmButton.grid(row=2, column=0)
+
+        self.mainWin.wait_window(popupWin)
+
+
+    def inputDes(self):
+        return self.userInput.get()
+
+    def confirmButtonClicked(self):
+        self.confirmClicked = True
 
 
     def setupLocLists(self):
@@ -302,6 +334,12 @@ class SeekerGUI():
         self.thirdPicList[3].set('%.2f'%scores[2])
 
     def updateMessageText(self,text):
+        if self.oddMessColor:
+            self.messages.configure(bg="light goldenrod yellow")
+            self.oddMessColor = False
+        else:
+            self.messages.configure(bg="light goldenrod")
+            self.oddMessColor = True
         self.messages.insert('1.0',text+"\n")
 
     def updateTurnState(self,statement):
@@ -359,3 +397,4 @@ class SeekerGUI():
 if __name__ == '__main__':
     gui = SeekerGUI()
     gui.mainWin.mainloop()
+

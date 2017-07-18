@@ -34,6 +34,9 @@ from std_msgs.msg import String
 class MatchPlanner(object):
 
     def __init__(self):
+        self.gui = SeekerGUI.SeekerGUI()
+        self.gui.update()
+
         self.robot = turtleControl.TurtleBot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
@@ -47,7 +50,7 @@ class MatchPlanner(object):
         cv2.moveWindow("MCL Display", 1500,25)
 
         self.logger = OutputLogger.OutputLogger(True, True)
-        self.gui = SeekerGUI.SeekerGUI()
+
         self.olinMap = OlinWorldMap.WorldMap()
         # self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
@@ -58,6 +61,8 @@ class MatchPlanner(object):
         self.ignoreLocationCount = 0
 
         self.pub = rospy.Publisher('chatter', String, queue_size=10)
+
+
 
 
     def run(self):
@@ -161,12 +166,20 @@ class MatchPlanner(object):
 
     def _userGoalDest(self):
         """Asks the user for a goal destination or 99 to cause the robot to shut down."""
-        while True:
-            userInp = raw_input("Enter destination index (99 to quit): ")
-            if userInp.isdigit():
-                userNum = int(userInp)
-                if self.olinMap.isValidNode(userNum) or userNum == 99:
-                    return userNum
+        # while True:
+        #     userInp = raw_input("Enter destination index (99 to quit): ")
+        #     if userInp.isdigit():
+        #         userNum = int(userInp)
+        #         if self.olinMap.isValidNode(userNum) or userNum == 99:
+        #             return userNum
+        self.gui.popup()
+        userInput = self.gui.inputDes()
+        if userInput.isdigit():
+            userNum = int(userInput)
+            if self.olinMap.isValidNode(userNum) or userNum == 99:
+                return userNum
+
+
 
 
     def setupNavBrain(self):
@@ -270,7 +283,6 @@ class MatchPlanner(object):
         tDist = self.olinMap.straightDist2d(currLoc, nextNode)
         self.gui.updateNextNode(nextNode)
         if tDist >= 1.5:
-            self.gui.updateTurnState("Turning to node " + str(nextNode))
             self.turn(nextNode, currLoc[2], targetAngle, tDist)
             self.gui.endTurn()
         else:
@@ -284,10 +296,12 @@ class MatchPlanner(object):
         angle2 = 360 - angle1
 
         if min(angle1, angle2) >= 90:
+            self.gui.updateTurnState("Turning to node " + str(node))
             self.speak("Adjusting heading to node " + str(node))
             self.turnToNextTarget(heading, targetHeading)
             self.goalSeeker.setGoal(None, None, None)
         elif min(angle1, angle2) >= 30:
+            self.gui.updateTurnState("Turning to node " + str(node))
             self.turnToNextTarget(heading, targetHeading)
         else:
             # self.goalSeeker.setGoal(tDist, targetHeading, heading)

@@ -35,8 +35,12 @@ class testerMovement(object):
                 break
 
     def odom(self):
+        i = 0
         while True:
-            print self.robot.getOdomData()
+            i +=1
+            if i==20:
+                i = 0
+                print self.robot.getOdomData()
 
 
 if __name__ == "__main__":

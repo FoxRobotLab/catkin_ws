@@ -69,27 +69,38 @@ class TurtleBot(object):
     def turnByAngle(self, angle):
         """Turns the robot by the given angle, where negative is left and positive is right"""
 
-        currX, currY, currHead = self.odom.getData()
-        goalHead = currHead + angle
-        if goalHead > 180:
-            goalHead -= 360
-        elif goalHead < -180:
-            goalHead += 360
-
-        while currHead > goalHead + 5 or currHead < goalHead - 5:
-
+        if self.robotType == "create":              #Speedy uses a timer to turn bc their odometer is not very accurate
+            turnSec = abs(angle * self.degreeToSeconds)
             if angle > 0:
-                self.turnLeft(self.angleTurnSpeed)
+                self.turnLeft(self.angleTurnSpeed, turnSec)
             elif angle < 0:
-                self.turnRight(self.angleTurnSpeed)
+                self.turnRight(self.angleTurnSpeed, turnSec)
             else:
                 # No need to turn, keep going
                 pass
 
-            currHead = self.odom.getData()[2]
-            # print currHead
-            sleep(0.2)
-        self.stop()
+        elif self.robotType == "kobuki":            #Cutie uses a measured change in odometry to turn
+            currX, currY, currHead = self.odom.getData()
+            goalHead = currHead + angle
+            if goalHead > 180:
+                goalHead -= 360
+            elif goalHead < -180:
+                goalHead += 360
+
+            while currHead > goalHead + 5 or currHead < goalHead - 5:
+
+                if angle > 0:
+                    self.turnLeft(self.angleTurnSpeed)
+                elif angle < 0:
+                    self.turnRight(self.angleTurnSpeed)
+                else:
+                    # No need to turn, keep going
+                    pass
+
+                currHead = self.odom.getData()[2]
+                print currHead
+                sleep(0.2)
+            self.stop()
 
 
     def findAngleToWall(self):
@@ -460,8 +471,12 @@ class DepthSensorThread(threading.Thread):
         """Callback function triggered when sensor data is available. Just copies to instance variable."""
         with self.lock:
             self.sensor_state = data
-        if data.wheel_drop>0:
-            self.wheelFlag = True
+        if self.robotType == "kobuki":
+            if data.wheel_drop>0:
+                self.wheelFlag = True
+        elif self.robotType == "create":
+            if data.bumps_wheeldrops>10:
+                self.wheelFlag = True
         # print self.sensor_state
 
     def hasBeenWheelDrop(self):
