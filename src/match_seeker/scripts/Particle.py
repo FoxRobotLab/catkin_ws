@@ -89,7 +89,8 @@ class Particle():
         """Calculate the weight for this particle given the current input data."""
         poseTuple = (self.x, self.y, self.heading)
         minDist = self.mapObj.straightDist3d(mclData['odomPose'], poseTuple)
-        minScore = mclData['odomScore']
+        #minScore = mclData['odomScore']*2 -100
+        minScore = mclData['odomScore']*(100/70) - (30*100/70)
         matchPoses = mclData['matchPoses']
         matchScores = mclData['matchScores']
         for m in range(len(matchPoses)):
@@ -98,7 +99,8 @@ class Particle():
                 minDist = matchDist
                 minScore = matchScores[m]
         assert minDist >= 0
-        self.weight = (90 - minDist)  # * (minScore / 100))  # append the maximum weight for each particle
+        minScore +=1 # add one to minScore so that it's not zero
+        self.weight = (90 - minDist) * (minScore / 100)  # append the maximum weight for each particle
 
 
     def normWeight(self, sumWeight):

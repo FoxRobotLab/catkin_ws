@@ -98,7 +98,7 @@ class TurtleBot(object):
                     pass
 
                 currHead = self.odom.getData()[2]
-                print currHead
+                # print currHead
                 sleep(0.2)
             self.stop()
 

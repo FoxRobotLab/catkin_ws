@@ -49,7 +49,7 @@ class MatchPlanner(object):
         cv2.namedWindow("MCL Display")
         cv2.moveWindow("MCL Display", 1500,25)
 
-        self.logger = OutputLogger.OutputLogger(True, True)
+        self.logger = OutputLogger.OutputLogger(True, False)
 
         self.olinMap = OlinWorldMap.WorldMap()
         # self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
@@ -208,6 +208,7 @@ class MatchPlanner(object):
                 # The way these pieces are made leads to the being slightly more responsive to its left side
                 # further investigation into this could lead to a more uniform obstacle reacting
             self.brain.start()
+            self.brain.pause()
 
 
     def respondToLocation(self, matchInfo):
@@ -284,7 +285,6 @@ class MatchPlanner(object):
         self.gui.updateNextNode(nextNode)
         if tDist >= 1.5:
             self.turn(nextNode, currLoc[2], targetAngle, tDist)
-            self.gui.endTurn()
         else:
             self.logger.log("Not Turning. TDist = " + str(tDist))
 
@@ -300,9 +300,11 @@ class MatchPlanner(object):
             self.speak("Adjusting heading to node " + str(node))
             self.turnToNextTarget(heading, targetHeading)
             self.goalSeeker.setGoal(None, None, None)
+            self.gui.endTurn()
         elif min(angle1, angle2) >= 30:
             self.gui.updateTurnState("Turning to node " + str(node))
             self.turnToNextTarget(heading, targetHeading)
+            self.gui.endTurn()
         else:
             # self.goalSeeker.setGoal(tDist, targetHeading, heading)
             self.goalSeeker.setGoal(None,None,None)

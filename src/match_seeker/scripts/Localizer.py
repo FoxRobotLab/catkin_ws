@@ -75,13 +75,14 @@ class Localizer(object):
         bestX, bestY, bestHead = matchLocs[0]
 
         odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
-        if self.odomScore < 50 and var < 5.0:
-            self.logger.log(odoUpdateStr.format(centerX,centerY, 60.0))
-            self.gui.updateOdomList([centerX,centerY,centerHead,var])
+        # was 50 for odomScore
+        if self.odomScore < 30 and var < 5.0:
+            self.logger.log(odoUpdateStr.format(centerX,centerY, 80.0))
+            self.gui.updateOdomList([centerX,centerY,centerHead,80.0])
             self.gui.updateMessageText("Updating Odometry with MCL.")
-            self.odomScore = 60
+            self.odomScore = 80
             self.robot.updateOdomLocation(centerX, centerY, centerHead)
-        elif self.odomScore < 50 and bestScore >= 30 and var > 5:
+        elif self.odomScore < 30 and bestScore >= 30 and var > 5:
             self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
             self.gui.updateOdomList([bestX,bestY,bestHead,bestScore])
             self.gui.updateMessageText("Updating Odometry with Images")
