@@ -1,3 +1,11 @@
+""" ========================================================================
+collection.py
+
+This makes a collection of ImageFeature objects from the images retrieved from
+the path provided.
+
+======================================================================== """
+
 
 
 import os

@@ -1,4 +1,12 @@
+"""
+SeekerGUI.py
 
+This is a user interface that displays the information instead of the terminal.
+
+All the methods start with setUp is the frame setup and all the methods
+start with update can update the information on display.
+
+"""
 import Tkinter as tk
 import threading
 
@@ -62,6 +70,9 @@ class SeekerGUI():
 
 
     def popup(self):
+        """
+        The popup window that askes the reader to type a destination node number.
+        """
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input destination")
         popupWin.geometry("+550+400")

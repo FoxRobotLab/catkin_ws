@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+
+"""
+speaker.py
+
+The program you call on the laptop of the robot to receive
+info from the base station and speak through the laptop's speaker.
+
+"""
+
+
 import rospy
 from std_msgs.msg import String
 from espeak import espeak

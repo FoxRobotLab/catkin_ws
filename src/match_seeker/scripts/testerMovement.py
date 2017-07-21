@@ -46,4 +46,4 @@ class testerMovement(object):
 if __name__ == "__main__":
     rospy.init_node('Tester')
     tester = testerMovement()
-    tester.odom()
+    tester.turn()

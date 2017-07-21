@@ -1,5 +1,13 @@
-"""This defines the base path where this code is, so we can switch between
-computers more easily."""
+""" ========================================================================
+DataPaths.py
+
+This defines the base path where this code is, so we can switch between
+computers more easily.
+
+======================================================================== """
+
+
+
 
 import os
 

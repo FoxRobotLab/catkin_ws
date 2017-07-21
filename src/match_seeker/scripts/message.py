@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+
+"""
+message.py
+
+The program you call on the base station, and will send info
+to the robot's laptop to speak if speak.py is on on the robot.
+
+"""
+
 import rospy
 from std_msgs.msg import String
 

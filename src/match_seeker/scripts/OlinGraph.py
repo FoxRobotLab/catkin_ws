@@ -2,7 +2,10 @@
 ######################################
 # Graph of East part of Olin-Rice, 2nd floor
 #
-"""Contains a graph of meaningful waypoints"""
+"""Contains a graph of meaningful waypoints,
+
+we are not using this file anymore."""
+
 
 
 import MapGraph

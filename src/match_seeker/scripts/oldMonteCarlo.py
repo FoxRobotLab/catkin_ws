@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 
-'''This class is used to implement Monte Carlo Localization'''
+"""This python file is not in use in the program.
+It's the original Monte Carlo file without connecting to the main project.
+The current using one is MonteCarloLocalize.py."""
+
 
 import numpy as np
 import cv2

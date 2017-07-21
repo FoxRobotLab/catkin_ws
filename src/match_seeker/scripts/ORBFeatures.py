@@ -70,7 +70,7 @@ class ORBFeatures(FeatureType.FeatureType):
             img, offset = self.joinImages(self.image,otherFeature.image)
             matchImage = self.drawMatches(img, offset, self.kp, otherFeature.kp, betterMatches, removed,
                                           matchColor=(255, 255, 0), remColor = (0,0,255))  # , singlePointColor=(0, 0, 255))
-            matchImage = self.drawMatches(matchImage,self.kp, otherFeature.image, otherFeature.kp,removed, matchColor=(0,0,255))
+            # matchImage = self.drawMatches(matchImage,self.kp, otherFeature.image, otherFeature.kp,removed, matchColor=(0,0,255))
             cv2.imshow("Match Image", matchImage)
             cv2.waitKey(20)
             self.logger.log("---------------------- evaluateSimilarity --------------------")
@@ -84,14 +84,14 @@ class ORBFeatures(FeatureType.FeatureType):
         return normedMatchNum
 
 
-    def displayFeaturePics(self, windowName, startX, startY):
+    def displayFeaturePics(self, camIm, windowName):
         """Given a window name and a starting location on the screen, it completely
         ignores them and proceeds to print the image representing the matches as it desires."""
         outIm = self.image.copy()
-        img2 = cv2.drawKeypoints(self.image, self.kp, outIm, color=(0, 255, 0), flags=0)
+        img2 = cv2.drawKeypoints(self.image, self.kp, outIm, color=(0, 255, 0), flags=0)           # This is the matched image
 
         cv2.namedWindow(windowName)
-        cv2.moveWindow(windowName, startX, startY)
+        # cv2.moveWindow(windowName, startX, startY)
         cv2.imshow(windowName, img2)
 
     def joinImages(self,img1,img2):

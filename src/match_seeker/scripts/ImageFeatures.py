@@ -60,16 +60,15 @@ class ImageFeatures:
         return self.image
 
 
-    def displayFeaturePics(self, baseWindowName, startX, startY):
+    def displayFeaturePics(self, baseWindowName):
         """Displays a set of windows showing the relevant features, based on the
         base window name provided, and the starting x and y for the series of pictures."""
         #houghName = "Hough-Lines-" + baseWindowName
-        vertOffset = self.height + 10
         #self.houghLines.displayFeaturePics(houghName, startX, startY + vertOffset)
         sigName = "ColorSig-" + baseWindowName
         #self.colorSignature.displayFeaturePics(sigName, startX, startY + 2 * vertOffset)
         orbName = "ORB-" + baseWindowName
-        self.ORBFeatures.displayFeaturePics(sigName, startX, startY +  vertOffset)
+        self.ORBFeatures.displayFeaturePics(sigName)
 
 
     def evaluateSimilarity(self, featureObj, verbose = False):

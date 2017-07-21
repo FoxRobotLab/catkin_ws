@@ -66,9 +66,3 @@ class BadNodeDataException(Exception):
     def __str__(self):
         s = "Node data incomplete or badly formed"
         return s
-
-
-# ------------------------------------------
-# Function for creating a MapGraph from a file of data
-# TODO: Think about whether this should be part of MapGraph itself?
-

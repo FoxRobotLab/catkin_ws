@@ -79,7 +79,7 @@ class monteCarloLoc(object):
         self.normalizeWeights()
         self.centerOfMass()
         var = self.calculateVariance()
-        if self.currentData["odomScore"] < 1 and var < 5.0:
+        if self.currentData["odomScore"] < 1 and var < 3.0:
             self.scatter()
 
         self.olinMap.cleanMapImage(obstacles=True)
@@ -88,16 +88,15 @@ class monteCarloLoc(object):
         self.drawParticles(matchCopies[:1], (0, 170, 255))   # draw particle for odometry location in orange
         self.drawParticles([self.centerParticle], (0, 255, 0))
         self.olinMap.displayMap(windowName)
-        if self.centerParticle.isValid():
-            return self.centerParticle.getLoc(), var
-        else:
-            return self.centerParticle.getLoc(), 300.0
+
+        return self.centerParticle.getLoc(), var
 
 
     def calculateVariance(self):
 
-        if self.centerParticle == None:
+        if self.centerParticle == None or not self.centerParticle.isValid():
             return 300.0
+
 
         centerX, centerY, centerAngle = self.centerParticle.getLoc()
         vx = 0

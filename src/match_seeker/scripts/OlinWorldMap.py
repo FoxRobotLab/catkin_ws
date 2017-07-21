@@ -105,6 +105,9 @@ class WorldMap(object):
 
 
     def drawPose(self, particle, size = 4, color = (0, 0, 0), fill = True):
+        """
+        Draws one particle on the map with the given information.
+        """
         if size >= 3:
             pointLen = 0.5  # meters
         elif size > 1:
@@ -164,6 +167,10 @@ class WorldMap(object):
 
 
     def _nodeToCoord(self,node):
+        """
+        :param node: number of the node 
+        :return: x and y coordinates of the node
+        """
         if type(node) is int:
             n1x, n1y = self.getLocation(node)
             return n1x, n1y

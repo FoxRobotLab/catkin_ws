@@ -1,3 +1,12 @@
+""" ========================================================================
+localizer.py
+
+It helps the robot to locate by the combination of image matching and MCL.
+It holds certain data that matchPlanner.py doesn't and decides on what 
+the robot should do and passes it onto matchPlanner.py.
+
+======================================================================== """
+
 
 import math
 import cv2
@@ -68,7 +77,7 @@ class Localizer(object):
         self.logger.log(centerStr.format(centerX, centerY, centerHead, var))
         self.gui.updateMCLList([centerX,centerY,centerHead,var])
 
-        if self.odomScore < 1 and var < 10.0:
+        if self.odomScore < 1 and var < 3.0:
             self.gui.updateMessageText("Scattering points around MCL")
 
         bestScore = scores[0]
@@ -97,6 +106,11 @@ class Localizer(object):
 
 
     def mclResponse(self, comPose, var):
+        """
+        :param comPose: location information
+        :param var: variance of mcl
+        :return: a string indicating its confidence level and a tuple with mclInfo
+        """
         if self.navType != "MCL":
             self.navType = "MCL"
             self.gui.updateNavType(self.navType)
@@ -125,6 +139,7 @@ class Localizer(object):
     def matchResponse(self,matchLocs, scores):
         """a messy if statement chain that takes in match scores and locations and spits out arbitrary information that
         manages behavior in matchPlanner"""
+
 
         if self.navType != "Images":
             self.navType = "Images"
@@ -164,6 +179,9 @@ class Localizer(object):
 
 
     def _guessLocation(self, bestScore, bestLoc, matchLocs):
+        """
+        :return: guess and a string indicating its confidence level
+        """
         (bestNodeNum, nodeX, nodeY, bestDist) = self.olin.findClosestNode(bestLoc)
         closeDistStr = "      The closest node is {0:d} at {1:4.2f} meters."
         self.logger.log( closeDistStr.format(bestNodeNum, bestDist) )
@@ -193,6 +211,12 @@ class Localizer(object):
 
 
     def setLocation(self, conf, loc):
+        """
+        :param conf: a string indicating the confidence level of a guess location
+        :param loc: location data
+        
+        set the lastKnownLoc according to conf while also setting the class variable of confidence.
+        """
         if conf == "very confident." or conf == "confident, but far away.":
             self.lastKnownLoc = loc
             self.confidence = 10.0
@@ -209,6 +233,9 @@ class Localizer(object):
             self.confidence = 0.0
 
     def odometer(self):
+        """
+        :return: the odometry data from the robot 
+        """
         formStr = "Odometer loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})  confidence = {3:4.2f}"
         x, y, yaw = self.robot.getOdomData()
         # (nearNode, closeX, closeY, bestVal) = self.olin.findClosestNode((x,y,yaw))
@@ -223,13 +250,3 @@ class Localizer(object):
             self.odomScore = 0.001
 
         return x, y, yaw
-
-
-    # def setLastLoc(self, prevDestXY):
-    #     (x, y) = prevDestXY
-    #     if self.lastKnownLoc == None:
-    #         self.lastKnownLoc = (x, y, 0)
-    #     else:
-    #         (oldX, oldY, oldH) = self.lastKnownLoc
-    #         self.lastKnownLoc = (x, y, oldH)
-

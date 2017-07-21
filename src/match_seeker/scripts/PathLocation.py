@@ -58,6 +58,10 @@ class PathLocation(object):
 
 
     def visitNewNode(self, node):
+        """
+        :param node:node number 
+        :return: if the node is a new node to visit
+        """
         if self.pathTraveled == None or self.pathTraveled == []:
             return True
         elif node == self.pathTraveled[-1]:

@@ -1,3 +1,10 @@
+""" ========================================================================
+drawOdom.py
+
+This draws the odometry data on a map of olin rice.
+
+======================================================================== """
+
 #!/usr/bin/env python
 
 from odometryListener import odometer
@@ -10,7 +17,6 @@ from DataPaths import basePath
 
 
 class drawOdom():
-    """draws the odometry data on a map of olin rice"""
 
     def __init__(self):
         self.odom = odometer()
@@ -63,6 +69,7 @@ class drawOdom():
 
 
     def drawPosition(self, image, x, y, heading, color):
+        """Draws the particle's position on the map."""
         cv2.circle(image, (x, y), 6, color, -1)
         newX = x
         newY = y
