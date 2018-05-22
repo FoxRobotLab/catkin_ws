@@ -348,7 +348,7 @@ class MatchPlanner(object):
         espeak.set_voice("english-us", gender=2, age=10)
         espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
         self.pub.publish(speakStr)
-        self.gui.updateMessageText(speakStr)
+        #self.gui.updateMessageText(speakStr)
         self.logger.log(speakStr)
 
 

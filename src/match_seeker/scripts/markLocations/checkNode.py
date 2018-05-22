@@ -1,3 +1,6 @@
+
+""" lets you check location tags around a specific x,y coordinate."""
+
 import os
 # import time
 

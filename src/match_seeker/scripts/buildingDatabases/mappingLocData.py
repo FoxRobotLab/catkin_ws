@@ -1,3 +1,6 @@
+"""uses the name change file written by organize pics to update location data txt files for any images that 
+    have been renamed."""
+
 
 import cv2
 

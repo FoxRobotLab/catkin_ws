@@ -1,3 +1,6 @@
+"""Can delete location tags if you run locsForFrames before deleting duplicates.
+Writes the location data to a new file, skipping every piece of data tied to a deleted images"""
+
 
 origLocData = open("/home/macalester/catkin_ws/src/match_seeker/res/locations/locationsMay30.txt", "r")
 deleteData = open("/home/macalester/catkin_ws/src/match_seeker/scripts/buildingDatabases/toDeleteKobuki.txt", "r")

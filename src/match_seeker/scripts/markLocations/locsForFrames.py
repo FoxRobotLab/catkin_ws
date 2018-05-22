@@ -1,4 +1,10 @@
-
+"""he first step of location tagging. It can be run on video (if you want to tag locations before removing duplicate 
+images) or on a folder of jpgs. This program displays a map, an image, and a grid of possible angular headings.
+ For each image you can adjust the robot’s location on the map with the WASD keys, adjust its heading by clicking on 
+ the grid, and advance with the spacebar. The robot cameras have fish eye lenses, so the always appear to be a few feet 
+ ahead of where they actually are. Typically, if the base of a wall is along the bottom of the image, the robot is in 
+ the center of the hallway. If a doorframe you are driving past is close to the edge of the image, the robot is in the 
+ middle of that doorway."""
 
 import os
 import time

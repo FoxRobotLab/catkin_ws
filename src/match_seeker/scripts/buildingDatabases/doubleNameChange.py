@@ -1,4 +1,5 @@
-
+"""an emergency program for just in case you ran organizePics twice before mappingLocData. It writes 
+a name change txt file that maps an images original name to its third name."""
 
 prevChanges = open("nameChangesMay30-2.txt", "r")
 updateChanges = open("nameChangesMay30.txt", "r")

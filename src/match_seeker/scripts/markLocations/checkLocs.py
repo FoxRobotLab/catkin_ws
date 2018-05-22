@@ -3,6 +3,10 @@ File: checkLocs.py
 Authors: Susan Fox, Xinyu Yang, and Kayla Beckham
 Date: May/June 2017
 
+for double checking your existing location tags. YOU SHOULD RUN CHECKLOCS EVERY TIME YOU TAG LOCATIONS. 
+It has almost the same controls as locsForFrames, but uses X/C to change angles. Also, checkLocs keeps up with an 
+ongoing offset, so sometimes after you move one node forward a few feet, you may need to move the next one back.
+
 Takes in a locations file that maps pictures to locations, and the folder of pictures that corresponds with it, and
 it draws the location of each picture on a map of Olin-Rice. It then allows the user to move the picture to a new location
 and/or heading, and it writes the new data, changed or unchanged, to a new location file. The new file just has the label
