@@ -559,9 +559,15 @@ class OdometryListener(threading.Thread):
         self.y = 0.0
         self.yaw = 0.0
 
-        self.offsetX = 22.2
-        self.offsetY = 6.5
-        self.offsetYaw = 0.0
+        # # robot lab hall
+        # self.offsetX = 22.2
+        # self.offsetY = 6.5
+        # self.offsetYaw = 0.0
+
+        # temporary summer 2018 robot lab
+        self.offsetX = 31.0
+        self.offsetY = 9.9
+        self.offsetYaw = 90.0
 
         self.prevX, self.prevY, self.prevYaw = self.getData()
 
