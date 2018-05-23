@@ -20,7 +20,7 @@ import turtleControl
 import MovementHandler
 import PotentialFieldThread
 import FieldBehaviors
-import Localizer
+import Localizer2
 import PathLocation
 import OutputLogger
 import OlinWorldMap
@@ -34,6 +34,7 @@ from std_msgs.msg import String
 class MatchPlanner(object):
 
     def __init__(self):
+        self.gui = None
         #self.gui = SeekerGUI.SeekerGUI()
         #self.gui.update()
 
@@ -46,17 +47,17 @@ class MatchPlanner(object):
 
         cv2.namedWindow("Turtlebot View")
         cv2.moveWindow("Turtlebot View",820,25)
-        #cv2.namedWindow("MCL Display")
-        #cv2.moveWindow("MCL Display", 1500,25)
+        cv2.namedWindow("MCL Display")
+        cv2.moveWindow("MCL Display", 1500,25)
 
         self.logger = OutputLogger.OutputLogger(True, False)
 
-        #self.olinMap = OlinWorldMap.WorldMap()
-        # self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
-        #self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
+        self.olinMap = OlinWorldMap.WorldMap()
+        self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
+        self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
         #self.destination = None
 
-        #self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger,self.gui)
+        self.locator = Localizer2.Localizer(self.robot, self.olinMap, self.logger,self.gui)
 
         #self.ignoreLocationCount = 0
 
@@ -83,66 +84,66 @@ class MatchPlanner(object):
             cv2.imshow("Depth View", im)
             cv2.waitKey(20)
 
-            # if iterationCount > 20 and self.whichBrain == "nav":
-            #     self.brain.step()
+            if iterationCount > 20 and self.whichBrain == "nav":
+                self.brain.step()
 
 
-            #if self.whichBrain == "loc":
-                #self.lookAround()
+            if self.whichBrain == "loc":
+                self.lookAround()
 
 
-            # if iterationCount % 1 == 0 or self.whichBrain == "loc":
-            #     # odomInfo = self.locator.odometer()
-            #     # self.checkCoordinates(odomInfo)
-            #
-            #     self.logger.log("-------------- New Match ---------------")
-            #     status, currPose = self.locator.findLocation(image)
-            #
-            #     if status == "continue":            #bestMatch score > 90 but lostCount < 10
-            #         self.goalSeeker.setGoal(None, None, None)
-            #         # self.logger.log("======Goal seeker off")
-            #     elif status == "keep-going":        #LookAround found a match
-            #         if self.whichBrain != "nav":
-            #             self.speak("Navigating...")
-            #             self.gui.navigatingMode()
-            #             self.robot.turnByAngle(35)         #turn back 35 degrees bc the behavior is faster than the matching
-            #             self.brain.unpause()
-            #             self.checkCoordinates(currPose)    #react to the location data of the match
-            #             self.whichBrain = "nav"
-            #     elif status == "look":          #enter LookAround behavior
-            #         if self.whichBrain != "loc":
-            #             self.speak("Localizing...")
-            #             self.gui.localizingMode()
-            #             self.brain.pause()
-            #             self.whichBrain = "loc"
-            #         self.goalSeeker.setGoal(None,None,None)
-            #         # self.logger.log("======Goal seeker off")
-            #     else:                                       # found a node
-            #         if self.whichBrain == "loc":
-            #             self.whichBrain = "nav"
-            #             self.speak("Navigating...")
-            #             self.gui.navigatingMode()
-            #             self.brain.unpause()
-            #         if status == "at node":
-            #             # self.logger.log("Found a good enough match: " + str(matchInfo))
-            #             self.respondToLocation(currPose)
-            #             if self.pathLoc.atDestination(currPose[0]):
-            #                 # reached destination. ask for new destination again. returns false if you're not at the final node
-            #                 self.speak("Destination reached")
-            #                 self.robot.stop()
-            #                 ready = self.getNextGoalDestination()
-            #                 self.goalSeeker.setGoal(None, None, None)
-            #                 # self.logger.log("======Goal seeker off")
-            #             else:
-            #                 # h = self.pathLoc.getTargetAngle()
-            #                 # currHead = matchInfo[1]
-            #                 # self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
-            #                 self.checkCoordinates(currPose)
-            #                 # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
-            #                 #                 str(h) + " " + str(currHead))
-            #         elif status == "check coord":
-            #             self.checkCoordinates(currPose)
-            # iterationCount += 1
+            if iterationCount % 1 == 0 or self.whichBrain == "loc":
+                # odomInfo = self.locator.odometer()
+                # self.checkCoordinates(odomInfo)
+
+                self.logger.log("-------------- New Match ---------------")
+                status, currPose = self.locator.findLocation(image)
+
+                if status == "continue":            #bestMatch score > 90 but lostCount < 10
+                    self.goalSeeker.setGoal(None, None, None)
+                    # self.logger.log("======Goal seeker off")
+                elif status == "keep-going":        #LookAround found a match
+                    if self.whichBrain != "nav":
+                        self.speak("Navigating...")
+                        # self.gui.navigatingMode()
+                        self.robot.turnByAngle(35)         #turn back 35 degrees bc the behavior is faster than the matching
+                        self.brain.unpause()
+                        self.checkCoordinates(currPose)    #react to the location data of the match
+                        self.whichBrain = "nav"
+                elif status == "look":          #enter LookAround behavior
+                    if self.whichBrain != "loc":
+                        self.speak("Localizing...")
+                        # self.gui.localizingMode()
+                        self.brain.pause()
+                        self.whichBrain = "loc"
+                    self.goalSeeker.setGoal(None,None,None)
+                    # self.logger.log("======Goal seeker off")
+                else:                                       # found a node
+                    if self.whichBrain == "loc":
+                        self.whichBrain = "nav"
+                        self.speak("Navigating...")
+                        # self.gui.navigatingMode()
+                        self.brain.unpause()
+                    if status == "at node":
+                        # self.logger.log("Found a good enough match: " + str(matchInfo))
+                        self.respondToLocation(currPose)
+                        if self.pathLoc.atDestination(currPose[0]):
+                            # reached destination. ask for new destination again. returns false if you're not at the final node
+                            self.speak("Destination reached")
+                            self.robot.stop()
+                            ready = self.getNextGoalDestination()
+                            self.goalSeeker.setGoal(None, None, None)
+                            # self.logger.log("======Goal seeker off")
+                        else:
+                            # h = self.pathLoc.getTargetAngle()
+                            # currHead = matchInfo[1]
+                            # self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
+                            self.checkCoordinates(currPose)
+                            # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
+                            #                 str(h) + " " + str(currHead))
+                    elif status == "check coord":
+                        self.checkCoordinates(currPose)
+            iterationCount += 1
 
         self.logger.log("Quitting...")
         #self.gui.updateMessageText("Quitting...")
