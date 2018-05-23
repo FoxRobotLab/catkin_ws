@@ -37,7 +37,7 @@ class ImageDataset(object):
         self.gui = gui
 
         # Add line to debug ORB
-        cv2.ocl.setUseOpenCL(False)
+        # cv2.ocl.setUseOpenCL(False)
         self.ORBFinder = cv2.ORB_create()
 
         self.featureCollection = {} # dict with key being image number and value being ImageFeatures
