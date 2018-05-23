@@ -80,7 +80,7 @@ class MatchPlanner(object):
             cv_image = cv_image.astype(np.uint8)
             im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
             ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
-            cv2.imshaow("Depth View", im)
+            cv2.imshow("Depth View", im)
             cv2.waitKey(20)
 
             # if iterationCount > 20 and self.whichBrain == "nav":
