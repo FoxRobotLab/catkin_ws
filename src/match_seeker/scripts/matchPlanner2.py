@@ -55,7 +55,7 @@ class MatchPlanner(object):
         self.olinMap = OlinWorldMap.WorldMap()
         self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
-        #self.destination = None
+        self.destination = None
 
         self.locator = Localizer2.Localizer(self.robot, self.olinMap, self.logger,self.gui)
 
@@ -209,7 +209,7 @@ class MatchPlanner(object):
                 # The way these pieces are made leads to the being slightly more responsive to its left side
                 # further investigation into this could lead to a more uniform obstacle reacting
             self.brain.start()
-            #self.brain.pause()
+            self.brain.pause()
 
 
     def respondToLocation(self, matchInfo):
