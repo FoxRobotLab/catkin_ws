@@ -25,7 +25,7 @@ class Localizer(object):
         self.robot = bot
         self.olin = mapGraph
         self.logger = logger
-        # self.gui = gui
+        self.gui = None
 
         self.lostCount = 0
         self.closeEnough = 0.6  # was 0.8
@@ -33,11 +33,11 @@ class Localizer(object):
         self.confidence = 0
         self.navType = "Images"
 
-        self.dataset = ImageDataset2.ImageDataset(logger, None, numMatches = 3)
-        self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
-
-        self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
-        self.mcl.initializeParticles(250)
+        # self.dataset = ImageDataset2.ImageDataset(logger, None, numMatches = 3)
+        # self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
+        #
+        # self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
+        # self.mcl.initializeParticles(250)
         # self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
@@ -59,50 +59,55 @@ class Localizer(object):
             # self.gui.updateLastKnownList([x,y,h,self.confidence])
 
         odomLoc = self.odometer()
+        (bestNodeNum, nodeX, nodeY, bestDist) = self.olin.findClosestNode(odomLoc)
+        if bestDist <= self.closeEnough:
+            return "at node", odomLoc
+        else:
+            return "check coord", odomLoc
 
-        moveInfo = self.robot.getTravelDist()
-        scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
+        # moveInfo = self.robot.getTravelDist()
+        # scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
 
         # self.gui.updatePicLocs(matchLocs[0],matchLocs[1],matchLocs[2])
         # self.gui.updatePicConf(scores)
 
-        mclData = {'matchPoses': matchLocs,
-                   'matchScores': scores,
-                   'odomPose': odomLoc,
-                   'odomScore': self.odomScore}
+        # mclData = {'matchPoses': matchLocs,
+        #            'matchScores': scores,
+        #            'odomPose': odomLoc,
+        #            'odomScore': self.odomScore}
 
-        comPose, var = self.mcl.mclCycle(mclData, moveInfo)
-        (centerX, centerY, centerHead) = comPose
-        centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f}), VARIANCE: ({3:4.2f})"
-        self.logger.log(centerStr.format(centerX, centerY, centerHead, var))
-        # self.gui.updateMCLList([centerX,centerY,centerHead,var])
+        # comPose, var = self.mcl.mclCycle(mclData, moveInfo)
+        # (centerX, centerY, centerHead) = comPose
+        # centerStr = "CENTER OF PARTICLE MASS: ({0: 4.2f}, {1:4.2f}, {2:4.2f}), VARIANCE: ({3:4.2f})"
+        # self.logger.log(centerStr.format(centerX, centerY, centerHead, var))
+        # # self.gui.updateMCLList([centerX,centerY,centerHead,var])
+        #
+        # # if self.odomScore < 1 and var < 3.0:
+        #     # self.gui.updateMessageText("Scattering points around MCL")
+        #
+        # bestScore = scores[0]
+        # bestX, bestY, bestHead = matchLocs[0]
 
-        # if self.odomScore < 1 and var < 3.0:
-            # self.gui.updateMessageText("Scattering points around MCL")
-
-        bestScore = scores[0]
-        bestX, bestY, bestHead = matchLocs[0]
-
-        odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
-        # was 50 for odomScore
-        if self.odomScore < 30 and var < 5.0:
-            self.logger.log(odoUpdateStr.format(centerX,centerY, 80.0))
-            # self.gui.updateOdomList([centerX,centerY,centerHead,80.0])
-            # self.gui.updateMessageText("Updating Odometry with MCL.")
-            self.odomScore = 80
-            self.robot.updateOdomLocation(centerX, centerY, centerHead)
-        elif self.odomScore < 30 and bestScore >= 30 and var > 5:
-            self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
-            # self.gui.updateOdomList([bestX,bestY,bestHead,bestScore])
-            # self.gui.updateMessageText("Updating Odometry with Images")
-            self.odomScore = bestScore
-            self.robot.updateOdomLocation(bestX, bestY, bestHead)
+        # odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
+        # # was 50 for odomScore
+        # if self.odomScore < 30 and var < 5.0:
+        #     self.logger.log(odoUpdateStr.format(centerX,centerY, 80.0))
+        #     # self.gui.updateOdomList([centerX,centerY,centerHead,80.0])
+        #     # self.gui.updateMessageText("Updating Odometry with MCL.")
+        #     self.odomScore = 80
+        #     self.robot.updateOdomLocation(centerX, centerY, centerHead)
+        # elif self.odomScore < 30 and bestScore >= 30 and var > 5:
+        #     self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
+        #     # self.gui.updateOdomList([bestX,bestY,bestHead,bestScore])
+        #     # self.gui.updateMessageText("Updating Odometry with Images")
+        #     self.odomScore = bestScore
+        #     self.robot.updateOdomLocation(bestX, bestY, bestHead)
 
 
-        if var < 5.0:
-           return self.mclResponse(comPose, var)
-        else:
-            return self.matchResponse(matchLocs, scores)
+        # if var < 5.0:
+        #    return self.mclResponse(comPose, var)
+        # else:
+        #     return self.matchResponse(matchLocs, scores)
 
 
     def mclResponse(self, comPose, var):

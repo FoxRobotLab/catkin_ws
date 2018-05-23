@@ -93,8 +93,8 @@ class MatchPlanner(object):
 
 
             if iterationCount % 1 == 0 or self.whichBrain == "loc":
-                # odomInfo = self.locator.odometer()
-                # self.checkCoordinates(odomInfo)
+                odomInfo = self.locator.odometer()
+                self.checkCoordinates(odomInfo)
 
                 self.logger.log("-------------- New Match ---------------")
                 status, currPose = self.locator.findLocation(image)
