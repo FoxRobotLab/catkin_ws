@@ -86,7 +86,7 @@ class monteCarloLoc(object):
         self.drawParticles(self.validPosList, (0, 0, 0), fill = False)      # draw set of particles  in black
         self.drawParticles(matchCopies[1:], (255, 0, 255))   # draw particles for matched images in magenta
         self.drawParticles(matchCopies[:1], (0, 170, 255))   # draw particle for odometry location in orange
-        self.drawParticles([self.centerParticle], (0, 255, 0))
+        self.drawParticles([self.centerParticle], (0, 255, 0))  # draw particle for center of mass in green
         self.olinMap.displayMap(windowName)
 
         return self.centerParticle.getLoc(), var

@@ -173,7 +173,7 @@ class MatchPlanner(object):
         #         userNum = int(userInp)
         #         if self.olinMap.isValidNode(userNum) or userNum == 99:
         #             return userNum
-        self.gui.popup()
+        self.gui.popupDest()
         userInput = self.gui.inputDes()
         if userInput.isdigit():
             userNum = int(userInput)

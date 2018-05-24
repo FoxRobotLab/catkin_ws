@@ -29,8 +29,11 @@ class SeekerGUI():
         self.MCLConf = None
         self.bestPicConf = None
 
-        self.userInput = tk.StringVar()
-        self.confirmClicked = False
+        self.userInputStartLoc = tk.StringVar()
+        self.userInputStartYaw = tk.StringVar()
+        self.confirmClickedStart = False
+        self.userInputDest = tk.StringVar()
+        self.confirmClickedDest = False
 
         self.odomList = []
         self.lastKnownList = []
@@ -68,15 +71,43 @@ class SeekerGUI():
         self.setUpturnInfo()
         self.setUpImgMatch()
 
+    def popupStart(self):
+        popupWin = tk.Toplevel()
+        popupWin.wm_title("Input start node/location (space in between x and y)")
+        popupWin.geometry("+550+400")
+        self.userInputStartLoc.set("")
+        self.userInputStartYaw.set("")
+        self.confirmClickedStart = False
 
-    def popup(self):
+        popupFrame = tk.Frame(popupWin, bg="indian red", bd=2, relief=tk.GROOVE)
+        popupFrame.grid(row=0, column=0)
+
+        locInfo = tk.Label(popupFrame, bg="indian red", fg="snow", text="Enter start node index or location (99 to quit): ")
+        locInfo.grid(row=0, column=0)
+
+        locInput = tk.Entry(popupFrame, textvariable=self.userInputStartLoc)
+        locInput.grid(row=1, column=0)
+
+        yawInfo =  tk.Label(popupFrame, bg="indian red", fg="snow", text="Enter start yaw (99 to quit): ")
+        yawInfo.grid(row=2, column=0)
+
+        yawInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
+        yawInput.grid(row=3, column=0)
+
+        confirmButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Confirm", command=popupWin.destroy)
+        confirmButton.grid(row=4, column=0)
+
+
+        self.mainWin.wait_window(popupWin)
+
+    def popupDest(self):
         """
         The popup window that askes the reader to type a destination node number.
         """
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input destination")
         popupWin.geometry("+550+400")
-        self.userInput.set("")
+        self.userInputDest.set("")
 
         self.confirmClicked = False
 
@@ -86,7 +117,7 @@ class SeekerGUI():
         info = tk.Label(popupFrame, bg="indian red", fg="snow", text = "Enter destination index (99 to quit): ")
         info.grid(row=0, column=0)
 
-        input = tk.Entry(popupFrame, textvariable = self.userInput)
+        input = tk.Entry(popupFrame, textvariable = self.userInputDest)
         input.grid(row=1, column=0)
 
         confirmButton = tk.Button(popupFrame,  bg="indian red", fg="snow", text = "Confirm", command= popupWin.destroy)
@@ -96,11 +127,13 @@ class SeekerGUI():
 
 
     def inputDes(self):
-        return self.userInput.get()
+        return self.userInputDest.get()
 
-    def confirmButtonClicked(self):
-        self.confirmClicked = True
+    def inputStartLoc(self):
+        return self.userInputStartLoc.get()
 
+    def inputStartYaw(self):
+        return self.userInputStartYaw.get()
 
     def setupLocLists(self):
         """each list has x, y, heading, and confidence"""

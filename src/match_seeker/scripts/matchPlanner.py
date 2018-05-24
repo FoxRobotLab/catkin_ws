@@ -54,7 +54,13 @@ class MatchPlanner(object):
         self.olinMap = OlinWorldMap.WorldMap()
         # self.moveHandle = MovementHandler.MovementHandler(self.robot, self.logger)
         self.pathLoc = PathLocation.PathLocation(self.olinMap, self.logger)
-        self.destination = None
+
+        # use x, y, yaw instead of node, yaw because updating odometer offsets require those
+        self.startX = None
+        self.startY = None
+        self.startYaw = None
+
+        self.destinationNode = None
 
         self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger,self.gui)
 
@@ -69,7 +75,8 @@ class MatchPlanner(object):
         """Runs the program for the duration of 'runtime'"""
         self.setupNavBrain()
         iterationCount = 0
-        ready = self.getNextGoalDestination()
+
+        ready = (self.getStartLocation() and self.getNextGoalDestination())
 
         while ready and not rospy.is_shutdown():
             self.gui.update()
@@ -150,18 +157,50 @@ class MatchPlanner(object):
         self.gui.stop()
         self.brain.stop()       # was stopAll
 
+    def getStartLocation(self):
+        self.brain.pause()
+        self.startX, self.startY, self.startYaw = self._userStartLoc()
+        if self.startYaw == 99 or self.startYaw is None:
+            return False
+        self.robot.updateOdomLocation(x=self.startX, y=self.startY, yaw=self.startYaw)
+        return True
+
 
     def getNextGoalDestination(self):
         """Gets goal from user and sets up path location tracker etc. Returns False if
         the user wants to quit."""
         self.brain.pause()
-        self.destination = self._userGoalDest()
-        if self.destination == 99:
+        self.destinationNode = self._userGoalDest()
+        if self.destinationNode == 99:
             return False
-        self.pathLoc.beginJourney(self.destination)
-        self.speak("Heading to " + str(self.destination))
+        self.pathLoc.beginJourney(self.destinationNode)
+        self.speak("Heading to " + str(self.destinationNode))
         self.brain.unpause()
         return True
+
+
+
+    def _userStartLoc(self):
+        self.gui.popupStart()
+        userInputLoc = self.gui.inputStartLoc()
+        userInputYaw = self.gui.inputStartYaw()
+
+
+        userLocList = userInputLoc.split()
+
+        # node
+        if len(userLocList) == 1:
+            userNode = int(userLocList[0])
+            if self.olinMap.isValidNode(userNode) or userNode != 99:
+                userX, userY = self.olinMap._nodeToCoord(userNode)
+        # x y
+        elif len(userLocList) == 2:
+            userX = float(userLocList[0])
+            userY = float(userLocList[1])
+
+        return userX, userY, float(userInputYaw)
+
+
 
 
     def _userGoalDest(self):
@@ -172,7 +211,7 @@ class MatchPlanner(object):
         #         userNum = int(userInp)
         #         if self.olinMap.isValidNode(userNum) or userNum == 99:
         #             return userNum
-        self.gui.popup()
+        self.gui.popupDest()
         userInput = self.gui.inputDes()
         if userInput.isdigit():
             userNum = int(userInput)

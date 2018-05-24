@@ -565,9 +565,9 @@ class OdometryListener(threading.Thread):
         # self.offsetYaw = 0.0
 
         # temporary summer 2018 robot lab
-        self.offsetX = 31.0
-        self.offsetY = 9.9
-        self.offsetYaw = 90.0
+        self.offsetX = 6.1 # 20.0
+        self.offsetY = 41.1 # 26.2
+        self.offsetYaw = 270.0 #90.0
 
         self.prevX, self.prevY, self.prevYaw = self.getData()
 
@@ -618,7 +618,7 @@ class OdometryListener(threading.Thread):
 
 
     def updateOdomLoc(self, x, y, yaw):
-        """Lets you offset the odometry data, in case of outside input to the robots location,
+        """Lets you offset the odometry data, in case of outside input to the robot's location,
         like a chair or some helping hands."""
 
         #save for prevLoc calculations
