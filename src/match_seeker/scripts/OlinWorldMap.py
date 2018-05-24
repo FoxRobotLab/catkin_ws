@@ -85,6 +85,7 @@ class WorldMap(object):
     def cleanMapImage(self, obstacles = False):
         """Set the current map image to be a clean copy of the original."""
         self.currentMapImg = self.olinImage.copy()
+        self.drawNodes()
         if obstacles:
             self.drawObstacles()
 
@@ -102,6 +103,16 @@ class WorldMap(object):
             mapUL = self._convertWorldToPixels((ulX, ulY))
             mapLR = self._convertWorldToPixels((lrX, lrY))
             cv2.rectangle(self.currentMapImg, mapUL, mapLR, (255, 0, 0), thickness=2)
+
+    def drawNodes(self):
+        """
+        Draws nodes on the map with the given information.
+        """
+        numNodes = self.getGraphSize()
+        for node in range(numNodes):
+            x, y = self._nodeToCoord(node)
+            center = self._convertWorldToPixels((x, y))
+            cv2.circle(self.currentMapImg, center, 5, (0, 0, 255), -1)
 
 
     def drawPose(self, particle, size = 4, color = (0, 0, 0), fill = True):
@@ -580,7 +591,7 @@ class WorldMap(object):
 if __name__ == '__main__':
     mapper = WorldMap()
     mapper.cleanMapImage(obstacles=True)
-
+    mapper.drawNodes()
     numVerts = mapper.getGraphSize()
     for vert in range(numVerts):
         (verX, verY) = mapper.getLocation(vert)
