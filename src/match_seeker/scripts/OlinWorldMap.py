@@ -179,7 +179,7 @@ class WorldMap(object):
 
     def _nodeToCoord(self,node):
         """
-        :param node: number of the node 
+        :param node: number of the node
         :return: x and y coordinates of the node
         """
         if type(node) is int:
@@ -510,6 +510,11 @@ class WorldMap(object):
         i = 0
         for line in self.mapLines:
             scaledLine = [self._scaleRawToMeters(val) for val in line]
+            if (28.5 <= scaledLine[0] < 31.0) and (40.0 <= scaledLine[1] <= 43):
+                print("Line:", line, scaledLine)
+                lineColor = (0, 0, 255)
+            else:
+                lineColor = (0, 0, 0)
             self.scaledLines.append(scaledLine)
             pt1 = scaledLine[0:2]
             pt2 = scaledLine[2:4]
@@ -590,7 +595,7 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     mapper = WorldMap()
-    mapper.cleanMapImage(obstacles=True)
+    mapper.cleanMapImage(obstacles=False)# True)
     mapper.drawNodes()
     numVerts = mapper.getGraphSize()
     for vert in range(numVerts):
