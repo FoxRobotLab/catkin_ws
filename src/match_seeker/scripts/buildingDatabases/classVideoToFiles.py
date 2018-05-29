@@ -11,8 +11,8 @@ def saveVideo(videoName, destDir):
         res, frame = capt.read()
         if not res:
             break
-        # cv2.imshow("frame",frame)
-        # cv2.waitKey(0)
+        #cv2.imshow("frame",frame)
+        #cv2.waitKey(10)
         saveToFolder(frame, destDir, frameNum)
         frameNum+=1
     capt.release()
@@ -34,5 +34,5 @@ def nextFilename(num):
     return fileName
 
 
-saveVideo("/home/macalester/060717_videos/kobuki_2.avi", "/home/macalester/catkin_ws/src/match_seeker/res/kobuki060817_2/")
+saveVideo("/home/macalester/turtlebot_videos/atrium_clockwise.avi", "/home/macalester/turtlebot_videos/atriumClockwiseFrames/")
 

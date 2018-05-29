@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 shows user the matching images from the dataset. Flags for removal with user permission.
 
@@ -122,7 +123,7 @@ class scanImageMatches(object):
                             if response == 'y':
                                 matchNums.append(pic2num)
         print matchNums
-        matchFile = open('dupNodeSpec0612.txt', 'w')
+        matchFile = open('dupKobuki052918_atriumClockwise_1550_1749.txt', 'w')
         for item in matchNums:
             matchFile.write("%s\n" % item)
         matchFile.close()
@@ -158,11 +159,11 @@ class scanImageMatches(object):
 
 if __name__ == '__main__':
     scan = scanImageMatches(
-                           dir1 = "/home/macalester/pics/",
+                           dir1 = "/home/macalester/turtlebot_videos/atriumClockwiseFrames/",
                            baseName = "frame",
                            ext = "jpg",
-                           startPic = 1,
-                           numPics = 111)
+                           startPic = 1550,
+                           numPics = 200)
     scan.makeCollection()
     scan.compare()
 
