@@ -1,9 +1,10 @@
-"""he first step of location tagging. It can be run on video (if you want to tag locations before removing duplicate 
-images) or on a folder of jpgs. This program displays a map, an image, and a grid of possible angular headings.
- For each image you can adjust the robot’s location on the map with the WASD keys, adjust its heading by clicking on 
- the grid, and advance with the spacebar. The robot cameras have fish eye lenses, so the always appear to be a few feet 
- ahead of where they actually are. Typically, if the base of a wall is along the bottom of the image, the robot is in 
- the center of the hallway. If a doorframe you are driving past is close to the edge of the image, the robot is in the 
+# coding=utf-8
+"""The first step of location tagging. It can be run on video (if you want to tag locations before removing duplicate
+images) or on a folder of jpegs. This program displays a map, an image, and a grid of possible angular headings.
+ For each image you can adjust the robot’s location on the map with the WASD keys, adjust its heading by clicking on
+ the grid, and advance with the spacebar. The robot cameras have fish eye lenses, so the always appear to be a few feet
+ ahead of where they actually are. Typically, if the base of a wall is along the bottom of the image, the robot is in
+ the center of the hallway. If a doorframe you are driving past is close to the edge of the image, the robot is in the
  middle of that doorway."""
 
 import os
@@ -352,9 +353,10 @@ class LabeledFrames(object):
 if __name__ == "__main__":
     # frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/Videos/may30.avi", 'video')
     # frameRecorder.go()
-    catkinPath = "/home/macalester/"
+    # catkinPath = "/home/macalester/"
+    catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
     basePath = "catkin_ws/src/match_seeker/"
 
     frameRecorder = LabeledFrames(catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  catkinPath + basePath + "res/kobukioffices/", "images")
+                                  catkinPath + basePath + "res/kobuki060817/", "images")
     frameRecorder.go()
