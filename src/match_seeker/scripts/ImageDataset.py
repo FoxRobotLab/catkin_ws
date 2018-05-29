@@ -159,7 +159,7 @@ class ImageDataset(object):
         bestX, bestY, bestHead = matchLocs[0]
 
         # self._displayMatch(features, bestScores[0], bestMatches[0])
-        # features.evaluateSimilarity(bestMatches[0],verbose=True)
+        features.evaluateSimilarity(bestMatches[0],verbose=True)
         picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
         self.logger.log(picLocSt.format(bestX, bestY, bestHead, bestScores[0]))
 

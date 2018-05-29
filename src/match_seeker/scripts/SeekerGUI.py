@@ -35,6 +35,13 @@ class SeekerGUI():
         self.userInputDest = tk.StringVar()
         self.confirmClickedDest = False
 
+        self.userInputStartNode = tk.StringVar()
+        self.userInputStartX = tk.StringVar()
+        self.userInputStartY = tk.StringVar()
+
+
+
+
         self.odomList = []
         self.lastKnownList = []
         self.MCLList = []
@@ -71,7 +78,109 @@ class SeekerGUI():
         self.setUpturnInfo()
         self.setUpImgMatch()
 
+    def askWhich(self):
+        """ 
+        The pop up window that asks whether the user will enter the node or the coordinates of the starting 
+        position
+        """
+        popupWin = tk.Toplevel()
+        popupWin.wm_title("Input start node/location (space in between x and y)")
+        popupWin.geometry("+550+400")
+        self.userInputStartLoc.set("")
+        self.userInputStartYaw.set("")
+        self.confirmClickedStart = False
+
+        popupFrame = tk.Frame(popupWin, bg="indian red", bd=2, relief=tk.GROOVE)
+        popupFrame.grid(row=0, column=0)
+
+        nodeButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Node", command= lambda: [popupWin.destroy(), self.nodeButtonpopUp()])
+        nodeButton.grid(row=1, column=0)
+
+        locButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="X-Y Coordinates", command= lambda: [popupWin.destroy(), self.locationButtonPopUp()])
+        locButton.grid(row=2, column=0)
+
+        self.mainWin.wait_window(popupWin)
+
+    def nodeButtonPopUp(self):
+        """
+        The pop up window that shows up if node entry is chosen 
+        :return: 
+        """
+        popupWin = tk.Toplevel()
+        popupWin.wm_title("Input start node)")
+        popupWin.geometry("+550+400")
+        self.userInputStartNode.set("")
+        self.userInputStartYaw.set("")
+        self.confirmClickedStart = False
+
+        popupFrame = tk.Frame(popupWin, bg="indian red", bd=2, relief=tk.GROOVE)
+        popupFrame.grid(row=0, column=0)
+
+        nodeInfo = tk.Label(popupFrame, bg="indian red", fg="snow",
+                           text="Enter start node (99 to quit): ")
+        nodeInfo.grid(row=0, column=0)
+
+        nodeInput = tk.Entry(popupFrame, textvariable=self.userInputStartNode)
+        nodeInput.grid(row=1, column=0)
+
+        yawInfo = tk.Label(popupFrame, bg="indian red", fg="snow", text="Enter start yaw (99 to quit): ")
+        yawInfo.grid(row=2, column=0)
+
+        yawNodeInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
+        yawNodeInput.grid(row=3, column=0)
+
+        confirmButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Confirm", command=popupWin.destroy)
+        confirmButton.grid(row=4, column=0)
+
+        self.mainWin.wait_window(popupWin)
+
+
+    def locationButtonPopUp(self):
+        """
+        The pop up window that shows up when the coordinate button is chosen
+        :return: 
+        """
+        popupWin = tk.Toplevel()
+        popupWin.wm_title("Input start Coordinates)")
+        popupWin.geometry("+550+400")
+        self.userInputStartX.set("")
+        self.userInputStartY.set("")
+        self.userInputStartYaw.set("")
+        self.confirmClickedStart = False
+
+        popupFrame = tk.Frame(popupWin, bg="indian red", bd=2, relief=tk.GROOVE)
+        popupFrame.grid(row=0, column=0)
+
+        xInfo = tk.Label(popupFrame, bg="indian red", fg="snow",
+                           text="Enter x coordinate (99 to quit): ")
+        xInfo.grid(row=0, column=0)
+
+        xInput = tk.Entry(popupFrame, textvariable=self.userInputStartX)
+        xInput.grid(row=1, column=0)
+
+        yInfo = tk.Label(popupFrame, bg="indian red", fg="snow",
+                           text="Enter y coordinate (99 to quit): ")
+        yInfo.grid(row=0, column=0)
+
+        yInput = tk.Entry(popupFrame, textvariable=self.userInputStartY)
+        yInput.grid(row=1, column=0)
+
+        yawInfo = tk.Label(popupFrame, bg="indian red", fg="snow", text="Enter start yaw (99 to quit): ")
+        yawInfo.grid(row=2, column=0)
+
+        yawCoordInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
+        yawCoordInput.grid(row=3, column=0)
+
+        confirmButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Confirm", command=popupWin.destroy)
+        confirmButton.grid(row=4, column=0)
+
+        self.mainWin.wait_window(popupWin)
+
     def popupStart(self):
+        """
+        The popup window that asks the user to put in the starting position
+        :return: 
+        """
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input start node/location (space in between x and y)")
         popupWin.geometry("+550+400")

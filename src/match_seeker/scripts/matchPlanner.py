@@ -185,6 +185,11 @@ class MatchPlanner(object):
         userInputLoc = self.gui.inputStartLoc()
         userInputYaw = self.gui.inputStartYaw()
 
+        #where it is a choice to pick node or loc pop ups
+        self.gui.askWhich()
+        userInputX = self.gui.userInputStartX
+        userInputY = self.gui.userInputStartY
+
 
         userLocList = userInputLoc.split()
 
