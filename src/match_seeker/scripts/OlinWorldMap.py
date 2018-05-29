@@ -510,7 +510,7 @@ class WorldMap(object):
         i = 0
         for line in self.mapLines:
             scaledLine = [self._scaleRawToMeters(val) for val in line]
-            if (28.5 <= scaledLine[0] < 31.0) and (40.0 <= scaledLine[1] <= 43):
+            if (20 <= scaledLine[0] < 29) and (45 <= scaledLine[1] <= 55):
                 print("Line:", line, scaledLine)
                 lineColor = (0, 0, 255)
             else:
