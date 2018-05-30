@@ -1,11 +1,97 @@
 #!/usr/bin/env python
 
-import PotentialFieldBrain
 import numpy
 import random
 import cv2
 
-class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
+
+class PotentialFieldBehavior(object):
+    """A behavior in this model has access to the robot (set when the behavior is added
+    to the potential field controller thread, so that it can access the sensors. When its update method
+    is called, it examines the world, and determines a source of force on the robot,
+    returning the force as a tuple containing the force's magnitude and its direction.
+    The direction should be given assuming that zero degrees is always the
+    direction the robot is facing. Note that angles are assumed to be in
+    degrees."""
+
+    # ---------------------
+    def __init__(self):
+        """Initializes the motor recommendations to zero, and the flag to false.
+        Its reference to the robot is set to None, the robot is specified later
+        when the behavior is added to the SubsumptionBrain object."""
+        self._flag = False
+        self.robot = None
+        self.enabled = True
+
+        self._magnitude = 0
+        self._angle = 0
+
+    # ---------------------
+    # Accessors to avoid direct access to instance variables
+
+    def getMagnitude(self):
+        """Returns the magnitude set by the current behavior."""
+        return self._magnitude
+
+    def getAngle(self):
+        """Returns the current angle set by the behavior."""
+        return self._angle
+
+    def getVector(self):
+        """Returns a tuple of magnitude and angle."""
+        return (self._magnitude, self._angle)
+
+        # Accessors to avoid direct access to instance variables
+
+    def getFlag(self):
+        """Returns current flag value."""
+        return self._flag
+
+    def setVector(self, mag, ang):
+        """Sets the current vector to a given magnitude and angle."""
+        self._magnitude = mag
+        self._angle = ang
+
+    def setNoFlag(self):
+        """Set the behavior flag to false"""
+        self._flag = False
+
+    def setRobot(self, robot):
+        """Set the robot variable to a given robot object"""
+        self.robot = robot
+
+    def setFlag(self):
+        """Sets the the recommendation flag to true, to note that a
+        recommendation is being given."""
+        self._flag = True
+
+    def emergencyStop(self):
+        self._magnitude = "stop"
+
+    def update(self):
+        """Reads the sensor data and determines what force is on the robot from its
+        sources, and reports that as the value.  Every behavior should always
+        report a force, even if it is zero.EACH SUBCLASS SHOULD DEFINE
+        ONE OF THESE METHODS TO DO ITS OWN THING."""
+        return (0, 0)
+
+    def enable(self):
+        """Turns on the behavior. Subclass might want to override this."""
+        self.enabled = True
+
+    def disable(self):
+        """Turns off the behavior. Subclass might want to override this."""
+        self.enabled = False
+
+    def isEnabled(self):
+        """Returns the status, enabled or disabled."""
+        return self.enabled
+
+
+# end of PotentialFieldBehavior Class
+
+
+class KeepMoving(PotentialFieldBehavior):
     """This is a brain-dead class that just reports a fixed magnitude and a heading that
     matches the robot's current heading"""
 
@@ -14,7 +100,7 @@ class KeepMoving(PotentialFieldBrain.PotentialFieldBehavior):
         self.setVector(0.15, 0.0)
 
 
-class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
+class RandomWander(PotentialFieldBehavior):
     """Simple behavior tht wanders, turning with some randomness each time."""
 
     def __init__(self, rate):
@@ -42,7 +128,7 @@ class RandomWander(PotentialFieldBrain.PotentialFieldBehavior):
 
 
 
-class LookAround(PotentialFieldBrain.PotentialFieldBehavior):
+class LookAround(PotentialFieldBehavior):
     """Turns slowly so the robot can find itself and a familiar heading"""
 
     def __init__(self):
@@ -57,7 +143,7 @@ class LookAround(PotentialFieldBrain.PotentialFieldBehavior):
         self.toggle = not self.toggle
 
 
-class seekGoal(PotentialFieldBrain.PotentialFieldBehavior):
+class seekGoal(PotentialFieldBehavior):
 
     def __init__(self):
         super(seekGoal,self).__init__()
@@ -84,7 +170,7 @@ class seekGoal(PotentialFieldBrain.PotentialFieldBehavior):
 
 
 
-class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
+class BumperReact(PotentialFieldBehavior):
     """Reacts to the bumper being pressed by backing up and trying to turn away from the obstacle. It reports no
     vector if the bumper is not pressed. """
 
@@ -102,7 +188,7 @@ class BumperReact(PotentialFieldBrain.PotentialFieldBehavior):
             self.setVector(0.0, 0.0)
 
 
-class CliffReact(PotentialFieldBrain.PotentialFieldBehavior):
+class CliffReact(PotentialFieldBehavior):
     """Reacts to the cliff sensor going off by stopping. It reports no
         vector if the bumper is not pressed. """
 
@@ -113,7 +199,7 @@ class CliffReact(PotentialFieldBrain.PotentialFieldBehavior):
         else:
             self.setVector(0.0, 0.0)
 
-class ObstacleForce(PotentialFieldBrain.PotentialFieldBehavior):
+class ObstacleForce(PotentialFieldBehavior):
     """Defines a Potential Field behavior for depth image-based obstacle reactions."""
 
     def __init__(self, startCol, sampWid, speedMult, imWid = 640, imHgt = 480):
