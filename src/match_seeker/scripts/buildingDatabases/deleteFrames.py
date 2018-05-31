@@ -6,21 +6,21 @@ Authors: Jane Pellegrini, Jinyoung Lim
 Date: May 2018
 
 Simply goes through a text file that is created by cullPictures and has names of frames to be removed line by line to 
-delete them without much pain.
+delete them without much pain in the wrists.
 ------------------------------------------------------------------------------------------------------------------"""
 
 class DeleteFrames(object):
     def __init__(self, imageDirPath, deleteTextFileName):
         self.imageDirPath = imageDirPath
         self.deleteTextFileName = deleteTextFileName
-        self.toBeDeleted = set()    #Prevents duplicate names (possible before fixing cullPictures)
+        self.toBeDeleted = set()    # Prevents duplicate names (possible before fixing cullPictures)
 
     def readDeleteTextLines(self):
         file = open(self.deleteTextFileName, "r")
         while True:
             line = file.readline()
             line = line.rstrip()
-            if (line.startswith("f")):
+            if (line.startswith("f")):  # Hard coding of determining if the line's name is "frame<frameNum>"
                 self.toBeDeleted.add(line)
             if not line: break
 
