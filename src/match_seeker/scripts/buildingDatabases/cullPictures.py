@@ -4,6 +4,7 @@ import numpy as np
 
 """ ------------------------------------------------------------------------------------------------------------------
 File: cullPictures.py
+Authors: Susan Fox, Malini Sharma, Jinyoung Lim
 Date: May 2018
 
 For identifying (blur or duplicate) images that need to be deleted.
@@ -127,6 +128,7 @@ class CullPictures(object):
             return int(numStr)
         else:
             return -1
+
 
 
 if __name__ == "__main__":
