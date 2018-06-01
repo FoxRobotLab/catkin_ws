@@ -1,11 +1,15 @@
 # coding=utf-8
-"""The first step of location tagging. It can be run on video (if you want to tag locations before removing duplicate
+"""--------------------------------------------------------------------------------------------------------------------
+The first step of location tagging. It can be run on video (if you want to tag locations before removing duplicate
 images) or on a folder of jpegs. This program displays a map, an image, and a grid of possible angular headings.
- For each image you can adjust the robot’s location on the map with the WASD keys, adjust its heading by clicking on
- the grid, and advance with the spacebar. The robot cameras have fish eye lenses, so the always appear to be a few feet
- ahead of where they actually are. Typically, if the base of a wall is along the bottom of the image, the robot is in
- the center of the hallway. If a doorframe you are driving past is close to the edge of the image, the robot is in the
- middle of that doorway."""
+For each image you can adjust the robot’s location on the map with the WASD keys, adjust its heading by clicking on
+the grid, and advance with the "Next" button. The robot cameras have fish eye lenses, so the always appear to be a few
+feet ahead of where they actually are. Typically, if the base of a wall is along the bottom of the image, the robot is
+in the center of the hallway. If a doorframe you are driving past is close to the edge of the image, the robot is in the
+middle of that doorway.
+
+Modified Jun 1 2018: Added "Previous" button and modified "Next Frame" button (size, name to "Next").
+--------------------------------------------------------------------------------------------------------------------"""
 
 import os
 import time
@@ -13,7 +17,8 @@ import time
 import cv2
 import numpy as np
 
-import readMap
+# import readMap
+import src.match_seeker.scripts.markLocations.readMap as readMap
 
 
 class LabeledFrames(object):
@@ -35,6 +40,7 @@ class LabeledFrames(object):
         self.mapFilename = mapFile
         self.dataSource = data
         self.dataDone = False
+        self.imgIndex = 0
 
         # instance variables to hold displayed images
         self.mainImg = None
@@ -76,21 +82,21 @@ class LabeledFrames(object):
             cv2.imshow("Image", self.currFrame)
             x = cv2.waitKey(20)
             ch = chr(x & 0xFF)
-            if ch in "wasd" and self.currLoc != (0, 0):  # if robot location has been placed on the map
+            if self.currLoc != (0, 0): # if robot location has been placed on the map
                 (mapX, mapY) = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
-                if ch == 'a':
-                    mapX -= 2
-                elif ch == 'd':
-                    mapX += 2
-                elif ch == 'w':
-                    mapY -= 2
-                elif ch == 's':
-                    mapY += 2
-                self.currLoc = self._convertMapToWorld(mapX, mapY)
-                self._updateMap( (mapX, mapY) )
+                if ch in "wasd":
+                    if ch == 'a':
+                        mapX -= 2
+                    elif ch == 'd':
+                        mapX += 2
+                    elif ch == 'w':
+                        mapY -= 2
+                    elif ch == 's':
+                        mapY += 2
+                    self.currLoc = self._convertMapToWorld(mapX, mapY)
+                    self._updateMap( (mapX, mapY) )
 
         # close things down nicely
-
         self._writeData()
         self._cleanUp()
         cv2.destroyAllWindows()
@@ -156,13 +162,17 @@ class LabeledFrames(object):
             cv2.rectangle(newMain, (x, y), (x + 69, y + 69), cyan, -1)
             cv2.putText(newMain, strng, (x + 20, y + 40), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
-        cv2.rectangle(newMain, (60, 350), (149, 400), green, -1)
-        cv2.putText(newMain, "Next Frame", (65, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
+        cv2.rectangle(newMain, (20, 350), (99, 400), green, -1)
+        cv2.putText(newMain, "Previous", (30, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
+
+        cv2.rectangle(newMain, (110, 350), (189, 400), green, -1)
+        cv2.putText(newMain, "Next", (135, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
         return newMain
 
 
     def _displayStatus(self):
         """Displays the current location and frame counter on the main window."""
+
         yellow = (0, 255, 255)
         cv2.rectangle(self.mainImg, (0, 210), (210, 340), (0, 0, 0), -1)
         floatTemplate = "{0:s} = {1:^6.2f}"
@@ -208,17 +218,31 @@ class LabeledFrames(object):
             elif (140 <= x < 210) and (140 <= y < 210):
                 # click was in "southeast" heading square
                 self.currHeading = 225
-            elif (60 <= x < 150) and (350 <= y <= 400):
-                self.labeling[self.picNum] = [self.currLoc[0], self.currLoc[1], self.currHeading]
-
-                goodFrame = self._getNextImage()
-                if not goodFrame:
-                    print("WHOOPS!, no image found!")
-                    self.dataDone = True
-                else:
-                    cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
-                    cv2.imshow("Image", self.currFrame)
+            elif (20 <= x < 100) and (350 <= y <= 400):
+                # click was in "Previous" frame
+                self.imgIndex -= 1
+                self._processToNextFrame()
+            elif (110 <= x < 190) and (350 <= y <= 400):
+                # click was in "Next" frame
+                self.imgIndex += 1
+                self._processToNextFrame()
             self._displayStatus()
+
+    def _processToNextFrame(self):
+        self.labeling[self.picNum] = [self.currLoc[0], self.currLoc[1], self.currHeading]
+        mapX, mapY = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
+        self._updateMap((mapX, mapY))
+        goodFrame = self._getNextImage()
+        if not goodFrame:
+            print("WHOOPS!, no image found!")
+            self.dataDone = True
+        else:
+            cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
+            cv2.imshow("Image", self.currFrame)
+        if self.picNum in self.labeling.keys():
+            x, y, h = self.labeling[self.picNum]
+            self.currLoc = (int(x), int(y))
+            self.currHeading = h
 
 
     def _getOlinMap(self):
@@ -312,8 +336,9 @@ class LabeledFrames(object):
             while True:
                 if self.imgFileList == []:
                     return False
-                filename = self.imgFileList[0]
-                self.imgFileList.pop(0)
+                # filename = self.imgFileList[0]
+                # self.imgFileList.pop(0)
+                filename = self.imgFileList[self.imgIndex]
                 if filename[-3:] in {"jpg", "png"}:
                     try:
                         newIm = cv2.imread(self.dataSource + filename)
@@ -323,7 +348,6 @@ class LabeledFrames(object):
                     self.currFrame = newIm
                     self.picNum = thisNum
                     return True
-
 
 
     def _extractNum(self, fileString):
