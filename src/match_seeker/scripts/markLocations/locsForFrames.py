@@ -350,6 +350,11 @@ class LabeledFrames(object):
                     self.currFrame = newIm
                     self.picNum = thisNum
                     return True
+                else:
+                    # Check for non-jpg or -png file (e.x.: .DS_Store)
+                    print("Non-jpg or -png file in folder: ", filename, "... skipping!")
+                    self.imgFileList.remove(filename)
+                    continue
 
 
     def _extractNum(self, fileString):
@@ -385,6 +390,6 @@ if __name__ == "__main__":
     basePath = "catkin_ws/src/match_seeker/"
 
     frameRecorder = LabeledFrames(catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  "/Users/JJ/turtlebot_videos/atriumClockwiseFrames/",
+                                  "/Users/JJ/turtlebot_videos/westAtriumFrames/",
                                   "images")
     frameRecorder.go()
