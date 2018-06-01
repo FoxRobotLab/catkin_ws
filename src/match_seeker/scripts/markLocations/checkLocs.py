@@ -3,8 +3,8 @@ File: checkLocs.py
 Authors: Susan Fox, Xinyu Yang, and Kayla Beckham
 Date: May/June 2017
 
-for double checking your existing location tags. YOU SHOULD RUN CHECKLOCS EVERY TIME YOU TAG LOCATIONS. 
-It has almost the same controls as locsForFrames, but uses X/C to change angles. Also, checkLocs keeps up with an 
+for double checking your existing location tags. YOU SHOULD RUN CHECKLOCS EVERY TIME YOU TAG LOCATIONS.
+It has almost the same controls as locsForFrames, but uses X/C to change angles. Also, checkLocs keeps up with an
 ongoing offset, so sometimes after you move one node forward a few feet, you may need to move the next one back.
 
 Takes in a locations file that maps pictures to locations, and the folder of pictures that corresponds with it, and
@@ -52,9 +52,8 @@ class CheckerOfLocs(object):
         """Displays the images, and map, drawing the location on the map. User interactively updates the location."""
         self.getOlinMap()
         self.setupWindows()
-        # get filenames of image files
-        filenames = os.listdir(self.imageDir)
-        filenames.sort()
+        filenames = self.getImageFilenames()
+
         i = 0
         offsetX = 0
         offsetY = 0
@@ -108,6 +107,17 @@ class CheckerOfLocs(object):
                 if offsetH < 0:
                     offsetH += 360
 
+    def getImageFilenames(self):
+        """Get the image filenames using os module"""
+        filenames = self.getImageFilenames()
+        # get filenames of image files
+        filenames = os.listdir(self.imageDir)
+        filenames.sort()
+        keepers = []
+        for name in filenames:
+            if name.endswith('jpg') or name.endswith('png'):
+                keepers.append(name)
+        return keepers
 
 
     def readLocations(self,):
