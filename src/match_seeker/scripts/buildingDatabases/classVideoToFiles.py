@@ -34,5 +34,5 @@ def nextFilename(num):
     return fileName
 
 
-saveVideo("/home/macalester/turtlebot_videos/atrium_clockwise.avi", "/home/macalester/turtlebot_videos/atriumClockwiseFrames/")
+saveVideo("/home/macalester/turtlebot_videos/biology_west_atrium.avi", "/home/macalester/turtlebot_videos/biologyWestAtriumFrames/")
 
