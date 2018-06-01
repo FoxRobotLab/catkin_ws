@@ -181,15 +181,7 @@ class LabeledFrames(object):
         xStr = floatTemplate.format('x', self.currLoc[0])
         yStr = floatTemplate.format('y', self.currLoc[1])
         hStr = intTemplate.format('h', self.currHeading)
-        # if self.picNum in self.labeling.keys():
-        #     [x, y, heading] = self.labeling[self.picNum]
-        #     xStr = floatTemplate.format('x', x)
-        #     yStr = floatTemplate.format('y', y)
-        #     hStr = intTemplate.format('h', heading)
-        # else:
-        #     xStr = floatTemplate.format('x', self.currLoc[0])
-        #     yStr = floatTemplate.format('y', self.currLoc[1])
-        #     hStr = intTemplate.format('h', self.currHeading)
+
         countStr = intTemplate.format('frame', self.picNum)
         cv2.putText(self.mainImg, "Current location:", (20, 240), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
         cv2.putText(self.mainImg, xStr, (30, 260), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
@@ -251,8 +243,10 @@ class LabeledFrames(object):
             cv2.imshow("Image", self.currFrame)
         if self.picNum in self.labeling.keys():
             x, y, h = self.labeling[self.picNum]
-            self.currLoc = (int(x), int(y))
+            self.currLoc = (x, y)
             self.currHeading = h
+            mapX, mapY = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
+            self._updateMap((mapX, mapY))
 
 
     def _getOlinMap(self):
@@ -346,8 +340,6 @@ class LabeledFrames(object):
             while True:
                 if self.imgFileList == []:
                     return False
-                # filename = self.imgFileList[0]
-                # self.imgFileList.pop(0)
                 filename = self.imgFileList[self.imgIndex]
                 if filename[-3:] in {"jpg", "png"}:
                     try:
