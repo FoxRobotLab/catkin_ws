@@ -15,9 +15,9 @@ import math
 import cv2
 import rospy
 from espeak import espeak
-import numpy as np
+# import numpy as np
 import turtleControl
-import MovementHandler
+# import MovementHandler
 import PotentialFieldThread
 import FieldBehaviors
 import Localizer
@@ -25,7 +25,7 @@ import PathLocation
 import OutputLogger
 import OlinWorldMap
 import SeekerGUI
-from DataPaths import basePath, graphMapData
+# from DataPaths import basePath, graphMapData
 
 from std_msgs.msg import String
 
