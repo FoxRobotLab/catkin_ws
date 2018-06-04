@@ -60,14 +60,14 @@ class LabeledFrames(object):
         self.mainImg = self._buildMainImage()
         self._displayStatus()
         cv2.imshow("Main", self.mainImg)
-        cv2.setMouseCallback("Main", self._mouseMainResponse)
+        cv2.setMouseCallback("Main", self._mouseMainResponse)   # Set heading
 
         # set up map window and callback
         self.origMap = self._getOlinMap()
         (self.mapHgt, self.mapWid, dep) = self.origMap.shape
         self.currMap = self.origMap
         cv2.imshow("Map", self.currMap)
-        cv2.setMouseCallback("Map", self._mouseSetLoc)
+        cv2.setMouseCallback("Map", self._mouseSetLoc)          # Set x, y location
 
         # set up video capture and first frame
         self._setupImageCapture()
@@ -105,7 +105,7 @@ class LabeledFrames(object):
     def _writeData(self):
         """Write the data collected to a timestamped file."""
         try:
-            os.makedirs("/Users/JJ/turtlebot_videos/")
+            os.makedirs(self.outputFilePath)
         except:
             pass
         logName = time.strftime("Data-%b%d%a-%H%M%S.txt")
@@ -113,8 +113,7 @@ class LabeledFrames(object):
         fileOpen = False
         logFile = None
         try:
-            # logFile = open("../../res/locdata/" + logName, 'w')
-            logFile = open("/Users/JJ/turtlebot_videos/" + logName, 'w')
+            logFile = open(self.outputFilePath + logName, 'w')
             fileOpen = True
         except:
             print ("FAILED TO OPEN DATA FILE")
@@ -265,7 +264,7 @@ class LabeledFrames(object):
 
         if event == cv2.EVENT_LBUTTONDOWN:
             self.currLoc = self._convertMapToWorld(x, y)
-            print("mouseSetLoc self.currLoc =", self.currLoc)
+            print "mouseSetLoc self.currLoc =", self.currLoc
             self._updateMap( (x, y) )
 
 
@@ -350,11 +349,6 @@ class LabeledFrames(object):
                     self.currFrame = newIm
                     self.picNum = thisNum
                     return True
-                else:
-                    # Check for non-jpg or -png file (e.x.: .DS_Store)
-                    print("Non-jpg or -png file in folder: ", filename, "... skipping!")
-                    self.imgFileList.remove(filename)
-                    continue
 
 
     def _extractNum(self, fileString):
@@ -384,12 +378,10 @@ class LabeledFrames(object):
 if __name__ == "__main__":
     # frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/Videos/may30.avi", 'video')
     # frameRecorder.go()
-    # catkinPath = "/home/macalester/"
-    catkinPath = "/Users/JJ/PycharmProjects/"
+    catkinPath = "/home/macalester/"
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
     basePath = "catkin_ws/src/match_seeker/"
 
     frameRecorder = LabeledFrames(catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  "/Users/JJ/turtlebot_videos/westAtriumFrames/",
-                                  "images")
+                                  catkinPath + "turtlebot_videos/atriumNorthFrames/", "images")
     frameRecorder.go()

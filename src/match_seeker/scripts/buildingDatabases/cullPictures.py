@@ -132,8 +132,8 @@ class CullPictures(object):
 
 
 if __name__ == "__main__":
-    cullPicture = CullPictures(imageDir="/Users/JJ/Desktop/atriumSouth/atriumSouthFrames_2/",
-                               outputFileName="/Users/JJ/Desktop/atriumSouth/atriumSouthDelete_2.txt",
+    cullPicture = CullPictures(imageDir="/home/macalester/turtlebot_videos/biologyWestAtriumFrames/",
+                               outputFileName="/home/macalester/turtlebot_videos/biologyWestAtriumDelete.txt",
                                startFileName="")
 
     cullPicture.go()

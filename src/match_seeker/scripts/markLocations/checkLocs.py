@@ -269,10 +269,10 @@ class CheckerOfLocs(object):
 
 
 if __name__ == '__main__':
-    catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
+    catkinPath = "/home/macalester/"
     basePath = "catkin_ws/src/match_seeker/"
     checker = CheckerOfLocs(catkinPath + basePath + "res/map/olinNewMap.txt",
-                            catkinPath + basePath + "res/locations/kobuki0615.txt",
-                            catkinPath + basePath + "res/kobuki0615/",
+                            "/home/macalester/turtlebot_videos/Data-May31Thu-113911.txt",
+                            "/home/macalester/turtlebot_videos/atriumClockwiseFrames/",
                             saveAll = True) # nearLoc = (7.5, 6.4), onlyNear = True)
     checker.go()
