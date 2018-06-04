@@ -30,18 +30,6 @@ class OrganizeData(object):
 
         self.outLocFile = open(self.desLocFilePath, 'a')
 
-        # # Get the last newNum from the name changes file
-        # #TODO: Find a better way to do this
-        # counter = 0
-        # while True:
-        #     line = self.outLocFile.readline()
-        #     if line:
-        #         if ("0123456789" in line and not line.startswith("/")):
-        #             counter += 1
-        #     else: break
-        # self.startNewNum = counter
-
-        # self.origFrames = self._getImageFilenames()
         self.locData = self._readLocationData()
 
         self.nameChange = dict()
@@ -49,7 +37,6 @@ class OrganizeData(object):
         # Record original frames' path every time this program runs to help users figure out whats from where
         self.nameChangeFile.write(self.origFramesPath)
         self.nameChangeFile.write('\n')
-
 
 
     def makeFilename(self, fileNum):
@@ -71,17 +58,6 @@ class OrganizeData(object):
                               "jpg")
         return name
 
-    # def _writeLocationsData(self):
-    #     """Operating on the "to be moved" data, this writes the locations and image numbers to a file (from copyMarkedFiles.py)"""
-    #     outFile = open(self.desLocFile, 'a')
-    #     newNum = self.startFrameNum
-    #     for fName in self.origFrames:
-    #         imageNum = self._extractNum(fName)
-    #         if imageNum in self.locData.keys():
-    #             poseData = self.locData[imageNum]
-    #             outFile.write(self._dataToString(newNum, poseData))
-    #             newNum += 1
-    #     outFile.close()
 
     def _getImageFilenames(self):
         """Read filenames in folder, and keep those that end with jpg or png  (from copyMarkedFiles.py)"""
@@ -92,6 +68,7 @@ class OrganizeData(object):
             if name.endswith("jpg") or name.endswith("png"):
                 keepers.append(name)
         return keepers
+
 
     def _readLocationData(self):
         """Reads in the location file, building a dictionary that has the image number as key, and the location
@@ -106,9 +83,11 @@ class OrganizeData(object):
         locFile.close()
         return locDict
 
+
     def _dataToString(self, imgNum, pose):
         lineTemplate = "{0:d} {1:f} {2:f} {3:f}\n"
         return lineTemplate.format(imgNum, pose[0], pose[1], pose[2])
+
 
     def _extractNum(self, fileString):
         """Finds sequence of digits"""
@@ -125,18 +104,8 @@ class OrganizeData(object):
         else:
             return -1
 
+
     def go(self):
-        # picNumList = []
-        # outLocFile = open(self.desLocFile, 'a')
-
-        # #gets list of every file in the directory in order
-        # for file in self.origFrames:
-        #     end = len(file) - (len('jpg') + 1)
-        #     picNum = int(file[len('frame'):end])
-        #     picNumList.append(picNum)
-        #
-        # picNumList.sort()
-
         newNum = self.startNewNum
 
         for num in self.locData.keys():
@@ -153,33 +122,9 @@ class OrganizeData(object):
             shutil.copy2(fileName, newFileName)
             newNum += 1
 
-        # for num in picNumList:
-        #     fileName = self.makeFilename(num)
-        #     newFileName = self.makeNewFilename(newNum)
-        #     self.nameChange[num] = newNum
-        #     self.nameChangeFile.write(str(newNum) + ' ' + str(num) + '\n')
-        #     if not os.path.isdir(self.desFramesPath):
-        #         os.mkdir(self.desFramesPath)
-        #     shutil.copy2(fileName, newFileName)
-        #     newNum += 1
-
         self.nameChangeFile.close()
         self.outLocFile.close()
         print("Finished merging with the last newNum " + str(newNum) + ". PLEASE change startNewNum for the next run to " + str(newNum + 1) + ".")
-        # self._writeLocationsData()
-
-
-    # def _writeLocationsData(self):
-    #     """Operating on the "to be moved" data, this writes the locations and image numbers to a file (from copyMarkedFiles.py)"""
-    #     outFile = open(self.desLocFile, 'a')
-    #     newNum = self.startFrameNum
-    #     for fName in self.origFrames:
-    #         imageNum = self._extractNum(fName)
-    #         if imageNum in self.locData.keys():
-    #             poseData = self.locData[imageNum]
-    #             outFile.write(self._dataToString(newNum, poseData))
-    #             newNum += 1
-    #     outFile.close()
 
 
 if __name__ == "__main__":
