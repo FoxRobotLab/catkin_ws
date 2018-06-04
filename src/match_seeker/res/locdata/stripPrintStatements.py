@@ -38,8 +38,8 @@ class stripText(object):
 
 
 if __name__ == "__main__":
-    stripper = stripText(origTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/badly_formatted_data.txt",
-                        newTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/Data-June01Fri-999999.txt" )
+    stripper = stripText(origTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/badlyFormated.txt",
+                        newTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/atriumSouthLocs2.txt" )
     stripper.readDeleteTextLines()
     stripper.stripTheStrings()
 
