@@ -17,8 +17,6 @@ import numpy as np
 import readMap
 
 class CopyMarkedFiles(object):
-
-
     def __init__(self, oldFramesPath, locationsFileName, newFramesPath, mapFile):
         self.oldFramesPath = oldFramesPath
         if self.oldFramesPath[-1] != "/":
