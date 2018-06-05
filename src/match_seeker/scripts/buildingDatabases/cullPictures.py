@@ -1,7 +1,6 @@
 import os
 import cv2
 import numpy as np
-
 """ ------------------------------------------------------------------------------------------------------------------
 File: cullPictures.py
 Authors: Susan Fox, Malini Sharma, Jinyoung Lim
@@ -19,14 +18,25 @@ deletion of some images) compared to scanImageMatches.py
 ------------------------------------------------------------------------------------------------------------------"""
 
 class CullPictures(object):
-    def __init__(self, imageDir, outputFileName, startFileName = ""):
+    def __init__(self, imageDir, outputFileName, startFileName = "",
+                 cullType="all", x1=0, x2=0, y1=0, y2=0, locFileName=""):
         self.imageDir = imageDir
         self.outputFileName = outputFileName
         self.toBeDeleted = []
 
-        self.filenames = os.listdir(self.imageDir)
-        self.filenames.sort()
+        self.filenames = []
+        self.locFileName = locFileName
+        self.startFileName = startFileName
 
+        if cullType == "all":
+            self.filenames = self.getAllFileNames()
+        elif cullType == "ranged":
+            if (x1==0 and x2==0 and y1==0 and y2==0):
+                print("Give proper range for restricted cull.")
+            else:
+                self.filenames = self.getRangedFileNames(x1=x1, x2=x2, y1=y1, y2=y2)
+        else:
+            print("cullType must be either 'all' or 'ranged'")
         # Set up windows
         cv2.namedWindow("current")
         cv2.namedWindow("previous")
@@ -35,8 +45,37 @@ class CullPictures(object):
         cv2.moveWindow("previous", 700, 50)
         cv2.moveWindow("DIFF", 1400, 50)
 
-        self.startFileName = startFileName
+    def getRangedFileNames(self, x1, x2, y1, y2):
+        locFile = open(self.locFileName, "r")
+        frameToLocDict = dict()
+        filenames = []
+        while True:
+            line = locFile.readline()
+            if not line: break
+            if not line.startswith("#"):
+                frameNum, x, y, h = line.split(" ")
+                # Refer to ImageDataset makeLocDict
+                if (x, y) in frameToLocDict.keys():
+                    frameToLocDict[(x, y)].append(frameNum)
+                else:
+                    frameToLocDict[(x, y)] = [frameNum]
+        counter = 0
+        for (x, y) in frameToLocDict.keys():
+            if (x1 < float(x) <= x2) and (y1 < float(y) <= y2):
+                print("here (x,y): ", x, y)
+                for frame in frameToLocDict[(x, y)]:
+                    filenames.append(self.makeFilename(int(frame))) #Check the filename format if has error
+        filenames.sort()
+        return filenames
 
+    def getAllFileNames(self):
+        filenames = os.listdir(self.imageDir)
+        for f in filenames:
+            if (not f.endswith("jpg")):
+                print("Non-jpg file in folder: ", f, "... skipping!")
+                filenames.remove(f)
+        filenames.sort()
+        return filenames
 
     def go(self):
         if (self.startFileName == ""):
@@ -50,12 +89,12 @@ class CullPictures(object):
         while (i < len(self.filenames) and i >= 0):
             currFile = self.filenames[i]
 
-            # Skips the non-jpg files.
-            if (not currFile.endswith("jpg")):
-                print("Non-jpg file in folder: ", currFile, "... skipping!")
-                i += 1
-                currPrevDic[self.filenames[i]] = None
-                continue
+            # # Skips the non-jpg files.
+            # if (not currFile.endswith("jpg")):
+            #     print("Non-jpg file in folder: ", currFile, "... skipping!")
+            #     i += 1
+            #     currPrevDic[self.filenames[i]] = None
+            #     continue
 
             prevFile = currPrevDic[currFile]
             if (prevFile is None):
@@ -65,6 +104,7 @@ class CullPictures(object):
                 prevImg = cv2.imread(self.imageDir + prevFile)
                 prevImgNum = self.extractNum(prevFile)
 
+            print(self.imageDir+currFile)
             currImg = cv2.imread(self.imageDir + currFile)
             currImgNum = self.extractNum(currFile)
 
@@ -129,11 +169,23 @@ class CullPictures(object):
         else:
             return -1
 
+    def makeFilename(self, fileNum):
+        """Makes a filename for reading or writing image files (from organizePics.py)"""
+        formStr = "{0:s}{1:0>4d}.{2:s}"
+        name = formStr.format('frame',
+                              fileNum,
+                              "jpg")
+        return name
+
 
 
 if __name__ == "__main__":
-    cullPicture = CullPictures(imageDir="/home/macalester/turtlebot_videos/biologyWestAtriumFrames/",
-                               outputFileName="/home/macalester/turtlebot_videos/biologyWestAtriumDelete.txt",
-                               startFileName="")
+    cullPicture = CullPictures(imageDir="/home/macalester/catkin_ws/src/match_seeker/res/allFrames060418/",
+                               outputFileName="/home/macalester/turtlebot_videos/tooManyPics_29_33_42_60.txt",#tooManyPics_x1_x2_y1_y2
+                               startFileName="",
+                               cullType="ranged",
+                               x1=14, x2=25,
+                               y1=43, y2=47,
+                               locFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt")
 
     cullPicture.go()
