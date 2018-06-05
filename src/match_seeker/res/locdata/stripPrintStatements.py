@@ -22,8 +22,10 @@ class stripText(object):
         count = 0
         for elem in self.toBeAdded:
             count +=1
-            newFile.write(str(count))
+            #newFile.write(str(count))
             lineStrings = elem.split(",")
+            frameNum = lineStrings[1].replace(" ", "")
+            newFile.write(frameNum)
             xCoord = lineStrings[3].replace("(", "")
             newFile.write(xCoord)
             yCoord = lineStrings[4]
@@ -38,8 +40,8 @@ class stripText(object):
 
 
 if __name__ == "__main__":
-    stripper = stripText(origTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/badlyFormated.txt",
-                        newTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/atriumSouthLocs2.txt" )
+    stripper = stripText(origTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/atriumNorthPoses_unsaved.txt",
+                        newTextFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/atriumNorthLocs.txt" )
     stripper.readDeleteTextLines()
     stripper.stripTheStrings()
 
