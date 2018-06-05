@@ -18,15 +18,18 @@ import cv2
 import shutil
 import os
 
+#TODO: MAKE SURE TO CHANGE startNewNum Everytime you run it (or just change the code to make it more user-friendly)
+
 class OrganizeData(object):
-    def __init__(self, origFramesPath, desFramesPath, origLocFile, desLocFile, nameChangeFile, startFrameNum=0):
+    def __init__(self, origFramesPath, desFramesPath, origLocFilePath, desLocFilePath, nameChangeFile, startNewNum=0):
         self.origFramesPath = origFramesPath
         self.desFramesPath = desFramesPath
-        self.origLocFile = origLocFile
-        self.desLocFile = desLocFile
-        self.startFrameNum = startFrameNum  # starting frame number for the merged file in desFramesPath and desLocFile
+        self.origLocFilePath = origLocFilePath
+        self.desLocFilePath = desLocFilePath
+        self.startNewNum = startNewNum  # starting frame number for the merged file in desFramesPath and desLocFile
 
-        self.origFrames = self._getImageFilenames()
+        self.outLocFile = open(self.desLocFilePath, 'a')
+
         self.locData = self._readLocationData()
 
         self.nameChange = dict()
@@ -34,7 +37,6 @@ class OrganizeData(object):
         # Record original frames' path every time this program runs to help users figure out whats from where
         self.nameChangeFile.write(self.origFramesPath)
         self.nameChangeFile.write('\n')
-
 
 
     def makeFilename(self, fileNum):
@@ -56,16 +58,6 @@ class OrganizeData(object):
                               "jpg")
         return name
 
-    def _writeLocationsData(self):
-        """Operating on the "to be moved" data, this writes the locations and image numbers to a file (from copyMarkedFiles.py)"""
-        outFile = open(self.desLocFile, 'a')
-        newNum = self.startFrameNum
-        for fName in self.origFrames:
-            imageNum = self._extractNum(fName)
-            poseData = self.locData[imageNum]
-            outFile.write(self._dataToString(newNum, poseData))
-            newNum += 1
-        outFile.close()
 
     def _getImageFilenames(self):
         """Read filenames in folder, and keep those that end with jpg or png  (from copyMarkedFiles.py)"""
@@ -77,11 +69,12 @@ class OrganizeData(object):
                 keepers.append(name)
         return keepers
 
+
     def _readLocationData(self):
         """Reads in the location file, building a dictionary that has the image number as key, and the location
         as its value.  (from copyMarkedFiles.py)"""
         locDict = dict()
-        locFile = open(self.origLocFile, 'r')
+        locFile = open(self.origLocFilePath, 'r')
         for line in locFile:
             parts = line.split()
             imageNum = int(parts[0])
@@ -90,9 +83,11 @@ class OrganizeData(object):
         locFile.close()
         return locDict
 
+
     def _dataToString(self, imgNum, pose):
         lineTemplate = "{0:d} {1:f} {2:f} {3:f}\n"
         return lineTemplate.format(imgNum, pose[0], pose[1], pose[2])
+
 
     def _extractNum(self, fileString):
         """Finds sequence of digits"""
@@ -109,38 +104,39 @@ class OrganizeData(object):
         else:
             return -1
 
+
     def go(self):
-        picNumList = []
+        newNum = self.startNewNum
 
-        #gets list of every file in the directory in order
-        for file in self.origFrames:
-            end = len(file) - (len('jpg') + 1)
-            picNum = int(file[len('frame'):end])
-            picNumList.append(picNum)
-
-        picNumList.sort()
-
-        newNum = self.startFrameNum
-
-        for num in picNumList:
+        for num in self.locData.keys():
             fileName = self.makeFilename(num)
             newFileName = self.makeNewFilename(newNum)
             self.nameChange[num] = newNum
             self.nameChangeFile.write(str(newNum) + ' ' + str(num) + '\n')
+
+            poseData = self.locData[num]
+            self.outLocFile.write(self._dataToString(newNum, poseData))
+
             if not os.path.isdir(self.desFramesPath):
                 os.mkdir(self.desFramesPath)
             shutil.copy2(fileName, newFileName)
             newNum += 1
 
         self.nameChangeFile.close()
-        self._writeLocationsData()
+        self.outLocFile.close()
+        print("Finished merging with the last newNum " + str(newNum) + ". PLEASE change startNewNum for the next run to " + str(newNum + 1) + ".")
 
 
 if __name__ == "__main__":
-    organizer = OrganizeData(origFramesPath="/Users/JJ/turtlebot_videos/testFrames/",
-                             desFramesPath="/Users/JJ/turtlebot_videos/outputFrames4/",
-                             origLocFile="/Users/JJ/turtlebot_videos/testLocs.txt",
-                             desLocFile="/Users/JJ/turtlebot_videos/outputLocs4.txt",
-                             nameChangeFile="/Users/JJ/turtlebot_videos/outputNameChanges.txt",
-                             startFrameNum=15)
+    #TODO: Check for "/" at the end of directory paths
+
+    #DONE (allFrames) : atriumClockwiseFrames, westAtriumFrames, atriumSouthFrames_2, atriumSouthFrames, atriumNorthFrames, goodFrom2017
+    #TODO: Always check for the correct startNewNum (usually by going into name changes file.
+    startNewNum = 5193
+    organizer = OrganizeData(origFramesPath="/Users/JJ/turtlebot_videos/goodFrom2017/",
+                             desFramesPath="/Users/JJ/turtlebot_videos/allFrames/",
+                             origLocFilePath="/Users/JJ/turtlebot_videos/goodFrom2017Locations.txt",
+                             desLocFilePath="/Users/JJ/turtlebot_videos/allLocs.txt",
+                             nameChangeFile="/Users/JJ/turtlebot_videos/allNameChanges.txt",
+                             startNewNum=startNewNum)
     organizer.go()
