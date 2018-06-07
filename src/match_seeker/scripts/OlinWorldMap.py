@@ -13,7 +13,7 @@ monteCarlo: has a bunch that should change
 """
 
 import math
-import random
+# import random
 
 import cv2
 import numpy as np
@@ -85,7 +85,7 @@ class WorldMap(object):
     def cleanMapImage(self, obstacles = False):
         """Set the current map image to be a clean copy of the original."""
         self.currentMapImg = self.olinImage.copy()
-        self.drawNodes()
+        # self.drawNodes()
         if obstacles:
             self.drawObstacles()
 
@@ -510,11 +510,11 @@ class WorldMap(object):
         i = 0
         for line in self.mapLines:
             scaledLine = [self._scaleRawToMeters(val) for val in line]
-            if (10 <= scaledLine[0] < 19) and (37 <= scaledLine[1] <= 39):
-                print("Line:", line, scaledLine)
-                lineColor = (0, 0, 255)
-            else:
-                lineColor = (0, 0, 0)
+            # if (10 <= scaledLine[0] < 19) and (37 <= scaledLine[1] <= 39):
+            #     print("Line:", line, scaledLine)
+            #     lineColor = (0, 0, 255)
+            # else:
+            #     lineColor = (0, 0, 0)
             self.scaledLines.append(scaledLine)
             pt1 = scaledLine[0:2]
             pt2 = scaledLine[2:4]

@@ -9,7 +9,7 @@ import cv2
 import math
 
 from Particle import Particle
-from OlinWorldMap import WorldMap
+# from OlinWorldMap import WorldMap
 # import matplotlib.pyplot as plt
 
 

@@ -70,7 +70,7 @@ Nodes:
 53   (31.0, 57.1)   Atrium NW
 54   (23.2, 44.0)   205 west atrium
 55   (20.1, 57.1)   Atrium CW
-56   (19.6, 50.7)   Atrium CC
+56   (19.6, 50.7)   Atrium CC  Will be reused for bio hallway
 57   (20.0, 44.0)   Atrium CE
 58   (0.0, 0.0)   Atrium SC # originally 14.1 50.6
 59   (10.1, 57.1)   Atrium SW

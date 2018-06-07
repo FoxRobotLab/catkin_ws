@@ -51,7 +51,7 @@ class ImageDataset(object):
 
     def setupData(self, currDir, locFile, baseName, ext):
         """This method reads in the data and makes the various data structures."""
-        self.makeCollection(currDir, baseName, ext)
+        # self.makeCollection(currDir, baseName, ext)
         self.makeLocDict(locFile)
         self.buildKDTree()
 
@@ -94,7 +94,7 @@ class ImageDataset(object):
             loc = int(line[0])
             x = float(line[1])
             y = float(line[2])
-            h = int(line[3])
+            h = float(line[3])
             self.locByNum[loc] = [x, y, h]
         filename.close()
 
@@ -186,10 +186,7 @@ class ImageDataset(object):
             potentialMatches = self.featureCollection.keys()
         else:
             pt = np.array([lastKnown[:2]])
-            i = self.tree.query_ball_point(pt, radius)
-            for loc in self.xyArray[i[0]]:
-                tup = tuple(loc)
-                potentialMatches.extend(self.numByLoc[tup])
+            potentialMatches = self.getNearPos(pt, radius)
             if potentialMatches == []:
                 potentialMatches = self.featureCollection.keys()
         # self.logger.log("Potential matches length: " + str(len(potentialMatches)))
@@ -252,6 +249,20 @@ class ImageDataset(object):
         radius = (perc * 12.0) + 3.0
         return radius
 
+    def getNearPos(self, pos, radius):
+        """Given an (x, y) position and a radius, return all picture numbers that are within radius of
+         that position."""
+        res = self.tree.query_ball_point(pos, radius)
+        # print("res", res)
+        xyCoords = [self.xyArray[indx] for indx in res]
+        # print("xyCoords", xyCoords)
+        imageList = []
+        for loc in xyCoords:
+            # print("loc", loc)
+            tupLoc = tuple(loc)
+            locsAtPos = self.numByLoc[tupLoc]
+            imageList.extend(locsAtPos)
+        return imageList
 
 
 #
