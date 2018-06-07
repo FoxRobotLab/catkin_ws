@@ -81,7 +81,9 @@ class MatchPlanner(object):
         while ready and not rospy.is_shutdown():
             self.gui.update()
 
+            #print("p1")
             image = self.robot.getImage()[0]
+            #print("p2")
             cv2.imshow("Turtlebot View", image)
             # cv_image = self.robot.getDepth()
             # cv_image = cv_image.astype(np.uint8)

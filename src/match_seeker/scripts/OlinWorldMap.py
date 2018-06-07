@@ -114,6 +114,15 @@ class WorldMap(object):
             center = self._convertWorldToPixels((x, y))
             cv2.circle(self.currentMapImg, center, 5, (0, 0, 255), -1)
 
+    def drawLocsAllFrames(self):
+        locFile = open("/home/macalester/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt", "r")
+        while True:
+            line = locFile.readline()
+            if not line: break
+            if not line.startswith("#"):
+                frameNum, x, y, h = line.split(" ")
+                center = self._convertWorldToPixels((float(x), float(y)))
+                cv2.circle(self.currentMapImg, center, 2, (0, 255, 0), -1)
 
     def drawPose(self, particle, size = 4, color = (0, 0, 0), fill = True):
         """
@@ -597,6 +606,7 @@ if __name__ == '__main__':
     mapper = WorldMap()
     mapper.cleanMapImage(obstacles=False)# True)
     mapper.drawNodes()
+    mapper.drawLocsAllFrames()
     numVerts = mapper.getGraphSize()
     for vert in range(numVerts):
         (verX, verY) = mapper.getLocation(vert)

@@ -112,7 +112,7 @@ class ImageDataset(object):
         built, this constructs a KDTree for the (x, y) locations of the dataset."""
         xyKeys = self.numByLoc.keys()
         self.xyArray = np.asarray(xyKeys)
-        self.tree = spatial.KDTree(self.xyArray)
+        self.tree = spatial.KDTree(self.xyArray, leafsize=2)
 
 
     def _extractNumber(self, filename, baseName, ext):
@@ -246,7 +246,10 @@ class ImageDataset(object):
         Confidence:   1  2  3  4  5  6  7  8  9  10
         Radius:      15                           3 """
         perc = 1.0 - (confidence / 10.0)
-        radius = (perc * 12.0) + 3.0
+        # radius = (perc * 12.0) + 3.0
+        radius = (perc * 4.0) + 2.0
+        # if radius >= 6:
+        #     radius = 6
         return radius
 
     def getNearPos(self, pos, radius):
