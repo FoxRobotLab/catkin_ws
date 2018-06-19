@@ -23,7 +23,7 @@ import src.match_seeker.scripts.markLocations.readMap as readMap
 
 class LabeledFrames(object):
 
-    def __init__(self, mapFile, data, mode = "video"):
+    def __init__(self, mapFile, dataSource, outputFilePath, mode = "image"):
         """Set up data to be held, including displayed and stored maps, current labeling location
         and heading, and dictionary mapping frame numbers to locations and headings. Default mode
         is to run on a stored video feed, but it can also run through a folder of images. The "data" field
@@ -38,9 +38,10 @@ class LabeledFrames(object):
         self.imgFileList = []    # only used if mode = 'images'
         self.picNum = -1
         self.mapFilename = mapFile
-        self.dataSource = data
+        self.dataSource = dataSource
         self.dataDone = False
         self.imgIndex = 0
+        self.outputFilePath = outputFilePath
 
         # instance variables to hold displayed images
         self.mainImg = None
@@ -95,6 +96,9 @@ class LabeledFrames(object):
                         mapY += 2
                     self.currLoc = self._convertMapToWorld(mapX, mapY)
                     self._updateMap( (mapX, mapY) )
+                goodFrame = self._getNextImage()
+                if not goodFrame:
+                    self.dataDone = True
 
         # close things down nicely
         self._writeData()
@@ -123,8 +127,7 @@ class LabeledFrames(object):
             dataStr = str(picNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
-            else:
-                print("Frame", picNum, "with location", (x, y, h))
+            print("Frame", picNum, "with location", (x, y, h))
         logFile.close()
 
 
@@ -225,8 +228,12 @@ class LabeledFrames(object):
                 self._processToNextFrame()
             elif (110 <= x < 190) and (350 <= y <= 400):
                 # click was in "Next" frame
-                self.imgIndex += 1
-                self._processToNextFrame()
+                if self.imgIndex >= len(self.imgFileList):
+                    self.dataDone = True
+                else:
+                    self.imgIndex += 1
+                    self._processToNextFrame()
+
             self._displayStatus()
 
     def _processToNextFrame(self):
@@ -339,6 +346,9 @@ class LabeledFrames(object):
             while True:
                 if self.imgFileList == []:
                     return False
+                if self.imgIndex >= len(self.imgFileList):
+                    self.dataDone = True
+                    break
                 filename = self.imgFileList[self.imgIndex]
                 if filename[-3:] in {"jpg", "png"}:
                     try:
@@ -387,7 +397,9 @@ if __name__ == "__main__":
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
     basePath = "catkin_ws/src/match_seeker/"
 
-    frameRecorder = LabeledFrames(catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  catkinPath + "turtlebot_videos/atriumSouthFrames/", "images")
+    frameRecorder = LabeledFrames(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
+                                  dataSource=catkinPath + "turtlebot_videos/test/",
+                                  outputFilePath=catkinPath + "turtlebot_videos/testanswers.txt",
+                                  mode="images")
 
     frameRecorder.go()
