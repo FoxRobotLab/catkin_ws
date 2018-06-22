@@ -107,6 +107,8 @@ class CullPictures(object):
             print(self.imageDir+currFile)
             currImg = cv2.imread(self.imageDir + currFile)
             currImgNum = self.extractNum(currFile)
+            print(self.imageDir + currFile)
+            print(currImgNum)
 
             if (prevFile is None):
                 diffImg = np.zeros((500, 500, 3), np.uint8) + 128
@@ -180,12 +182,12 @@ class CullPictures(object):
 
 
 if __name__ == "__main__":
-    cullPicture = CullPictures(imageDir="/home/macalester/catkin_ws/src/match_seeker/res/allFrames060418/",
-                               outputFileName="/home/macalester/turtlebot_videos/tooManyPics_29_33_42_60.txt",#tooManyPics_x1_x2_y1_y2
+    cullPicture = CullPictures(imageDir="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenFrames/",
+                               outputFileName="/home/macalester/juneElevenDelete.txt",#tooManyPics_x1_x2_y1_y2
                                startFileName="",
-                               cullType="ranged",
+                               cullType="all",
                                x1=14, x2=25,
                                y1=43, y2=47,
-                               locFileName="/home/macalester/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt")
+                               locFileNamloe="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenLocs.txtData-Jun20Wed-161131.txt")
 
     cullPicture.go()

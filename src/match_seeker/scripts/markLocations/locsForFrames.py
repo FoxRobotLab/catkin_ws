@@ -395,11 +395,11 @@ if __name__ == "__main__":
     # frameRecorder.go()
     catkinPath = "/home/macalester/"
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
-    basePath = "catkin_ws/src/match_seeker/"
+    basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
 
     frameRecorder = LabeledFrames(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  dataSource=catkinPath + "turtlebot_videos/test/",
-                                  outputFilePath=catkinPath + "turtlebot_videos/testanswers.txt",
+                                  dataSource=catkinPath + basePath + "scripts/markLocations/juneElevenFrames/",
+                                  outputFilePath=catkinPath + basePath + "scripts/markLocations/juneElevenLocs.txt",
                                   mode="images")
 
     frameRecorder.go()
