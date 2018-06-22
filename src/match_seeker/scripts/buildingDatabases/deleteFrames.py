@@ -39,6 +39,6 @@ class DeleteFrames(object):
         print("Deleted from " + self.imageDirPath + " total of " + str(counter))
 
 if __name__ == "__main__":
-    deleter = DeleteFrames(imageDirPath="/home/macalester/turtlebot_videos/biologyWestAtriumFrames/",    #do NOT forget to put "/" at the end!
-                           deleteTextFileName="/home/macalester/turtlebot_videos/biologyWestAtriumDelete.txt")
+    deleter = DeleteFrames(imageDirPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenFrames/",    #do NOT forget to put "/" at the end!
+                           deleteTextFileName="/home/macalester/juneElevenToDelete.txt")
     deleter.deleteFrames()

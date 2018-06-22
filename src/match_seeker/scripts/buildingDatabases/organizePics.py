@@ -1,3 +1,4 @@
+# coding=utf-8
 ''' renames files in consecutive order and moves them from one folder to another. It also writes a txt file cataloging
 the old name of every image and its new name. This is very useful if you have deleted a lot of files throughout the
 database or you need to combine two smaller groups of images into one. Make sure to update the paths at the top and the
@@ -132,11 +133,11 @@ if __name__ == "__main__":
 
     #DONE (allFrames) : atriumClockwiseFrames, westAtriumFrames, atriumSouthFrames_2, atriumSouthFrames, atriumNorthFrames, goodFrom2017
     #TODO: Always check for the correct startNewNum (usually by going into name changes file.
-    startNewNum = 5193
-    organizer = OrganizeData(origFramesPath="/Users/JJ/turtlebot_videos/goodFrom2017/",
-                             desFramesPath="/Users/JJ/turtlebot_videos/allFrames/",
-                             origLocFilePath="/Users/JJ/turtlebot_videos/goodFrom2017Locations.txt",
-                             desLocFilePath="/Users/JJ/turtlebot_videos/allLocs.txt",
-                             nameChangeFile="/Users/JJ/turtlebot_videos/allNameChanges.txt",
+    startNewNum = 5288
+    organizer = OrganizeData(origFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenFrames/",
+                             desFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/allFrames060418/",
+                             origLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenLocs.txt",
+                             desLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt",
+                             nameChangeFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/buildingDatabases/nameChanges/allNameChanges060418.txt",
                              startNewNum=startNewNum)
     organizer.go()
