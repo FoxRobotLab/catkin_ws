@@ -1,8 +1,8 @@
-prefix=/home/macalester/catkin_ws/devel
+prefix=/home/macalester/PycharmProjects/catkin_ws/devel
 
 Name: speedy_nav
 Description: Description of speedy_nav
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/macalester/catkin_ws/devel/lib 
+Libs: -L/home/macalester/PycharmProjects/catkin_ws/devel/lib 
 Requires: 

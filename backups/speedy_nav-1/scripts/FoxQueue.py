@@ -9,15 +9,15 @@ class Queue:
     leave it."""
 
     # when creating a new queue, you can give a list of values to
-    # insert in the queue at the start 
-    def __init__(self, vallist=[]):
+    # insert in the queue at the start
+    def __init__(self, vallist=list()):
         self.data = vallist[:]
         self.size = len(self.data)
 
     # return the size of the queue
     def getSize(self):
         return self.size
-    
+
     # returns true if the queue is empty, or false otherwise
     def isEmpty(self):
         return self.size == 0
@@ -34,7 +34,7 @@ class Queue:
     # inserts a new value at the end of the queue
     def insert(self, val):
         self.data.append(val)
-        self.size = self.size + 1 
+        self.size = self.size + 1
 
     def enqueue(self, val):
         self.insert(val)
@@ -48,7 +48,7 @@ class Queue:
     def dequeue(self):
         self.delete()
 
-        
+
     # creates a string containing the data, just for debugging
     def __str__(self):
         qstr = "Queue: <- "
@@ -71,7 +71,7 @@ class PriorityQueue(Queue):
 
 
     # when creating a new queue, you can give a list of values to
-    # insert in the queue at the start 
+    # insert in the queue at the start
     def __init__(self, vallist=[]):
         """When creating the queue, you an give a list of values
 to insert in the queue at the start, they must be tuples of the form
@@ -143,7 +143,7 @@ to insert in the queue at the start, they must be tuples of the form
                 minInd = leftInd
             else:
                 minInd = rightInd
-                
+
             curr = self.heap[index]
             minVal = self.heap[minInd]
             if curr[0] < minVal[0]:
@@ -167,7 +167,7 @@ to insert in the queue at the start, they must be tuples of the form
             self._walkUp(pos)
         else:
             self._walkDown(pos)
-        
+
     # find the position of a value in the priority queue
     def _findValue(self, value):
         i = 0
@@ -176,8 +176,8 @@ to insert in the queue at the start, they must be tuples of the form
                 return i
             i = i + 1
         return -1
-                
-        
+
+
     # The following helpers allow us to figure out
     # which value is the parent of a given value, and which
     # is the right child or left child

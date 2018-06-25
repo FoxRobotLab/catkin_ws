@@ -4,5 +4,5 @@ PROJECT_PKG_CONFIG_INCLUDE_DIRS = "".split(';') if "" != "" else []
 PROJECT_CATKIN_DEPENDS = "".replace(';', ' ')
 PKG_CONFIG_LIBRARIES_WITH_PREFIX = "".split(';') if "" != "" else []
 PROJECT_NAME = "speedy_nav"
-PROJECT_SPACE_DIR = "/home/macalester/catkin_ws/devel"
+PROJECT_SPACE_DIR = "/home/macalester/PycharmProjects/catkin_ws/devel"
 PROJECT_VERSION = "0.0.0"

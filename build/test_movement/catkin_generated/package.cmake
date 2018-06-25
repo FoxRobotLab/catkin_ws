@@ -10,4 +10,7 @@ set(test_movement_EXEC_DEPENDS "rospy" "std_msgs" "sensor_msgs" "geometry_msgs" 
 set(test_movement_RUN_DEPENDS "rospy" "std_msgs" "sensor_msgs" "geometry_msgs" "opencv2" "cv_bridges" "pcl")
 set(test_movement_TEST_DEPENDS )
 set(test_movement_DOC_DEPENDS )
+set(test_movement_URL_WEBSITE "")
+set(test_movement_URL_BUGTRACKER "")
+set(test_movement_URL_REPOSITORY "")
 set(test_movement_DEPRECATED "")
