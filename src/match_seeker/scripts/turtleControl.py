@@ -154,7 +154,7 @@ class TurtleBot(object):
 
         leftDist = numpy.mean(self.depthControl.getDepth(*leftBox))
         rightDist = numpy.mean(self.depthControl.getDepth(*rightBox))
-        return getMedianAngle(leftDist, rightDist, angleBetween = 11.0)
+        return self.getMedianAngle(leftDist, rightDist, angleBetween = 11.0)
 
     def forward(self, amount, seconds = None):
         """Takes in an amount, which is a speed, and an optional input, seconds, which is a number of seconds. If no

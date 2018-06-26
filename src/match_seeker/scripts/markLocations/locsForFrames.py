@@ -398,8 +398,8 @@ if __name__ == "__main__":
     basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
 
     frameRecorder = LabeledFrames(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  dataSource=catkinPath + basePath + "scripts/markLocations/juneElevenFrames/",
-                                  outputFilePath=catkinPath + basePath + "scripts/markLocations/juneElevenLocs.txt",
+                                  dataSource="/home/macalester/allFrames/",
+                                  outputFilePath= "/home/macalester/testframes/",
                                   mode="images")
 
     frameRecorder.go()
