@@ -1,4 +1,4 @@
-import src.match_seeker.scripts.turtleControl
+import turtleControl
 import time
 import cv2
 import os
@@ -70,7 +70,7 @@ class StraightToFrames(object):
         return fileName
 
 if __name__ == "__main__":
-    robot = src.match_seeker.scripts.turtleControl.TurtleBot()
+    robot = turtleControl.TurtleBot()
     rospy.init_node('Straight To Frames')
 
     framer = StraightToFrames(outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/',
