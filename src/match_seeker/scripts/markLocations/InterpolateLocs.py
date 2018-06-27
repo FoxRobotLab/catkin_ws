@@ -34,7 +34,6 @@ class Interpolator(object):
         self.mode = mode
 
         # variables for managing data source
-        self.cap = None     # only used if mode = video
         self.imgFileList = []    # only used if mode = 'images'
         self.picNum = -1
         self.mapFilename = mapFile
@@ -53,6 +52,13 @@ class Interpolator(object):
         # Instance variables to hold outcome data
         self.labeling = dict()
 
+        # data from walking file
+        self.walking= open(self.inputLocsFilePath, "r").readlines()
+        self.walkingNums = []
+        for line in self.walking:
+            self.walkingNums.append(int(line.split()[0]))     # This assumes the text file will be in a certain format
+
+
 
     def go(self):
         """Run the program, setting up windows and all."""
@@ -64,10 +70,12 @@ class Interpolator(object):
         cv2.imshow("Main", self.mainImg)
         cv2.setMouseCallback("Main", self._mouseMainResponse)   # Set heading
 
+
         # set up map window and callback
         self.origMap = self._getOlinMap()
         (self.mapHgt, self.mapWid, dep) = self.origMap.shape
         self.currMap = self.origMap
+        self.currMap = self.drawWalkingLocations(self.walking)       # draws the circles for the already marked locations
         cv2.imshow("Map", self.currMap)
         cv2.setMouseCallback("Map", self._mouseSetLoc)          # Set x, y location
 
@@ -78,10 +86,8 @@ class Interpolator(object):
         if not goodFrame:
             self.dataDone = True
 
-        # prepare the data from walking
-        input= open(self.inputLocsFilePath, "r")
-        walking = input.readlines()
-        self.drawWalkingLocations(walking)
+
+
 
         # run main loop until user quits or run out of frames
         while (not self.dataDone) and (ch != 'q'):
@@ -108,7 +114,6 @@ class Interpolator(object):
 
         # close things down nicely
         self._writeData()
-        self._cleanUp()
         cv2.destroyAllWindows()
 
 
@@ -127,13 +132,18 @@ class Interpolator(object):
             fileOpen = True
         except:
             print ("FAILED TO OPEN DATA FILE")
-
-        for picNum in self.labeling:
-            [x, y, h] = self.labeling[picNum]
-            dataStr = str(picNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
+        #if thisNum in self.walkingNums:  # TODO: check
+        for imgIndex in self.labeling:
+            if imgIndex in self.walkingNums:
+            # data is stored in self.walking as num x y yaw
+                [num, x, y, h] = self.walking[imgIndex].split()
+                dataStr = str(num) + " " + x + " " + y + " " + h + "\n"
+            else:
+                [x, y, h] = self.labeling[imgIndex]
+                dataStr = str(imgIndex) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
-            print("Frame", picNum, "with location", (x, y, h))
+            print("Frame", imgIndex, "with location", (x, y, h))
         logFile.close()
 
 
@@ -243,7 +253,7 @@ class Interpolator(object):
             self._displayStatus()
 
     def _processToNextFrame(self):
-        self.labeling[self.picNum] = [self.currLoc[0], self.currLoc[1], self.currHeading]
+        self.labeling[self.imgIndex] = [self.currLoc[0], self.currLoc[1], self.currHeading]
         mapX, mapY = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
         self._updateMap((mapX, mapY))
         goodFrame = self._getNextImage()
@@ -304,6 +314,7 @@ class Interpolator(object):
         for loc in walkingList:
             elems = loc.split()
             cv2.circle(newMap, (elems[1], elems[2]), 6, (255, 0, 255))
+        return newMap
 
     def _convertMapToWorld(self, mapX, mapY):
         """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
@@ -333,49 +344,36 @@ class Interpolator(object):
     def _setupImageCapture(self):
         """Sets up the video capture for the given filename, printing a message if it failed
         and returning None in that case."""
-        if self.mode == 'video':
-            try:
-                self.cap = cv2.VideoCapture(self.dataSource)
-            except:
-                print("Capture failed!")
-                self.cap = None
-        else:
-            self.imgFileList = os.listdir(self.dataSource)
-            self.imgFileList.sort()
+        self.imgFileList = os.listdir(self.dataSource)
+        self.imgFileList.sort()
 
 
     def _getNextImage(self):
         """Gets the next frame from the camera or from reading the next file"""
-        if self.mode == 'video':
-            good, frame = self.cap.read()
-            if not good:
-                return good
-            self.picNum += 1
-            self.currFrame = frame
-            return good
         #TODO: CHECK IF THE IMAGE IS NOT IN THE LIST OF ALREADY DETERMINED IMAGES
-        else:
-            while True:
-                if self.imgFileList == []:
+        while True:
+            if self.imgFileList == []:
+                return False
+            if self.imgIndex >= len(self.imgFileList):
+                return False
+            filename = self.imgFileList[self.imgIndex]
+            if filename[-3:] in {"jpg", "png"}:
+                try:
+                    newIm = cv2.imread(self.dataSource + filename)
+                except IOError:
                     return False
-                if self.imgIndex >= len(self.imgFileList):
-                    self.dataDone = True
-                    break
-                filename = self.imgFileList[self.imgIndex]
-                if filename[-3:] in {"jpg", "png"}:
-                    try:
-                        newIm = cv2.imread(self.dataSource + filename)
-                    except IOError:
-                        return False
-                    thisNum = self._extractNum(filename)
+                thisNum = self._extractNum(filename)
+                if thisNum in self.walkingNums:     # TODO: check
+                    self.imgIndex += 1               #TODO: fix
+                else:
                     self.currFrame = newIm
                     self.picNum = thisNum
                     return True
-                else:
-                    # Check for non-jpg or -png file (e.x.: .DS_Store)
-                    print("Non-jpg or -png file in folder: ", filename, "... skipping!")
-                    self.imgFileList.remove(filename)
-                    continue
+            else:
+                # Check for non-jpg or -png file (e.x.: .DS_Store)
+                print("Non-jpg or -png file in folder: ", filename, "... skipping!")
+                self.imgFileList.remove(filename)
+                continue
 
 
     def _extractNum(self, fileString):
@@ -393,13 +391,6 @@ class Interpolator(object):
         else:
             self.picNum += 1
             return self.picNum
-
-
-    def _cleanUp(self):
-        """Closes down video capture, if necessary"""
-        if self.mode == 'video':
-            self.cap.release()
-
 
 
 if __name__ == "__main__":
