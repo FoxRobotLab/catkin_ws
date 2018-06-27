@@ -14,14 +14,23 @@ class Matcher(object):
 
 
     def findMatches(self):
+        """
+        Writes a text file with the position given by the user written next to the index of the list in the auto text
+        file.
+
+        :return:
+        """
         walker, walkerTimes = self.prepareWalker()
         auto, autoTimes = self.prepareAuto()
 
         output = open(self.outputTextFile, "w")
-        for line in walkerTimes:
-            autoIndex = self.compareWithAllAutoTimes(line, autoTimes)
-
+        for line in walker:
+            elem = line.split()
+            autoIndex = self.compareWithAllAutoTimes(elem[1], autoTimes)
+            output.write(str(autoIndex) + " " + str(elem[2] + " " + elem[3] + " " + elem[4] + "\n"))
         output.close()
+
+
 
 
     def prepareWalker(self):
@@ -33,11 +42,12 @@ class Matcher(object):
         """
         timeList = []
         walker = open(self.walkerTextFile, "r")
-        walker = walker.readlines()
-        for line in walker:
+        walkerLines = walker.readlines()
+        walker.close()
+        for line in walkerLines:
             elems= line.split()
             timeList.append(self.convertTimeToSeconds(elems[1]))
-        return timeList, walker
+        return timeList, walkerLines
 
     def prepareAuto(self):
         """
@@ -48,11 +58,12 @@ class Matcher(object):
         """
         timeList = []
         auto = open(self.autoTextFile, "r")
-        auto = auto.readlines()
-        for line in auto:
+        autoLines = auto.readlines()
+        auto.close()
+        for line in autoLines:
             elems = line.split()
             timeList.append(self.convertTimeToSeconds(elems[1]))
-        return timeList, auto
+        return timeList, autoLines
 
 
 
@@ -91,9 +102,6 @@ class Matcher(object):
         secondsFromMinutes = int(timeList[1]) * 60
         totalTime = secondsFromHours + secondsFromMinutes + int(timeList[2])
         return(totalTime)
-
-
-
 
 
 
