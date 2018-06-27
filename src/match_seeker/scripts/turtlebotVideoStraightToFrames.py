@@ -69,18 +69,16 @@ class StraightToFrames(object):
         fileName = fTempl.format(num)
         return fileName
 
-# def main():
-#     rospy.init_node('Straight To Frames')
-#     robot = turtleControl.TurtleBot()
-#
-#
+def main():
+    rospy.init_node('Straight To Frames')
+    robot = turtleControl.TurtleBot()
+
+    framer = StraightToFrames(
+        outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/',
+        outputFile='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/testTurtlebotVidFrames.txt',
+        robot=robot)
+    framer.go()
+
 
 if __name__ == "__main__":
-    robot = turtleControl.TurtleBot()
-    rospy.init_node('Straight To Frames', time)
-
-
-    framer = StraightToFrames(outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/',
-                              outputFile='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/testTurtlebotVidFrames.txt',
-                              robot=robot)
-    framer.go()
+    main()
