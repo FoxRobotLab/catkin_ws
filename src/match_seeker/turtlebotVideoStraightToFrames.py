@@ -1,74 +1,78 @@
-from gtk.keysyms import x
-import cv2
 import src.match_seeker.scripts.turtleControl
 import time
+import cv2
+import os
+import rospy
 
+class StraightToFrames(object):
 
-class turtlebotVideoStraightToFrames(object):
+    def __init__(self, outputFolder, outputFile, robot):
 
-    def __init__(self, outputFolder, outputFile):
+        self.picNum = 0000
 
-        self.outputFile = outputFile
+        self.dictOfTimes = dict()
+        self.currTime = 0
+        self.currTime2 = 0
+
         self.outputFolder = outputFolder
+        self.outputFile = outputFile
+        self.robot = robot
+        self.img = None
 
-        self.robot = src.match_seeker.scripts.turtleControl.TurtleBot()
-
-        self.frameNum = 0
-        self.currentTime = 0
-
-    def saveFrames(self):
-        ch= ""
-         # ch = chr(x & 0xFF) #this line is meant to convert key commands (waitKey) into strings. So I put it after
-         #waitkey instead of here
-        file = open(self.outputFile, 'w')
-
+    def go(self):
+        ch = ''
         while ch != 'q':
-            currImg = self.robot.getImage()
-            self.saveToFolder(currImg)
-            file = open(self.outputFile, 'w')
-            self.saveToTextFile(file)
-            self.frameNum = self.frameNum + 1
-            x= cv2.waitKey(10)
-            ch = chr(x & 0xFF)
-        file.close()
-        cv2.destroyAllWindows()
+            self.img = self.robot.getImage()
+            cv2.waitKey(1000)
+            self.currTime = time.localtime()
+            self.currTime2 = time.strftime("%H:%M:%S", self.currTime)
+            self.picNum = self.picNum + 1
+            self.dictOfTimes[self.picNum] = self.currTime2
 
+        self._writeData()
+        self.saveToFolder(self.img,self.outputFolder, self.picNum)
 
-    def saveToFolder(self, img):
-        fName = self.getFilename()
-        pathAndName = self.outputFolder + fName
+    def saveToFolder(self, img, folderName, frameNum):
+            fName = self.nextFilename(frameNum)
+            pathAndName = folderName + fName
+            try:
+                cv2.imwrite(pathAndName, img)
+            except:
+                print("Error writing file", frameNum, pathAndName)
+
+    def _writeData(self):
+        """Write the data collected to a timestamped file."""
         try:
-            cv2.imwrite(pathAndName, img)
+            os.makedirs(self.outputFile)
         except:
-            print("Error writing file", self.frameNum, pathAndName)
+            pass
+        logName = self.outputFile
+        print(logName)
+        fileOpen = False
+        logFile = None
+        try:
+            logFile = open(self.outputFile + logName, 'w')
+            fileOpen = True
+        except:
+            print ("FAILED TO OPEN DATA FILE")
 
+        for key in self.dictOfTimes:
+            time = self.dictOfTimes[key]
+            dataStr = str(key) + " " + str(time) + "\n"
+            if fileOpen:
+                logFile.write(dataStr)
+            print("Frame", key, "at time", time)
+        logFile.close()
 
-    def saveToTextFile(self, file):
-        time1 = time.localtime()
-        self.currTime = time.strftime("%H:%M:%S", time1)
-        file.write("frame."+str(self.frameNum)+ ".jpg " + "time:" + str(self.currTime)+"\n") #writes the frame as well as the time it is recorded
-
-
-# I am not using this at the moment because I'm not sure what it does and I want it to match the text file perfectly
-    # def nextFilename(self, num):
-    #     fTempl = "frame{0:04d}.jpg"
-    #     fileName = fTempl.format(num)
-    #     return fileName
-    #
-
-    def getFilename(self):
-        fileName = "frame" + str(self.frameNum) + ".jpg"
+    def nextFilename(self, num):
+        fTempl = "frame{0:04d}.jpg"
+        fileName = fTempl.format(num)
         return fileName
 
 if __name__ == "__main__":
+    robot = src.match_seeker.scripts.turtleControl.TurtleBot()
+    rospy.init_node('Straight To Frames')
 
-    framer = turtlebotVideoStraightToFrames( outputFolder="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/",
-        outputFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames.txt")
-
-    framer.saveFrames()
-
-
-
-
-
-
+    framer = StraightToFrames(outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/',
+                              outputFile='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/testTurtlebotVidFrames.txt',
+                              robot=robot)
