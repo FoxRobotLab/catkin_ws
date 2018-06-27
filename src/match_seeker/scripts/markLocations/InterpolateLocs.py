@@ -405,10 +405,20 @@ class Interpolator(object):
 if __name__ == "__main__":
     # frameRecorder = LabeledFrames("olinNewMap.txt", "../../res/Videos/may30.avi", 'video')
     # frameRecorder.go()
-    catkinPath = "/home/macalester/"
+    #catkinPath = "/home/macalester/"
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
-    basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
+    #basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
 
+    # InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
+    #                               dataSource="/home/macalester/allFrames/",
+    #                               outputFilePath= "/home/macalester/testframes/",
+    #                               inputLocsFilePath="",
+    #                               mode="images",
+    #                               )
+
+
+    catkinPath = "/Users/johnpellegrini/"
+    basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
     InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
                                   dataSource="/home/macalester/allFrames/",
                                   outputFilePath= "/home/macalester/testframes/",
