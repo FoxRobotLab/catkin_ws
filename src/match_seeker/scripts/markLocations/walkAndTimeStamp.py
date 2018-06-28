@@ -270,8 +270,9 @@ if __name__ == "__main__":
     catkinPath = "/home/macalester/"
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
     basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
-
-    realTimer = RealTimeLocs(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
-                             outputFilePath= "/home/macalester/testframes/")
+    print(time)
+    realTimer = RealTimeLocs(mapFile="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/res/map/"
+                                     "olinNewMap.txt",
+                             outputFilePath= "/Users/johnpellegrini/Desktop/testframes/")
 
     realTimer.go()
