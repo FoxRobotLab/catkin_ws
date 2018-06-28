@@ -24,7 +24,15 @@ class StraightToFrames(object):
         self.img = None
 
     def go(self):
-        """This function makes the """
+
+        """This function makes the class run. The while loop runs until the user presses Q and rospy is not shutdown
+        This function gets the image from the turtlebot robot object, displays the image for the user, and waits a
+        second. It then gets the time via the current time and converts it into the format we need for the text file.
+        Next, the picture number is incremented and the picture number and time are added to the dictionary and the
+        image is save to the output folder. The last part of the while loop is setting up the character input. Outside of
+        the while loop, this function writes the picture number and time data into the text file, closes the image
+        window, and shuts down rospy."""
+
         ch = ''
         while ch != 'q' and not rospy.is_shutdown():
             print("Starting while loop")
@@ -44,14 +52,20 @@ class StraightToFrames(object):
         rospy.signal_shutdown("shutting down")
 
     def saveToFolder(self, img, folderName, frameNum):
-            fName = self.nextFilename(frameNum)
-            pathAndName = folderName + fName
-            try:
-                cv2.imwrite(pathAndName, img)
-            except:
-                print("Error writing file", frameNum, pathAndName)
+
+        """This function saves an image to the output folder."""
+
+        fName = self.nextFilename(frameNum)
+        pathAndName = folderName + fName
+        try:
+            cv2.imwrite(pathAndName, img)
+        except:
+            print("Error writing file", frameNum, pathAndName)
 
     def _writeData(self):
+
+        """This function writes the data in the dictionary to the output file."""
+
         fileOpen = False
         logFile = None
         try:
@@ -69,12 +83,12 @@ class StraightToFrames(object):
         logFile.close()
 
     def nextFilename(self, num):
+
+        """This function is a helper function for the writeData() function. It gives writeData() the next file name."""
+
         fTempl = "frame{0:04d}.jpg"
         fileName = fTempl.format(num)
         return fileName
-
-    def endFunc(self):
-        print('process ended')
 
 
 def main():
