@@ -40,7 +40,7 @@ class StraightToFrames(object):
 
     def saveToFolder(self, img, folderName, frameNum):
             fName = self.nextFilename(frameNum)
-            pathAndName = folderName + fName
+            pathAndName = os.path.join(folderName + fName)
             try:
                 cv2.imwrite(pathAndName, img)
             except:

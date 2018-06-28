@@ -75,7 +75,7 @@ class Interpolator(object):
         self.origMap = self._getOlinMap()
         (self.mapHgt, self.mapWid, dep) = self.origMap.shape
         self.currMap = self.origMap
-        self.currMap = self.drawWalkingLocations(self.walking)       # draws the circles for the already marked locations
+        self.currMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
         cv2.imshow("Map", self.currMap)
         cv2.setMouseCallback("Map", self._mouseSetLoc)          # Set x, y location
 
@@ -92,7 +92,8 @@ class Interpolator(object):
         # run main loop until user quits or run out of frames
         while (not self.dataDone) and (ch != 'q'):
             cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
-            cv2.imshow("Image", self.currFrame)
+            if self.currFrame != None:
+                cv2.imshow("Image", self.currFrame)
             x = cv2.waitKey(20)
             ch = chr(x & 0xFF)
             if self.currLoc != (0, 0): # if robot location has been placed on the map
@@ -313,7 +314,7 @@ class Interpolator(object):
         newMap = self.origMap.copy()
         for loc in walkingList:
             elems = loc.split()
-            cv2.circle(newMap, (elems[1], elems[2]), 6, (255, 0, 255))
+            cv2.circle(newMap, (int(elems[1]), int(elems[2])), 6, (255, 0, 255))
         return newMap
 
     def _convertMapToWorld(self, mapX, mapY):
@@ -411,9 +412,12 @@ if __name__ == "__main__":
     catkinPath = "/Users/johnpellegrini/"
     basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
     InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  dataSource="/home/macalester/allFrames/",
-                                  outputFilePath= "/home/macalester/testframes/",
-                                  inputLocsFilePath="",
+                                  dataSource="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/scripts/"
+                                             "markLocations/testTurtlebotVidFrames",
+                                  outputFilePath= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
+                                                  "scripts/markLocations/testInterpolate/",
+                                  inputLocsFilePath="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
+                                                    "scripts/markLocations/testTurtlebotVidFrames/matchedtest.txt",
                                   mode="images",
                                   )
 

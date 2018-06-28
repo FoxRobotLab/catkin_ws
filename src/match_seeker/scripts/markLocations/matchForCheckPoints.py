@@ -27,7 +27,7 @@ class Matcher(object):
         for line in walker:
             elem = line.split()
             autoIndex = self.compareWithAllAutoTimes(elem[1], autoTimes)
-            output.write(str(autoIndex) + " " + str(elem[2] + " " + elem[3] + " " + elem[4] + "\n"))
+            output.write(str(autoIndex+1) + " " + str(elem[2] + " " + elem[3] + " " + elem[4] + "\n"))
         output.close()
 
 
@@ -47,7 +47,7 @@ class Matcher(object):
         for line in walkerLines:
             elems= line.split()
             timeList.append(self.convertTimeToSeconds(elems[1]))
-        return timeList, walkerLines
+        return walkerLines, timeList
 
     def prepareAuto(self):
         """
@@ -63,7 +63,7 @@ class Matcher(object):
         for line in autoLines:
             elems = line.split()
             timeList.append(self.convertTimeToSeconds(elems[1]))
-        return timeList, autoLines
+        return autoLines, timeList
 
 
 
@@ -79,7 +79,8 @@ class Matcher(object):
         difIndex =0
         for i in range(len(autoTimes)):
             autoTime = autoTimes[i]
-            diff = abs(autoTime - walkerTime)
+            walkerTimeINT = int(self.convertTimeToSeconds(walkerTime))
+            diff = abs(autoTime - walkerTimeINT)
             if diff < minDif:
                 minDif = diff
                 difIndex =i
@@ -97,6 +98,7 @@ class Matcher(object):
         :param timeString:
         :return:
         """
+        timeString = str(timeString)
         timeList= timeString.split(":")
         secondsFromHours = int(timeList[0]) * 60 * 60
         secondsFromMinutes = int(timeList[1]) * 60
@@ -110,7 +112,13 @@ class Matcher(object):
 
 
 if __name__ == "__main__":
-    matchWalkerAndImages = Matcher(walkerTextFile= "",
-                                   autoTextFile = "",
-                                   outputTextFile = "")
+    matchWalkerAndImages = Matcher(walkerTextFile= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
+                                                   "scripts/markLocations/testTurtlebotVidFrames/walkertest.txt",
+                                   autoTextFile = "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
+                                                  "scripts/markLocations/testTurtlebotVidFrames/"
+                                                  "testTurtlebotVidFrames.txt",
+                                   outputTextFile = "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/"
+                                                    "match_seeker/scripts/markLocations/testTurtlebotVidFrames/"
+                                                    "matchedtest.txt")
+    matchWalkerAndImages.findMatches()
 
