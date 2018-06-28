@@ -1,12 +1,16 @@
 import turtleControl
 import time
 import cv2
-import os
 import rospy
 
 class StraightToFrames(object):
 
     def __init__(self, outputFolder, outputFile, robot):
+
+        """Initializes variables needed to run the program. These variables include the sequential number of pictures,
+        a dictionary with the picture number as the key and the time it was obtained as its value, the current time in
+        terms of local time, the current time when changed into the format we want for the text file, the path for the
+        the output folder for the pictures, the path for the output text file, a robot object and the given image"""
 
         self.picNum = 0000
 
@@ -20,8 +24,9 @@ class StraightToFrames(object):
         self.img = None
 
     def go(self):
+        """This function makes the """
         ch = ''
-        while ch != 'q':
+        while ch != 'q' and not rospy.is_shutdown():
             print("Starting while loop")
             self.img, _ = self.robot.getImage()
             cv2.imshow("Image", self.img)
@@ -34,9 +39,9 @@ class StraightToFrames(object):
             x = cv2.waitKey(10)
             ch = chr(x & 0xFF)
 
-
         self._writeData()
-
+        cv2.destroyAllWindows()
+        rospy.signal_shutdown("shutting down")
 
     def saveToFolder(self, img, folderName, frameNum):
             fName = self.nextFilename(frameNum)
@@ -47,13 +52,6 @@ class StraightToFrames(object):
                 print("Error writing file", frameNum, pathAndName)
 
     def _writeData(self):
-        """Write the data collected to a timestamped file."""
-        try:
-            os.makedirs(self.outputFile)
-        except:
-            pass
-        logName = self.outputFile
-        print(logName)
         fileOpen = False
         logFile = None
         try:
@@ -75,10 +73,8 @@ class StraightToFrames(object):
         fileName = fTempl.format(num)
         return fileName
 
-    def _setupWindows(self):
-        "Creates three windows and moves them to the right places on screen."
-        cv2.namedWindow("Image")
-        cv2.moveWindow("Image", 30, 550)
+    def endFunc(self):
+        print('process ended')
 
 
 def main():

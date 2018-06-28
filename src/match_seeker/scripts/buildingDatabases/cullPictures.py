@@ -182,12 +182,12 @@ class CullPictures(object):
 
 
 if __name__ == "__main__":
-    cullPicture = CullPictures(imageDir="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenFrames/",
-                               outputFileName="/home/macalester/juneElevenDelete.txt",#tooManyPics_x1_x2_y1_y2
+    cullPicture = CullPictures(imageDir="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/",
+                               outputFileName="/home/macalester/june28.txt",#tooManyPics_x1_x2_y1_y2
                                startFileName="",
                                cullType="all",
                                x1=14, x2=25,
                                y1=43, y2=47,
-                               locFileNamloe="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenLocs.txtData-Jun20Wed-161131.txt")
+                               locFileName="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenLocs.txtData-Jun20Wed-161131.txt")
 
     cullPicture.go()
