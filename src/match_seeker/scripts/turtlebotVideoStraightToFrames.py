@@ -22,15 +22,21 @@ class StraightToFrames(object):
     def go(self):
         ch = ''
         while ch != 'q':
-            self.img = self.robot.getImage()
+            print("Starting while loop")
+            self.img, _ = self.robot.getImage()
+            cv2.imshow("Image", self.img)
             time.sleep(1)
             self.currTime = time.localtime()
             self.currTime2 = time.strftime("%H:%M:%S", self.currTime)
             self.picNum = self.picNum + 1
             self.dictOfTimes[self.picNum] = self.currTime2
+            self.saveToFolder(self.img, self.outputFolder, self.picNum)
+            x = cv2.waitKey(10)
+            ch = chr(x & 0xFF)
+
 
         self._writeData()
-        self.saveToFolder(self.img,self.outputFolder, self.picNum)
+
 
     def saveToFolder(self, img, folderName, frameNum):
             fName = self.nextFilename(frameNum)
@@ -51,7 +57,7 @@ class StraightToFrames(object):
         fileOpen = False
         logFile = None
         try:
-            logFile = open(self.outputFile + logName, 'w')
+            logFile = open(self.outputFile, 'w')
             fileOpen = True
         except:
             print ("FAILED TO OPEN DATA FILE")
@@ -68,6 +74,12 @@ class StraightToFrames(object):
         fTempl = "frame{0:04d}.jpg"
         fileName = fTempl.format(num)
         return fileName
+
+    def _setupWindows(self):
+        "Creates three windows and moves them to the right places on screen."
+        cv2.namedWindow("Image")
+        cv2.moveWindow("Image", 30, 550)
+
 
 def main():
     rospy.init_node('StraightToFrames')
