@@ -1,10 +1,14 @@
 import os
 import cv2
 import numpy as np
+
+from buildingDatabases import deleteFrames
+from buildingDatabases.deleteFrames import DeleteFrames
+
 """ ------------------------------------------------------------------------------------------------------------------
 File: cullPictures.py
-Authors: Susan Fox, Malini Sharma, Jinyoung Lim
-Date: May 2018
+Authors: Jane Pellegrini
+Date: June 2018
 
 For identifying (blur or duplicate) images that need to be deleted.
 - Displays currrent, (undeleted) previous, and absolute difference (a.k.a. DIFF) of the two images
@@ -15,6 +19,7 @@ image should be deleted.
 deletion of some images) compared to scanImageMatches.py
 - Make sure to cut images by 10000 if there are more than that. This is to prevent the image *jumping* from 1000 to
 10000 (then 10009 to 1001 and etc.) because the minimum number of digits when saving frames is 4
+-Modifies the related text file
 ------------------------------------------------------------------------------------------------------------------"""
 
 class CullPicturesTimeStamp(object):
@@ -87,7 +92,7 @@ class CullPicturesTimeStamp(object):
         currPrevDic = dict()
         currPrevDic[self.filenames[i]] = None
 
-        while (i < len(self.filenames) and i >= 0):
+        while (i < len(self.filenames)-1 and i >= 0):
             currFile = self.filenames[i]
 
             # # Skips the non-jpg files.
@@ -169,6 +174,7 @@ class CullPicturesTimeStamp(object):
         file.close()
         linesToDelete = []
         for item in self.toBeDeleted:
+            item = str(self.extractNum(item))
             for line in linesList:
                 if item in line:
                     linesToDelete.append(line)
@@ -213,14 +219,19 @@ if __name__ == "__main__":
     #                            x1=14, x2=25,
     #                            y1=43, y2=47)
 
-    cullPicture = CullPicturesTimeStamp(textFilePath= "",
-                               imageDir="/Users/johnpellegrini/Desktop/testframes/",
+    cullPicture = CullPicturesTimeStamp(textFilePath= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/scripts/"
+                                        "markLocations/testTurtlebotVidFrames/testTurtlebotVidFrames.txt",
+                               imageDir="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/scripts/"
+                                        "markLocations/testTurtlebotVidFrames/",
                                outputFileName="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
                                               "scripts/markLocations/testCullTimeStamp.txt", #tooManyPics_x1_x2_y1_y2
                                startFileName="",
                                cullType="all",
                                x1=14, x2=25,
                                y1=43, y2=47, )
-
-
     cullPicture.go()
+
+    # deleter = DeleteFrames(imageDirPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/"
+    #                                     "markLocations/juneElevenFrames/",                # make the same as imageDir
+    #                        deleteTextFileName="/home/macalester/juneElevenToDelete.txt") # make the same as outputFileName
+    # deleter.deleteFrames()
