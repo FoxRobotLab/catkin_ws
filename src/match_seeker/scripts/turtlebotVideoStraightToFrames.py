@@ -3,6 +3,8 @@ import time
 import cv2
 import rospy
 
+"""Author: Malini Sharma"""
+
 class StraightToFrames(object):
 
     def __init__(self, outputFolder, outputFile, robot):
