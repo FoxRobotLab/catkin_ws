@@ -23,7 +23,7 @@ class StraightToFrames(object):
         ch = ''
         while ch != 'q':
             self.img = self.robot.getImage()
-            cv2.waitKey(1000)
+            time.sleep(1)
             self.currTime = time.localtime()
             self.currTime2 = time.strftime("%H:%M:%S", self.currTime)
             self.picNum = self.picNum + 1
@@ -70,7 +70,7 @@ class StraightToFrames(object):
         return fileName
 
 def main():
-    rospy.init_node('Straight To Frames')
+    rospy.init_node('StraightToFrames')
     robot = turtleControl.TurtleBot()
 
     framer = StraightToFrames(
