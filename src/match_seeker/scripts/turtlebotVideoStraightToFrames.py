@@ -8,6 +8,11 @@ class StraightToFrames(object):
 
     def __init__(self, outputFolder, outputFile, robot):
 
+        """Initializes variables needed to run the program. These variables include the sequential number of pictures,
+        a dictionary with the picture number as the key and the time it was obtained as its value, the current time in
+        terms of local time, the current time when changed into the format we want for the text file, the path for the
+        the output folder for the pictures, the path for the output text file, a robot object and the given image"""
+
         self.picNum = 0000
 
         self.dictOfTimes = dict()
@@ -20,8 +25,17 @@ class StraightToFrames(object):
         self.img = None
 
     def go(self):
+
+        """This function makes the class run. The while loop runs until the user presses Q and rospy is not shutdown
+        This function gets the image from the turtlebot robot object, displays the image for the user, and waits a
+        second. It then gets the time via the current time and converts it into the format we need for the text file.
+        Next, the picture number is incremented and the picture number and time are added to the dictionary and the
+        image is save to the output folder. The last part of the while loop is setting up the character input. Outside of
+        the while loop, this function writes the picture number and time data into the text file, closes the image
+        window, and shuts down rospy."""
+
         ch = ''
-        while ch != 'q':
+        while ch != 'q' and not rospy.is_shutdown():
             print("Starting while loop")
             self.img, _ = self.robot.getImage()
             cv2.imshow("Image", self.img)
@@ -34,26 +48,25 @@ class StraightToFrames(object):
             x = cv2.waitKey(10)
             ch = chr(x & 0xFF)
 
-
         self._writeData()
-
+        cv2.destroyAllWindows()
+        rospy.signal_shutdown("shutting down")
 
     def saveToFolder(self, img, folderName, frameNum):
-            fName = self.nextFilename(frameNum)
-            pathAndName = os.path.join(folderName + fName)
-            try:
-                cv2.imwrite(pathAndName, img)
-            except:
-                print("Error writing file", frameNum, pathAndName)
+
+        """This function saves an image to the output folder."""
+
+        fName = self.nextFilename(frameNum)
+        pathAndName = folderName + fName
+        try:
+            cv2.imwrite(pathAndName, img)
+        except:
+            print("Error writing file", frameNum, pathAndName)
 
     def _writeData(self):
-        """Write the data collected to a timestamped file."""
-        try:
-            os.makedirs(self.outputFile)
-        except:
-            pass
-        logName = self.outputFile
-        print(logName)
+
+        """This function writes the data in the dictionary to the output file."""
+
         fileOpen = False
         logFile = None
         try:
@@ -71,14 +84,12 @@ class StraightToFrames(object):
         logFile.close()
 
     def nextFilename(self, num):
+
+        """This function is a helper function for the writeData() function. It gives writeData() the next file name."""
+
         fTempl = "frame{0:04d}.jpg"
         fileName = fTempl.format(num)
         return fileName
-
-    def _setupWindows(self):
-        "Creates three windows and moves them to the right places on screen."
-        cv2.namedWindow("Image")
-        cv2.moveWindow("Image", 30, 550)
 
 
 def main():
