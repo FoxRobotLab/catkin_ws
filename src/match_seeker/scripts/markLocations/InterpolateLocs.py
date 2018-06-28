@@ -20,7 +20,7 @@ import numpy as np
 # import readMap
 import src.match_seeker.scripts.markLocations.readMap as readMap
 
-
+#TODO: fix the numbering system.
 class Interpolator(object):
 
     def __init__(self, mapFile, dataSource, outputFilePath,inputLocsFilePath, mode = "image"):
@@ -52,12 +52,16 @@ class Interpolator(object):
         # Instance variables to hold outcome data
         self.labeling = dict()
 
-        # data from walking file
-        self.walking= open(self.inputLocsFilePath, "r").readlines()
+        # data from walking files
+        file = open(self.inputLocsFilePath, "r")
+        walking = file.readlines()
         self.walkingNums = []
-        for line in self.walking:
-            self.walkingNums.append(int(line.split()[0]))     # This assumes the text file will be in a certain format
-
+        self.walking = {}
+        file.close()
+        for line in walking:
+            self.walkingNums.append(int(line.split()[0]))  # This assumes the text file will be in a certain format
+            lineList= line.split()
+            self.walking[lineList[0]]= [float(lineList[1]),float(lineList[2]),int(lineList[3])]
 
 
     def go(self):
@@ -73,9 +77,9 @@ class Interpolator(object):
 
         # set up map window and callback
         self.origMap = self._getOlinMap()
+        self.origMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
         (self.mapHgt, self.mapWid, dep) = self.origMap.shape
         self.currMap = self.origMap
-        self.currMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
         cv2.imshow("Map", self.currMap)
         cv2.setMouseCallback("Map", self._mouseSetLoc)          # Set x, y location
 
@@ -92,8 +96,7 @@ class Interpolator(object):
         # run main loop until user quits or run out of frames
         while (not self.dataDone) and (ch != 'q'):
             cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
-            if self.currFrame != None:
-                cv2.imshow("Image", self.currFrame)
+            cv2.imshow("Image", self.currFrame)
             x = cv2.waitKey(20)
             ch = chr(x & 0xFF)
             if self.currLoc != (0, 0): # if robot location has been placed on the map
@@ -133,12 +136,13 @@ class Interpolator(object):
             fileOpen = True
         except:
             print ("FAILED TO OPEN DATA FILE")
-        #if thisNum in self.walkingNums:  # TODO: check
         for imgIndex in self.labeling:
             if imgIndex in self.walkingNums:
             # data is stored in self.walking as num x y yaw
-                [num, x, y, h] = self.walking[imgIndex].split()
-                dataStr = str(num) + " " + x + " " + y + " " + h + "\n"
+            #     [num, x, y, h] = self.walking[imgIndex]w
+            #     dataStr = str(num) + " " + x + " " + y + " " + h + "\n"d
+                [x, y, h] = self.walking[str(imgIndex)]
+                dataStr = str(imgIndex) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
             else:
                 [x, y, h] = self.labeling[imgIndex]
                 dataStr = str(imgIndex) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
@@ -263,7 +267,7 @@ class Interpolator(object):
             self.dataDone = True
         else:
             cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
-            cv2.imshow("Image", self.currFrame)
+            #cv2.imshow("Image", self.currFrame)
         if self.picNum in self.labeling.keys():
             x, y, h = self.labeling[self.picNum]
             self.currLoc = (x, y)
@@ -310,11 +314,12 @@ class Interpolator(object):
         cv2.circle(newMap, (mapX, mapY), 6, (0, 0, 255))
         return newMap
 
-    def drawWalkingLocations(self, walkingList):
+    def drawWalkingLocations(self, walkingDict):
         newMap = self.origMap.copy()
-        for loc in walkingList:
-            elems = loc.split()
-            cv2.circle(newMap, (int(elems[1]), int(elems[2])), 6, (255, 0, 255))
+        print(walkingDict)
+        for loc in walkingDict:
+            # elems = loc.split()
+            cv2.circle(newMap, (int(walkingDict[loc][1]), int(walkingDict[loc][2])), 4, (0, 0, 0))
         return newMap
 
     def _convertMapToWorld(self, mapX, mapY):
@@ -364,8 +369,10 @@ class Interpolator(object):
                 except IOError:
                     return False
                 thisNum = self._extractNum(filename)
-                if thisNum in self.walkingNums:     # TODO: check
-                    self.imgIndex += 1               #TODO: fix
+                if thisNum in self.walkingNums:
+                    print("image already determined")
+                    self.currFrame = newIm
+                    self.picNum = thisNum
                 else:
                     self.currFrame = newIm
                     self.picNum = thisNum
@@ -413,7 +420,7 @@ if __name__ == "__main__":
     basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
     InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
                                   dataSource="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/scripts/"
-                                             "markLocations/testTurtlebotVidFrames",
+                                             "markLocations/testTurtlebotVidFrames/",
                                   outputFilePath= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
                                                   "scripts/markLocations/testInterpolate/",
                                   inputLocsFilePath="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
