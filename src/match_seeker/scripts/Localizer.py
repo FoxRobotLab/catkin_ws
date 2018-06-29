@@ -2,7 +2,7 @@
 localizer.py
 
 It helps the robot to locate by the combination of image matching and MCL.
-It holds certain data that matchPlanner.py doesn't and decides on what 
+It holds certain data that matchPlanner.py doesn't and decides on what
 the robot should do and passes it onto matchPlanner.py.
 
 ======================================================================== """
@@ -100,7 +100,8 @@ class Localizer(object):
 
 
         if var < 5.0:
-           return self.mclResponse(comPose, var)
+           return self.
+           (comPose, var)
         else:
             return self.matchResponse(matchLocs, scores)
 
@@ -214,7 +215,7 @@ class Localizer(object):
         """
         :param conf: a string indicating the confidence level of a guess location
         :param loc: location data
-        
+
         set the lastKnownLoc according to conf while also setting the class variable of confidence.
         """
         if conf == "very confident." or conf == "confident, but far away.":
@@ -234,7 +235,7 @@ class Localizer(object):
 
     def odometer(self):
         """
-        :return: the odometry data from the robot 
+        :return: the odometry data from the robot
         """
         formStr = "Odometer loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})  confidence = {3:4.2f}"
         x, y, yaw = self.robot.getOdomData()

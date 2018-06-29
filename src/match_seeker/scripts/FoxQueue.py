@@ -43,13 +43,17 @@ class Queue:
         self.insert(val)
 
     def delete(self):
-        """Removes the first element from the queue."""
-        self.data.pop(0)
-        self.size = self.size - 1
+        """Removes the first element from the queue, returning it as its value."""
+        if self.isEmpty():
+            return None
+        else:
+            firstData = self.data.pop(0)
+            self.size = self.size - 1
+            return firstData
 
     def dequeue(self):
-        """Another name for deleting"""
-        self.delete()
+        """Another name for deleting: removes the first element from the queue, returning it as its value."""
+        return self.delete()
 
     def __str__(self):
         """Creates a string containing the data, just for debugging."""
@@ -73,9 +77,11 @@ class PriorityQueue(Queue):
     Implemented with a MinHeap, which is internal to the class"""
 
     def __init__(self, vallist=[], compareFn = None):
-        """When creating the queue, you an give a list of values
-        to insert in the queue at the start, they must be tuples of the form
-        (priority, value)"""
+        """Has two optional inputs. The first is a list to populate the queue with, which must
+        be a list of tuples, where each tuple contains a value and that value's priority. The second
+        optional input is a function used to compare elements of the priority queue to determine which has
+        higher priority. This allows more complex priorities, including lists of priority values to be handled.
+        """
         Queue.__init__(self, vallist)
         if compareFn is None:
             self.comesBefore = self._defaultCompare
@@ -83,8 +89,9 @@ class PriorityQueue(Queue):
             self.comesBefore = compareFn
         self.heap = []
         self.size = 0
-        for (p, v) in vallist:
-            self.insert(p, v)
+        for (val, prior) in vallist:
+            self.insert(val, prior)
+
 
     def firstElement(self):
         """Returns the first value in the queue, without removing it."""
@@ -93,15 +100,15 @@ class PriorityQueue(Queue):
         else:
             return self.heap[0]
 
-    def insert(self, priority, val):
+    def insert(self, value, priority):
         """Inserts a new value at the end of the queue."""
-        self.heap.append([priority, val])
+        self.heap.append((val, priority))
         self.size = self.size + 1
         self._walkUp(self.size - 1)
 
-    def enqueue(self, priority, val):
+    def enqueue(self, val, priority):
         """Another name for inserting"""
-        self.insert(priority, val)
+        self.insert(val, priority)
 
     def _walkUp(self, index):
         """Walk a value up the heap until it is larger than its parent
@@ -112,7 +119,7 @@ class PriorityQueue(Queue):
             parentIndex = self._parent(index)
             curr = self.heap[index]
             par = self.heap[parentIndex]
-            if not self.comesBefore(curr[0], par[0]):
+            if not self.comesBefore(curr[1], par[1]):
                 inPlace = 1
             else:
                 self.heap[index] = par
@@ -120,21 +127,26 @@ class PriorityQueue(Queue):
                 index = parentIndex
 
     def delete(self):
-        """Removes the first element from the queue."""
+        """Removes the first element from the queue, returning it as its value, or returning None if
+        the queue is already empty."""
         if self.size == 0:
-            return
+            return None
         elif self.size == 1:
+            poppedElement = self.heap[0]
             self.size = self.size - 1
             self.heap = []
+            return poppedElement
         else:
+            poppedElement = self.heap[0]
             self.size = self.size - 1
             lastItem = self.heap.pop(self.size)
             self.heap[0] = lastItem
             self._walkDown(0)
+            return poppedElement
 
     def dequeue(self):
-        """Another name for deleting"""
-        self.delete()
+        """Another name for deleting, removes the first element from the queue, returning it as its value"""
+        return self.delete()
 
     def _walkDown(self, index):
         """A private method, walks a value down the tree until it is
@@ -160,7 +172,7 @@ class PriorityQueue(Queue):
                 leftInd = self._leftChild(index)
                 rightInd = self._rightChild(index)
 
-    def update(self, newP, value):
+    def update(self, value, newP):
         """Update finds the given value in the queue, changes its
         priority value, and then moves it up or down the tree as
         appropriate."""
