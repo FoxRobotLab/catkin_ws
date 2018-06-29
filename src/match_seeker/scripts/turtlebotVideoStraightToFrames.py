@@ -24,6 +24,9 @@ class StraightToFrames(object):
         self.outputFolder = outputFolder
         self.outputFile = outputFile
         self.robot = robot
+
+        self.robot.pauseMovement()
+
         self.img = None
 
     def go(self):
@@ -99,8 +102,8 @@ def main():
     robot = turtleControl.TurtleBot()
 
     framer = StraightToFrames(
-        outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/',
-        outputFile='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/testTurtlebotVidFrames/testTurtlebotVidFrames.txt',
+        outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/june29Frames/',
+        outputFile='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/june29Frames/june29Frames.txt',
         robot=robot)
     framer.go()
 

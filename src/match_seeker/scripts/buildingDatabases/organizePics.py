@@ -133,10 +133,10 @@ if __name__ == "__main__":
 
     #DONE (allFrames) : atriumClockwiseFrames, westAtriumFrames, atriumSouthFrames_2, atriumSouthFrames, atriumNorthFrames, goodFrom2017
     #TODO: Always check for the correct startNewNum (usually by going into name changes file.
-    startNewNum = 5288
-    organizer = OrganizeData(origFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenFrames/",
+    startNewNum = 5296
+    organizer = OrganizeData(origFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/framesBeingKept/",
                              desFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/allFrames060418/",
-                             origLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/juneElevenLocs.txt",
+                             origLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/combiningTextFiles.txt",
                              desLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt",
                              nameChangeFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/buildingDatabases/nameChanges/allNameChanges060418.txt",
                              startNewNum=startNewNum)

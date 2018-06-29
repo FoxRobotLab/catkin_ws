@@ -5290,3 +5290,11 @@ newNum oldNum
 5284 4089
 5285 5114
 5286 3583
+/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/framesBeingKept/
+5288 225
+5289 201
+5290 205
+5291 179
+5292 217
+5293 90
+5294 222
