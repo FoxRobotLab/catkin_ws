@@ -16,6 +16,7 @@ import time
 
 import cv2
 import numpy as np
+import bisect
 
 # import readMap
 import src.match_seeker.scripts.markLocations.readMap as readMap
@@ -64,6 +65,11 @@ class Interpolator(object):
             self.walking[lineList[0]]= [float(lineList[1]),float(lineList[2]),int(lineList[3])]
         print(self.walkingNums)
 
+
+        self.previousStamp = None
+        self.nextStamp = None
+
+
     def go(self):
         """Run the program, setting up windows and all."""
         self._setupWindows()
@@ -89,9 +95,6 @@ class Interpolator(object):
         goodFrame = self._getNextImage()
         if not goodFrame:
             self.dataDone = True
-
-
-
 
         # run main loop until user quits or run out of frames
         while (not self.dataDone) and (ch != 'q'):
@@ -143,6 +146,8 @@ class Interpolator(object):
                 except IOError:
                     print("error reading jpg file")
                 thisNum = self._extractNum(filename)
+                print(self.walkingNums)
+                print(self.walking)
                 if thisNum in self.walkingNums:
                     [x, y, h] = self.walking[str(thisNum)]
                     dataStr = str(thisNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
@@ -154,9 +159,6 @@ class Interpolator(object):
                     print("Frame", thisNum, "with location", (x, y, h))
             else:
                 print("not printing non-jpg")
-
-
-
 
         logFile.close()
 
@@ -315,6 +317,19 @@ class Interpolator(object):
         """Hightlight the robot's current location based on the input.
         currPos is given in meters, so need to convert: 20 pixels per meter."""
         newMap = self.origMap.copy()
+        self.setCurrentStamps()
+        # if self.previousStamp != None:
+        #     num = str(self.walkingNums[self.previousStamp])
+        #     info = self.walking[num]
+        #     (pcurrX, pcurrY) = (int(info[1]), int(info[2]))
+        #     (pmapX, pmapY) = self._convertWorldToMap(pcurrX,pcurrY)
+        #     cv2.circle(newMap, (pmapX, pmapY), 8, (255, 0, 0))
+        # if self.nextStamp != None:
+        #     num = str(self.walkingNums[self.nextStamp])
+        #     info = self.walking[num]
+        #     (ncurrX, ncurrY) = (int(info[1]), int(info[2]))
+        #     (nmapX, nmapY) = self._convertWorldToMap(ncurrX, ncurrY)
+        #     cv2.circle(newMap, (nmapX, nmapY), 8, (255, 0, 0))
         if units == "meters":
             (currX, currY) = currPos
             (mapX, mapY) = self._convertWorldToMap(currX, currY)
@@ -322,6 +337,31 @@ class Interpolator(object):
             (mapX, mapY) = currPos
         cv2.circle(newMap, (mapX, mapY), 6, (0, 0, 255))
         return newMap
+
+    def updateStampsMap(self, newMap):
+        self.setCurrentStamps()
+
+        return newMap
+
+    def setCurrentStamps(self):
+        # print(self.walkingNums)
+        # walkingNumsCopy = self.walkingNums
+        # bisect.insort(walkingNumsCopy, self.picNum)
+        # i = walkingNumsCopy.index(self.picNum)
+        # if i - 1 >= 0:
+        #     self.previousStamp = i - 1
+        # elif i - 1 < 0:
+        #     self.previousStamp = None
+        # if i + 1 < len(walkingNumsCopy):   #may have to adjust numbering
+        #     self.nextStamp = i
+        # elif i + 1 >= len(walkingNumsCopy):
+        #     self.nextStamp = None
+        # print(self.walkingNums)
+        # print("---------------------------------")
+        for num in self.walkingNums:
+            if self.picNum < num:
+                print()
+
 
     def drawWalkingLocations(self, walkingDict):
         newMap = self.origMap.copy()
@@ -364,7 +404,6 @@ class Interpolator(object):
 
     def _getNextImage(self):
         """Gets the next frame from the camera or from reading the next file"""
-        #TODO: CHECK IF THE IMAGE IS NOT IN THE LIST OF ALREADY DETERMINED IMAGES
         while True:
             if self.imgFileList == []:
                 return False
