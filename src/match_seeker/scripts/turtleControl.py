@@ -213,7 +213,7 @@ class TurtleBot(object):
 
     def pauseMovement(self):
         """Takes no input, pauses the movement signal from the robot so it cannot move."""
-        self.moveControl.stop()
+        self.moveControl.stopMovement()
         self.moveControl.pauseMovement()
 
     def unpauseMovement(self):
