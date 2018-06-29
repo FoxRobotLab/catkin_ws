@@ -62,7 +62,7 @@ class Interpolator(object):
             self.walkingNums.append(int(line.split()[0]))  # This assumes the text file will be in a certain format
             lineList= line.split()
             self.walking[lineList[0]]= [float(lineList[1]),float(lineList[2]),int(lineList[3])]
-
+        print(self.walkingNums)
 
     def go(self):
         """Run the program, setting up windows and all."""
@@ -136,19 +136,28 @@ class Interpolator(object):
             fileOpen = True
         except:
             print ("FAILED TO OPEN DATA FILE")
-        for imgIndex in self.labeling:
-            if imgIndex in self.walkingNums:
-            # data is stored in self.walking as num x y yaw
-            #     [num, x, y, h] = self.walking[imgIndex]w
-            #     dataStr = str(num) + " " + x + " " + y + " " + h + "\n"d
-                [x, y, h] = self.walking[str(imgIndex)]
-                dataStr = str(imgIndex) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
+        for filename in self.imgFileList:
+            if filename[-3:] in {"jpg", "png"}:
+                try:
+                    newIm = cv2.imread(self.dataSource + filename)
+                except IOError:
+                    print("error reading jpg file")
+                thisNum = self._extractNum(filename)
+                if thisNum in self.walkingNums:
+                    [x, y, h] = self.walking[str(thisNum)]
+                    dataStr = str(thisNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
+                else:
+                    [x, y, h] = self.labeling[thisNum]
+                    dataStr = str(thisNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
+                if fileOpen:
+                    logFile.write(dataStr)
+                    print("Frame", thisNum, "with location", (x, y, h))
             else:
-                [x, y, h] = self.labeling[imgIndex]
-                dataStr = str(imgIndex) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
-            if fileOpen:
-                logFile.write(dataStr)
-            print("Frame", imgIndex, "with location", (x, y, h))
+                print("not printing non-jpg")
+
+
+
+
         logFile.close()
 
 
@@ -258,7 +267,7 @@ class Interpolator(object):
             self._displayStatus()
 
     def _processToNextFrame(self):
-        self.labeling[self.imgIndex] = [self.currLoc[0], self.currLoc[1], self.currHeading]
+        self.labeling[self.picNum] = [self.currLoc[0], self.currLoc[1], self.currHeading]    #CHANGED imgINdEx TO picNum
         mapX, mapY = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
         self._updateMap((mapX, mapY))
         goodFrame = self._getNextImage()
@@ -316,7 +325,6 @@ class Interpolator(object):
 
     def drawWalkingLocations(self, walkingDict):
         newMap = self.origMap.copy()
-        print(walkingDict)
         for loc in walkingDict:
             # elems = loc.split()
             cv2.circle(newMap, (int(walkingDict[loc][1]), int(walkingDict[loc][2])), 4, (0, 0, 0))
@@ -371,6 +379,7 @@ class Interpolator(object):
                 thisNum = self._extractNum(filename)
                 if thisNum in self.walkingNums:
                     print("image already determined")
+                    self.imgIndex +=1
                     self.currFrame = newIm
                     self.picNum = thisNum
                 else:
