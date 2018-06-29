@@ -1,8 +1,0 @@
-prefix=/home/macalester/Desktop/githubRepositories/catkin_ws/devel
-
-Name: foxbeginner_tutorials
-Description: Description of foxbeginner_tutorials
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/macalester/Desktop/githubRepositories/catkin_ws/devel/lib 
-Requires: 
