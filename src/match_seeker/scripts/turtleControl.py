@@ -379,6 +379,15 @@ class MovementControlThread(threading.Thread):
             self.translate = 0.0
             self.rotate = 0.0
 
+    def pauseMovement(self):
+        with self.lock:
+            self.paused = True
+
+    def unpauseMovement(self):
+        with self.lock:
+            self.paused = False
+
+
 
 class ImageSensorThread(threading.Thread):
     """This thread communicates with the camera data from ROS, providing updated camera images upon request."""
