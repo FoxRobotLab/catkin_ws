@@ -311,10 +311,10 @@ class Interpolator(object):
             for frameNum in autoFrameNums:
                 x+= xChange
                 y+= yChange
-                self.labeling[frameNum] = [x, y, yaw]
-            #TODO: MOVE TO THE NEXT UNLABELED FRAME
+                self.labeling[frameNum] = [x, y, int(yaw)]
+            #TODO: MOVE TO THE NEXT UNLABELED FRAME IDK IF THIS WORKS
             self.currLoc = (x, y)
-            self.currHeading = yaw
+            self.currHeading = int(yaw)
             #here is where picNum needs to be updated
             self.imgIndex += numAutoFrames
             i=self.fileNumberList.index(self.walkingNums[self.nextStamp])
@@ -328,9 +328,6 @@ class Interpolator(object):
                 return False
             self.currFrame = newIm
             cv2.imshow("Image", self.currFrame)
-
-
-
 
 
     def _processToNextFrame(self):
@@ -403,7 +400,6 @@ class Interpolator(object):
         return newMap
 
 
-
     def setCurrentStamps(self):
         """
         determines the previous stamped location and the next stamped location to the current frame
@@ -422,14 +418,13 @@ class Interpolator(object):
                     self.nextStamp = i+1
 
 
-
-
     def drawWalkingLocations(self, walkingDict):
         newMap = self.origMap.copy()
         for loc in walkingDict:
             # elems = loc.split()
             cv2.circle(newMap, (int(walkingDict[loc][1]), int(walkingDict[loc][2])), 4, (0, 0, 0))
         return newMap
+
 
     def _convertMapToWorld(self, mapX, mapY):
         """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
@@ -453,7 +448,6 @@ class Interpolator(object):
         mapX = self.mapWid - 1 - pixelY
         mapY = self.mapHgt - 1 - pixelX
         return (int(mapX), int(mapY))
-
 
 
     def _setupImageCapture(self):
