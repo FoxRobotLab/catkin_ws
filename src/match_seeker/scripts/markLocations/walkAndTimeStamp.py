@@ -266,6 +266,8 @@ class RealTimeLocs(object):
         mapY = self.mapHgt - 1 - pixelX
         return (int(mapX), int(mapY))
 
+
+
 if __name__ == "__main__":
     catkinPath = "/home/macalester/"
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
