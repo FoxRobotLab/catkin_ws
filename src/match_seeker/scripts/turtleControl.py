@@ -211,6 +211,15 @@ class TurtleBot(object):
         will continue indefinitely."""
         self.moveControl.setMovement(translate, rotate)
 
+    def pauseMovement(self):
+        """Takes no input, pauses the movement signal from the robot so it cannot move."""
+        self.moveControl.stop()
+        self.moveControl.pauseMovement()
+
+    def unpauseMovement(self):
+        """Takes no input, pauses the movement signal from the robot so it cannot move."""
+        self.moveControl.unpauseMovement()
+
     def getDepth(self, x = 0, y = 0, width = 640, height = 480):
         """Takes in (x, y), the upper left corner of a rectangle, and the rectangle's botWidth and botHeight, all optional
         inputs. It access the depth image and returns the specified section of the depth image. The default values are
