@@ -21,6 +21,7 @@ import time
 
 import cv2
 import numpy as np
+import math
 
 
 # import readMap
@@ -157,13 +158,16 @@ class Interpolator(object):
                 except IOError:
                     print("error reading jpg file")
                 thisNum = self._extractNum(filename)
+                written = False
                 if thisNum in self.walkingNums:
                     [x, y, h] = self.walking[str(thisNum)]
                     dataStr = str(thisNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
-                else:
+                    written = True
+                elif thisNum in self.labeling:
                     [x, y, h] = self.labeling[thisNum]
                     dataStr = str(thisNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
-                if fileOpen:
+                    written = True
+                if fileOpen and written == True:
                     logFile.write(dataStr)
                     print("Frame", thisNum, "with location", (x, y, h))
             else:
@@ -212,8 +216,11 @@ class Interpolator(object):
         cv2.rectangle(newMain, (110, 350), (189, 400), green, -1)
         cv2.putText(newMain, "Next", (135, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
-        cv2.rectangle(newMain, (20, 410),(189, 450), green, -1)
-        cv2.putText(newMain, "Auto", (100, 430), cv2.FONT_HERSHEY_PLAIN, .8, (0,0,0))        #BOUNDARIES OF AUTO BUTTON
+        cv2.rectangle(newMain, (20, 410),(99, 450), green, -1)
+        cv2.putText(newMain, "Auto Line", (30, 430), cv2.FONT_HERSHEY_PLAIN, .8, (0,0,0))      #BOUNDARIES OF AUTO LINE
+
+        cv2.rectangle(newMain, (110, 410), (189, 450), green , -1)
+        cv2.putText(newMain, "Auto Spin", (120, 430), cv2.FONT_HERSHEY_PLAIN, .8, (0,0,0))      #BOUNDARIES OF AUTO SPIN
 
         return newMain
 
@@ -278,13 +285,39 @@ class Interpolator(object):
                 else:
                     self.imgIndex += 1
                     self._processToNextFrame()
-            elif (20 <= x <= 190) and (410 <=y <= 450):
-                self.automaticInterpolate()
-
+            elif (20 <= x <= 99) and (410 <=y <= 450):
+                self.automaticInterpolateLine()
+            elif (110 <= x <= 189) and (410 <= y <= 450):
+                self.automaticInterpolateSpin()
 
             self._displayStatus()
 
-    def automaticInterpolate(self):
+    def automaticInterpolateSpin(self):
+        if self.previousStamp != None and self.nextStamp != None:
+            numprev = str(self.walkingNums[self.previousStamp])
+            infoprev = self.walking[numprev]
+            numnext = str(self.walkingNums[self.nextStamp])
+            infonext = self.walking[numnext]
+            autoFrameNums = []
+            for framenum in self.fileNumberList:
+                if framenum < self.walkingNums[self.nextStamp] and framenum > self.walkingNums[self.previousStamp]:
+                    autoFrameNums.append(framenum)
+            numAutoFrames = len(autoFrameNums)
+            xPrev = float(infoprev[1])                          # maybe change into ints instead?
+            yPrev = float(infoprev[2])
+            xNext = float(infonext[1])
+            yNext = float(infonext[2])
+            xAvg = (xPrev + xNext) / 2
+            yAvg = (yPrev + yNext) / 2
+            yawPrev = float(infoprev[3])
+            yawNext= float(infonext[3])
+            info = input("Enter: clockwise or counterclockwise: ")
+            if info == "clockwise":
+                print()
+            elif info == "counterclockwise":
+                print()
+
+    def automaticInterpolateLine(self):
         """
         Finds the two adjacent marked locations, asks for a desired yaw, and then evenly interpolates the images
         :return:
@@ -307,12 +340,12 @@ class Interpolator(object):
             yChange = (yNext - yPrev) / numAutoFrames
             x = xPrev
             y= yPrev
-            yaw = str(input("Please enter the desired yaw for all images: ")) #TODO: CALCULATE YAW WITH TRIG
+            yaw = self.calculateYaw(xChange, yChange)
             for frameNum in autoFrameNums:
                 x+= xChange
                 y+= yChange
                 self.labeling[frameNum] = [x, y, int(yaw)]
-            #TODO: MOVE TO THE NEXT UNLABELED FRAME IDK IF THIS WORKS
+            #TODO: MOVE TO THE NEXT UNLABELED FRAME IDK IF THIS WORKS PERFECTLY
             self.currLoc = (x, y)
             self.currHeading = int(yaw)
             #here is where picNum needs to be updated
@@ -328,6 +361,46 @@ class Interpolator(object):
                 return False
             self.currFrame = newIm
             cv2.imshow("Image", self.currFrame)
+        else:
+            print("Cannot Interpolate: Not between two stamps")
+
+    def calculateYaw(self, xChange, yChange):
+        """
+        Takes in a vector with an x and a y component, and calculates the angle counterclockwise with the positive
+        y axis
+        :param xChange:
+        :param yChange:
+        :return:
+        """
+        angle = math.atan2(yChange,xChange)
+        angle = math.degrees(angle)
+        newAngle = 0
+        if angle < 0:              #checks if the angle is negative, converts to the positive version
+            angle += 360
+        if angle >=90:             #if in the 2nd, 3rd, or 4th quadrant, subtract 90 degrees
+            newAngle  = angle - 90
+        if angle < 90:             # if in the first quadrant, add 270 degrees
+            newAngle = angle + 270
+        yaw =0
+        # now calculate which category this angle is in
+        if newAngle > 337.5 or newAngle < 22.5 :
+            yaw = 0
+        if newAngle >= 22.5 and newAngle <= 67.5:
+            yaw  = 45
+        if newAngle > 67.5 and newAngle < 112.5:
+            yaw = 90
+        if newAngle >= 67.5 and newAngle <= 157.5:
+            yaw = 135
+        if newAngle > 157.5 and newAngle < 202.5:
+            yaw = 180
+        if newAngle >= 202.5 and newAngle <= 247.5:
+            yaw = 225
+        if newAngle > 247.5 and newAngle < 292.5:
+            yaw = 270
+        if newAngle >= 292.5 and newAngle >= 337.5:
+            yaw = 315
+        return yaw
+
 
 
     def _processToNextFrame(self):
