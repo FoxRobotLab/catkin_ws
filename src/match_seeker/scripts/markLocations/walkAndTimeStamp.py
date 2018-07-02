@@ -121,9 +121,9 @@ class RealTimeLocs(object):
         """Builds the gui window image with buttons at given locations. Note that space is left for
         displaying the robot's current location, but that is done by a separate method."""
 
-        rose = (204, 204, 255)
-        violet = (255, 204, 229)
-        green = (0, 204, 0)
+        dustyRose = (186, 149, 219)
+        deepPink = (150, 105, 192)
+        babyPink = (218, 195, 240)
 
         newMain = np.zeros((420, 210, 3), np.uint8)
 
@@ -131,19 +131,26 @@ class RealTimeLocs(object):
         info = [[0, 0, "NW 45"], [0, 140, "SW 135"], [140, 0, "NE 315"], [140, 140, "SE 225"]]
         for square in info:
             (x, y, strng) = square
-            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), rose, -1)
+            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), dustyRose, -1)
             cv2.putText(newMain, strng, (x + 20, y + 40), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
         # Put squares for N, S, E, W
         info = [[70, 0, "N 0"], [70, 140, "S 180"], [0, 70, "W 90"], [140, 70, "E 270"]]
         for square in info:
             (x, y, strng) = square
-            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), violet, -1)
+            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), deepPink, -1)
             cv2.putText(newMain, strng, (x + 20, y + 40), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
-        cv2.rectangle(newMain, (62, 350), (141, 400), green, -1)
-        cv2.putText(newMain, "Next", (85, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
+        cv2.rectangle(newMain, (20, 350), (99, 400), babyPink, -1)
+        cv2.putText(newMain, "Previous", (30, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
+
+        cv2.rectangle(newMain, (110, 350), (189, 400), babyPink, -1)
+        cv2.putText(newMain, "Next", (135, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
         return newMain
+
+        # cv2.rectangle(newMain, (62, 350), (141, 400), babyPink, -1)
+        # cv2.putText(newMain, "Next", (85, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
+        # return newMain
 
 
     def _displayStatus(self):
@@ -195,14 +202,23 @@ class RealTimeLocs(object):
             elif (140 <= x < 210) and (140 <= y < 210):
                 # click was in "southeast" heading square
                 self.currHeading = 225
-            elif (62 <= x < 141) and (350 <= y <= 400):
+            elif (20 <= x < 100) and (350 <= y <= 400):
+                # click was in "Previous" frame
+                self.clickNum = self.clickNum - 1
+                self.getValues()
+            #elif (62 <= x < 141) and (350 <= y <= 400):
+            elif (110 <= x < 190) and (350 <= y <= 400):
                 # click was in "Next" frame
                 time1 = time.localtime()
-                self.currTime = time.strftime("%H:%M:%S", time1)
-                self.info[self.clickNum] = [self.currTime, self.currLoc[0], self.currLoc[1], self.currHeading]
+                self.getValues()
                 self.clickNum = self.clickNum + 1
 
             self._displayStatus()
+
+    def getValues(self):
+        time1 = time.localtime()
+        self.currTime = time.strftime("%H:%M:%S", time1)
+        self.info[self.clickNum] = [self.currTime, self.currLoc[0], self.currLoc[1], self.currHeading]
 
     def _getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
@@ -273,8 +289,7 @@ if __name__ == "__main__":
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
     basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
     print(time)
-    realTimer = RealTimeLocs(mapFile="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/res/map/"
-                                     "olinNewMap.txt",
-                             outputFilePath= "/Users/johnpellegrini/Desktop/testframes/")
+    realTimer = RealTimeLocs(mapFile= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
+                             outputFilePath= "/home/macalester/")
 
     realTimer.go()
