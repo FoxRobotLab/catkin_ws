@@ -70,7 +70,6 @@ class Interpolator(object):
             self.walkingNums.append(int(line.split()[0]))  # This assumes the text file will be in a certain format
             lineList= line.split()
             self.walking[lineList[0]]= [float(lineList[1]),float(lineList[2]),int(lineList[3])]
-        print(self.walkingNums)
 
 
         self.previousStamp = None
@@ -293,9 +292,14 @@ class Interpolator(object):
             self._displayStatus()
 
     def automaticInterpolateSpin(self):
+        """
+        Given two points with relatively the same location and with different angles.
+        :return:
+        """
         if self.previousStamp != None and self.nextStamp != None:
             numprev = str(self.walkingNums[self.previousStamp])
             infoprev = self.walking[numprev]
+            print(infoprev)
             numnext = str(self.walkingNums[self.nextStamp])
             infonext = self.walking[numnext]
             autoFrameNums = []
@@ -303,19 +307,67 @@ class Interpolator(object):
                 if framenum < self.walkingNums[self.nextStamp] and framenum > self.walkingNums[self.previousStamp]:
                     autoFrameNums.append(framenum)
             numAutoFrames = len(autoFrameNums)
-            xPrev = float(infoprev[1])                          # maybe change into ints instead?
-            yPrev = float(infoprev[2])
-            xNext = float(infonext[1])
-            yNext = float(infonext[2])
+            xPrev = float(infoprev[0])
+            yPrev = float(infoprev[1])
+            xNext = float(infonext[0])
+            yNext = float(infonext[1])
             xAvg = (xPrev + xNext) / 2
             yAvg = (yPrev + yNext) / 2
-            yawPrev = float(infoprev[3])
-            yawNext= float(infonext[3])
-            info = input("Enter: clockwise or counterclockwise: ")
+            yawPrev = float(infoprev[2])
+            yawNext = float(infonext[2])
+            yawChange = 360 / numAutoFrames      # possibly could improve to give the option of giving the difference
+            currYaw = yawPrev
+            info = str(raw_input("Enter: clockwise or counterclockwise: "))
             if info == "clockwise":
-                print()
+                for frameNum in autoFrameNums:
+                    currYaw = currYaw- yawChange
+                    if currYaw < 0:
+                        currYaw = currYaw + 360
+                    self.labeling[frameNum] = [xAvg, yAvg, currYaw]
             elif info == "counterclockwise":
-                print()
+                for frameNum in autoFrameNums:
+                    currYaw = currYaw + yawChange
+
+                    if currYaw >= 360:
+                        currYaw = currYaw - 360
+                    self.labeling[frameNum] = [xAvg, yAvg, currYaw]
+            self.currLoc = (xNext, yNext)
+            self.currHeading = int(yawNext)
+            # here is where picNum needs to be updated
+            self.imgIndex += numAutoFrames
+            i = self.fileNumberList.index(self.walkingNums[self.nextStamp])
+            self.picNum = self.fileNumberList[i + 1]
+            filename = self.imgFileList[i + 1]
+            mapX, mapY = self._convertWorldToMap(xNext, yNext)
+            self._updateMap((mapX, mapY))
+            try:
+                newIm = cv2.imread(self.dataSource + filename)
+            except IOError:
+                return False
+            self.currFrame = newIm
+            cv2.imshow("Image", self.currFrame)
+        else:
+            print("Cannot Interpolate: Not between two stamps")
+
+    def roundToNearestAngle(self, angle):
+        """
+        Takes in an angle and returns the angle within the compass (separated by
+
+        :param angle:
+        :return:
+        """
+        listOfAngles = [0, 45, 90, 135, 180, 225, 270, 315]
+        dif = 1000000000
+        smallestAngle = 0
+        for currAngle in listOfAngles:
+            currDif = abs(currAngle - angle)
+            if currDif < dif:
+                dif = currDif
+                smallestAngle = currAngle
+        return smallestAngle
+
+
+
 
     def automaticInterpolateLine(self):
         """
@@ -325,12 +377,12 @@ class Interpolator(object):
         if self.previousStamp != None and self.nextStamp != None:
             num = str(self.walkingNums[self.previousStamp])
             info = self.walking[num]
-            xPrev = float(info[1])                          # maybe change into ints instead?
-            yPrev = float(info[2])
+            xPrev = float(info[0])                          # maybe change into ints instead?
+            yPrev = float(info[1])
             num = str(self.walkingNums[self.nextStamp])
             info = self.walking[num]
-            xNext = float(info[1])
-            yNext = float(info[2])
+            xNext = float(info[0])
+            yNext = float(info[1])
             autoFrameNums = []
             for framenum in self.fileNumberList:
                 if framenum < self.walkingNums[self.nextStamp] and framenum > self.walkingNums[self.previousStamp]:
@@ -344,7 +396,7 @@ class Interpolator(object):
             for frameNum in autoFrameNums:
                 x+= xChange
                 y+= yChange
-                self.labeling[frameNum] = [x, y, int(yaw)]
+                self.labeling[frameNum] = [x, y, yaw]
             #TODO: MOVE TO THE NEXT UNLABELED FRAME IDK IF THIS WORKS PERFECTLY
             self.currLoc = (x, y)
             self.currHeading = int(yaw)
@@ -457,12 +509,12 @@ class Interpolator(object):
         if self.previousStamp != None:
             num = str(self.walkingNums[self.previousStamp])
             info = self.walking[num]
-            (pcurrX, pcurrY) = (int(info[1]), int(info[2]))
+            (pcurrX, pcurrY) = (int(info[0]), int(info[1]))
             cv2.circle(newMap, (pcurrX, pcurrY), 8, (255, 0, 0))   #highlights the previous location in black
         if self.nextStamp != None:
             num = str(self.walkingNums[self.nextStamp])
             info = self.walking[num]
-            (ncurrX, ncurrY) = (int(info[1]), int(info[2]))
+            (ncurrX, ncurrY) = (int(info[0]), int(info[1]))
             cv2.circle(newMap, (ncurrX, ncurrY), 8, (0, 255, 0))   #highlights the next location
         if units == "meters":
             (currX, currY) = currPos
@@ -480,7 +532,7 @@ class Interpolator(object):
         """
         if self.picNum < self.walkingNums[0]:
             self.previousStamp = None
-            self.nextStamp=1
+            self.nextStamp= 1
         if self.picNum > self.walkingNums[len(self.walkingNums)-1]:
             self.previousStamp = len(self.walkingNums)-1
             self.nextStamp = None
@@ -495,7 +547,7 @@ class Interpolator(object):
         newMap = self.origMap.copy()
         for loc in walkingDict:
             # elems = loc.split()
-            cv2.circle(newMap, (int(walkingDict[loc][1]), int(walkingDict[loc][2])), 4, (0, 0, 0))
+            cv2.circle(newMap, (int(walkingDict[loc][0]), int(walkingDict[loc][1])), 4, (0, 0, 0))
         return newMap
 
 
