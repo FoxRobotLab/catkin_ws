@@ -60,17 +60,6 @@ class Interpolator(object):
         # Instance variables to hold outcome data
         self.labeling = dict()
 
-        # data from walking files
-        file = open(self.inputLocsFilePath, "r")
-        walking = file.readlines()
-        self.walkingNums = []
-        self.walking = {}
-        file.close()
-        for line in walking:
-            self.walkingNums.append(int(line.split()[0]))  # This assumes the text file will be in a certain format
-            lineList= line.split()
-            self.walking[lineList[0]]= [float(lineList[1]),float(lineList[2]),int(lineList[3])]
-
 
         self.previousStamp = None
         self.nextStamp = None
@@ -89,11 +78,24 @@ class Interpolator(object):
 
         # set up map window and callback
         self.origMap = self._getOlinMap()
-        self.origMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
         (self.mapHgt, self.mapWid, dep) = self.origMap.shape
         self.currMap = self.origMap
         cv2.imshow("Map", self.currMap)
         cv2.setMouseCallback("Map", self._mouseSetLoc)          # Set x, y location
+
+        # data from walking files
+        file = open(self.inputLocsFilePath, "r")
+        walking = file.readlines()
+        self.walkingNums = []
+        self.walking = {}
+        file.close()
+        for line in walking:
+            self.walkingNums.append(int(line.split()[0]))  # This assumes the text file will be in a certain format
+            lineList= line.split()
+            #(x,y) = self._convertMapToWorld(float(lineList[1]),float(lineList[2]))
+            self.walking[lineList[0]]= [float(lineList[1]), float(lineList[2]), int(lineList[3])]
+        self.origMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
+
 
         # set up video capture and first frame
         self._setupImageCapture()
@@ -293,7 +295,8 @@ class Interpolator(object):
 
     def automaticInterpolateSpin(self):
         """
-        Given two points with relatively the same location and with different angles.
+        Given two points with relatively the same location that have the same yaw, split all the images up and assign
+        them automatically interpolated location and yaw.
         :return:
         """
         if self.previousStamp != None and self.nextStamp != None:
@@ -323,14 +326,15 @@ class Interpolator(object):
                     currYaw = currYaw- yawChange
                     if currYaw < 0:
                         currYaw = currYaw + 360
-                    self.labeling[frameNum] = [xAvg, yAvg, currYaw]
+                    thisYaw =self.roundToNearestAngle(currYaw)
+                    self.labeling[frameNum] = [xAvg, yAvg, thisYaw]
             elif info == "counterclockwise":
                 for frameNum in autoFrameNums:
                     currYaw = currYaw + yawChange
-
                     if currYaw >= 360:
                         currYaw = currYaw - 360
-                    self.labeling[frameNum] = [xAvg, yAvg, currYaw]
+                    thisYaw = self.roundToNearestAngle(currYaw)
+                    self.labeling[frameNum] = [xAvg, yAvg, thisYaw]
             self.currLoc = (xNext, yNext)
             self.currHeading = int(yawNext)
             # here is where picNum needs to be updated
