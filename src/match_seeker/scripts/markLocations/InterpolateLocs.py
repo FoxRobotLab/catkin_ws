@@ -21,6 +21,7 @@ import time
 
 import cv2
 import numpy as np
+import math
 
 
 # import readMap
@@ -59,18 +60,6 @@ class Interpolator(object):
         # Instance variables to hold outcome data
         self.labeling = dict()
 
-        # data from walking files
-        file = open(self.inputLocsFilePath, "r")
-        walking = file.readlines()
-        self.walkingNums = []
-        self.walking = {}
-        file.close()
-        for line in walking:
-            self.walkingNums.append(int(line.split()[0]))  # This assumes the text file will be in a certain format
-            lineList= line.split()
-            self.walking[lineList[0]]= [float(lineList[1]),float(lineList[2]),int(lineList[3])]
-        print(self.walkingNums)
-
 
         self.previousStamp = None
         self.nextStamp = None
@@ -89,11 +78,24 @@ class Interpolator(object):
 
         # set up map window and callback
         self.origMap = self._getOlinMap()
-        self.origMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
         (self.mapHgt, self.mapWid, dep) = self.origMap.shape
         self.currMap = self.origMap
         cv2.imshow("Map", self.currMap)
         cv2.setMouseCallback("Map", self._mouseSetLoc)          # Set x, y location
+
+        # set up data from walking files
+        file = open(self.inputLocsFilePath, "r")
+        walking = file.readlines()
+        self.walkingNums = []
+        self.walking = {}
+        file.close()
+        for line in walking:
+            self.walkingNums.append(int(line.split()[0]))  # This assumes the text file will be in a certain format
+            lineList= line.split()
+            #(x,y) = self._convertMapToWorld(float(lineList[1]),float(lineList[2]))
+            self.walking[lineList[0]]= [float(lineList[1]), float(lineList[2]), int(lineList[3])]
+        self.origMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
+
 
         # set up video capture and first frame
         self._setupImageCapture()
@@ -157,13 +159,16 @@ class Interpolator(object):
                 except IOError:
                     print("error reading jpg file")
                 thisNum = self._extractNum(filename)
+                written = False
                 if thisNum in self.walkingNums:
                     [x, y, h] = self.walking[str(thisNum)]
                     dataStr = str(thisNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
-                else:
+                    written = True
+                elif thisNum in self.labeling:
                     [x, y, h] = self.labeling[thisNum]
                     dataStr = str(thisNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
-                if fileOpen:
+                    written = True
+                if fileOpen and written == True:
                     logFile.write(dataStr)
                     print("Frame", thisNum, "with location", (x, y, h))
             else:
@@ -212,8 +217,11 @@ class Interpolator(object):
         cv2.rectangle(newMain, (110, 350), (189, 400), green, -1)
         cv2.putText(newMain, "Next", (135, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
-        cv2.rectangle(newMain, (20, 410),(189, 450), green, -1)
-        cv2.putText(newMain, "Auto", (100, 430), cv2.FONT_HERSHEY_PLAIN, .8, (0,0,0))        #BOUNDARIES OF AUTO BUTTON
+        cv2.rectangle(newMain, (20, 410),(99, 450), green, -1)
+        cv2.putText(newMain, "Auto Line", (30, 430), cv2.FONT_HERSHEY_PLAIN, .8, (0,0,0))      #BOUNDARIES OF AUTO LINE
+
+        cv2.rectangle(newMain, (110, 410), (189, 450), green , -1)
+        cv2.putText(newMain, "Auto Spin", (120, 430), cv2.FONT_HERSHEY_PLAIN, .8, (0,0,0))      #BOUNDARIES OF AUTO SPIN
 
         return newMain
 
@@ -239,7 +247,7 @@ class Interpolator(object):
 
 
     def _mouseMainResponse(self, event, x, y, flags, param):
-        """A mouse callback function that reads the user's click and responds by updating the robot's heading,     #TODO: ADD AUTO BUTTON
+        """A mouse callback function that reads the user's click and responds by updating the robot's heading,
         or by moving on to the next frame in the video."""
 
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -278,13 +286,84 @@ class Interpolator(object):
                 else:
                     self.imgIndex += 1
                     self._processToNextFrame()
-            elif (20 <= x <= 190) and (410 <=y <= 450):
-                self.automaticInterpolate()
-
+            elif (20 <= x <= 99) and (410 <=y <= 450):
+                self.automaticInterpolateLine()
+            elif (110 <= x <= 189) and (410 <= y <= 450):
+                self.automaticInterpolateSpin()
 
             self._displayStatus()
 
-    def automaticInterpolate(self):
+    def automaticInterpolateSpin(self):
+        """
+        Given two points with relatively the same location that have the same yaw, split all the images up and assign
+        them automatically interpolated location and yaw.
+        :return:
+        """
+        if self.previousStamp != None and self.nextStamp != None:
+            numprev = str(self.walkingNums[self.previousStamp])
+            infoprev = self.walking[numprev]
+            print(infoprev)
+            numnext = str(self.walkingNums[self.nextStamp])
+            infonext = self.walking[numnext]
+            autoFrameNums = []
+            for framenum in self.fileNumberList:
+                if framenum < self.walkingNums[self.nextStamp] and framenum > self.walkingNums[self.previousStamp]:
+                    autoFrameNums.append(framenum)
+            numAutoFrames = len(autoFrameNums)
+            xPrev = float(infoprev[0])
+            yPrev = float(infoprev[1])
+            xNext = float(infonext[0])
+            yNext = float(infonext[1])
+            xAvg = (xPrev + xNext) / 2
+            yAvg = (yPrev + yNext) / 2
+            yawPrev = float(infoprev[2])
+            yawNext = float(infonext[2])
+            yawChange = 360.0 / numAutoFrames      # possibly could improve by giving the option of finding the difference
+            print(type(yawChange))
+            currYaw = yawPrev
+            for frameNum in autoFrameNums:
+                currYaw = currYaw- yawChange
+                if currYaw < 0:
+                    currYaw = currYaw + 360
+                thisYaw =self.roundToNearestAngle(currYaw)
+                self.labeling[frameNum] = [xAvg, yAvg, thisYaw]
+            # move to the next unlabeled frame
+            self.currLoc = (xNext, yNext)
+            self.currHeading = int(yawNext)
+            # here is where picNum needs to be updated
+            self.imgIndex += numAutoFrames
+            i = self.fileNumberList.index(self.walkingNums[self.nextStamp])
+            self.picNum = self.fileNumberList[i + 1]
+            filename = self.imgFileList[i + 1]
+            mapX, mapY = self._convertWorldToMap(xNext, yNext)
+            self._updateMap((mapX, mapY))
+            try:
+                newIm = cv2.imread(self.dataSource + filename)
+            except IOError:
+                return False
+            self.currFrame = newIm
+            cv2.imshow("Image", self.currFrame)
+        else:
+            print("Cannot Interpolate: Not between two stamps")
+
+    def roundToNearestAngle(self, angle):
+        """
+        Takes in an angle and returns the angle within the compass (separated by
+
+        :param angle:
+        :return:
+        """
+        listOfAngles = [0, 45, 90, 135, 180, 225, 270, 315]
+        dif = 1000000000
+        smallestAngle = 0
+        for currAngle in listOfAngles:
+            currDif = abs(currAngle - angle)
+            if currDif < dif:
+                dif = currDif
+                smallestAngle = currAngle
+        return smallestAngle
+
+    def automaticInterpolateLine(self):
         """
         Finds the two adjacent marked locations, asks for a desired yaw, and then evenly interpolates the images
         :return:
@@ -292,12 +371,12 @@ class Interpolator(object):
         if self.previousStamp != None and self.nextStamp != None:
             num = str(self.walkingNums[self.previousStamp])
             info = self.walking[num]
-            xPrev = float(info[1])                          # maybe change into ints instead?
-            yPrev = float(info[2])
+            xPrev = float(info[0])                          # maybe change into ints instead?
+            yPrev = float(info[1])
             num = str(self.walkingNums[self.nextStamp])
             info = self.walking[num]
-            xNext = float(info[1])
-            yNext = float(info[2])
+            xNext = float(info[0])
+            yNext = float(info[1])
             autoFrameNums = []
             for framenum in self.fileNumberList:
                 if framenum < self.walkingNums[self.nextStamp] and framenum > self.walkingNums[self.previousStamp]:
@@ -306,21 +385,25 @@ class Interpolator(object):
             xChange = (xNext - xPrev) / numAutoFrames
             yChange = (yNext - yPrev) / numAutoFrames
             x = xPrev
-            y= yPrev
-            yaw = str(input("Please enter the desired yaw for all images: ")) #TODO: CALCULATE YAW WITH TRIG
+            y = yPrev
+            yaw = self.calculateYaw(xChange, yChange)
             for frameNum in autoFrameNums:
-                x+= xChange
-                y+= yChange
-                self.labeling[frameNum] = [x, y, int(yaw)]
-            #TODO: MOVE TO THE NEXT UNLABELED FRAME IDK IF THIS WORKS
-            self.currLoc = (x, y)
+                x += xChange
+                y += yChange
+                thisX = float("{0:.1f}".format(x))
+                thisY = float("{0:.1f}".format(y))
+                self.labeling[frameNum] = [thisX, thisY, yaw]
+            # move to the next unlabeled frame
+            thisX = float("{0:.1f}".format(x))
+            thisY = float("{0:.1f}".format(y))
+            self.currLoc = (thisX, thisY)
             self.currHeading = int(yaw)
             #here is where picNum needs to be updated
             self.imgIndex += numAutoFrames
             i=self.fileNumberList.index(self.walkingNums[self.nextStamp])
             self.picNum = self.fileNumberList[i+1]
             filename = self.imgFileList[i+1]
-            mapX, mapY =self._convertWorldToMap(x, y)
+            mapX, mapY =self._convertWorldToMap(thisX, thisY)
             self._updateMap((mapX, mapY))
             try:
                 newIm = cv2.imread(self.dataSource + filename)
@@ -328,6 +411,42 @@ class Interpolator(object):
                 return False
             self.currFrame = newIm
             cv2.imshow("Image", self.currFrame)
+        else:
+            print("Cannot Interpolate: Not between two stamps")
+
+    def calculateYaw(self, xChange, yChange):
+        """
+        Takes in a vector with an x and a y component, and calculates the angle counterclockwise with the positive
+        y axis
+        :param xChange:
+        :param yChange:
+        :return:
+        """
+        angle = math.atan2(yChange,xChange)        #flipped x and y because the map has flipped x and y
+        angle = math.degrees(angle)
+        newAngle = 0
+        if angle < 0:              #checks if the angle is negative, converts to the positive version
+            angle += 360
+        yaw =0
+        # now calculate which category this angle is in
+        if angle > 337.5 or angle < 22.5 :
+            yaw = 0
+        if angle >= 22.5 and angle <= 67.5:
+            yaw  = 45
+        if angle > 67.5 and angle < 112.5:
+            yaw = 90
+        if angle >= 112.5 and angle <= 157.5:
+            yaw = 135
+        if angle > 157.5 and angle < 202.5:
+            yaw = 180
+        if angle >= 202.5 and angle <= 247.5:
+            yaw = 225
+        if angle > 247.5 and angle < 292.5:
+            yaw = 270
+        if angle >= 292.5 and angle <= 337.5:
+            yaw = 315
+        return yaw
+
 
 
     def _processToNextFrame(self):
@@ -381,16 +500,21 @@ class Interpolator(object):
         Also highlights the previous and next stamped frames"""
         newMap = self.origMap.copy()
         self.setCurrentStamps()
+        # highlights the previous location in black
         if self.previousStamp != None:
             num = str(self.walkingNums[self.previousStamp])
             info = self.walking[num]
-            (pcurrX, pcurrY) = (int(info[1]), int(info[2]))
-            cv2.circle(newMap, (pcurrX, pcurrY), 8, (255, 0, 0))   #highlights the previous location in black
+            (pcurrX, pcurrY) = (int(info[0]), int(info[1]))
+            (mapX, mapY) = self._convertWorldToMap(pcurrX, pcurrY)
+            cv2.circle(newMap, (mapX, mapY), 8, (255, 0, 0))
+        # highlights the next location in green
         if self.nextStamp != None:
             num = str(self.walkingNums[self.nextStamp])
             info = self.walking[num]
-            (ncurrX, ncurrY) = (int(info[1]), int(info[2]))
-            cv2.circle(newMap, (ncurrX, ncurrY), 8, (0, 255, 0))   #highlights the next location
+            (ncurrX, ncurrY) = (int(info[0]), int(info[1]))
+            (mapX, mapY) = self._convertWorldToMap(ncurrX, ncurrY)
+            cv2.circle(newMap, (mapX, mapY), 8, (0, 255, 0))
+        # highlighting the location of the pointer in red
         if units == "meters":
             (currX, currY) = currPos
             (mapX, mapY) = self._convertWorldToMap(currX, currY)
@@ -402,12 +526,12 @@ class Interpolator(object):
 
     def setCurrentStamps(self):
         """
-        determines the previous stamped location and the next stamped location to the current frame
+        determines the previous stamped location and the next stamped location to the current frame.
         :return:
         """
         if self.picNum < self.walkingNums[0]:
             self.previousStamp = None
-            self.nextStamp=1
+            self.nextStamp= 1
         if self.picNum > self.walkingNums[len(self.walkingNums)-1]:
             self.previousStamp = len(self.walkingNums)-1
             self.nextStamp = None
@@ -419,10 +543,14 @@ class Interpolator(object):
 
 
     def drawWalkingLocations(self, walkingDict):
+        """ Draws a small black circle for all of the locations that have been marked using time- stamping"""
         newMap = self.origMap.copy()
         for loc in walkingDict:
-            # elems = loc.split()
-            cv2.circle(newMap, (int(walkingDict[loc][1]), int(walkingDict[loc][2])), 4, (0, 0, 0))
+            elems = walkingDict[loc]
+            x= elems[0]
+            y= elems[1]
+            x,y = self._convertWorldToMap(x,y)
+            cv2.circle(newMap, (x, y), 4, (0, 0, 0))
         return newMap
 
 
@@ -472,7 +600,7 @@ class Interpolator(object):
                     return False
                 thisNum = self._extractNum(filename)
                 if thisNum in self.walkingNums:
-                    print("image already determined")
+                    #print("image already determined")
                     self.imgIndex +=1
                     self.currFrame = newIm
                     self.picNum = thisNum
@@ -519,15 +647,12 @@ if __name__ == "__main__":
     #                               )
 
 
-    catkinPath = "/Users/johnpellegrini/"
-    basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
-    InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  dataSource="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/scripts/"
-                                             "markLocations/testTurtlebotVidFrames/",
-                                  outputFilePath= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
-                                                  "scripts/markLocations/testInterpolate/",
-                                  inputLocsFilePath="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
-                                                    "scripts/markLocations/testTurtlebotVidFrames/matchedtest.txt",
+    # catkinPath = "/Users/johnpellegrini/"
+    # basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
+    InterpolatorObj = Interpolator(mapFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
+                                  dataSource= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/",
+                                  outputFilePath= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/",
+                                  inputLocsFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5MatchedCheckpoints.txt",
                                   mode="images",
                                   )
 

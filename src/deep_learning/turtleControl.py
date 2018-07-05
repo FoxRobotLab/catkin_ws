@@ -11,8 +11,6 @@
   initialises all the threads and provides movement/utility methods -
   turning, bumper status, find angle to wall, and so on.
   Uses Utils. Uses CvBridge to be able to use images from kinect with OpenCV/ROS
-  
-  BORROWED FROM catkin_ws/src/match_seeker/scripts
 
 ========================================================================="""
 
@@ -213,6 +211,15 @@ class TurtleBot(object):
         will continue indefinitely."""
         self.moveControl.setMovement(translate, rotate)
 
+    def pauseMovement(self):
+        """Takes no input, pauses the movement signal from the robot so it cannot move."""
+        self.moveControl.stopMovement()
+        self.moveControl.pauseMovement()
+
+    def unpauseMovement(self):
+        """Takes no input, pauses the movement signal from the robot so it cannot move."""
+        self.moveControl.unpauseMovement()
+
     def getDepth(self, x = 0, y = 0, width = 640, height = 480):
         """Takes in (x, y), the upper left corner of a rectangle, and the rectangle's botWidth and botHeight, all optional
         inputs. It access the depth image and returns the specified section of the depth image. The default values are
@@ -380,6 +387,15 @@ class MovementControlThread(threading.Thread):
             self.runFlag = False
             self.translate = 0.0
             self.rotate = 0.0
+
+    def pauseMovement(self):
+        with self.lock:
+            self.paused = True
+
+    def unpauseMovement(self):
+        with self.lock:
+            self.paused = False
+
 
 
 class ImageSensorThread(threading.Thread):
