@@ -34,7 +34,7 @@ class LabeledFrames(object):
         self.mode = mode
 
         # variables for managing data source
-        self.cap = None     # only used if mode = video
+        #self.videoObject = None     # only used if mode = video
         self.imgFileList = []    # only used if mode = 'images'
         self.picNum = -1
         self.mapFilename = mapFile
@@ -44,10 +44,10 @@ class LabeledFrames(object):
         self.outputFilePath = outputFilePath
 
         # instance variables to hold displayed images
-        self.mainImg = None
+        self.locGUI = None
         self.origMap = None
         self.currMap = None
-        self.currFrame = None
+        self.currImg = None
 
         # Instance variables to hold outcome data
         self.labeling = dict()
@@ -58,10 +58,10 @@ class LabeledFrames(object):
         self._setupWindows()
 
         # set up main window and callback
-        self.mainImg = self._buildMainImage()
+        self.locGUI = self._buildLocGUI()
         self._displayStatus()
-        cv2.imshow("Main", self.mainImg)
-        cv2.setMouseCallback("Main", self._mouseMainResponse)   # Set heading
+        cv2.imshow("GUI", self.locGUI)
+        cv2.setMouseCallback("GUI", self._mouseMainResponse)   # Set heading
 
         # set up map window and callback
         self.origMap = self._getOlinMap()
@@ -73,14 +73,14 @@ class LabeledFrames(object):
         # set up video capture and first frame
         self._setupImageCapture()
         ch = ' '
-        goodFrame = self._getNextImage()
-        if not goodFrame:
+        nextFrame = self._getNextImage()
+        if not nextFrame:
             self.dataDone = True
 
         # run main loop until user quits or run out of frames
         while (not self.dataDone) and (ch != 'q'):
-            cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
-            cv2.imshow("Image", self.currFrame)
+            cv2.putText(self.currImg, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
+            cv2.imshow("Image", self.currImg)
             x = cv2.waitKey(20)
             ch = chr(x & 0xFF)
             if self.currLoc != (0, 0): # if robot location has been placed on the map
@@ -96,8 +96,8 @@ class LabeledFrames(object):
                         mapY += 2
                     self.currLoc = self._convertMapToWorld(mapX, mapY)
                     self._updateMap( (mapX, mapY) )
-                goodFrame = self._getNextImage()
-                if not goodFrame:
+                nextFrame = self._getNextImage()
+                if not nextFrame:
                     self.dataDone = True
 
         # close things down nicely
@@ -123,31 +123,31 @@ class LabeledFrames(object):
             print ("FAILED TO OPEN DATA FILE")
 
         for picNum in self.labeling:
-            [x, y, h] = self.labeling[picNum]
-            dataStr = str(picNum) + " " + str(x) + " " + str(y) + " " + str(h) + "\n"
+            [x, y, yaw] = self.labeling[picNum]
+            dataStr = str(picNum) + " " + str(x) + " " + str(y) + " " + str(yaw) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
-            print("Frame", picNum, "with location", (x, y, h))
+            print("Frame", picNum, "with location", (x, y, yaw))
         logFile.close()
 
 
     def _setupWindows(self):
         "Creates three windows and moves them to the right places on screen."
-        cv2.namedWindow("Main")
+        cv2.namedWindow("GUI")
         cv2.namedWindow("Image")
         cv2.namedWindow("Map")
-        cv2.moveWindow("Main", 30, 50)
+        cv2.moveWindow("GUI", 30, 50)
         cv2.moveWindow("Image", 30, 550)
         cv2.moveWindow("Map", 700, 50)
 
 
-    def _buildMainImage(self):
+    def _buildLocGUI(self):
         """Builds the main window image with buttons at given locations. Note that space is left for
         displaying the robot's current location, but that is done by a separate method."""
 
-        yellow = (0, 255, 255)
-        cyan = (255, 255, 0)
-        green = (0, 255, 0)
+        lightBlue1 = (255, 226, 176)
+        quartz = (243, 217, 217)
+        lightBlue2 = (238, 211, 164)
 
         newMain = np.zeros((420, 210, 3), np.uint8)
 
@@ -155,20 +155,20 @@ class LabeledFrames(object):
         info = [[0, 0, "NW 45"], [0, 140, "SW 135"], [140, 0, "NE 315"], [140, 140, "SE 225"]]
         for square in info:
             (x, y, strng) = square
-            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), yellow, -1)
+            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), lightBlue1, -1)
             cv2.putText(newMain, strng, (x + 20, y + 40), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
         # Put squares for N, S, E, W
         info = [[70, 0, "N 0"], [70, 140, "S 180"], [0, 70, "W 90"], [140, 70, "E 270"]]
         for square in info:
             (x, y, strng) = square
-            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), cyan, -1)
+            cv2.rectangle(newMain, (x, y), (x + 69, y + 69), quartz, -1)
             cv2.putText(newMain, strng, (x + 20, y + 40), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
-        cv2.rectangle(newMain, (20, 350), (99, 400), green, -1)
+        cv2.rectangle(newMain, (20, 350), (99, 400), lightBlue2, -1)
         cv2.putText(newMain, "Previous", (30, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
-        cv2.rectangle(newMain, (110, 350), (189, 400), green, -1)
+        cv2.rectangle(newMain, (110, 350), (189, 400), lightBlue2, -1)
         cv2.putText(newMain, "Next", (135, 380), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
         return newMain
 
@@ -176,21 +176,21 @@ class LabeledFrames(object):
     def _displayStatus(self):
         """Displays the current location and frame counter on the main window."""
 
-        yellow = (0, 255, 255)
-        cv2.rectangle(self.mainImg, (0, 210), (210, 340), (0, 0, 0), -1)
+        white = (255, 255, 255)
+        cv2.rectangle(self.locGUI, (0, 210), (210, 340), (0, 0, 0), -1)
         floatTemplate = "{0:s} = {1:^6.2f}"
         intTemplate = "{0:s} = {1:^3d}"
         xStr = floatTemplate.format('x', self.currLoc[0])
         yStr = floatTemplate.format('y', self.currLoc[1])
-        hStr = intTemplate.format('h', self.currHeading)
+        yawStr = intTemplate.format('yaw', self.currHeading)
 
         countStr = intTemplate.format('frame', self.picNum)
-        cv2.putText(self.mainImg, "Current location:", (20, 240), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
-        cv2.putText(self.mainImg, xStr, (30, 260), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
-        cv2.putText(self.mainImg, yStr, (30, 280), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
-        cv2.putText(self.mainImg, hStr, (30, 300), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
-        cv2.putText(self.mainImg, countStr, (20, 330), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
-        cv2.imshow("Main", self.mainImg)
+        cv2.putText(self.locGUI, "Current location:", (20, 240), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
+        cv2.putText(self.locGUI, xStr, (30, 260), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
+        cv2.putText(self.locGUI, yStr, (30, 280), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
+        cv2.putText(self.locGUI, yawStr, (30, 300), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
+        cv2.putText(self.locGUI, countStr, (20, 330), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
+        cv2.imshow("Main", self.locGUI)
 
 
     def _mouseMainResponse(self, event, x, y, flags, param):
@@ -240,17 +240,17 @@ class LabeledFrames(object):
         self.labeling[self.picNum] = [self.currLoc[0], self.currLoc[1], self.currHeading]
         mapX, mapY = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
         self._updateMap((mapX, mapY))
-        goodFrame = self._getNextImage()
-        if not goodFrame:
+        nextFrame = self._getNextImage()
+        if not nextFrame:
             print("WHOOPS!, no image found!")
             self.dataDone = True
         else:
-            cv2.putText(self.currFrame, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
-            cv2.imshow("Image", self.currFrame)
+            cv2.putText(self.currImg, str(self.picNum), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0), 2)
+            cv2.imshow("Image", self.currImg)
         if self.picNum in self.labeling.keys():
-            x, y, h = self.labeling[self.picNum]
+            x, y, yaw = self.labeling[self.picNum]
             self.currLoc = (x, y)
-            self.currHeading = h
+            self.currHeading = yaw
             mapX, mapY = self._convertWorldToMap(self.currLoc[0], self.currLoc[1])
             self._updateMap((mapX, mapY))
 
@@ -322,58 +322,58 @@ class LabeledFrames(object):
     def _setupImageCapture(self):
         """Sets up the video capture for the given filename, printing a message if it failed
         and returning None in that case."""
-        if self.mode == 'video':
-            try:
-                self.cap = cv2.VideoCapture(self.dataSource)
-            except:
-                print("Capture failed!")
-                self.cap = None
-        else:
-            self.imgFileList = os.listdir(self.dataSource)
-            self.imgFileList.sort()
+        # if self.mode == 'video':
+        #     try:
+        #         self.videoObject = cv2.VideoCapture(self.dataSource) ##I don't think this is being used correctly -> check with Susan
+        #     except:
+        #         print("Capture failed!")
+        #         self.videoObject = None
+        # else:
+        self.imgFileList = os.listdir(self.dataSource)
+        self.imgFileList.sort()
 
 
     def _getNextImage(self):
         """Gets the next frame from the camera or from reading the next file"""
-        if self.mode == 'video':
-            good, frame = self.cap.read()
-            if not good:
-                return good
-            self.picNum += 1
-            self.currFrame = frame
-            return good
-        else:
-            while True:
-                if self.imgFileList == []:
+        # if self.mode == 'video':
+        #     good, frame = self.videoObject.read()
+        #     if not good:
+        #         return good
+        #     self.picNum += 1
+        #     self.currImg = frame
+        #     return good
+        # else:
+        while True:
+            if self.imgFileList == []:
+                return False
+            if self.imgIndex >= len(self.imgFileList):
+                self.dataDone = True
+                break
+            filename = self.imgFileList[self.imgIndex]
+            if filename[-3:] in {"jpg", "png"}:
+                try:
+                    newIm = cv2.imread(self.dataSource + filename)
+                except IOError:
                     return False
-                if self.imgIndex >= len(self.imgFileList):
-                    self.dataDone = True
-                    break
-                filename = self.imgFileList[self.imgIndex]
-                if filename[-3:] in {"jpg", "png"}:
-                    try:
-                        newIm = cv2.imread(self.dataSource + filename)
-                    except IOError:
-                        return False
-                    thisNum = self._extractNum(filename)
-                    self.currFrame = newIm
-                    self.picNum = thisNum
-                    return True
-                else:
-                    # Check for non-jpg or -png file (e.x.: .DS_Store)
-                    print("Non-jpg or -png file in folder: ", filename, "... skipping!")
-                    self.imgFileList.remove(filename)
-                    continue
+                thisNum = self._extractNum(filename)
+                self.currImg = newIm
+                self.picNum = thisNum
+                return True
+            else:
+                # Check for non-jpg or -png file (e.x.: .DS_Store)
+                print("Non-jpg or -png file in folder: ", filename, "... skipping!")
+                self.imgFileList.remove(filename)
+                continue
 
 
     def _extractNum(self, fileString):
         """finds sequence of digits"""
         numStr = ""
         foundDigits = False
-        for c in fileString:
-            if c in '0123456789':
+        for num in fileString:
+            if num in '0123456789':
                 foundDigits = True
-                numStr += c
+                numStr += num
             elif foundDigits == True:
                 break
         if numStr != "":
@@ -383,10 +383,10 @@ class LabeledFrames(object):
             return self.picNum
 
 
-    def _cleanUp(self):
-        """Closes down video capture, if necessary"""
-        if self.mode == 'video':
-            self.cap.release()
+    # def _cleanUp(self):
+    #     """Closes down video capture, if necessary"""
+    #     if self.mode == 'video':
+    #         self.videoObject.release()
 
 
 

@@ -247,7 +247,7 @@ class Interpolator(object):
 
 
     def _mouseMainResponse(self, event, x, y, flags, param):
-        """A mouse callback function that reads the user's click and responds by updating the robot's heading,     #TODO: ADD AUTO BUTTON
+        """A mouse callback function that reads the user's click and responds by updating the robot's heading,
         or by moving on to the next frame in the video."""
 
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -321,21 +321,12 @@ class Interpolator(object):
             yawChange = 360.0 / numAutoFrames      # possibly could improve by giving the option of finding the difference
             print(type(yawChange))
             currYaw = yawPrev
-            info = str(raw_input("Enter: clockwise or counterclockwise: "))
-            if info == "clockwise":
-                for frameNum in autoFrameNums:
-                    currYaw = currYaw- yawChange
-                    if currYaw < 0:
-                        currYaw = currYaw + 360
-                    thisYaw =self.roundToNearestAngle(currYaw)
-                    self.labeling[frameNum] = [xAvg, yAvg, thisYaw]
-            elif info == "counterclockwise":
-                for frameNum in autoFrameNums:
-                    currYaw = currYaw + yawChange
-                    if currYaw >= 360:
-                        currYaw = currYaw - 360
-                    thisYaw = self.roundToNearestAngle(currYaw)
-                    self.labeling[frameNum] = [xAvg, yAvg, thisYaw]
+            for frameNum in autoFrameNums:
+                currYaw = currYaw- yawChange
+                if currYaw < 0:
+                    currYaw = currYaw + 360
+                thisYaw =self.roundToNearestAngle(currYaw)
+                self.labeling[frameNum] = [xAvg, yAvg, thisYaw]
             # move to the next unlabeled frame
             self.currLoc = (xNext, yNext)
             self.currHeading = int(yawNext)
@@ -431,32 +422,28 @@ class Interpolator(object):
         :param yChange:
         :return:
         """
-        angle = math.atan2(yChange,xChange)
+        angle = math.atan2(yChange,xChange)        #flipped x and y because the map has flipped x and y
         angle = math.degrees(angle)
         newAngle = 0
         if angle < 0:              #checks if the angle is negative, converts to the positive version
             angle += 360
-        if angle >=90:             #if in the 2nd, 3rd, or 4th quadrant, subtract 90 degrees
-            newAngle  = angle - 90
-        if angle < 90:             # if in the first quadrant, add 270 degrees
-            newAngle = angle + 270
         yaw =0
         # now calculate which category this angle is in
-        if newAngle > 337.5 or newAngle < 22.5 :
+        if angle > 337.5 or angle < 22.5 :
             yaw = 0
-        if newAngle >= 22.5 and newAngle <= 67.5:
+        if angle >= 22.5 and angle <= 67.5:
             yaw  = 45
-        if newAngle > 67.5 and newAngle < 112.5:
+        if angle > 67.5 and angle < 112.5:
             yaw = 90
-        if newAngle >= 112.5 and newAngle <= 157.5:
+        if angle >= 112.5 and angle <= 157.5:
             yaw = 135
-        if newAngle > 157.5 and newAngle < 202.5:
+        if angle > 157.5 and angle < 202.5:
             yaw = 180
-        if newAngle >= 202.5 and newAngle <= 247.5:
+        if angle >= 202.5 and angle <= 247.5:
             yaw = 225
-        if newAngle > 247.5 and newAngle < 292.5:
+        if angle > 247.5 and angle < 292.5:
             yaw = 270
-        if newAngle >= 292.5 and newAngle <= 337.5:
+        if angle >= 292.5 and angle <= 337.5:
             yaw = 315
         return yaw
 
@@ -660,15 +647,12 @@ if __name__ == "__main__":
     #                               )
 
 
-    catkinPath = "/Users/johnpellegrini/"
-    basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
-    InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
-                                  dataSource="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/scripts/"
-                                             "markLocations/testTurtlebotVidFrames/",
-                                  outputFilePath= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
-                                                  "scripts/markLocations/testInterpolate/",
-                                  inputLocsFilePath="/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/"
-                                                    "scripts/markLocations/testInterpolate/matchedtest.txt",
+    # catkinPath = "/Users/johnpellegrini/"
+    # basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
+    InterpolatorObj = Interpolator(mapFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
+                                  dataSource= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/",
+                                  outputFilePath= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/",
+                                  inputLocsFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5MatchedCheckpoints.txt",
                                   mode="images",
                                   )
 
