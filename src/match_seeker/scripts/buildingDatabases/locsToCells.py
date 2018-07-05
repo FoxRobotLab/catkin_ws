@@ -11,6 +11,7 @@ def locsToCells(locFile, cellFile, cellData, append = False):
     else:
         mode = 'w'
     locC = open(cellFile, mode)
+    lineNum = 0
     for line in locF:
         parts = line.split()
         frameNum = parts[0]
@@ -19,6 +20,7 @@ def locsToCells(locFile, cellFile, cellData, append = False):
         cellNum = convertLocToCell(x, y, cellData)
         newLine = frameNum + " " + str(cellNum) + ' ' + heading + '\n'
         locC.write(newLine)
+        lineNum += 1
     locC.close()
     locF.close()
 
@@ -32,6 +34,7 @@ def convertLocToCell(x, y, cellMap):
         if (x1 <= x < x2) and (y1 <= y < y2):
             return cell
     else:
+        print("----------")
         print("ERROR: convertLocToCell, no matching cell found:", (x, y))
 
 
@@ -47,6 +50,7 @@ def getCellData(cellFile):
         parts = line.split()
         cellNum = parts[0]
         locList = [int(v) for v in parts[1:]]
+        # print("Cell " + cellNum + ": ", locList)
         cellDict[cellNum] = locList
     return cellDict
 
@@ -55,8 +59,8 @@ if __name__ == "__main__":
     basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
     cellFilename = basePath + "res/map/mapToCells.txt"
     locsFilename = basePath + "res/locdata/allLocs060418.txt"
-    cellsFilename = basePath + "res/locdata/allCellsTEST.txt"
+    outputFilename = basePath + "res/locdata/allCellsTEST.txt"
     cells = getCellData(cellFilename)
-    locsToCells(cellFilename, locsFilename, cells)
+    locsToCells(locsFilename, outputFilename, cells)
 
 
