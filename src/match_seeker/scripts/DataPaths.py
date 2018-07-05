@@ -35,3 +35,4 @@ elif turtleBase == "kobuki":
 
 graphMapData = "res/map/olinGraph.txt"
 mapLineData = "res/map/olinNewMap.txt"
+cellMapData = "res/map/mapToCells.txt"

@@ -20,7 +20,7 @@ import numpy as np
 
 from FoxQueue import PriorityQueue
 import Graphs
-from DataPaths import basePath, graphMapData, mapLineData
+from DataPaths import basePath, graphMapData, mapLineData, cellMapData
 # from Particle import Particle
 import MapGraph
 
@@ -31,14 +31,16 @@ class WorldMap(object):
     def __init__(self):
         self.olinGraph = None
         self.illegalBoxes = []
-        self.markerMap = {}
+        self.markerMap = dict()
         self.graphSize = None
 
         self.goalNode = None
-        self.pathPreds = {}
+        self.pathPreds = dict()
 
         self.olinImage = None
         self.currentMapImg = None
+
+        self.cellData = dict()
 
         self.mapLines = []
         self.scaledLines = []
@@ -52,6 +54,7 @@ class WorldMap(object):
 
         self._readGraphMap(basePath + graphMapData)
         self._readContinuousMap(basePath + mapLineData)
+        self._readCells(basePath + cellMapData)
         self.cleanMapImage()
 
     # -------------------------------------------------------------------
@@ -82,12 +85,14 @@ class WorldMap(object):
     # -------------------------------------------------------------------
     # These methods update and display the map and poses or particles on it
 
-    def cleanMapImage(self, obstacles = False):
+    def cleanMapImage(self, obstacles = False, cells = False):
         """Set the current map image to be a clean copy of the original."""
         self.currentMapImg = self.olinImage.copy()
         # self.drawNodes()
         if obstacles:
             self.drawObstacles()
+        if cells:
+            self.drawCells()
 
 
     def displayMap(self, window = "Map Image"):
@@ -100,9 +105,23 @@ class WorldMap(object):
         """Draws the obstacles on the current image."""
         for obst in self.illegalBoxes:
             (lrX, lrY, ulX, ulY) = obst
-            mapUL = self._convertWorldToPixels((ulX, ulY))
-            mapLR = self._convertWorldToPixels((lrX, lrY))
-            cv2.rectangle(self.currentMapImg, mapUL, mapLR, (255, 0, 0), thickness=2)
+            self.drawBox((lrX, lrY), (ulX, ulY), (255, 0, 0))
+
+
+    def drawCells(self):
+        """Draws the cell data on the current image."""
+        for cell in self.cellData:
+            [x1, y1, x2, y2] = self.cellData[cell]
+            self.drawBox((x1, y1), (x2, y2), (113, 179, 60))
+
+
+    def drawBox(self, lrpt, ulpt, color):
+        """Draws a box at a position given by lower right and upper left locations,
+        with the given color."""
+        mapUL = self._convertWorldToPixels(ulpt)
+        mapLR = self._convertWorldToPixels(lrpt)
+        cv2.rectangle(self.currentMapImg, mapUL, mapLR, color, thickness=2)
+
 
     def drawNodes(self):
         """
@@ -559,6 +578,25 @@ class WorldMap(object):
             pt2 = self._convertWorldToPixels((self.mapTotalXDim, y))
             cv2.line(self.olinImage, pt1, pt2, lineCol)
 
+
+    # -------------------------------------------------------------------
+    # The following reads in the cell data, in case we want to display it
+
+    def _readCells(self, cellFile):
+        """Reads in cell data, building a dictionary to hold it."""
+        cellF = open(cellFile, 'r')
+        cellDict = dict()
+        for line in cellF:
+            if line[0] == '#' or line.isspace():
+                continue
+            parts = line.split()
+            cellNum = parts[0]
+            locList = [int(v) for v in parts[1:]]
+            # print("Cell " + cellNum + ": ", locList)
+            cellDict[cellNum] = locList
+        self.cellData = cellDict
+
+
     # -------------------------------------------------------------------
     # The following methods convert from the data file's representation to meters, and from meters to pixels and vice
     # versa, handling the fact that (0, 0) in pixels is in the upper left of the map image, and (0, 0) in meters is
@@ -604,7 +642,7 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     mapper = WorldMap()
-    mapper.cleanMapImage(obstacles=False)# True)
+    mapper.cleanMapImage(obstacles=False, cells=True)# True)
     mapper.drawNodes()
     # mapper.drawLocsAllFrames()
     numVerts = mapper.getGraphSize()
