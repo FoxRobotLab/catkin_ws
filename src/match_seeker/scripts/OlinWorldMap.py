@@ -131,7 +131,7 @@ class WorldMap(object):
         for node in range(numNodes):
             x, y = self._nodeToCoord(node)
             center = self._convertWorldToPixels((x, y))
-            cv2.circle(self.currentMapImg, center, 5, (0, 0, 255), -1)
+            cv2.circle(self.currentMapImg, center, 5, (200, 200, 200), -1)
 
     def drawLocsAllFrames(self):
         locFile = open(basePath + locData, "r")
@@ -244,6 +244,21 @@ class WorldMap(object):
 
     # -------------------------------------------------------------------
     # Other calculations
+
+    def convertLocToCell(self, pose):
+        """Takes in a location that has 2 or 3 values and reports the cell, if any, that it is a part
+        of."""
+        x = pose[0]
+        y = pose[1]
+        if x > self.mapMaxX or x < self.mapMinX or y > self.mapMaxY or y < self.mapMinY:
+            return False
+        for cell in self.cellData:
+            [x1, y1, x2, y2] = self.cellData[cell]
+            if (x1 <= x < x2) and (y1 <= y < y2):
+                return cell
+        else:
+            return None
+
 
     def isAllowedLocation(self, pose):
         """This takes a tuple containing 2 or 3 values and checks to see if it is valid by comparing it to the
@@ -557,26 +572,27 @@ class WorldMap(object):
         """Draw horizontal and vertical lines marking each square meter on the picture."""
         # First, horizontal lines
         for x in range(0, int(self.mapTotalXDim)):
-            if x == 0:
-                lineCol = (0, 0, 0)
-            elif x % 5 == 0:
-                lineCol = (0, 255, 255)
-            else:
-                lineCol = (255, 255, 0)
+            lineCol = self._setLineColor(x)
             pt1 = self._convertWorldToPixels((x, 0.0))
             pt2 = self._convertWorldToPixels((x, self.mapTotalYDim))
             cv2.line(self.olinImage, pt1, pt2, lineCol)
         # Next, vertical lines
         for y in range(0, int(self.mapTotalYDim)):
-            if y == 0:
-                lineCol = (0, 0, 0 )
-            elif y % 5 == 0:
-                lineCol = (0, 255, 255)
-            else:
-                lineCol = (255, 255, 0)
+            lineCol = self._setLineColor(y)
             pt1 = self._convertWorldToPixels((0.0, y))
             pt2 = self._convertWorldToPixels((self.mapTotalXDim, y))
             cv2.line(self.olinImage, pt1, pt2, lineCol)
+
+
+    def _setLineColor(self, value):
+        """Chooses a line color based on what value is, black for 0, cyan for most others,
+        and dark cyan for every 5."""
+        if value == 0:
+            return (0, 0, 0)
+        elif value % 5 == 0:
+            return (139, 139, 0)
+        else:
+            return (255, 255, 0)
 
 
     # -------------------------------------------------------------------
@@ -645,13 +661,6 @@ if __name__ == '__main__':
     mapper.cleanMapImage(obstacles=False, cells=True)# True)
     mapper.drawNodes()
     # mapper.drawLocsAllFrames()
-    numVerts = mapper.getGraphSize()
-    for vert in range(numVerts):
-        (verX, verY) = mapper.getLocation(vert)
-        verPos = (verX, verY, 0)
-
-        mapper.drawPose(verPos)
-        mapper.displayMap()
-        cv2.waitKey(20)
+    mapper.displayMap()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
