@@ -31,16 +31,15 @@ import os
 import random
 import time
 
-import skimage
 
 import numpy as np
 import rospy
 import tensorflow as tf
 
-import turtleControl
+from . import turtleControl
 
-import olricnn_inputs
-import olricnn_turtletester
+from . import olricnn_inputs
+from . import olricnn_turtletester
 
 
 # tf.logging.set_verbosity(tf.logging.INFO)
