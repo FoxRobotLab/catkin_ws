@@ -56,10 +56,10 @@ def getCellData(cellFile):
 
 
 if __name__ == "__main__":
-    basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
+    basePath = "/home/macalester/catkin_ws/src/match_seeker/"
     cellFilename = basePath + "res/map/mapToCells.txt"
-    locsFilename = basePath + "res/locdata/allLocs060418.txt"
-    outputFilename = basePath + "res/locdata/allCellsTEST.txt"
+    locsFilename = "/home/macalester/PycharmProjects/olri_classifier/frames/lesslocs.txt"
+    outputFilename = "/home/macalester/PycharmProjects/olri_classifier/frames/lesscells.txt"
     cells = getCellData(cellFilename)
     locsToCells(locsFilename, outputFilename, cells)
 

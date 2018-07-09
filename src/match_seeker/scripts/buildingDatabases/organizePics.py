@@ -77,6 +77,8 @@ class OrganizeData(object):
         locDict = dict()
         locFile = open(self.origLocFilePath, 'r')
         for line in locFile:
+            if line[0] == '#' or line.isspace():
+                continue
             parts = line.split()
             imageNum = int(parts[0])
             pose = [float(x) for x in parts[1:]]
@@ -125,7 +127,7 @@ class OrganizeData(object):
 
         self.nameChangeFile.close()
         self.outLocFile.close()
-        print("Finished merging with the last newNum " + str(newNum) + ". PLEASE change startNewNum for the next run to " + str(newNum + 1) + ".")
+        print("Finished merging with the last newNum " + str(newNum-1) + ". PLEASE change startNewNum for the next run to " + str(newNum) + ".")
 
 
 if __name__ == "__main__":
@@ -133,11 +135,12 @@ if __name__ == "__main__":
 
     #DONE (allFrames) : atriumClockwiseFrames, westAtriumFrames, atriumSouthFrames_2, atriumSouthFrames, atriumNorthFrames, goodFrom2017
     #TODO: Always check for the correct startNewNum (usually by going into name changes file.
-    startNewNum = 5296
-    organizer = OrganizeData(origFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/framesBeingKept/",
-                             desFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/allFrames060418/",
-                             origLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/combiningTextFiles.txt",
-                             desLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt",
-                             nameChangeFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/buildingDatabases/nameChanges/allNameChanges060418.txt",
+    startNewNum = 9714
+    organizer = OrganizeData(origFramesPath="/home/macalester/catkin_ws/src/match_seeker/res/allFrames060418/",
+                             desFramesPath="/home/macalester/PycharmProjects/olri_classifier/frames/lessframes/",
+                             # origLocFilePath="/home/macalester/PycharmProjects/olri_classifier/frames/Final Interpolation Results/july6locs.txt",
+                             origLocFilePath="/home/macalester/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt",
+                             desLocFilePath="/home/macalester/PycharmProjects/olri_classifier/frames/lesslocs.txt",
+                             nameChangeFile="/home/macalester/PycharmProjects/olri_classifier/frames/lessnamechanges.txt",
                              startNewNum=startNewNum)
     organizer.go()
