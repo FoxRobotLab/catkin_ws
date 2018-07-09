@@ -105,8 +105,12 @@ class WorldMap(object):
         """Draws the obstacles on the current image."""
         for obst in self.illegalBoxes:
             (lrX, lrY, ulX, ulY) = obst
-            self.drawBox((lrX, lrY), (ulX, ulY), (255, 0, 0))
+            self.drawBox((lrX, lrY), (ulX, ulY), (255, 0, 0), 2)
 
+    def hightlightCell(self, cellNum):
+        """Takes in a cell number and draws a box around it to highlight it."""
+        [x1, y1, x2, y2] = self.cellData[cellNum]
+        self.drawBox((x1, y1), (x2, y2), (113, 179, 60), 2)
 
     def drawCells(self):
         """Draws the cell data on the current image."""
@@ -115,12 +119,12 @@ class WorldMap(object):
             self.drawBox((x1, y1), (x2, y2), (113, 179, 60))
 
 
-    def drawBox(self, lrpt, ulpt, color):
+    def drawBox(self, lrpt, ulpt, color, thickness = 1):
         """Draws a box at a position given by lower right and upper left locations,
         with the given color."""
         mapUL = self._convertWorldToPixels(ulpt)
         mapLR = self._convertWorldToPixels(lrpt)
-        cv2.rectangle(self.currentMapImg, mapUL, mapLR, color, thickness=2)
+        cv2.rectangle(self.currentMapImg, mapUL, mapLR, color, thickness=thickness)
 
 
     def drawNodes(self):

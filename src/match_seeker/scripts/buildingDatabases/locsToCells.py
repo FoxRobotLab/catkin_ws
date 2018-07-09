@@ -13,6 +13,8 @@ def locsToCells(locFile, cellFile, cellData, append = False):
     locC = open(cellFile, mode)
     lineNum = 0
     for line in locF:
+        if line.isspace() or line[0] == '#':
+            continue
         parts = line.split()
         frameNum = parts[0]
         [x, y] = [float(v) for v in parts[1:3]]
