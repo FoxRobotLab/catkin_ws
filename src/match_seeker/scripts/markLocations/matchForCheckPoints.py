@@ -86,6 +86,29 @@ class combineFiles(object):
                     newList.append(locLine[4])
                     self.finalList.append(newList)
 
+    # def compareTimes(self):
+    #     for locLine in self.locList:
+    #         minFrameNum = self.findClosestFrame(locLine[1])
+    #         newList = []
+    #         newList.append(minFrameNum)
+    #         newList.append(locLine[2])
+    #         newList.append(locLine[3])
+    #         newList.append(locLine[4])
+    #         self.finalList.append(newList)
+    #
+    #
+    # def findClosestFrame(self, number):
+    #     minimum = 90000000
+    #     intTarget = int(number)
+    #     minNumber = 0
+    #     for imageLine in self.imgNumList:
+    #         intImageLine = int(imageLine)
+    #         dif  = abs(intImageLine- intTarget)
+    #         if dif < minimum:
+    #             minimum = dif
+    #             minNumber = imageLine
+    #     return minNumber[0]
+
     def _writeData(self):
 
         """This function writes the data in the final list to the output text file."""
