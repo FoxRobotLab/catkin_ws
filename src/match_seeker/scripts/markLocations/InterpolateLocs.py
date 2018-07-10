@@ -504,14 +504,14 @@ class Interpolator(object):
         if self.previousStamp != None:
             num = str(self.walkingNums[self.previousStamp])
             info = self.walking[num]
-            (pcurrX, pcurrY) = (int(info[0]), int(info[1]))
+            (pcurrX, pcurrY) = (info[0], info[1])
             (mapX, mapY) = self._convertWorldToMap(pcurrX, pcurrY)
             cv2.circle(newMap, (mapX, mapY), 8, (255, 0, 0))
         # highlights the next location in green
         if self.nextStamp != None:
             num = str(self.walkingNums[self.nextStamp])
             info = self.walking[num]
-            (ncurrX, ncurrY) = (int(info[0]), int(info[1]))
+            (ncurrX, ncurrY) = (info[0], info[1])
             (mapX, mapY) = self._convertWorldToMap(ncurrX, ncurrY)
             cv2.circle(newMap, (mapX, mapY), 8, (0, 255, 0))
         # highlighting the location of the pointer in red
@@ -650,9 +650,9 @@ if __name__ == "__main__":
     # catkinPath = "/Users/johnpellegrini/"
     # basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
     InterpolatorObj = Interpolator(mapFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
-                                  dataSource= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/",
+                                  dataSource= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july9Frames/",
                                   outputFilePath= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/",
-                                  inputLocsFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5MatchedCheckpoints.txt",
+                                  inputLocsFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july9MatchedCheckpoints.txt",
                                   mode="images",
                                   )
 

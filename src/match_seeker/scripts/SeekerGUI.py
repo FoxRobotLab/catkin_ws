@@ -79,8 +79,8 @@ class SeekerGUI():
         self.setUpImgMatch()
 
     def askWhich(self):
-        """ 
-        The pop up window that asks whether the user will enter the node or the coordinates of the starting 
+        """
+        The pop up window that asks whether the user will enter the node or the coordinates of the starting
         position
         """
         popupWin = tk.Toplevel()
@@ -90,7 +90,7 @@ class SeekerGUI():
         self.userInputStartYaw.set("")
         self.confirmClickedStart = False
 
-        popupFrame = tk.Frame(popupWin, bg="indian red", bd=2, relief=tk.GROOVE)
+        popupFrame = tk.Frame(popupWin, bg="gray22", bd=2, relief=tk.GROOVE)
         popupFrame.grid(row=0, column=0)
 
         nodeButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Node", command= lambda: [popupWin.destroy(), self.nodeButtonpopUp()])
@@ -103,8 +103,8 @@ class SeekerGUI():
 
     def nodeButtonPopUp(self):
         """
-        The pop up window that shows up if node entry is chosen 
-        :return: 
+        The pop up window that shows up if node entry is chosen
+        :return:
         """
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input start node)")
@@ -138,7 +138,7 @@ class SeekerGUI():
     def locationButtonPopUp(self):
         """
         The pop up window that shows up when the coordinate button is chosen
-        :return: 
+        :return:
         """
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input start Coordinates)")
@@ -179,7 +179,7 @@ class SeekerGUI():
     def popupStart(self):
         """
         The popup window that asks the user to put in the starting position
-        :return: 
+        :return:
         """
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input start node/location (space in between x and y)")
@@ -261,21 +261,21 @@ class SeekerGUI():
 
     def setUpHeadFrame(self):
         # Heading frame
-        headFrame = tk.Frame(self.mainWin, bg="pale green", bd=2, relief=tk.GROOVE)
+        headFrame = tk.Frame(self.mainWin, bg="gray22", bd=2, relief=tk.GROOVE)
         headFrame.grid(row = 0, column = 0, columnspan=4)
-        modeLab = tk.Label(headFrame, bg="pale green", text="Mode:", font="DroidSans 24", width=8, height = 1)
+        modeLab = tk.Label(headFrame, bg="gray22", text="Mode:", font="DroidSans 24", width=8, height = 1)
         modeLab.grid(row = 0, column = 0)
-        self.currentMode = tk.Label(headFrame, bg="spring green", textvariable=self.mode, font="DroidSans 24 bold", width=17, height =1)
+        self.currentMode = tk.Label(headFrame, bg="gray22", textvariable=self.mode, font="DroidSans 24 bold", width=17, height =1)
         self.currentMode.grid(row = 0, column = 1)
-        navLab = tk.Label(headFrame, bg="pale green", text="Nav by:", font="DroidSans 24", width=8, height =1)
+        navLab = tk.Label(headFrame, bg="gray22", text="Nav by:", font="DroidSans 24", width=8, height =1)
         navLab.grid(row = 0, column = 2)
-        self.currentNav = tk.Label(headFrame, textvariable=self.navType, bg="spring green", font="DroidSans 24 bold", width=17, height =1)
+        self.currentNav = tk.Label(headFrame, textvariable=self.navType, bg="gray22", font="DroidSans 24 bold", width=17, height =1)
         self.currentNav.grid(row = 0, column = 3)
 
 
     def setUpLocFrame(self):
         #Locations frame
-        locationsFrame = tk.Frame(self.mainWin, bg="light blue", bd=2, relief=tk.GROOVE)
+        locationsFrame = tk.Frame(self.mainWin, bg="gray22", bd=2, relief=tk.GROOVE)
         locationsFrame.grid(row = 1, column = 0)
 
         #row heading
