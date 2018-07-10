@@ -17,32 +17,33 @@ import os
 import math
 
 import cv2
-import numpy as np
 
-import readMap
+from DataPaths import basePath, imageDirectory, locData
+from OlinWorldMap import WorldMap
 
 
 class CheckerOfLocs(object):
     """An object that can read locations and pictures and interactively asks the user to correct the locations and
     headings."""
 
-    def __init__(self, mapFile, locFile, imageDir, saveAll = True, nearLoc = None, onlyNear = False):
+    def __init__(self, locFile, imageDir, saveAll = True, nearLoc = None, onlyNear = False, startLoc = 0):
         """Sets up the location file and image folder..."""
-        self.mapFile = mapFile
+
         self.locFile = locFile
         self.imageDir = imageDir
         self.saveAll = saveAll
         self.nearLoc = nearLoc
         self.onlyNear = onlyNear
+        self.startingLoc = startLoc
 
         self.oldLocations = dict()
         self.newLocations = dict()
-        self.olinMap = None
+        self.olinMap = WorldMap()
         (self.mapHgt, self.mapWid, self.mapDep) = (None, None, None)
 
 
     def go(self):
-        """Actually reads the data, processes it, and saves it to a file"""
+        """Actually processes the data, and saves it to a file"""
         self.readLocations()
         self.displayAndProcess()
         self.saveNewLocations()
@@ -50,11 +51,13 @@ class CheckerOfLocs(object):
 
     def displayAndProcess(self):
         """Displays the images, and map, drawing the location on the map. User interactively updates the location."""
-        self.getOlinMap()
         self.setupWindows()
+        self.olinMap.cleanMapImage(cells=True)
+        self.olinMap.displayMap("Map")
+
         filenames = self.getImageFilenames()
 
-        i = 0
+        i = self.startingLoc
         offsetX = 0
         offsetY = 0
         offsetH = 0
@@ -66,8 +69,6 @@ class CheckerOfLocs(object):
                 print "Weird filename in folder: ", name, "... skipping!"
                 continue
 
-            nextImg = cv2.imread(self.imageDir + name)
-            cv2.imshow("Image", nextImg)
             (locX, locY, locH) = self.getCurrLocInfo(nextNum)
             if self.onlyNear and not self.closeEnough(locX, locY):
                 i = i+1
@@ -75,7 +76,15 @@ class CheckerOfLocs(object):
             currX = locX + offsetX
             currY = locY + offsetY
             currH = (locH + offsetH) % 360
-            self.drawLocOnMap(nextNum, currX, currY, currH, offsetX, offsetY, offsetH)
+
+            self.olinMap.cleanMapImage(cells=True)
+            self.olinMap.drawPose((currX, currY, currH))
+            self.olinMap.displayMap("Map")
+
+            nextImg = cv2.imread(self.imageDir + name)
+            self.drawLocOnImage(nextImg, nextNum, (currX, currY, currH), (offsetX, offsetY, offsetH))
+            cv2.imshow("Image", nextImg)
+
             res = cv2.waitKey()
             userKey = chr(res % 0xFF)
             if userKey == 'q':
@@ -109,7 +118,6 @@ class CheckerOfLocs(object):
 
     def getImageFilenames(self):
         """Get the image filenames using os module"""
-        filenames = self.getImageFilenames()
         # get filenames of image files
         filenames = os.listdir(self.imageDir)
         filenames.sort()
@@ -127,7 +135,7 @@ class CheckerOfLocs(object):
         for line in f.readlines():
             line = line.rstrip('/n')
             line = line.split()
-            locations[int(line[0])] = [float(line[1]), float(line[2]), int(line[3])]
+            locations[int(line[0])] = [float(line[1]), float(line[2]), float(line[3])]
         f.close()
         self.oldLocations = locations
 
@@ -135,7 +143,7 @@ class CheckerOfLocs(object):
 
     def saveNewLocations(self):
         """Writes the data from self.newLocations to a new file"""
-        lineTemplate = "{0:d} {1:.2f} {2:.2f} {3:d}\n"
+        lineTemplate = "{0:d} {1:.2f} {2:.2f} {3:.1f}\n"
 
         newLocFile = open(self.locFile + "NEW", 'w')
         newKeys = self.newLocations.keys()
@@ -147,89 +155,31 @@ class CheckerOfLocs(object):
         newLocFile.close()
 
 
-    def getOlinMap(self):
-        """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
-        Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
-        perhaps."""
-        origMap = readMap.createMapImage(self.mapFile, 20)
-        map2 = np.flipud(origMap)
-        self.olinMap = np.rot90(map2)
-        (self.mapHgt, self.mapWid, self.mapDep) = self.olinMap.shape
-
 
     def setupWindows(self):
         """Creates three windows and moves them to the right places on screen."""
         cv2.namedWindow("Image")
         cv2.namedWindow("Map")
         cv2.moveWindow("Image", 30, 50)
-        cv2.moveWindow("Map", 700, 50)
+        cv2.moveWindow("Map", 100, 50)
 
 
-    def drawLocOnMap(self, nextNum, currX, currY, currH, offsetX, offsetY, offsetH):
+    def drawLocOnImage(self, nextImg, nextNum, currPose, offsetPose):
         """Draws the current location on the map"""
-        positionTemplate = "{0:d}: ({1:5.2f}, {2:5.2f}, {3:d})"
-        offsetTemplate = "Offsets: ({0:5.2f}, {1:5.2f}, {2:d})"
-        nextMapImg = self.olinMap.copy()
-        (pixX, pixY) = self.convertWorldToMap(currX, currY)
-        self.drawPosition(nextMapImg, pixX, pixY, currH, (255, 0, 0))
+        currX, currY, currH = currPose
+        offsetX, offsetY, offsetH = offsetPose
+        positionTemplate = "{0:d}: ({1:5.2f}, {2:5.2f}, {3:.0f})"
+        offsetTemplate = "Offsets: ({0:5.2f}, {1:5.2f}, {2:.0f})"
+        cellTemplate = "Cell: {0:s}"
         posInfo = positionTemplate.format(nextNum, currX, currY, currH)
         offsInfo = offsetTemplate.format(offsetX, offsetY, offsetH)
-        cv2.putText(nextMapImg, posInfo, (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
-        cv2.putText(nextMapImg, offsInfo, (40, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
-        cv2.imshow("Map", nextMapImg)
+        cellInfo = cellTemplate.format(self.olinMap.convertLocToCell((currPose)))
+        cv2.putText(nextImg, posInfo, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+        cv2.putText(nextImg, offsInfo, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
+        cv2.putText(nextImg, cellInfo, (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
 
 
-    def drawPosition(self, image, x, y, heading, color):
-        cv2.circle(image, (x, y), 6, color, -1)
-        newX = x
-        newY = y
-        if heading == 0:
-            newY = y - 10
-        elif heading == 45:
-            newX = x - 8
-            newY = y - 8
-        elif heading == 90:
-            newX = x - 10
-        elif heading == 135:
-            newX = x - 8
-            newY = y + 8
-        elif heading == 180:
-            newY = y + 10
-        elif heading == 225:
-            newX = x + 8
-            newY = y + 8
-        elif heading == 270:
-            newX = x + 10
-        elif heading == 315:
-            newX = x + 8
-            newY = y - 8
-        else:
-            print "Error! The heading is", heading
-        cv2.line(image, (x, y), (newX, newY), color)
 
-
-    def convertMapToWorld(self, mapX, mapY):
-        """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
-        meters. Note that this also has to adjust for the rotation and flipping of the map."""
-        # First flip x and y values around...
-        flipY = self.mapWid - 1 - mapX
-        flipX = self.mapHgt - 1 - mapY
-        # Next convert to meters from pixels, assuming 20 pixels per meter
-        mapXMeters = flipX / 20.0
-        mapYMeters = flipY / 20.0
-        return mapXMeters, mapYMeters
-
-
-    def convertWorldToMap(self, worldX, worldY):
-        """Converts coordinates in meters in the world to integer coordinates on the map
-        Note that this also has to adjust for the rotation and flipping of the map."""
-        # First convert from meters to pixels, assuming 20 pixels per meter
-        pixelX = worldX * 20.0
-        pixelY = worldY * 20.0
-        # Next flip x and y values around
-        mapX = self.mapWid - 1 - pixelY
-        mapY = self.mapHgt - 1 - pixelX
-        return int(mapX), int(mapY)
 
 
     def extractNum(self, fileString):
@@ -269,10 +219,8 @@ class CheckerOfLocs(object):
 
 
 if __name__ == '__main__':
-    catkinPath = "/home/macalester/"
-    basePath = "catkin_ws/src/match_seeker/"
-    checker = CheckerOfLocs(catkinPath + basePath + "res/map/olinNewMap.txt",
-                            "/home/macalester/turtlebot_videos/Data-May31Thu-113911.txt",
-                            "/home/macalester/turtlebot_videos/atriumClockwiseFrames/",
-                            saveAll = True) # nearLoc = (7.5, 6.4), onlyNear = True)
+    checker = CheckerOfLocs(basePath + locData,
+                            basePath + imageDirectory,
+                            saveAll = True,
+                            startLoc=3725)
     checker.go()
