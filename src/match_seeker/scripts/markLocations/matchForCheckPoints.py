@@ -68,46 +68,57 @@ class combineFiles(object):
         totalTime = int(totalTime)
         return(totalTime)
 
-    def compareTimes(self):
-
-        """This function actually compares the times between the two files. If two times are the same, the image
-         number/x coordinate/y coordinate/yaw are put into a new list. This new list is then added to the final list
-         of entries that need to be written to the output file."""
-
-        for locLine in self.locList:
-            for imgLine in self.imgNumList:
-                intLocTime = int(locLine[1])
-                intImgTime = int(imgLine[1])
-                if intLocTime == intImgTime:
-                    newList = []
-                    newList.append(imgLine[0])
-                    newList.append(locLine[2])
-                    newList.append(locLine[3])
-                    newList.append(locLine[4])
-                    self.finalList.append(newList)
-
     # def compareTimes(self):
+    #
+    #     """This function actually compares the times between the two files. If two times are the same, the image
+    #      number/x coordinate/y coordinate/yaw are put into a new list. This new list is then added to the final list
+    #      of entries that need to be written to the output file."""
+    #
     #     for locLine in self.locList:
-    #         minFrameNum = self.findClosestFrame(locLine[1])
-    #         newList = []
-    #         newList.append(minFrameNum)
-    #         newList.append(locLine[2])
-    #         newList.append(locLine[3])
-    #         newList.append(locLine[4])
-    #         self.finalList.append(newList)
+    #         for imgLine in self.imgNumList:
+    #             intLocTime = int(locLine[1])
+    #             intImgTime = int(imgLine[1])
+    #             if intLocTime == intImgTime:
+    #                 newList = []
+    #                 newList.append(imgLine[0])
+    #                 newList.append(locLine[2])
+    #                 newList.append(locLine[3])
+    #                 newList.append(locLine[4])
+    #                 self.finalList.append(newList)
+
+    def compareTimes(self):
     #
+    #   """This function actually compares the times between the two files. If two times are the same, the image
+    #   number/x coordinate/y coordinate/yaw are put into a new list. This new list is then added to the final list
+    #   of entries that need to be written to the output file."""
     #
-    # def findClosestFrame(self, number):
-    #     minimum = 90000000
-    #     intTarget = int(number)
-    #     minNumber = 0
-    #     for imageLine in self.imgNumList:
-    #         intImageLine = int(imageLine)
-    #         dif  = abs(intImageLine- intTarget)
-    #         if dif < minimum:
-    #             minimum = dif
-    #             minNumber = imageLine
-    #     return minNumber[0]
+        for locLine in self.locList:
+            minFrameNum = self.findClosestFrame(locLine[1])
+            newList = []
+            newList.append(minFrameNum)
+            newList.append(locLine[2])
+            newList.append(locLine[3])
+            newList.append(locLine[4])
+            self.finalList.append(newList)
+
+
+    def findClosestFrame(self, number):
+        """
+        Given a time, this function compares it with all of the times in the image number list, and returns the closest
+        image number
+        :param number:
+        :return:
+        """
+        minimum = 90000000
+        intTarget = int(number)
+        minNumber = 0
+        for imageLine in self.imgNumList:
+            intImage = int(imageLine[1])
+            dif = abs(intImage- intTarget)
+            if dif < minimum:
+                minimum = dif
+                minNumber = intImage
+        return str(minNumber)
 
     def _writeData(self):
 
