@@ -85,14 +85,14 @@ class WorldMap(object):
     # -------------------------------------------------------------------
     # These methods update and display the map and poses or particles on it
 
-    def cleanMapImage(self, obstacles = False, cells = False):
+    def cleanMapImage(self, obstacles = False, cells = False, drawCellNum=False):
         """Set the current map image to be a clean copy of the original."""
         self.currentMapImg = self.olinImage.copy()
         # self.drawNodes()
         if obstacles:
             self.drawObstacles()
         if cells:
-            self.drawCells()
+            self.drawCells(drawCellNum=drawCellNum)
 
 
     def displayMap(self, window = "Map Image"):
@@ -112,11 +112,17 @@ class WorldMap(object):
         [x1, y1, x2, y2] = self.cellData[cellNum]
         self.drawBox((x1, y1), (x2, y2), (113, 179, 60), 2)
 
-    def drawCells(self):
+    def drawCells(self, drawCellNum=False):
         """Draws the cell data on the current image."""
         for cell in self.cellData:
             [x1, y1, x2, y2] = self.cellData[cell]
             self.drawBox((x1, y1), (x2, y2), (113, 179, 60))
+            ### Draw the cell number on the bottom right corner of each cell
+            if (drawCellNum):
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                textSize = cv2.getTextSize(str(cell), font, 0.4, 1)[0]
+                mapX1, mapY1 = self._convertWorldToPixels((x1, y1))
+                cv2.putText(self.currentMapImg, str(cell), (mapX1-textSize[0], mapY1-textSize[1]), font, 0.4, (113, 179, 60), 1)
 
 
     def drawBox(self, lrpt, ulpt, color, thickness = 1):
@@ -136,16 +142,6 @@ class WorldMap(object):
             x, y = self._nodeToCoord(node)
             center = self._convertWorldToPixels((x, y))
             cv2.circle(self.currentMapImg, center, 5, (200, 200, 200), -1)
-
-    def drawLocsAllFrames(self):
-        locFile = open(basePath + locData, "r")
-        while True:
-            line = locFile.readline()
-            if not line: break
-            if not line.startswith("#"):
-                frameNum, x, y, h = line.split(" ")
-                center = self._convertWorldToPixels((float(x), float(y)))
-                cv2.circle(self.currentMapImg, center, 2, (0, 255, 0), -1)
 
 
     def drawPose(self, particle, size = 4, color = (0, 0, 0), fill = True):
@@ -662,7 +658,7 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     mapper = WorldMap()
-    mapper.cleanMapImage(obstacles=False, cells=True)# True)
+    mapper.cleanMapImage(obstacles=False, cells=True, drawCellNum=True)# True)
     mapper.drawNodes()
     # mapper.drawLocsAllFrames()
     mapper.displayMap()
