@@ -85,14 +85,14 @@ class WorldMap(object):
     # -------------------------------------------------------------------
     # These methods update and display the map and poses or particles on it
 
-    def cleanMapImage(self, obstacles = False, cells = False):
+    def cleanMapImage(self, obstacles = False, cells = False, drawCellNum=False):
         """Set the current map image to be a clean copy of the original."""
         self.currentMapImg = self.olinImage.copy()
         # self.drawNodes()
         if obstacles:
             self.drawObstacles()
         if cells:
-            self.drawCells(drawCellNum=True)
+            self.drawCells(drawCellNum=drawCellNum)
 
 
     def displayMap(self, window = "Map Image"):
@@ -658,7 +658,7 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     mapper = WorldMap()
-    mapper.cleanMapImage(obstacles=False, cells=True)# True)
+    mapper.cleanMapImage(obstacles=False, cells=True, drawCellNum=True)# True)
     mapper.drawNodes()
     # mapper.drawLocsAllFrames()
     mapper.displayMap()

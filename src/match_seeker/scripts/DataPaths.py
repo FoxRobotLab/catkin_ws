@@ -12,7 +12,7 @@ computers more easily.
 import os
 
 # base path on Susan's computer
-basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
+# basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
 
 # base path on Enterprise
 # basePath = "/home/macalester/catkin_ws/src/match_seeker/"
@@ -21,6 +21,8 @@ basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositorie
 # base path on FoxVoyager (aka Speedy)
 # basePath = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/"
 
+# base path on Precision
+basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
 #
 turtleBase = 'kobuki' # os.environ["TURTLEBOT_BASE"]
 #
