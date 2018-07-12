@@ -159,6 +159,7 @@ class MatchPlanner(object):
         self.gui.stop()
         self.brain.stop()       # was stopAll
 
+
     def getStartLocation(self):
         self.brain.pause()
         self.startX, self.startY, self.startYaw = self._userStartLoc()
@@ -284,7 +285,7 @@ class MatchPlanner(object):
 
 
 
-    def checkCoordinates(self, matchInfo):
+    def checkCoordinates(self, localizePose):
         """Check the current match information to see if we should change headings. If node that is
         confidently "not close enough" is what we expect, then make sure heading is right. Otherwise,
         if it is a neighbor of one of the expected nodes, then turn to move toward that node.
@@ -294,13 +295,13 @@ class MatchPlanner(object):
         if currPath is None or currPath == []:
             return
 
-        (nearNode, currLoc) = matchInfo
+        (nearNode, currLoc) = localizePose
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
         self.logger.log("------------- Checking coordinates -----")
 
         # if nearNode == currPath[-1]:
-        #     self.respondToLocation(matchInfo)
+        #     self.respondToLocation(localizePose)
 
         if nearNode == justVisitedNode or nearNode == immediateGoalNode:
             nextNode = immediateGoalNode
