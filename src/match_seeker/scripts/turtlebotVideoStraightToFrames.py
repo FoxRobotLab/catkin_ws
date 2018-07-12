@@ -1,7 +1,7 @@
 import turtleControl
 import time
 import cv2
-import os
+import datetime
 import rospy
 
 """Author: Malini Sharma"""
@@ -44,9 +44,11 @@ class StraightToFrames(object):
             print("Starting while loop")
             self.img, _ = self.robot.getImage()
             cv2.imshow("Image", self.img)
-            time.sleep(1)
-            self.currTime = time.localtime()
-            self.currTime2 = time.strftime("%H:%M:%S", self.currTime)
+            time.sleep(.5)
+            #self.currTime = time.localtime()
+            #self.currTime2 = time.strftime("%H:%M:%S", self.currTime)
+            self.currTime = datetime.datetime.now()
+            self.currTime2 = datetime.datetime.strftime(self.currTime, "%H:%M:%S:%f")
             self.picNum = self.picNum + 1
             self.dictOfTimes[self.picNum] = self.currTime2
             self.saveToFolder(self.img, self.outputFolder, self.picNum)
