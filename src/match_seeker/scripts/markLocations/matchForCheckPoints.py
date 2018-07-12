@@ -68,23 +68,57 @@ class combineFiles(object):
         totalTime = int(totalTime)
         return(totalTime)
 
+    # def compareTimes(self):
+    #
+    #     """This function actually compares the times between the two files. If two times are the same, the image
+    #      number/x coordinate/y coordinate/yaw are put into a new list. This new list is then added to the final list
+    #      of entries that need to be written to the output file."""
+    #
+    #     for locLine in self.locList:
+    #         for imgLine in self.imgNumList:
+    #             intLocTime = int(locLine[1])
+    #             intImgTime = int(imgLine[1])
+    #             if intLocTime == intImgTime:
+    #                 newList = []
+    #                 newList.append(imgLine[0])
+    #                 newList.append(locLine[2])
+    #                 newList.append(locLine[3])
+    #                 newList.append(locLine[4])
+    #                 self.finalList.append(newList)
+
     def compareTimes(self):
-
-        """This function actually compares the times between the two files. If two times are the same, the image
-         number/x coordinate/y coordinate/yaw are put into a new list. This new list is then added to the final list
-         of entries that need to be written to the output file."""
-
+    #
+    #   """This function actually compares the times between the two files. If two times are the same, the image
+    #   number/x coordinate/y coordinate/yaw are put into a new list. This new list is then added to the final list
+    #   of entries that need to be written to the output file."""
+    #
         for locLine in self.locList:
-            for imgLine in self.imgNumList:
-                intLocTime = int(locLine[1])
-                intImgTime = int(imgLine[1])
-                if intLocTime == intImgTime:
-                    newList = []
-                    newList.append(imgLine[0])
-                    newList.append(locLine[2])
-                    newList.append(locLine[3])
-                    newList.append(locLine[4])
-                    self.finalList.append(newList)
+            minFrameNum = self.findClosestFrame(locLine[1])
+            newList = []
+            newList.append(minFrameNum)
+            newList.append(locLine[2])
+            newList.append(locLine[3])
+            newList.append(locLine[4])
+            self.finalList.append(newList)
+
+
+    def findClosestFrame(self, number):
+        """
+        Given a time, this function compares it with all of the times in the image number list, and returns the closest
+        image number
+        :param number:
+        :return:
+        """
+        minimum = 90000000
+        intTarget = int(number)
+        minNumber = 0
+        for imageLine in self.imgNumList:
+            intImage = int(imageLine[1])
+            dif = abs(intImage- intTarget)
+            if dif < minimum:
+                minimum = dif
+                minNumber = intImage
+        return str(minNumber)
 
     def _writeData(self):
 
@@ -116,8 +150,8 @@ class combineFiles(object):
 
 if __name__ == '__main__':
 
-    combiner = combineFiles(locFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/Data-Jul05Thu-11_12_50.txt",
-                        imgNumFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/july5Frames.txt",
-                        outputFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/july5MatchedCheckpoints.txt")
+    combiner = combineFiles(locFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/Data-Jul09Mon-13_50_08.txt",
+                        imgNumFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july9Frames/july9Frames.txt",
+                        outputFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july9MatchedCheckpoints.txt")
 
     combiner.go()
