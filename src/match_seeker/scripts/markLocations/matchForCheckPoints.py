@@ -116,8 +116,8 @@ class combineFiles(object):
 
 if __name__ == '__main__':
 
-    combiner = combineFiles(locFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/Data-Jul05Thu-11_12_50.txt",
-                        imgNumFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/july5Frames.txt",
-                        outputFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/july5MatchedCheckpoints.txt")
+    combiner = combineFiles(locFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/Data-Jul11Wed-13_50_21.txt",
+                        imgNumFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11Frames3.txt",
+                        outputFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11MatchedCheckpoints3.txt")
 
     combiner.go()

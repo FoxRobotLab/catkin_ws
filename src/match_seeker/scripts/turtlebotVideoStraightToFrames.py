@@ -102,8 +102,8 @@ def main():
     robot = turtleControl.TurtleBot()
 
     framer = StraightToFrames(
-        outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/',
-        outputFile='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july5Frames/july5Frames.txt',
+        outputFolder='/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11Frames3/',
+        outputFile='/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11Frames3/july11Frames3.txt',
         robot=robot)
     framer.go()
 
