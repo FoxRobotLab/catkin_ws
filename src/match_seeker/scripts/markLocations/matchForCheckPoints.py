@@ -33,7 +33,7 @@ class combineFiles(object):
         for line in locsLines:
             element = line.split()
             time = element[1]
-            newTime = self.convertTimeToSeconds(time)
+            newTime = self.convertTimeToMicroSeconds(time)
             element[1] = newTime
             self.locList.append(element)
 
@@ -50,11 +50,11 @@ class combineFiles(object):
         for line in imgsLines:
             element = line.split()
             time = element[1]
-            newTime = self.convertTimeToSeconds(time)
+            newTime = self.convertTimeToMicroSeconds(time)
             element[1] = newTime
             self.imgNumList.append(element)
 
-    def convertTimeToSeconds(self, timeString):
+    def convertTimeToMicroSeconds(self, timeString):
         """
         Takes in a string of time in the format HR:MN:S and returns the total number of seconds
 
@@ -62,9 +62,10 @@ class combineFiles(object):
         :return:
         """
         timeList= timeString.split(":")
-        secondsFromHours = int(timeList[0]) * 60 * 60
-        secondsFromMinutes = int(timeList[1]) * 60
-        totalTime = secondsFromHours + secondsFromMinutes + int(timeList[2]);
+        microSecondsFromHours = int(timeList[0]) * 60 * 60 * 1000000
+        microSecondsFromMinutes = int(timeList[1]) * 60 * 1000000
+        microsecondsFromSeconds = int(timeList[2]) * 1000000
+        totalTime = microSecondsFromHours + microSecondsFromMinutes+ microsecondsFromSeconds + int(timeList[3])
         totalTime = int(totalTime)
         return(totalTime)
 
