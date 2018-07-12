@@ -100,10 +100,12 @@ class Localizer(object):
 
 
         if var < 5.0:
-           return self.
-           (comPose, var)
+            locInfo = self.mclResponse(comPose, var)
         else:
-            return self.matchResponse(matchLocs, scores)
+            locInfo = self.matchResponse(matchLocs, scores)
+        (nearNode, pose) = locInfo
+        cellForPose = self.olin.convertLocToCell(pose)
+        self.olin.highlightCell(cellForPose)
 
 
     def mclResponse(self, comPose, var):
@@ -232,6 +234,7 @@ class Localizer(object):
             self.confidence = 0.0
         else:
             self.confidence = 0.0
+
 
     def odometer(self):
         """

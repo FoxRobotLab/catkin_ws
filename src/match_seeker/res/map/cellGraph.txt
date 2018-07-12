@@ -1,7 +1,7 @@
 #######################
 # Graph of Olin-Rice 2nd floor made of roughly 2x2 meter cells
 
-Number of Nodes: 152
+Number of Nodes: 153
 
 Nodes:
 # This maps roughly 2x2 meter squares in the Olin-Rice map to cell numbers for
@@ -162,6 +162,7 @@ Nodes:
 149 (31.0, 74.0)
 150 (31.0, 76.0)
 151 (31.0, 78.0)
+152 (16.5, 27.0)
 
 Markers:
 
