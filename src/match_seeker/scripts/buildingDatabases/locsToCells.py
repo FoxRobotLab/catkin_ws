@@ -37,7 +37,7 @@ def convertLocToCell(x, y, cellMap):
             return cell
     else:
         print("----------")
-        print("ERROR: convertLocToCell, no matching cell found:", (x, y))
+        print("ERROR: convertLocToCell, no matching cell found for:", (x, y))
 
 
 
@@ -58,10 +58,10 @@ def getCellData(cellFile):
 
 
 if __name__ == "__main__":
-    basePath = "/home/macalester/catkin_ws/src/match_seeker/"
+    basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
     cellFilename = basePath + "res/map/mapToCells.txt"
-    locsFilename = "/home/macalester/PycharmProjects/olri_classifier/frames/lesslocs.txt"
-    outputFilename = "/home/macalester/PycharmProjects/olri_classifier/frames/lesscells.txt"
+    locsFilename = "/home/macalester/PycharmProjects/olri_classifier/frames/morelocs.txt"
+    outputFilename = "/home/macalester/PycharmProjects/olri_classifier/frames/morecells.txt"
     cells = getCellData(cellFilename)
     locsToCells(locsFilename, outputFilename, cells)
 

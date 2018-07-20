@@ -135,12 +135,11 @@ if __name__ == "__main__":
 
     #DONE (allFrames) : atriumClockwiseFrames, westAtriumFrames, atriumSouthFrames_2, atriumSouthFrames, atriumNorthFrames, goodFrom2017
     #TODO: Always check for the correct startNewNum (usually by going into name changes file.
-    startNewNum = 9714
-    organizer = OrganizeData(origFramesPath="/home/macalester/catkin_ws/src/match_seeker/res/allFrames060418/",
-                             desFramesPath="/home/macalester/PycharmProjects/olri_classifier/frames/lessframes/",
-                             # origLocFilePath="/home/macalester/PycharmProjects/olri_classifier/frames/Final Interpolation Results/july6locs.txt",
-                             origLocFilePath="/home/macalester/catkin_ws/src/match_seeker/res/locdata/allLocs060418.txt",
-                             desLocFilePath="/home/macalester/PycharmProjects/olri_classifier/frames/lesslocs.txt",
-                             nameChangeFile="/home/macalester/PycharmProjects/olri_classifier/frames/lessnamechanges.txt",
+    startNewNum = 58079
+    organizer = OrganizeData(origFramesPath="/home/macalester/PycharmProjects/olri_classifier/frames/raw/july18Frames2/",
+                             desFramesPath="/home/macalester/PycharmProjects/olri_classifier/frames/moreframes/",
+                             origLocFilePath="/home/macalester/PycharmProjects/olri_classifier/frames/raw/july18locs2.txt",
+                             desLocFilePath="/home/macalester/PycharmProjects/olri_classifier/frames/morelocs.txt",
+                             nameChangeFile="/home/macalester/PycharmProjects/olri_classifier/frames/morenamechanges.txt",
                              startNewNum=startNewNum)
     organizer.go()
