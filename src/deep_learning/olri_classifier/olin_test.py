@@ -107,7 +107,6 @@ def mode_from_recent_n(n, recent_cell):
         recent_n_cells.pop(0)
     return max(set(recent_n_cells), key=recent_n_cells.count) # O(n**2)
 
-
 # if __name__ == "__main__":
 #     minor_cells = [
 #         18, 19, 67, 69, 71, 73, 75, 95, 97, 99,

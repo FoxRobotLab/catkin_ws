@@ -79,7 +79,6 @@ cell = Cell(
     num_max_cells=num_max_cells
 )
 """
-
 ### Reference
 Usage: https://www.geeksforgeeks.org/namedtuple-in-python/
 namedtuple vs. dict: https://stackoverflow.com/questions/9872255/when-and-why-should-i-use-a-namedtuple-instead-of-a-dictionary

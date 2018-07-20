@@ -71,7 +71,6 @@ class OlinClassifier(object):
             self.robot = None
             print("*** Not using robot")
 
-
     ################## Train ##################
     def train(self, train_data):
         random.shuffle(train_data)
