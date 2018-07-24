@@ -9,7 +9,10 @@ import keras
 import olin_factory as factory
 from datetime import datetime
 
-recent_n_cells = []
+recent_n_cells = [] # purple
+recent_m_cells = [] # orange
+accepted_cell = None
+previous_accepted_cell = None
 olin_map = cv2.imread(factory.paths.map_path)
 cellF = open(factory.paths.maptocell_path, 'r')
 cellDict = dict()
@@ -49,7 +52,7 @@ def hightlightCell(image, cellNum, color=(113, 179, 60)):
     drawBox(image, (x1, y1), (x2, y2), color, 2)
 
 
-def test_turtlebot(olin_classifier, recent_n_max):
+def test_turtlebot(olin_classifier, recent_n_max, recent_m_max):
     cell_to_intlabel_dict = np.load(factory.paths.one_hot_dict_path).item()
     intlabel_to_cell_dict = dict()
     for cell in cell_to_intlabel_dict.keys():
@@ -62,6 +65,8 @@ def test_turtlebot(olin_classifier, recent_n_max):
     print("*** Model restored: ", olin_classifier.checkpoint_name)
     model.summary()
     softmax = keras.models.Model(inputs=model.input, outputs=model.get_layer(name="dense_3").output)
+    previous_accepted_cell = None
+    accepted_cell = None
 
     while (not rospy.is_shutdown()):
         turtle_image, _ = olin_classifier.robot.getImage()
@@ -75,12 +80,17 @@ def test_turtlebot(olin_classifier, recent_n_max):
         pred_class = np.argmax(pred)
         pred_cell = intlabel_to_cell_dict[int(pred_class)]
         ### Compute the best prediction by getting the mode out of most recent n cells
-        best_cell = mode_from_recent_n(recent_n_max, pred_cell)
+        best_n_cell, best_m_cell = mode_from_recent_mn(recent_n_max, recent_m_max, pred_cell)
+
+        previous_accepted_cell = accepted_cell
+        previous_accepted_cell, accepted_cell = decide_current_accepted_cell(best_n_cell, best_m_cell, previous_accepted_cell, accepted_cell)
+
+
         print("{} Predicted Cell: ".format(datetime.now()), pred_cell)
-        print("{} Predicted Best Cell (N={}): ".format(datetime.now(), len(recent_n_cells)), best_cell)
+        print("{} Predicted Best Cell): ".format(datetime.now(), len(recent_n_cells)), accepted_cell)
         olin_map_copy = olin_map.copy()
         hightlightCell(olin_map_copy, str(pred_cell))
-        hightlightCell(olin_map_copy, str(best_cell), color=(254, 127, 156))
+        hightlightCell(olin_map_copy, str(best_n_cell), color=(254, 127, 156))
 
         cv2.imshow("Map Image", olin_map_copy)
         # cv2.imshow("Test Image", turtle_image)
@@ -95,7 +105,58 @@ def test_turtlebot(olin_classifier, recent_n_max):
     olin_classifier.robot.stop()
 
 
-def mode_from_recent_n(n, recent_cell):
+def decide_current_accepted_cell(nMode, mMode, previous, current):
+    """
+    Decides whether the n mode or the m mode should be used
+    :param nMode:
+    :param mMode:
+    :param previous:
+    :param current:
+    :return:
+    """
+    adjacent = check_if_adjacent(mMode, previous, "")
+    if adjacent:
+        previous = current
+        current = mMode
+    else:
+        previous = current
+        current = nMode
+    return previous, current
+
+
+def check_if_adjacent(cell1, cell2, cellFilePath):
+    """ Takes in the number of two cells and checks them to see if they are adjacent returns true if they are adjacent,
+    False if they are not, and None if they are not within limits/ the same cell"""
+    cellsOpen = open(cellFilePath)
+    cellLines = cellsOpen.readlines()
+    cellsOpen.close()
+    cell1Data = None
+    cell2Data = None
+    for line in cellLines:
+        if line[0] == "#":
+            continue
+        elems = line.split()
+        if int(elems[0]) == cell1:
+            cell1Data = elems
+        if int(elems[0]) == cell2:
+            cell2Data = elems
+    if cell1Data == None or cell2Data == None:
+        print("Error checking cells: at least one of the cells doesn't exist")
+        return None
+    else:
+        adjacent = False
+        if cell1Data[1] == cell2Data[1] and cell1Data[3] == cell2Data[3]:
+            if cell1Data[2] == cell2Data[4] or cell1Data[4] == cell2Data[2]:
+                adjacent = True
+        if cell1Data[2] == cell2Data[2] and cell1Data[4] == cell2Data[4]:
+            if cell1Data[1] == cell2Data[3] or cell1Data[3] == cell2Data[1]:
+                adjacent = True
+        if cell1Data[1] == cell2Data[1] and cell1Data[2] == cell2Data[2] and cell1Data[3] == cell2Data[3] and cell1Data[4] == cell2Data[4]:
+            adjacent = None
+        return adjacent
+
+
+def mode_from_recent_mn(n, m, recent_cell):
     """
     Add the most recent cell to the queue that holds most recent N cells and find out the mode of it in order to
     get the best prediction (Jane Pellegrini, JJ Lim)
@@ -103,9 +164,14 @@ def mode_from_recent_n(n, recent_cell):
     :return: mode of the recent N cells
     """
     recent_n_cells.append(recent_cell)
+    recent_m_cells.append(recent_cell)
     if (len(recent_n_cells) > n):
         recent_n_cells.pop(0)
-    return max(set(recent_n_cells), key=recent_n_cells.count) # O(n**2)
+    if len(recent_m_cells) > m:
+        recent_m_cells.pop(0)
+    nMode = max(set(recent_n_cells), key=recent_n_cells.count)  # O(n**2)
+    mMode = max(set(recent_m_cells), key=recent_m_cells.count)
+    return nMode, mMode
 
 
 # if __name__ == "__main__":
