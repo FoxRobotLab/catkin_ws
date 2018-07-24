@@ -3,12 +3,13 @@ import time
 import cv2
 import datetime
 import rospy
+import os
 
 """Author: Malini Sharma"""
 
 class StraightToFrames(object):
 
-    def __init__(self, outputFolder, outputFile, robot):
+    def __init__(self, outputFolder, outputFileName, robot):
 
         """Initializes variables needed to run the program. These variables include the sequential number of pictures,
         a dictionary with the picture number as the key and the time it was obtained as its value, the current time in
@@ -22,7 +23,7 @@ class StraightToFrames(object):
         self.currTime2 = 0
 
         self.outputFolder = outputFolder
-        self.outputFile = outputFile
+        self.outputFileName = outputFileName
         self.robot = robot
 
         self.robot.pauseMovement()
@@ -41,7 +42,6 @@ class StraightToFrames(object):
 
         ch = ''
         while ch != 'q' and not rospy.is_shutdown():
-            print("Starting while loop")
             self.img, _ = self.robot.getImage()
             cv2.imshow("Image", self.img)
             time.sleep(.5)
@@ -51,10 +51,11 @@ class StraightToFrames(object):
             self.currTime2 = datetime.datetime.strftime(self.currTime, "%H:%M:%S:%f")
             self.picNum = self.picNum + 1
             self.dictOfTimes[self.picNum] = self.currTime2
-            self.saveToFolder(self.img, self.outputFolder, self.picNum)
+            saved = self.saveToFolder(self.img, self.outputFolder, self.picNum)
             x = cv2.waitKey(10)
             ch = chr(x & 0xFF)
-
+            if not saved:
+                break
         self._writeData()
         cv2.destroyAllWindows()
         rospy.signal_shutdown("shutting down")
@@ -66,9 +67,14 @@ class StraightToFrames(object):
         fName = self.nextFilename(frameNum)
         pathAndName = folderName + fName
         try:
-            cv2.imwrite(pathAndName, img)
+            works= cv2.imwrite(pathAndName, img)
+            if not works:
+                print("Error writing file! QUIT!", frameNum, pathAndName)
+                return False
         except:
             print("Error writing file", frameNum, pathAndName)
+            return False
+        return True
 
     def _writeData(self):
 
@@ -76,8 +82,9 @@ class StraightToFrames(object):
 
         fileOpen = False
         logFile = None
+        textFileName = os.path.join(self.outputFolder, self.outputFileName)    #Assumes self.outputFileName is just a standalone file name
         try:
-            logFile = open(self.outputFile, 'w')
+            logFile = open(textFileName, 'w')
             fileOpen = True
         except:
             print ("FAILED TO OPEN DATA FILE")
@@ -104,8 +111,8 @@ def main():
     robot = turtleControl.TurtleBot()
 
     framer = StraightToFrames(
-        outputFolder='/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11Frames3/',
-        outputFile='/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11Frames3/july11Frames3.txt',
+        outputFolder='/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july18Frames2/',
+        outputFileName='july18Frames2 .txt',
         robot=robot)
     framer.go()
 

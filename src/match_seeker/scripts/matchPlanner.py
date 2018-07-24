@@ -24,7 +24,7 @@ import Localizer
 import PathLocation
 import OutputLogger
 import OlinWorldMap
-import SeekerGUI
+import SeekerGUI2
 # from DataPaths import basePath, graphMapData
 
 from std_msgs.msg import String
@@ -34,11 +34,12 @@ from std_msgs.msg import String
 class MatchPlanner(object):
 
     def __init__(self):
-        self.gui = SeekerGUI.SeekerGUI()
-        self.gui.update()
 
         self.robot = turtleControl.TurtleBot()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+
+        self.gui = SeekerGUI2.SeekerGUI2(self, self.robot)
+        self.gui.update()
 
         self.brain = None
         self.goalSeeker = None
@@ -397,6 +398,9 @@ class MatchPlanner(object):
         self.pub.publish(speakStr)
         self.gui.updateMessageText(speakStr)
         self.logger.log(speakStr)
+
+    def shutdown(self):
+        rospy.on_shutdown("Button pressed")
 
 
 if __name__ == "__main__":
