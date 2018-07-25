@@ -107,10 +107,10 @@ class WorldMap(object):
             (lrX, lrY, ulX, ulY) = obst
             self.drawBox((lrX, lrY), (ulX, ulY), (255, 0, 0), 2)
 
-    def hightlightCell(self, cellNum):
+    def highlightCell(self, cellNum, color=(113, 179, 60)):
         """Takes in a cell number and draws a box around it to highlight it."""
         [x1, y1, x2, y2] = self.cellData[cellNum]
-        self.drawBox((x1, y1), (x2, y2), (113, 179, 60), 2)
+        self.drawBox((x1, y1), (x2, y2), color, 2)
 
     def drawCells(self, drawCellNum=False):
         """Draws the cell data on the current image."""
@@ -305,9 +305,10 @@ class WorldMap(object):
                 cost[goalVert] = 0
                 q.update(goalVert, cost[goalVert])
                 while not q.isEmpty():
-                    (nextCTG, nextVert) = q.delete()
+                    # (nextCTG, nextVert) = q.delete()
+                    (nextVert, nextCTG) = q.delete()
                     visited.add(nextVert)
-                    neighbors = self.olinGraph.getNeighbors(nextVert)
+                    neighbors = self.olinGraph.getNeighbors(int(nextVert))
                     for n in neighbors:
                         neighNode = n[0]
                         edgeCost = n[1]

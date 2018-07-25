@@ -11,8 +11,6 @@ location file, and creates dictionaries and a KDTree to hold the images
 and organize them by their locations. It provides methods for getting some number
 of closest matches.
 ======================================================================== """
-
-
 import os
 
 import sys
@@ -22,7 +20,9 @@ from scipy import spatial
 import cv2
 
 import ImageFeatures
-
+#sys.path.insert(0, "/home/macalester/PycharmProjects/src/deep_learning/olri_classifier/olin_factory")
+#from olin_factory import paths, cell
+from olri_classifier import olin_factory
 
 class ImageDataset(object):
     """This constructs a dataset to associate images with locations, allowing us to access the location of an
@@ -46,12 +46,30 @@ class ImageDataset(object):
         self.tree = None
         self.xyArray = None
 
+        cellCenterF = open(olin_factory.paths.cell_graph_path, "r")
+        cellCenterDict = dict()
+        for line in cellCenterF:
+            if line.startswith("Markers"):
+                break
+            if line[0] == '#' or line.isspace() or line.startswith("N") or (not line[0] in "0123456789"):
+                continue
+
+
+            parts = line.split()
+            cellNum = parts[0]
+            parts[1]=parts[1].lstrip("(")
+            parts[1]=parts[1].rstrip(",")
+            parts[2]=parts[2].rstrip(")")
+            centerX, centerY = [float(v) for v in parts[1:]]
+            cellCenterDict[cellNum] = [centerX, centerY]
+        self.cellCenterDict = cellCenterDict
+
 
 
 
     def setupData(self, currDir, locFile, baseName, ext):
         """This method reads in the data and makes the various data structures."""
-        # self.makeCollection(currDir, baseName, ext)
+        self.makeCollection(currDir, baseName, ext)
         self.makeLocDict(locFile)
         self.buildKDTree()
 
@@ -142,13 +160,13 @@ class ImageDataset(object):
         """Given an image from the robot's camera, the last known location of the robot, and
         how confident the robot is about that location, this examines a subset of its dataset of images and finds
         the best matches among that subset. """
-
         if len(self.featureCollection) == 0:
             self.logger.log("ERROR: must have built collection before running this.")
             return
-
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
+
         bestScores, bestMatches = self._findBestNMatches(features, lastKnown, confidence)
+
 
         matchLocs = []
         for match in bestMatches:
@@ -162,15 +180,18 @@ class ImageDataset(object):
         features.evaluateSimilarity(bestMatches[0],verbose=True)
         picLocSt = "Best image loc: ({0:4.2f}, {1:4.2f}, {2:4.2f})   score = {3:4.2f}"
         self.logger.log(picLocSt.format(bestX, bestY, bestHead, bestScores[0]))
-
         return bestScores, matchLocs
 
 
     def _findBestNMatches(self, currImFeatures, lastKnown, confidence):
         """Looks through the collection of features and keeps the numMatches
         best matches. It zips them together"""
-        potentialMatches = self._findPotentialMatches(lastKnown, confidence)
+        # potentialMatches = self._findPotentialMatches(lastKnown, confidence)
+        #TODO: Changed to use cnn
+        potentialMatches = self._findCNNMatches(cellNum=lastKnown, radius=olin_factory.cell.cell_size*2)
+
         (bestScores, bestMatches) = self._selectBestN(potentialMatches, currImFeatures)
+
 
         formSt = "{0:4.2f}"
         self.logger.log("Best matches have scores: " + " ".join([ formSt.format(x) for x in bestScores]))
@@ -191,6 +212,15 @@ class ImageDataset(object):
                 potentialMatches = self.featureCollection.keys()
         # self.logger.log("Potential matches length: " + str(len(potentialMatches)))
         self.logger.log("      Searching with radius " + str(radius))
+        self.gui.updateRadius(radius)
+        return potentialMatches
+
+
+    def _findCNNMatches(self, cellNum, radius):
+        centerX, centerY = self.cellCenterDict[str(cellNum)]
+        potentialMatches = self.getNearPos(pos=(centerX, centerY), radius=radius)
+        self.logger.log("      Searching with radius (cnn) " + str(radius))
+        print("In ImageDataset:_findCNNMAtches: searching with (cnn) radius " +str(radius))
         self.gui.updateRadius(radius)
         return potentialMatches
 

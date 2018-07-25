@@ -14,7 +14,7 @@ Hyperparameters = namedtuple(
 Paths = namedtuple(
     "Paths",
     ["map_path", "maptocell_path", "one_hot_dict_path", "base_path", "train_data_dir", "test_data_dir", "checkpoint_dir",
-     "cell_graph_path", "cell_data_path", "train_data_path", "train_mean_path", "class_weight_path"]
+     "cell_graph_path", "cell_data_path", "train_data_path", "train_mean_path", "class_weight_path", "checkpoint_name"]
 )
 Image = namedtuple(
     "Image",
@@ -48,11 +48,12 @@ paths = Paths(
     map_path = "OlinGraphCellMap.png",
     cell_graph_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/cellGraph.txt",
     maptocell_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/mapToCells.txt",
-    cell_data_path = "/home/macalester/PycharmProjects/olri_classifier/frames/morecells.txt",
-    train_data_path = "/home/macalester/PycharmProjects/olri_classifier/0716181747train_data-gray-re1.0-en250-max300-submean.npy",
-    class_weight_path= "/home/macalester/PycharmProjects/olri_classifier/0716181747train_cellcounts-gray-re1.0-en250-max300-submean.npy",
-    train_mean_path = "/home/macalester/PycharmProjects/olri_classifier/0716181747train_mean-gray-re1.0-en250-max300-submean.npy",
-    one_hot_dict_path = "/home/macalester/PycharmProjects/olri_classifier/0716181747train_onehotdict-gray-re1.0-en250-max300-submean.npy"
+    cell_data_path = "/home/macalester/PycharmProjects/catkin_ws/src/deep_learning/olri_classifier/frames/morecells.txt",
+    train_data_path = "/home/macalester/PycharmProjects/catkin_ws/src/deep_learning/olri_classifier/0716181747train_data-gray-re1.0-en250-max300-submean.npy",
+    class_weight_path= "/home/macalester/PycharmProjects/catkin_ws/src/deep_learning/olri_classifier/0716181747train_cellcounts-gray-re1.0-en250-max300-submean.npy",
+    train_mean_path = "/home/macalester/PycharmProjects/catkin_ws/src/deep_learning/olri_classifier/0716181747train_mean-gray-re1.0-en250-max300-submean.npy",
+    one_hot_dict_path = "/home/macalester/PycharmProjects/catkin_ws/src/deep_learning/olri_classifier/0716181747train_onehotdict-gray-re1.0-en250-max300-submean.npy",
+    checkpoint_name="/home/macalester/PycharmProjects/catkin_ws/src/deep_learning/olri_classifier/0718181503_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-90-0.72.hdf5"
 )
 
 

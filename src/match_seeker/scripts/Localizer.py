@@ -7,16 +7,12 @@ the robot should do and passes it onto matchPlanner.py.
 
 ======================================================================== """
 
-
-import math
-import cv2
 # from espeak import espeak
 
 from DataPaths import basePath, imageDirectory, locData
 import ImageDataset
 import MonteCarloLocalize
-
-
+from olri_classifier.olin_test import OlinTest
 
 class Localizer(object):
 
@@ -41,6 +37,7 @@ class Localizer(object):
         # self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
+        self.olin_tester = OlinTest(recent_n_max=50)
 
 
     def findLocation(self, cameraIm):
@@ -61,7 +58,19 @@ class Localizer(object):
         odomLoc = self.odometer()
 
         moveInfo = self.robot.getTravelDist()
-        scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
+
+        ### Modify this line to substitute matchImage --> cnn pred
+        # scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
+
+        # olin_test.test_turtlebot(cameraIm, recent_n_max=50)
+        #OBJECT ORIENTED OLINTEST
+        # TODO: what do we do about confidence and last known loc?
+        currPred, bestPred = self.olin_tester.get_prediction(cameraIm, recent_n_max=50, confidence=None, last_known_loc=None)
+        currPred = str(currPred)
+        bestPred = str(bestPred)
+        self.olin.highlightCell(str(bestPred), color=(254, 127, 156))
+
+        scores, matchLocs = self.dataset.matchImage(cameraIm, bestPred, self.confidence)
 
         self.gui.updatePicLocs(matchLocs[0],matchLocs[1],matchLocs[2])
         self.gui.updatePicConf(scores)
@@ -98,15 +107,21 @@ class Localizer(object):
             self.odomScore = bestScore
             self.robot.updateOdomLocation(bestX, bestY, bestHead)
 
+        print("====== before response", matchLocs, scores)
 
         if var < 5.0:
-            locInfo = self.mclResponse(comPose, var)
+            print("====== mcl")
+            response = self.mclResponse(comPose, var)
         else:
-            locInfo = self.matchResponse(matchLocs, scores)
-        (nearNode, pose) = locInfo
-        cellForPose = self.olin.convertLocToCell(pose)
-        self.olin.highlightCell(cellForPose)
-        return locInfo
+            print("====== match")
+            response = self.matchResponse(matchLocs, scores)
+        print "Localizer: locinfo", response
+        status, matchInfo = response
+        if (matchInfo is not None):
+            (nearNode, pose) = matchInfo
+            cellForPose = self.olin.convertLocToCell(pose)
+            self.olin.highlightCell(cellForPose)
+        return response
 
 
     def mclResponse(self, comPose, var):

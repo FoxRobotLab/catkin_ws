@@ -38,6 +38,8 @@ class MatchPlanner(object):
         self.gui.update()
 
         self.robot = turtleControl.TurtleBot()
+        # print("MatchPlanner: Robot ::: Pause Movement")
+        # self.robot.pauseMovement()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
         self.brain = None
@@ -105,7 +107,7 @@ class MatchPlanner(object):
                 # self.checkCoordinates(odomInfo)
 
                 self.logger.log("-------------- New Match ---------------")
-                status, currPose = self.locator.findLocation(image)
+                status, nodeAndPose = self.locator.findLocation(image)
 
                 if status == "continue":            #bestMatch score > 90 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
@@ -116,7 +118,7 @@ class MatchPlanner(object):
                         self.gui.navigatingMode()
                         self.robot.turnByAngle(35)         #turn back 35 degrees bc the behavior is faster than the matching
                         self.brain.unpause()
-                        self.checkCoordinates(currPose)    #react to the location data of the match
+                        self.checkCoordinates(nodeAndPose)    #react to the location data of the match
                         self.whichBrain = "nav"
                 elif status == "look":          #enter LookAround behavior
                     if self.whichBrain != "loc":
@@ -134,8 +136,8 @@ class MatchPlanner(object):
                         self.brain.unpause()
                     if status == "at node":
                         # self.logger.log("Found a good enough match: " + str(matchInfo))
-                        self.respondToLocation(currPose)
-                        if self.pathLoc.atDestination(currPose[0]):
+                        self.respondToLocation(nodeAndPose)
+                        if self.pathLoc.atDestination(nodeAndPose[0]):
                             # reached destination. ask for new destination again. returns false if you're not at the final node
                             self.speak("Destination reached")
                             self.robot.stop()
@@ -146,11 +148,11 @@ class MatchPlanner(object):
                             # h = self.pathLoc.getTargetAngle()
                             # currHead = matchInfo[1]
                             # self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
-                            self.checkCoordinates(currPose)
+                            self.checkCoordinates(nodeAndPose)
                             # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
                             #                 str(h) + " " + str(currHead))
                     elif status == "check coord":
-                        self.checkCoordinates(currPose)
+                        self.checkCoordinates(nodeAndPose)
             iterationCount += 1
 
         self.logger.log("Quitting...")

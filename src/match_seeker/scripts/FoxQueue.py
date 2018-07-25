@@ -100,7 +100,7 @@ class PriorityQueue(Queue):
         else:
             return self.heap[0]
 
-    def insert(self, value, priority):
+    def insert(self, val, priority):
         """Inserts a new value at the end of the queue."""
         self.heap.append((val, priority))
         self.size = self.size + 1
