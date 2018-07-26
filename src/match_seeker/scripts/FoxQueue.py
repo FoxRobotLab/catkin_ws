@@ -119,7 +119,7 @@ class PriorityQueue(Queue):
             parentIndex = self._parent(index)
             curr = self.heap[index]
             par = self.heap[parentIndex]
-            if not self.comesBefore(curr[1], par[1]):
+            if not self.comesBefore(curr[0], par[0]):
                 inPlace = 1
             else:
                 self.heap[index] = par
@@ -163,7 +163,7 @@ class PriorityQueue(Queue):
 
             curr = self.heap[index]
             minVal = self.heap[minInd]
-            if self.comesBefore(curr[0], minVal[0]):
+            if self.comesBefore(curr[0], minVal[0]): #TODO updated 0 to 1 072618
                 inPlace = 1
             else:
                 self.heap[minInd] = curr
@@ -177,7 +177,8 @@ class PriorityQueue(Queue):
         priority value, and then moves it up or down the tree as
         appropriate."""
         pos = self._findValue(value)
-        [oldP, v] = self.heap[pos]
+        # [oldP, v] = self.heap[pos]
+        [v, oldP] = self.heap[pos] #TODO: changed 072618
         self.heap[pos] = [newP, value]
         if oldP > newP:
             self._walkUp(pos)

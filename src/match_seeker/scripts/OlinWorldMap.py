@@ -109,7 +109,7 @@ class WorldMap(object):
 
     def highlightCell(self, cellNum, color=(113, 179, 60)):
         """Takes in a cell number and draws a box around it to highlight it."""
-        [x1, y1, x2, y2] = self.cellData[cellNum]
+        [x1, y1, x2, y2] = self.cellData[str(cellNum)]
         self.drawBox((x1, y1), (x2, y2), color, 2)
 
     def drawCells(self, drawCellNum=False):

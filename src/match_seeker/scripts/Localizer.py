@@ -68,7 +68,8 @@ class Localizer(object):
         currPred, bestPred = self.olin_tester.get_prediction(cameraIm, recent_n_max=50, confidence=None, last_known_loc=None)
         currPred = str(currPred)
         bestPred = str(bestPred)
-        self.olin.highlightCell(str(bestPred), color=(254, 127, 156))
+        # self.olin.highlightCell(str(bestPred), color=(254, 127, 156))
+        self.mcl.olinMap.highlightCell(str(bestPred), color=(254, 127, 156))
 
         scores, matchLocs = self.dataset.matchImage(cameraIm, bestPred, self.confidence)
 
@@ -107,20 +108,20 @@ class Localizer(object):
             self.odomScore = bestScore
             self.robot.updateOdomLocation(bestX, bestY, bestHead)
 
-        print("====== before response", matchLocs, scores)
+        # print("====== before response", matchLocs, scores)
 
         if var < 5.0:
-            print("====== mcl")
+            # print("====== mcl")
             response = self.mclResponse(comPose, var)
         else:
-            print("====== match")
+            # print("====== match")
             response = self.matchResponse(matchLocs, scores)
         print "Localizer: locinfo", response
         status, matchInfo = response
         if (matchInfo is not None):
-            (nearNode, pose) = matchInfo
+            nearNode, pose = matchInfo
             cellForPose = self.olin.convertLocToCell(pose)
-            self.olin.highlightCell(cellForPose)
+            self.mcl.olinMap.highlightCell(int(cellForPose))
         return response
 
 

@@ -166,7 +166,7 @@ class ImageDataset(object):
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
 
         bestScores, bestMatches = self._findBestNMatches(features, lastKnown, confidence)
-
+        print( "match Image in ImageDataset", bestScores, bestMatches)
 
         matchLocs = []
         for match in bestMatches:
@@ -220,7 +220,7 @@ class ImageDataset(object):
         centerX, centerY = self.cellCenterDict[str(cellNum)]
         potentialMatches = self.getNearPos(pos=(centerX, centerY), radius=radius)
         self.logger.log("      Searching with radius (cnn) " + str(radius))
-        print("In ImageDataset:_findCNNMAtches: searching with (cnn) radius " +str(radius))
+        # print("In ImageDataset:_findCNNMAtches: searching with (cnn) radius " +str(radius))
         self.gui.updateRadius(radius)
         return potentialMatches
 

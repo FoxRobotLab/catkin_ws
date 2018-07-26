@@ -46,8 +46,8 @@ class MatchPlanner(object):
         self.goalSeeker = None
         self.whichBrain = ""
 
-        cv2.namedWindow("Turtlebot View")
-        cv2.moveWindow("Turtlebot View",820,25)
+        # cv2.namedWindow("Turtlebot View")
+        # cv2.moveWindow("Turtlebot View",820,25)
         cv2.namedWindow("MCL Display")
         cv2.moveWindow("MCL Display", 1500,25)
 
@@ -86,13 +86,13 @@ class MatchPlanner(object):
             #print("p1")
             image = self.robot.getImage()[0]
             #print("p2")
-            cv2.imshow("Turtlebot View", image)
+            # cv2.imshow("Turtlebot View", image)
             # cv_image = self.robot.getDepth()
             # cv_image = cv_image.astype(np.uint8)
             # im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
             # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
             # cv2.imshaow("Depth View", im)
-            cv2.waitKey(20)
+            # cv2.waitKey(20)
 
             # if iterationCount > 20 and self.whichBrain == "nav":
             #     self.brain.step()
@@ -145,9 +145,9 @@ class MatchPlanner(object):
                             self.goalSeeker.setGoal(None, None, None)
                             # self.logger.log("======Goal seeker off")
                         else:
-                            # h = self.pathLoc.getTargetAngle()
-                            # currHead = matchInfo[1]
-                            # self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
+                            h = self.pathLoc.getTargetAngle()
+                            currHead = nodeAndPose[1][-1] #yaw
+                            self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
                             self.checkCoordinates(nodeAndPose)
                             # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
                             #                 str(h) + " " + str(currHead))
