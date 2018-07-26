@@ -163,7 +163,7 @@ class PriorityQueue(Queue):
 
             curr = self.heap[index]
             minVal = self.heap[minInd]
-            if self.comesBefore(curr[0], minVal[0]): #TODO updated 0 to 1 072618
+            if self.comesBefore(curr[0], minVal[0]):
                 inPlace = 1
             else:
                 self.heap[minInd] = curr
@@ -178,7 +178,7 @@ class PriorityQueue(Queue):
         appropriate."""
         pos = self._findValue(value)
         # [oldP, v] = self.heap[pos]
-        [v, oldP] = self.heap[pos] #TODO: changed 072618
+        [v, oldP] = self.heap[pos]
         self.heap[pos] = [newP, value]
         if oldP > newP:
             self._walkUp(pos)
