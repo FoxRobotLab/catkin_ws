@@ -166,7 +166,6 @@ class ImageDataset(object):
         features = ImageFeatures.ImageFeatures(camImage, 9999, self.logger, self.ORBFinder)
 
         bestScores, bestMatches = self._findBestNMatches(features, lastKnown, confidence)
-        print( "match Image in ImageDataset", bestScores, bestMatches)
 
         matchLocs = []
         for match in bestMatches:

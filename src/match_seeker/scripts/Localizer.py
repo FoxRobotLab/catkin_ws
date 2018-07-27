@@ -69,7 +69,7 @@ class Localizer(object):
         currPred = str(currPred)
         bestPred = str(bestPred)
         # self.olin.highlightCell(str(bestPred), color=(254, 127, 156))
-        self.mcl.olinMap.highlightCell(str(bestPred), color=(254, 127, 156))
+        self.mcl.olinMap.highlightCell(str(bestPred), color=(254, 127, 156)) #TODO: Why is highlighting not working?
 
         scores, matchLocs = self.dataset.matchImage(cameraIm, bestPred, self.confidence)
 
