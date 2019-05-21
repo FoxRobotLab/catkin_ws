@@ -35,6 +35,7 @@ elif turtleBase == "kobuki":
     # locData = "res/locations/Susankobuki0615.txt"
     locData = "res/locdata/allLocs060418.txt"
 
-graphMapData = "res/map/olinGraph.txt"
+# graphMapData = "res/map/olinGraph.txt"
+graphMapData = "res/map/cellGraph.txt"
 mapLineData = "res/map/olinNewMap.txt"
 cellMapData = "res/map/mapToCells.txt"

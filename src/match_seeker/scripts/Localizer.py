@@ -31,6 +31,7 @@ class Localizer(object):
 
         self.dataset = ImageDataset.ImageDataset(logger, gui, numMatches = 3)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
+        # print("Localizer.__init__: self.dataset.tree: ",self.dataset.tree) #DEBUG
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
         self.mcl.initializeParticles(250)
@@ -67,11 +68,13 @@ class Localizer(object):
         # TODO: what do we do about confidence and last known loc?
         currPred, bestPred = self.olin_tester.get_prediction(cameraIm, recent_n_max=50, confidence=None, last_known_loc=None)
         currPred = str(currPred)
-        bestPred = str(bestPred)
+        # bestPred = str(bestPred)
         # self.olin.highlightCell(str(bestPred), color=(254, 127, 156))
         self.mcl.olinMap.highlightCell(str(bestPred), color=(254, 127, 156)) #TODO: Why is highlighting not working?
 
+        print("Localizer.findLocation: bestPred: ", bestPred)
         scores, matchLocs = self.dataset.matchImage(cameraIm, bestPred, self.confidence)
+        print("Localizer.findLocation: scores, matchLocs: ", scores, matchLocs)
 
         self.gui.updatePicLocs(matchLocs[0],matchLocs[1],matchLocs[2])
         self.gui.updatePicConf(scores)

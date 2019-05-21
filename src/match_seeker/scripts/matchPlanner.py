@@ -15,7 +15,7 @@ import math
 import cv2
 import rospy
 from espeak import espeak
-# import numpy as np
+import numpy as np
 import turtleControl
 # import MovementHandler
 import PotentialFieldThread
@@ -86,16 +86,17 @@ class MatchPlanner(object):
             #print("p1")
             image = self.robot.getImage()[0]
             #print("p2")
-            # cv2.imshow("Turtlebot View", image)
-            # cv_image = self.robot.getDepth()
-            # cv_image = cv_image.astype(np.uint8)
-            # im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
-            # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
-            # cv2.imshaow("Depth View", im)
-            # cv2.waitKey(20)
+            cv2.imshow("Turtlebot View", image)
+            cv_image = self.robot.getDepth()
+            cv_image = cv_image.astype(np.uint8)
+            im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
+            ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
+            cv2.imshow("Depth View", im)
+            cv2.waitKey(20)
 
             # if iterationCount > 20 and self.whichBrain == "nav":
             #     self.brain.step()
+
 
 
             if self.whichBrain == "loc":
@@ -127,6 +128,7 @@ class MatchPlanner(object):
                         self.brain.pause()
                         self.whichBrain = "loc"
                     self.goalSeeker.setGoal(None,None,None)
+                    self.lookAround()
                     # self.logger.log("======Goal seeker off")
                 else:                                       # found a node
                     if self.whichBrain == "loc":
@@ -153,6 +155,7 @@ class MatchPlanner(object):
                             #                 str(h) + " " + str(currHead))
                     elif status == "check coord":
                         self.checkCoordinates(nodeAndPose)
+            print("matchPlanner.run " + str(iterationCount) + " status=" + status+" whichBrain="+self.whichBrain)
             iterationCount += 1
 
         self.logger.log("Quitting...")
@@ -237,7 +240,7 @@ class MatchPlanner(object):
         of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
         if self.whichBrain != 'nav':
             self.whichBrain = "nav"
-            self.speak("Navigating Brain Activated")
+            self.speak("matchPlanner.setupNavBrain: Navigating Brain Activated")
             self.brain = PotentialFieldThread.PotentialFieldBrain(self.robot)
             self.brain.add(FieldBehaviors.KeepMoving())
             self.brain.add(FieldBehaviors.BumperReact())
@@ -300,7 +303,7 @@ class MatchPlanner(object):
         (nearNode, currLoc) = localizePose
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
-        self.logger.log("------------- Checking coordinates -----")
+        self.logger.log("------------- matchPlanner.checkCoordinates: Checking coordinates -----")
 
         # if nearNode == currPath[-1]:
         #     self.respondToLocation(localizePose)

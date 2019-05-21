@@ -374,7 +374,7 @@ class WorldMap(object):
 
     # -------------------------------------------------------------------
     # The following methods read in the graph data file and make a MapGraph to represent the data
-    def _readGraphMap(self, filePath):
+    def _readGraphMap(self, filePath, isCellGraph=True):
         """Takes in a filename for a occupancy-grid map graph, and it reads
         in the data from the file. It then generates the map appropriately."""
         try:
@@ -410,13 +410,17 @@ class WorldMap(object):
             elif readingNodes and row < numNodes:
                 # If reading nodes, and haven't finished (must be data for every node)
                 try:
-                    [nodeNumStr, locStr, descr] = line.split("   ")
+                    if isCellGraph:
+                        [nodeNumStr, locX, locY] = line.split(" ")
+                        locStr = locX + " " + locY
+                    else:
+                        [nodeNumStr, locStr, descr] = line.split("   ")
                 except ValueError:
-                    print "ERROR IN FILE AT LINE: ", line, "ABORTING"
+                    print "OlinWorldMap: ERROR IN FILE AT LINE: ", line, "ABORTING"
                     return
                 nodeNum = int(nodeNumStr)
                 if nodeNum != row:
-                    print "ROW DOESN'T MATCH, SKIPPING"
+                    print "OlinWorldMap: ROW DOESN'T MATCH, SKIPPING"
                 else:
                     dataList = locStr.split()
                     nodeData = [part.strip("(),") for part in dataList]
@@ -658,6 +662,7 @@ class WorldMap(object):
 
 
 if __name__ == '__main__':
+    # Uncomment to run matchPlanner
     mapper = WorldMap()
     mapper.cleanMapImage(obstacles=False, cells=True, drawCellNum=True)# True)
     mapper.drawNodes()
@@ -665,3 +670,6 @@ if __name__ == '__main__':
     mapper.displayMap()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    ## Test _readGraphMap for cellGraph.txt
+    # mapper = WorldMap()
