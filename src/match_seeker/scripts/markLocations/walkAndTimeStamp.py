@@ -11,6 +11,7 @@ Author: Malini Sharma
 
 import os
 import time
+import datetime
 
 import cv2
 import numpy as np
@@ -105,7 +106,7 @@ class RealTimeLocs(object):
             dataStr = str(clickNum) + " " + str(curTime) + " " +str(x) + " " + str(y) + " " + str(h) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
-            print("Frame", clickNum, "with location", (x, y, h))
+            print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
         logFile.close()
 
 
@@ -216,8 +217,10 @@ class RealTimeLocs(object):
             self._displayStatus()
 
     def getValues(self):
-        time1 = time.localtime()
-        self.currTime = time.strftime("%H:%M:%S", time1)
+        # time1 = time.localtime()
+        # self.currTime = time.strftime("%H:%M:%S", time1)
+        time1 = datetime.datetime.now()
+        self.currTime = datetime.datetime.strftime(time1, "%H:%M:%S:%f")
         self.info[self.clickNum] = [self.currTime, self.currLoc[0], self.currLoc[1], self.currHeading]
 
     def _getOlinMap(self):
@@ -283,13 +286,13 @@ class RealTimeLocs(object):
         return (int(mapX), int(mapY))
 
 
-
 if __name__ == "__main__":
-    catkinPath = "/home/macalester/"
+    #catkinPath = "/home/macalester/"
+    catkinPath = "/Users/johnpellegrini/"
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
     basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
     print(time)
-    realTimer = RealTimeLocs(mapFile= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
-                             outputFilePath= "/home/macalester/")
+    realTimer = RealTimeLocs(mapFile= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
+                             outputFilePath= "/Users/johnpellegrini/Desktop/")
 
     realTimer.go()

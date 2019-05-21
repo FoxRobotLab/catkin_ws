@@ -639,7 +639,7 @@ if __name__ == "__main__":
     # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"qqq
     #basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
 
-    # InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",q
+    # InterpolatorObj = Interpolator(mapFile=catkinPath + basePath + "res/map/olinNewMap.txt",
     #                               dataSource="/home/macalester/allFrames/",
     #                               outputFilePath= "/home/macalester/testframes/",
     #                               inputLocsFilePath="",
@@ -649,10 +649,10 @@ if __name__ == "__main__":
 
     # catkinPath = "/Users/johnpellegrini/"
     # basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
-    InterpolatorObj = Interpolator(mapFile="/home/macalester/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
-                                  dataSource= "/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july18Frames2/",
-                                  outputFilePath= "/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/",
-                                  inputLocsFilePath="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july18MatchedCheckpoints2.txt",
+    InterpolatorObj = Interpolator(mapFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
+                                  dataSource= "/home/macalester/PycharmProjects/olri_classifier/frames/raw/july9Frames3/",
+                                  outputFilePath= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/",
+                                  inputLocsFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/july9MatchedCheckpoints3.txt",
                                   mode="images",
                                   )
 

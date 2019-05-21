@@ -106,6 +106,7 @@ class Localizer(object):
         (nearNode, pose) = locInfo
         cellForPose = self.olin.convertLocToCell(pose)
         self.olin.highlightCell(cellForPose)
+        return locInfo
 
 
     def mclResponse(self, comPose, var):
