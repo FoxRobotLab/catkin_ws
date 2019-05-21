@@ -100,7 +100,7 @@ class PriorityQueue(Queue):
         else:
             return self.heap[0]
 
-    def insert(self, value, priority):
+    def insert(self, val, priority):
         """Inserts a new value at the end of the queue."""
         self.heap.append((val, priority))
         self.size = self.size + 1
@@ -119,7 +119,7 @@ class PriorityQueue(Queue):
             parentIndex = self._parent(index)
             curr = self.heap[index]
             par = self.heap[parentIndex]
-            if not self.comesBefore(curr[1], par[1]):
+            if not self.comesBefore(curr[0], par[0]):
                 inPlace = 1
             else:
                 self.heap[index] = par
@@ -177,7 +177,8 @@ class PriorityQueue(Queue):
         priority value, and then moves it up or down the tree as
         appropriate."""
         pos = self._findValue(value)
-        [oldP, v] = self.heap[pos]
+        # [oldP, v] = self.heap[pos]
+        [v, oldP] = self.heap[pos]
         self.heap[pos] = [newP, value]
         if oldP > newP:
             self._walkUp(pos)
