@@ -1,37 +1,37 @@
-# !/usr/bin/env python2.7
-"""--------------------------------------------------------------------------------
-olin_cnn.py
-Author: Jinyoung Lim
-Date: July 2018
-
-A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
-Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
-(layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
-Keras as a framework.
-
-Acknowledgements:
-    ft_floortype_classifier
-        floortype_cnn.py
-
-Notes:
-    Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
-        Do not freak out you get this warning. It is expected and not a problem per
-        https://github.com/tensorpack/tensorpack/issues/502
-
-    Warning:
-        Occurs when .profile is not sourced. ***Make sure to run "source .profile"
-        each time you open a new terminal***
-
-    Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
-        tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
-        empty images/labels
-
-    To open up virtual env:
-        source ~/tensorflow/bin/activate
-
-    Use terminal if import rospy does not work on PyCharm but does work on a
-    terminal
---------------------------------------------------------------------------------"""
+#!/usr/bin/env python2.7
+# """--------------------------------------------------------------------------------
+# olin_cnn.py
+# Author: Jinyoung Lim
+# Date: July 2018
+#
+# A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
+# Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
+# (layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
+# Keras as a framework.
+#
+# Acknowledgements:
+#     ft_floortype_classifier
+#         floortype_cnn.py
+#
+# Notes:
+#     Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
+#         Do not freak out you get this warning. It is expected and not a problem per
+#         https://github.com/tensorpack/tensorpack/issues/502
+#
+#     Warning:
+#         Occurs when .profile is not sourced. ***Make sure to run "source .profile"
+#         each time you open a new terminal***
+#
+#     Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
+#         tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
+#         empty images/labels
+#
+#     To open up virtual env:
+#         source ~/tensorflow/bin/activate
+#
+#     Use terminal if import rospy does not work on PyCharm but does work on a
+#     terminal
+# --------------------------------------------------------------------------------"""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

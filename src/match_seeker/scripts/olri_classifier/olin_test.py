@@ -157,3 +157,7 @@ class OlinTest(object):
 #         101, 104, 105, 106, 107, 108, 109, 110, 111, 112,
 #         113, 114, 115, 116, 117, 119, 121, 123, 125, 126, 127, 128, 133, 137, 142, 144, 145, 146, 147, 148, 149, 150, 151]
 #     cv2.imshow("Olin-Rice Map with Cell Prediction Highlighted", olin_map)
+
+if __name__ == "__main__":
+    test = OlinTest()
+    test.test_turtlebot()

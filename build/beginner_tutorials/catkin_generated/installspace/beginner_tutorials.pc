@@ -3,6 +3,6 @@ prefix=/home/macalester/PycharmProjects/catkin_ws/install
 Name: beginner_tutorials
 Description: Description of beginner_tutorials
 Version: 0.0.0
-Cflags: 
-Libs: -L/home/macalester/PycharmProjects/catkin_ws/install/lib 
-Requires: 
+Cflags: -I/home/macalester/PycharmProjects/catkin_ws/install/include
+Libs: -L/home/macalester/PycharmProjects/catkin_ws/install/lib -lbeginner_tutorials
+Requires: roscpp rospy std_msgs message_runtime
