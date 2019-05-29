@@ -35,35 +35,35 @@ from std_msgs.msg import String
 
 
 
-# BASE_PATH = '/home/macalester/PycharmProjects/tf_floortype_classifier/'
-#
-# TRAIN_DIR_PATH = os.path.join(
-#     BASE_PATH,
-#     "allfloorframes/")
-#
-#
-# TEST_DIR_PATH = os.path.join(
-#     BASE_PATH,
-#     "testframes/"
-# )
-#
-# CHECKPOINTS_DIR_PATH = os.path.join(
-#     BASE_PATH,
-#     "floortype_cpcpfdl-1e-3_061318/"   #conv-pool-conv-pool-poolflat-dense-logit  LEARNING_RATE = 1e-3
-# )
-#
-# CARPET_LABEL = 0
-# TILE_LABEL = 1
-#
-# IMAGE_SIZE = 80
-# LEARNING_RATE = 1e-3
-#
-#
-#
-# MODEL_NAME = 'carpetvstile-{}-{}.model'.format(LEARNING_RATE, 'cpcpfdl')
-#
-#
-# tensorflow.logging.set_verbosity(tensorflow.logging.INFO)
+BASE_PATH = '/home/macalester/PycharmProjects/tf_floortype_classifier/'
+
+TRAIN_DIR_PATH = os.path.join(
+    BASE_PATH,
+    "allfloorframes/")
+
+
+TEST_DIR_PATH = os.path.join(
+    BASE_PATH,
+    "testframes/"
+)
+
+CHECKPOINTS_DIR_PATH = os.path.join(
+    BASE_PATH,
+    "floortype_cpcpfdl-1e-3_061318/"   #conv-pool-conv-pool-poolflat-dense-logit  LEARNING_RATE = 1e-3
+)
+
+CARPET_LABEL = 0
+TILE_LABEL = 1
+
+IMAGE_SIZE = 80
+LEARNING_RATE = 1e-3
+
+
+
+MODEL_NAME = 'carpetvstile-{}-{}.model'.format(LEARNING_RATE, 'cpcpfdl')
+
+
+tensorflow.logging.set_verbosity(tensorflow.logging.INFO)
 
 
 class CNNRunner(object):
@@ -88,7 +88,6 @@ class CNNRunner(object):
             model_fn=self.makeFloorClassifierModel,
             model_dir=self.checkpointDirPath
         )
-
     def predictTurtlebotImage(self):
         while not rospy.is_shutdown():
             starttime = time.time()
@@ -255,58 +254,58 @@ class CNNRunner(object):
         return tensorflow.estimator.EstimatorSpec(
             mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
-    def train(self, train_data, numEpochs = None, numSteps = 10000, batchSize = 10, logEveryNIter = 100, evalRatio = 0.1):
-        tensorflow.reset_default_graph()  # TODO: IS THIS CRITICAL?
-
-        # Load training and eval data
-        num_eval = int(len(train_data) * evalRatio)
-        train = train_data[:-num_eval]
-        eval = train_data[-num_eval:]
-
-        train_images = np.array([i[0] for i in train]).reshape(-1, self.imageSize, self.imageSize, 3)
-        train_labels = np.array([i[1] for i in train])
-
-        eval_images = np.array([i[0] for i in eval]).reshape(-1, self.imageSize, self.imageSize, 3)
-        eval_labels = np.array([i[1] for i in eval])
-
-        # Set up logging for predictions
-        # Log the values in the "Softmax" tensor with label "probabilities"
-        tensors_to_log = {"probabilities": "softmax_tensor"}
-        # print("AFTER tensors_to_log")
-
-        logging_hook = tensorflow.train.LoggingTensorHook(
-            tensors=tensors_to_log, every_n_iter=logEveryNIter)
-
-        # Train the model
-        train_input_fn = tensorflow.estimator.inputs.numpy_input_fn(
-            x={"input": train_images},
-            y=train_labels,
-            batch_size=batchSize,
-            # 3098 * 0.9 = 2788 data --> 279 batches --> 279 iterations needed to complete one epoch (https://towardsdatascience.com/epoch-vs-iterations-vs-batch-size-4dfb9c7ce9c9)
-            num_epochs=numEpochs,
-            # when an ENTIRE dataset is passed forward and backward through the network ONCE (https://towardsdatascience.com/epoch-vs-iterations-vs-batch-size-4dfb9c7ce9c9)
-            shuffle=True
-        )
-        # too small # epochs --> underfitting
-        # too large # epochs --> overfitting
-        self.floortypeModel.train(
-            input_fn=train_input_fn,
-            steps=numSteps,  # num. times the training loop in model will run to update the parameters in the model
-            hooks=[logging_hook]
-        )
-
-        # Evaluate the model and print results
-        eval_input_fn = tensorflow.estimator.inputs.numpy_input_fn(
-            x={"input": eval_images},
-            y=eval_labels,
-            num_epochs=1,
-            shuffle=False)
-        eval_results = self.floortypeModel.evaluate(
-            input_fn=eval_input_fn,
-        )
-        print(eval_results)
-
-        tensorflow.app.run()    #TODO: NOT sure where to put
+    # def train(self, train_data, numEpochs = None, numSteps = 10000, batchSize = 10, logEveryNIter = 100, evalRatio = 0.1):
+    #     tensorflow.reset_default_graph()  # TODO: IS THIS CRITICAL?
+    #
+    #     # Load training and eval data
+    #     num_eval = int(len(train_data) * evalRatio)
+    #     train = train_data[:-num_eval]
+    #     eval = train_data[-num_eval:]
+    #
+    #     train_images = np.array([i[0] for i in train]).reshape(-1, self.imageSize, self.imageSize, 3)
+    #     train_labels = np.array([i[1] for i in train])
+    #
+    #     eval_images = np.array([i[0] for i in eval]).reshape(-1, self.imageSize, self.imageSize, 3)
+    #     eval_labels = np.array([i[1] for i in eval])
+    #
+    #     # Set up logging for predictions
+    #     # Log the values in the "Softmax" tensor with label "probabilities"
+    #     tensors_to_log = {"probabilities": "softmax_tensor"}
+    #     # print("AFTER tensors_to_log")
+    #
+    #     logging_hook = tensorflow.train.LoggingTensorHook(
+    #         tensors=tensors_to_log, every_n_iter=logEveryNIter)
+    #
+    #     # Train the model
+    #     train_input_fn = tensorflow.estimator.inputs.numpy_input_fn(
+    #         x={"input": train_images},
+    #         y=train_labels,
+    #         batch_size=batchSize,
+    #         # 3098 * 0.9 = 2788 data --> 279 batches --> 279 iterations needed to complete one epoch (https://towardsdatascience.com/epoch-vs-iterations-vs-batch-size-4dfb9c7ce9c9)
+    #         num_epochs=numEpochs,
+    #         # when an ENTIRE dataset is passed forward and backward through the network ONCE (https://towardsdatascience.com/epoch-vs-iterations-vs-batch-size-4dfb9c7ce9c9)
+    #         shuffle=True
+    #     )
+    #     # too small # epochs --> underfitting
+    #     # too large # epochs --> overfitting
+    #     self.floortypeModel.train(
+    #         input_fn=train_input_fn,
+    #         steps=numSteps,  # num. times the training loop in model will run to update the parameters in the model
+    #         hooks=[logging_hook]
+    #     )
+    #
+    #     # Evaluate the model and print results
+    #     eval_input_fn = tensorflow.estimator.inputs.numpy_input_fn(
+    #         x={"input": eval_images},
+    #         y=eval_labels,
+    #         num_epochs=1,
+    #         shuffle=False)
+    #     eval_results = self.floortypeModel.evaluate(
+    #         input_fn=eval_input_fn,
+    #     )
+    #     print(eval_results)
+    #
+    #     tensorflow.app.run()    #TODO: NOT sure where to put
 
     def predictImage(self, image):
         imInArray = np.array([image]).reshape(-1, self.imageSize, self.imageSize, 3)
@@ -357,103 +356,103 @@ class CNNRunner(object):
 
 
 #
-# def floortype_classifier_model_fn(features, labels, mode):
-#     """Model function for CNN."""
-#     # Input Layer
-#     # Reshape X to 4-D tensor: [batch_size, width, height, channels]
-#     input_layer = tensorflow.reshape(features["input"], [-1, IMAGE_SIZE, IMAGE_SIZE, 3], name="input")
-#     input_layer = tensorflow.cast(input_layer, tensorflow.float32)
-#
-#     # Convolutional Layer #1
-#     # Computes 32 features using a 5x5 filter with ReLU activation.
-#     # Padding is added to preserve width and height.
-#     # Input Tensor Shape: [batch_size, 80, 80, 3]
-#     # Output Tensor Shape: [batch_size,  80, 80, 16]
-#
-#     # # Pre tensorflow 1.0 per https://www.tensorflow.org/versions/r1.3/install/migration
-#
-#     # Tensorflow 1.2.1
-#     conv1 = tensorflow.layers.conv2d(
-#         inputs=input_layer,
-#         filters=32,
-#         kernel_size=[5, 5],
-#         padding="same",
-#         activation=tensorflow.nn.relu)
-#     # print("IN floortype_classifier_model_fn  AFTER conv1")
-#
-#     # Pooling Layer #1
-#     # First max pooling layer with a 2x2 filter and stride of 2
-#     # Input Tensor Shape: [batch_size,  80, 80, 32]
-#     # Output Tensor Shape: [batch_size, 40, 40, 32]
-#     pool1 = tensorflow.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
-#
-#     # Convolutional Layer #2 and Pooling Layer #2
-#     # Computes 64 features using a 5x5 filter.
-#     # Padding is added to preserve width and height.
-#     # Input Tensor Shape: [batch_size, 40, 40, 32]
-#     # Output Tensor Shape: [batch_size, 40, 40, 64]
-#     conv2 = tensorflow.layers.conv2d(
-#         inputs=pool1,
-#         filters=64,
-#         kernel_size=[5, 5],
-#         padding="same",
-#         activation=tensorflow.nn.relu)
-#
-#     # Pooling Layer #2
-#     # Second max pooling layer with a 2x2 filter and stride of 2
-#     # Input Tensor Shape: [batch_size, 40, 40, 64]
-#     # Output Tensor Shape: [batch_size, 20, 20, 64]
-#     pool2 = tensorflow.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
-#
-#     # Flatten tensor into a batch of vectors
-#     # Input Tensor Shape: [batch_size, 20, 20, 64]
-#     # Output Tensor Shape: [batch_size, 20 * 20 * 64]
-#     pool2_flat = tensorflow.reshape(pool2, [-1, 20 * 20 * 64])
-#
-#     # Dense Layer
-#     # Densely connected layer with 514 neurons
-#     # Input Tensor Shape: [batch_size, 20 * 20 * 64]
-#     # Output Tensor Shape: [batch_size, 1024]
-#     dense = tensorflow.layers.dense(inputs=pool2_flat, units=1024, activation=tensorflow.nn.relu)
-#
-#     # Add dropout operation; 0.4 probability that element will be kept
-#     dropout = tensorflow.layers.dropout(
-#         inputs=dense, rate=0.6, training=mode == tensorflow.estimator.ModeKeys.TRAIN)
-#
-#     # Logits layer (unit==2 since there are two classes - TILE, CARPET)
-#     # Input Tensor Shape: [batch_size, 1024]
-#     # Output Tensor Shape: [batch_size, 2]
-#     logits = tensorflow.layers.dense(inputs=dropout, units=2)
-#
-#
-#     predictions = {
-#         # Generate predictions (for PREDICT and EVAL mode)
-#         "classes": tensorflow.argmax(input=logits, axis=1),
-#         # Add `softmax_tensor` to the graph. It is used for PREDICT and by the
-#         # `logging_hook`.
-#         "probabilities": tensorflow.nn.softmax(logits, name="softmax_tensor")
-#     }
-#     if mode == tensorflow.estimator.ModeKeys.PREDICT:
-#         return tensorflow.estimator.EstimatorSpec(mode=mode, predictions=predictions)
-#
-#     # Calculate Loss (for both TRAIN and EVAL modes)
-#     loss = tensorflow.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
-#
-#     # Configure the Training Op (for TRAIN mode)
-#     if mode == tensorflow.estimator.ModeKeys.TRAIN:
-#         optimizer = tensorflow.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
-#         train_op = optimizer.minimize(
-#             loss=loss,
-#             global_step=tensorflow.train.get_global_step())
-#         return tensorflow.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
-#
-#     # Add evaluation metrics (for EVAL mode)
-#     eval_metric_ops = {
-#         "accuracy": tensorflow.metrics.accuracy(
-#             labels=labels, predictions=predictions["classes"])}
-#     return tensorflow.estimator.EstimatorSpec(
-#         mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
-#
+def floortype_classifier_model_fn(features, labels, mode):
+    """Model function for CNN."""
+    # Input Layer
+    # Reshape X to 4-D tensor: [batch_size, width, height, channels]
+    input_layer = tensorflow.reshape(features["input"], [-1, IMAGE_SIZE, IMAGE_SIZE, 3], name="input")
+    input_layer = tensorflow.cast(input_layer, tensorflow.float32)
+
+    # Convolutional Layer #1
+    # Computes 32 features using a 5x5 filter with ReLU activation.
+    # Padding is added to preserve width and height.
+    # Input Tensor Shape: [batch_size, 80, 80, 3]
+    # Output Tensor Shape: [batch_size,  80, 80, 16]
+
+    # # Pre tensorflow 1.0 per https://www.tensorflow.org/versions/r1.3/install/migration
+
+    # Tensorflow 1.2.1
+    conv1 = tensorflow.layers.conv2d(
+        inputs=input_layer,
+        filters=32,
+        kernel_size=[5, 5],
+        padding="same",
+        activation=tensorflow.nn.relu)
+    # print("IN floortype_classifier_model_fn  AFTER conv1")
+
+    # Pooling Layer #1
+    # First max pooling layer with a 2x2 filter and stride of 2
+    # Input Tensor Shape: [batch_size,  80, 80, 32]
+    # Output Tensor Shape: [batch_size, 40, 40, 32]
+    pool1 = tensorflow.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
+
+    # Convolutional Layer #2 and Pooling Layer #2
+    # Computes 64 features using a 5x5 filter.
+    # Padding is added to preserve width and height.
+    # Input Tensor Shape: [batch_size, 40, 40, 32]
+    # Output Tensor Shape: [batch_size, 40, 40, 64]
+    conv2 = tensorflow.layers.conv2d(
+        inputs=pool1,
+        filters=64,
+        kernel_size=[5, 5],
+        padding="same",
+        activation=tensorflow.nn.relu)
+
+    # Pooling Layer #2
+    # Second max pooling layer with a 2x2 filter and stride of 2
+    # Input Tensor Shape: [batch_size, 40, 40, 64]
+    # Output Tensor Shape: [batch_size, 20, 20, 64]
+    pool2 = tensorflow.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
+
+    # Flatten tensor into a batch of vectors
+    # Input Tensor Shape: [batch_size, 20, 20, 64]
+    # Output Tensor Shape: [batch_size, 20 * 20 * 64]
+    pool2_flat = tensorflow.reshape(pool2, [-1, 20 * 20 * 64])
+
+    # Dense Layer
+    # Densely connected layer with 514 neurons
+    # Input Tensor Shape: [batch_size, 20 * 20 * 64]
+    # Output Tensor Shape: [batch_size, 1024]
+    dense = tensorflow.layers.dense(inputs=pool2_flat, units=1024, activation=tensorflow.nn.relu)
+
+    # Add dropout operation; 0.4 probability that element will be kept
+    dropout = tensorflow.layers.dropout(
+        inputs=dense, rate=0.6, training=mode == tensorflow.estimator.ModeKeys.TRAIN)
+
+    # Logits layer (unit==2 since there are two classes - TILE, CARPET)
+    # Input Tensor Shape: [batch_size, 1024]
+    # Output Tensor Shape: [batch_size, 2]
+    logits = tensorflow.layers.dense(inputs=dropout, units=2)
+
+
+    predictions = {
+        # Generate predictions (for PREDICT and EVAL mode)
+        "classes": tensorflow.argmax(input=logits, axis=1),
+        # Add `softmax_tensor` to the graph. It is used for PREDICT and by the
+        # `logging_hook`.
+        "probabilities": tensorflow.nn.softmax(logits, name="softmax_tensor")
+    }
+    if mode == tensorflow.estimator.ModeKeys.PREDICT:
+        return tensorflow.estimator.EstimatorSpec(mode=mode, predictions=predictions)
+
+    # Calculate Loss (for both TRAIN and EVAL modes)
+    loss = tensorflow.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+
+    # Configure the Training Op (for TRAIN mode)
+    if mode == tensorflow.estimator.ModeKeys.TRAIN:
+        optimizer = tensorflow.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+        train_op = optimizer.minimize(
+            loss=loss,
+            global_step=tensorflow.train.get_global_step())
+        return tensorflow.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+
+    # Add evaluation metrics (for EVAL mode)
+    eval_metric_ops = {
+        "accuracy": tensorflow.metrics.accuracy(
+            labels=labels, predictions=predictions["classes"])}
+    return tensorflow.estimator.EstimatorSpec(
+        mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
+
 #
 # def create_train_data():
 #     """
@@ -606,56 +605,56 @@ class CNNRunner(object):
 #
 #
 #
-# def test_one(image, model, checkpoint=""):
-#     imInArray = np.array([image])
-#     nextImArray = imInArray.reshape(-1, IMAGE_SIZE, IMAGE_SIZE, 3)
-#
-#     pred_input_fn = tensorflow.estimator.inputs.numpy_input_fn(
-#         x={"input": nextImArray},
-#         y=None,
-#         batch_size=128,
-#         num_epochs=1,
-#         shuffle=False,
-#         queue_capacity=1000,
-#         num_threads=1
-#     )
-#     # Use desired checkpoint
-#     if (checkpoint == ""):
-#         pred_results = model.predict(
-#             input_fn=pred_input_fn,
-#         )
-#     else:
-#         pred_results = model.predict(
-#             input_fn=pred_input_fn,
-#             checkpoint_path=os.path.join(
-#                 CHECKPOINTS_DIR_PATH,
-#                 checkpoint
-#             )
-#         )
-#     pred_list = list(pred_results)
-#
-#     font = cv2.FONT_HERSHEY_SIMPLEX
-#     pred_text = "carpet" if pred_list[0]["classes"] == CARPET_LABEL else "tile"
-#
-#     print("Prediction: " + pred_text)
-#     dispImage = cv2.resize(image, (0, 0), fx=2.0, fy=2.0)
-#     text_size = cv2.getTextSize(pred_text, font, 1, 2)[0]
-#     text_x = int((dispImage.shape[1] - text_size[0]) / 2)
-#     text_y = int((dispImage.shape[0] + text_size[1]) / 2)
-#
-#     cv2.putText(
-#         img=dispImage,
-#         text=pred_text,
-#         org=(text_x, text_y),
-#         fontFace=font,
-#         fontScale=0.8,
-#         color=(0, 255, 0),
-#         thickness=2)
-#
-#     # cv2.imshow("Test Image", dispImage)
-#     # cv2.waitKey(0)
-#     return pred_text
-#
+def test_one(image, model, checkpoint=""):
+    imInArray = np.array([image])
+    nextImArray = imInArray.reshape(-1, IMAGE_SIZE, IMAGE_SIZE, 3)
+
+    pred_input_fn = tensorflow.estimator.inputs.numpy_input_fn(
+        x={"input": nextImArray},
+        y=None,
+        batch_size=128,
+        num_epochs=1,
+        shuffle=False,
+        queue_capacity=1000,
+        num_threads=1
+    )
+    # Use desired checkpoint
+    if (checkpoint == ""):
+        pred_results = model.predict(
+            input_fn=pred_input_fn,
+        )
+    else:
+        pred_results = model.predict(
+            input_fn=pred_input_fn,
+            checkpoint_path=os.path.join(
+                CHECKPOINTS_DIR_PATH,
+                checkpoint
+            )
+        )
+    pred_list = list(pred_results)
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    pred_text = "carpet" if pred_list[0]["classes"] == CARPET_LABEL else "tile"
+
+    print("Prediction: " + pred_text)
+    dispImage = cv2.resize(image, (0, 0), fx=2.0, fy=2.0)
+    text_size = cv2.getTextSize(pred_text, font, 1, 2)[0]
+    text_x = int((dispImage.shape[1] - text_size[0]) / 2)
+    text_y = int((dispImage.shape[0] + text_size[1]) / 2)
+
+    cv2.putText(
+        img=dispImage,
+        text=pred_text,
+        org=(text_x, text_y),
+        fontFace=font,
+        fontScale=0.8,
+        color=(0, 255, 0),
+        thickness=2)
+
+    # cv2.imshow("Test Image", dispImage)
+    # cv2.waitKey(0)
+    return pred_text
+
 #
 #
 # def test_with_npy(test_data, model, testFolder, checkpoint=""):
@@ -736,80 +735,80 @@ class CNNRunner(object):
 #     print("Accuracy: {}% (N={})".format(int(num_correct_preds/num_test * 100), num_test))
 #
 #
-# def getModel():
-#     global FLOOR_CLASSIFIER
-#     FLOOR_CLASSIFIER = tensorflow.estimator.Estimator(
-#         model_fn=floortype_classifier_model_fn,
-#         model_dir=CHECKPOINTS_DIR_PATH
-#     )
-#     print("Model {} init".format("FLOOR CLASSIFIER"))
-#     return FLOOR_CLASSIFIER
+def getModel():
+    global FLOOR_CLASSIFIER
+    FLOOR_CLASSIFIER = tensorflow.estimator.Estimator(
+        model_fn=floortype_classifier_model_fn,
+        model_dir=CHECKPOINTS_DIR_PATH
+    )
+    print("Model {} init".format("FLOOR CLASSIFIER"))
+    return FLOOR_CLASSIFIER
 #
 #
-# def main():
-#     """Format of training and test data: """
-#     print("VERSION:", cv2.__version__)
-#     getModel()
-#     # Get data
-#     # train_data = create_train_data()
-#     # test_data = process_test_data()
-#     # If you have already created the dataset:
-#     train_data = np.load('train_data.npy')
-#     test_data = np.load('test_data.npy')
-#
-#
-#     # Train or Evaluate or Test
-#     # train(train_data, model=FLOOR_CLASSIFIER)
-#     print("Evaluate...")
-#
-#     # testIm = cv2.imread("/home/macalester/PycharmProjects/tf_floortype_classifier/turtlebot_runner_images/turtlebot_image.jpg")
-#     # smallTestIm = cv2.resize(testIm, (IMAGE_SIZE, IMAGE_SIZE))
-#     #
-#     rospy.init_node("FloorClassifier")
-#     # print("IN MAIN \t 1 \t INIT NODE")
-#     # # turtle_cnn = TurtlebotCNNRunner()
-#     # print("IN MAIN \t 2")
-#     # # turtle_cnn.run()
-#     # print("IN MAIN \t 3")
-#     # # rospy.spin()
-#     # self.cnnmodel = floortype_cnn.getModel()
-#
-#     robot = turtleControl.TurtleBot()
-#
-#     while not rospy.is_shutdown():
-#         image, _ = robot.getImage()
-#
-#
-#         # cv2.imwrite("/home/macalester/PycharmProjects/tf_floortype_classifier/turtlebot_runner_images/turtlebot_image.jpg", image)
-#         # savepath = floortype_cnn.process_test_data_and_return_savepath("/home/macalester/PycharmProjects/tf_floortype_classifier/turtlebot_runner_images/")
-#         # print(savepath)
-#         # test_data = np.load(savepath)
-#         smallImg = cv2.resize(image, (80, 80))
-#         pred_str = test_one(smallImg, FLOOR_CLASSIFIER, checkpoint="model.ckpt-42512")
-#         print("PRED STR: ", pred_str)
-#         font = cv2.FONT_HERSHEY_SIMPLEX
-#         text_size = cv2.getTextSize(pred_str, font, 1, 2)[0]
-#         text_x = int((image.shape[1] - text_size[0]) / 2)
-#         text_y = int((image.shape[0] + text_size[1]) / 2)
-#
-#         cv2.putText(
-#             img=image,
-#             text=pred_str,
-#             org=(text_x, text_y),
-#             fontFace=font,
-#             fontScale=0.8,
-#             color=(0, 255, 0),
-#             thickness=2)
-#
-#         cv2.imshow("Turtlebot View with CNN Floortype", image)
-#         x = cv2.waitKey(20)
-#         ch = chr(x & 0xFF)
-#
-#         if (ch == "q"):
-#             break
-#     print("IN run \t 99")
-#     robot.stop()
-#
+def main():
+    """Format of training and test data: """
+    print("VERSION:", cv2.__version__)
+    getModel()
+    # Get data
+    # train_data = create_train_data()
+    # test_data = process_test_data()
+    # If you have already created the dataset:
+    train_data = np.load('train_data.npy')
+    test_data = np.load('test_data.npy')
+
+
+    # Train or Evaluate or Test
+    # train(train_data, model=FLOOR_CLASSIFIER)
+    print("Evaluate...")
+
+    # testIm = cv2.imread("/home/macalester/PycharmProjects/tf_floortype_classifier/turtlebot_runner_images/turtlebot_image.jpg")
+    # smallTestIm = cv2.resize(testIm, (IMAGE_SIZE, IMAGE_SIZE))
+    #
+    rospy.init_node("FloorClassifier")
+    # print("IN MAIN \t 1 \t INIT NODE")
+    # # turtle_cnn = TurtlebotCNNRunner()
+    # print("IN MAIN \t 2")
+    # # turtle_cnn.run()
+    # print("IN MAIN \t 3")
+    # # rospy.spin()
+    # self.cnnmodel = floortype_cnn.getModel()
+
+    robot = turtleControl.TurtleBot()
+
+    while not rospy.is_shutdown():
+        image, _ = robot.getImage()
+
+
+        # cv2.imwrite("/home/macalester/PycharmProjects/tf_floortype_classifier/turtlebot_runner_images/turtlebot_image.jpg", image)
+        # savepath = floortype_cnn.process_test_data_and_return_savepath("/home/macalester/PycharmProjects/tf_floortype_classifier/turtlebot_runner_images/")
+        # print(savepath)
+        # test_data = np.load(savepath)
+        smallImg = cv2.resize(image, (80, 80))
+        pred_str = test_one(smallImg, FLOOR_CLASSIFIER, checkpoint="model.ckpt-42512")
+        print("PRED STR: ", pred_str)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        text_size = cv2.getTextSize(pred_str, font, 1, 2)[0]
+        text_x = int((image.shape[1] - text_size[0]) / 2)
+        text_y = int((image.shape[0] + text_size[1]) / 2)
+
+        cv2.putText(
+            img=image,
+            text=pred_str,
+            org=(text_x, text_y),
+            fontFace=font,
+            fontScale=0.8,
+            color=(0, 255, 0),
+            thickness=2)
+
+        cv2.imshow("Turtlebot View with CNN Floortype", image)
+        x = cv2.waitKey(20)
+        ch = chr(x & 0xFF)
+
+        if (ch == "q"):
+            break
+    print("IN run \t 99")
+    robot.stop()
+
 #
 #
 #     print("DONE WITH TEST ONE")
@@ -840,8 +839,8 @@ if __name__ == "__main__":
         checkpointDirPath="floortype_cpcpfdl-1e-3_061318/",
         robot=robot)
 
-    cnnRunner.createFloortypeTrainData()
-    # cnnRunner.predictTurtlebotImage()
+    # cnnRunner.createFloortypeTrainData()
+    cnnRunner.predictTurtlebotImage()
     # main()
 
 #     turtlebotRunner = turtlebot_cnn_runner.TurtlebotCNNRunner()

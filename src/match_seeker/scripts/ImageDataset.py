@@ -192,9 +192,9 @@ class ImageDataset(object):
     def _findBestNMatches(self, currImFeatures, lastKnown, confidence):
         """Looks through the collection of features and keeps the numMatches
         best matches. It zips them together"""
-        # potentialMatches = self._findPotentialMatches(lastKnown, confidence)
+        potentialMatches = self._findPotentialMatches(lastKnown, confidence)
         #TODO: Changed to use cnn
-        potentialMatches = self._findCNNMatches(cellNum=lastKnown, radius=30.0)
+        #potentialMatches = self._findCNNMatches(cellNum=lastKnown, radius=30.0)
         # print("ImageDataset._findBestNMatches(): potentialMatches", potentialMatches)
         (bestScores, bestMatches) = self._selectBestN(potentialMatches, currImFeatures)
         # print("ImageDataset._findBestNMatches(): (bestScores, bestMatches)", bestScores, bestMatches)
@@ -212,7 +212,7 @@ class ImageDataset(object):
         if lastKnown is None or confidence == 0.0:
             potentialMatches = self.featureCollection.keys()
         else:
-            pt = np.array([lastKnown[:2]])
+            pt = np.array(lastKnown[:2])
             potentialMatches = self.getNearPos(pt, radius)
             if potentialMatches == []:
                 potentialMatches = self.featureCollection.keys()
@@ -220,7 +220,7 @@ class ImageDataset(object):
         # self.logger.log("      Searching with radius " + str(radius))
         self.logger.log("<<<ImageDataset._findPotentialMatches>>> search radius=" + str(radius))
         self.logger.log("<<<ImageDataset._findPotentialMatches>>> lastKnown=" + str(lastKnown))
-        self.logger.log("<<<ImageDataset._findPotentialMatches>>> potential matches=" + str(potentialMatches))
+        # self.logger.log("<<<ImageDataset._findPotentialMatches>>> potential matches=" + str(potentialMatches))
 
         self.gui.updateRadius(radius)
         return potentialMatches
@@ -232,7 +232,7 @@ class ImageDataset(object):
         # self.logger.log("      Searching with radius (cnn) " + str(radius))
         self.logger.log("<<<ImageDataset._findCNNMatches>>> search radius=" + str(radius))
         self.logger.log("<<<ImageDataset._findCNNMatches>>> lastKnown=" + str(cellNum))
-        self.logger.log("<<<ImageDataset._findCNNMatches>>> potential matches=" + str(potentialMatches))
+        # self.logger.log("<<<ImageDataset._findCNNMatches>>> potential matches=" + str(potentialMatches))
         # print("In ImageDataset:_findCNNMAtches: searching with (cnn) radius " +str(radius))
         # print("In ImageDataset:_findCNNMAtches: potentialMatches ", potentialMatches)
 
@@ -300,13 +300,15 @@ class ImageDataset(object):
     def getNearPos(self, pos, radius):
         """Given an (x, y) position and a radius, return all picture numbers that are within radius of
          that position."""
+
+        #print(pos)
         res = self.tree.query_ball_point(pos, radius) #TODO: problem here
-        print("<<<ImageDataset.getNearPos>>> tree query with pos="+str(pos)+ " radius="+str(radius) + str(res))
+        #print("<<<ImageDataset.getNearPos>>> tree query with pos="+str(pos)+ " radius="+str(radius) + str(res))
         xyCoords = [self.xyArray[indx] for indx in res]
         # print("ImageDataset.getNearPos(): xyCoords: ", xyCoords)
         imageList = []
         for loc in xyCoords:
-            # print("ImageDataset.getNearPos(): xyCoords loc: ", loc)
+            #print("ImageDataset.getNearPos(): xyCoords loc: ", loc)
             tupLoc = tuple(loc)
             locsAtPos = self.numByLoc[tupLoc]
             imageList.extend(locsAtPos)

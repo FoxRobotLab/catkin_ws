@@ -95,8 +95,12 @@ class MatchPlanner(object):
             cv2.imshow("Depth View", im)
             cv2.waitKey(20)
 
-            # if iterationCount > 20 and self.whichBrain == "nav":
-            #     self.brain.step()
+            #self.brain.unpause()
+
+
+
+            ## if iterationCount > 20 and self.whichBrain == "nav":
+            ##     self.brain.step()
 
 
 
@@ -110,6 +114,7 @@ class MatchPlanner(object):
 
                 self.logger.log("-------------- New Match ---------------")
                 status, nodeAndPose = self.locator.findLocation(image)
+
 
                 if status == "continue":            #bestMatch score > 90 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
@@ -169,6 +174,7 @@ class MatchPlanner(object):
     def getStartLocation(self):
         self.brain.pause()
         self.startX, self.startY, self.startYaw = self._userStartLoc()
+        print(self.startX, self.startY, self.startYaw)
         if self.startYaw == 99 or self.startYaw is None:
             return False
         self.robot.updateOdomLocation(x=self.startX, y=self.startY, yaw=self.startYaw)
@@ -194,10 +200,12 @@ class MatchPlanner(object):
         userInputLoc = self.gui.inputStartLoc()
         userInputYaw = self.gui.inputStartYaw()
 
-        #where it is a choice to pick node or loc pop ups
-        self.gui.askWhich()
-        userInputX = self.gui.userInputStartX
-        userInputY = self.gui.userInputStartY
+        # #where it is a choice to pick node or loc pop ups
+        # self.gui.askWhich()
+        # userInputX = self.gui.userInputStartX
+        # userInputY = self.gui.userInputStartY
+
+        print("User input:", userInputLoc, userInputYaw)
 
 
         userLocList = userInputLoc.split()
@@ -205,8 +213,10 @@ class MatchPlanner(object):
         # node
         if len(userLocList) == 1:
             userNode = int(userLocList[0])
+            print("User node:", userNode)
             if self.olinMap.isValidNode(userNode) or userNode != 99:
                 userX, userY = self.olinMap._nodeToCoord(userNode)
+                print ("user x, y:", userX, userY)
         # x y
         elif len(userLocList) == 2:
             userX = float(userLocList[0])

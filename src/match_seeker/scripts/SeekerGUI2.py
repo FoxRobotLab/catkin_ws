@@ -43,9 +43,9 @@ class SeekerGUI2():
         self.turnState.set("turn status")
         self.turnInfo = []
         self.setupTurnList()
-        self.currHead2 = None
-        self.targetAngle2 = None
-        self.angleToTurn2 = None
+        # self.currHead2 = None
+        # self.targetAngle2 = None
+        # self.angleToTurn2 = None
 
         self.tDist = tk.StringVar()
         self.tDist.set(0.0)
@@ -593,18 +593,18 @@ class SeekerGUI2():
         self.turnState.set(statement)
 
     def updateTurnInfo(self,turnData):
-        self.currHead2.configure(bg="pink")
-        self.targetAngle2.configure(bg="pink")
-        self.angleToTurn2.configure(bg="pink")
+        # self.currHead2.configure(bg="pink")
+        # self.targetAngle2.configure(bg="pink")
+        # self.angleToTurn2.configure(bg="pink")
         for i in range(len(turnData)):
             self.turnInfo[i].set('%.2f'%turnData[i])
 
     def endTurn(self):
         s= "Was " + self.turnState.get()
         self.updateTurnState(s)
-        self.currHead2.configure(bg="MistyRose2")
-        self.targetAngle2.configure(bg="MistyRose2")
-        self.angleToTurn2.configure(bg="MistyRose2")
+        # self.currHead2.configure(bg="MistyRose2")
+        # self.targetAngle2.configure(bg="MistyRose2")
+        # self.angleToTurn2.configure(bg="MistyRose2")
 
     def toggleMotors(self):
         if self.button1.config('text')[-1] == 'Stop Motors':

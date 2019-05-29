@@ -257,7 +257,7 @@ class WorldMap(object):
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
         else:
-            return None
+            return None #TODO: It should not think it is outside the map
 
 
     def isAllowedLocation(self, pose):
@@ -284,14 +284,14 @@ class WorldMap(object):
         it generates and stores the paths in the self.pathPreds dictionary."""
         if self.isValidNode(startVert) and self.isValidNode(goalVert):
             if goalVert == self.goalNode:
-                # print "simple lookup"
+                #print "simple lookup"
                 path = self.reconstructPath(startVert)
                 path.reverse()
                 return path
             elif startVert == goalVert:
                 return []
             else:
-                # print "rerunning dijkstra's"
+                print "rerunning dijkstra's"
                 self.goalNode = goalVert
                 q = PriorityQueue()
                 visited = set()
@@ -664,9 +664,12 @@ class WorldMap(object):
 if __name__ == '__main__':
     # Uncomment to run matchPlanner
     mapper = WorldMap()
-    mapper.cleanMapImage(obstacles=False, cells=True, drawCellNum=True)# True)
+    mapper.cleanMapImage(obstacles=True) #, cells=True, drawCellNum=True)# True)
     mapper.drawNodes()
     # mapper.drawLocsAllFrames()
+    print "starting"
+    mapper.getShortestPath(87,92)
+    print "stopping"
     mapper.displayMap()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
