@@ -96,7 +96,7 @@ class SeekerGUI():
         nodeButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Node", command= lambda: [popupWin.destroy(), self.nodeButtonPopUp()])
         nodeButton.grid(row=1, column=0)
 
-        locButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="X-Y Coordinates", command= lambda: [popupWin.destroy(), self.locationButtonPopUp()])
+        locButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="X-Y Coordinates", command= lambda: [popupWin.destroy(), self.locationButtonPopUp()])
         locButton.grid(row=2, column=0)
 
         self.mainWin.wait_window(popupWin)
