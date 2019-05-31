@@ -5,15 +5,19 @@ import cv2
 import time
 import numpy as np
 import rospy
-import keras
-from . import olin_factory as factory
+from tensorflow import keras
+#import olri_classifier.olin_factory as factory #use for matchPlanner.py
+import olin_factory as factory #use for olin_cnn.py
 from datetime import datetime
 
 
 class OlinTest(object):
     def __init__(self, recent_n_max):
         self.recent_n_cells = []
-        self.olin_map = cv2.imread(factory.paths.map_path)
+        #
+        #
+
+        #self.olin_map = cv2.imread("OlinGraphCellMap.png")
         cellF = open(factory.paths.maptocell_path, 'r')
         cellDict = dict()
         for line in cellF:
@@ -32,7 +36,8 @@ class OlinTest(object):
         for cell in cell_to_intlabel_dict.keys():
             self.intlabel_to_cell_dict[cell_to_intlabel_dict[cell]] = cell
 
-        self.model = factory.model
+        self.model = keras.models.load_model(factory.paths.checkpoint_name)
+        self.model.load_weights(factory.paths.checkpoint_name)
         self.paths = factory.paths
         self.hyperparameters = factory.hyperparameters
         self.image = factory.image
@@ -103,15 +108,18 @@ class OlinTest(object):
             submean_image = np.subtract(gray_image, mean)
             cleaned_image = np.array([submean_image], dtype="float")\
                 .reshape(1, factory.image.size, factory.image.size, factory.image.depth)
-            pred = softmax.predict(cleaned_image)
+            pred = model.predict(cleaned_image) #softmax.predict(cleaned_image)
             pred_class = np.argmax(pred)
+            print("pred:", pred, pred.shape, "pred_class", pred_class)
             pred_cell = self.intlabel_to_cell_dict[int(pred_class)]
+            print("pred_cell:",pred_cell)
+
             ### Compute the best prediction by getting the mode out of most recent n cells
             best_cell = self.mode_from_recent_n(recent_n_max, pred_cell)
             print("{} ======================================================".format(datetime.now()))
             print("=== Predicted Cell: ", pred_cell)
             print("=== Predicted Best Cell (N={}): ".format(len(self.recent_n_cells)), best_cell)
-            olin_map_copy = self.olin_map.copy()
+            #olin_map_copy = self.olin_map.copy()
             # self.highlightCell(olin_map_copy, str(pred_cell))
             # self.highlightCell(olin_map_copy, str(best_cell), color=(254, 127, 156))
 
@@ -129,15 +137,26 @@ class OlinTest(object):
 
     def get_prediction(self, image, recent_n_max, last_known_loc, confidence):
         cleaned_image = self.clean_image(image)
-        pred = self.softmax.predict(cleaned_image)
-        pred_class = np.argmax(pred)
-        pred_cell = self.intlabel_to_cell_dict[int(pred_class)]
-        best_cell = self.mode_from_recent_n(self.recent_n_max, pred_cell)
+        # model = keras.models.load_model(factory.paths.checkpoint_name)
+        # model.load_weights(factory.paths.checkpoint_name)
+        pred = self.model.predict(cleaned_image)
+        sorted_pred = np.argsort(pred)[0][-3:][::-1] #top 3 best matches, with best match at index 0
+        print("SORTED PRED:", sorted_pred)
 
-        print("{} ======================================================".format(datetime.now()))
-        print("=== Predicted Cell: ", pred_cell)
-        print("=== Predicted Best Cell (N={}): ".format(len(self.recent_n_cells)), best_cell)
-        return pred_cell, best_cell
+        pred_class = np.argmax(pred)
+        best_preds = []
+        for i in sorted_pred:
+            pred_cell = self.intlabel_to_cell_dict[i]
+            best_preds.append(pred_cell)
+
+        # pred_cell = self.intlabel_to_cell_dict[int(pred_class)]
+        # best_cell = self.mode_from_recent_n(self.recent_n_max, pred_cell)
+
+
+        # print("{} ======================================================".format(datetime.now()))
+        # print("=== Predicted Cell: ", pred_cell)
+        # print("=== Predicted Best Cell (N={}): ".format(len(self.recent_n_cells)), best_cell)
+        return best_preds
 
     def mode_from_recent_n(self, n, recent_cell):
         """
@@ -149,6 +168,7 @@ class OlinTest(object):
         self.recent_n_cells.append(recent_cell)
         if (len(self.recent_n_cells) > n):
             self.recent_n_cells.pop(0)
+        print("recent n cells",self.recent_n_cells)
         return max(set(self.recent_n_cells), key=self.recent_n_cells.count) # O(n**2)
 
 # if __name__ == "__main__":

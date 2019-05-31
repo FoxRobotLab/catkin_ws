@@ -147,4 +147,4 @@ def extractNum(fileString):
         return -1
 
 if __name__ == '__main__':
-    main("olinNewMap.txt")
+    main("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt")

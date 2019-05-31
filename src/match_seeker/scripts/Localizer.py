@@ -12,7 +12,7 @@ the robot should do and passes it onto matchPlanner.py.
 from DataPaths import basePath, imageDirectory, locData
 import ImageDataset
 import MonteCarloLocalize
-# from olri_classifier.olin_test import OlinTest
+from olri_classifier.olin_test import OlinTest
 
 class Localizer(object):
 
@@ -38,7 +38,7 @@ class Localizer(object):
         # self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
-        # self.olin_tester = OlinTest(recent_n_max=50)
+        self.olin_tester = OlinTest(recent_n_max=5)
 
 
     def findLocation(self, cameraIm):
@@ -69,13 +69,13 @@ class Localizer(object):
         # olin_test.test_turtlebot(cameraIm, recent_n_max=50)
         #OBJECT ORIENTED OLINTEST
         # TODO: what do we do about confidence and last known loc?
-        # currPred, bestPred = self.olin_tester.get_prediction(cameraIm, recent_n_max=50, confidence=None, last_known_loc=None)
+        bestPreds = self.olin_tester.get_prediction(cameraIm, recent_n_max=5, confidence=None, last_known_loc=None)
         # currPred = str(currPred)
         # bestPred = str(bestPred)
         # self.olin.highlightCell(str(bestPred), color=(254, 127, 156))
         # self.mcl.olinMap.highlightCell(str(bestPred), color=(254, 127, 156)) #TODO: Why is highlighting not working?
 
-        # print("Localizer.findLocation: bestPred: ", bestPred)
+        print("Localizer.findLocation: bestPred: ", bestPreds)
         scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
         print("Localizer.findLocation: scores, matchLocs: ", scores, matchLocs)
 
