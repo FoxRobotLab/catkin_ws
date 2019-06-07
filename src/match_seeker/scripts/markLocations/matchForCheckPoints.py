@@ -118,7 +118,7 @@ class combineFiles(object):
             dif = abs(intImage- intTarget)
             if dif < minimum:
                 minimum = dif
-                minNumber = intImage
+                minNumber = int(imageLine[0])
         return str(minNumber)
 
     def _writeData(self):
@@ -151,8 +151,8 @@ class combineFiles(object):
 
 if __name__ == '__main__':
 
-    combiner = combineFiles(locFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/Data-Jul11Wed-13_50_21.txt",
-                        imgNumFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11Frames3.txt",
-                        outputFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july11MatchedCheckpoints3.txt")
+    combiner = combineFiles(locFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/Data-Jul18Wed-15_10_35.txt",
+                        imgNumFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july18Frames2 .txt",
+                        outputFile="/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july18MatchedCheckpoints2.txt")
 
     combiner.go()

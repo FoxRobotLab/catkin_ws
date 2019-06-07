@@ -15,7 +15,7 @@ import math
 import cv2
 import rospy
 from espeak import espeak
-# import numpy as np
+import numpy as np
 import turtleControl
 # import MovementHandler
 import PotentialFieldThread
@@ -24,7 +24,7 @@ import Localizer
 import PathLocation
 import OutputLogger
 import OlinWorldMap
-import SeekerGUI
+import SeekerGUI2
 # from DataPaths import basePath, graphMapData
 
 from std_msgs.msg import String
@@ -34,13 +34,14 @@ from std_msgs.msg import String
 class MatchPlanner(object):
 
     def __init__(self):
-        self.gui = SeekerGUI.SeekerGUI()
-        self.gui.update()
 
         self.robot = turtleControl.TurtleBot()
         # print("MatchPlanner: Robot ::: Pause Movement")
         # self.robot.pauseMovement()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
+
+        self.gui = SeekerGUI2.SeekerGUI2(self, self.robot)
+        self.gui.update()
 
         self.brain = None
         self.goalSeeker = None
@@ -86,16 +87,21 @@ class MatchPlanner(object):
             #print("p1")
             image = self.robot.getImage()[0]
             #print("p2")
-            # cv2.imshow("Turtlebot View", image)
-            # cv_image = self.robot.getDepth()
-            # cv_image = cv_image.astype(np.uint8)
-            # im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
-            # ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
-            # cv2.imshaow("Depth View", im)
-            # cv2.waitKey(20)
+            cv2.imshow("Turtlebot View", image)
+            cv_image = self.robot.getDepth()
+            cv_image = cv_image.astype(np.uint8)
+            im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
+            ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
+            cv2.imshow("Depth View", im)
+            cv2.waitKey(20)
 
-            # if iterationCount > 20 and self.whichBrain == "nav":
-            #     self.brain.step()
+            #self.brain.unpause()
+
+
+
+            ## if iterationCount > 20 and self.whichBrain == "nav":
+            ##     self.brain.step()
+
 
 
             if self.whichBrain == "loc":
@@ -108,6 +114,7 @@ class MatchPlanner(object):
 
                 self.logger.log("-------------- New Match ---------------")
                 status, nodeAndPose = self.locator.findLocation(image)
+
 
                 if status == "continue":            #bestMatch score > 90 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
@@ -127,6 +134,7 @@ class MatchPlanner(object):
                         self.brain.pause()
                         self.whichBrain = "loc"
                     self.goalSeeker.setGoal(None,None,None)
+                    self.lookAround()
                     # self.logger.log("======Goal seeker off")
                 else:                                       # found a node
                     if self.whichBrain == "loc":
@@ -153,6 +161,7 @@ class MatchPlanner(object):
                             #                 str(h) + " " + str(currHead))
                     elif status == "check coord":
                         self.checkCoordinates(nodeAndPose)
+            print("matchPlanner.run " + str(iterationCount) + " status=" + status+" whichBrain="+self.whichBrain)
             iterationCount += 1
 
         self.logger.log("Quitting...")
@@ -165,6 +174,7 @@ class MatchPlanner(object):
     def getStartLocation(self):
         self.brain.pause()
         self.startX, self.startY, self.startYaw = self._userStartLoc()
+        print(self.startX, self.startY, self.startYaw)
         if self.startYaw == 99 or self.startYaw is None:
             return False
         self.robot.updateOdomLocation(x=self.startX, y=self.startY, yaw=self.startYaw)
@@ -190,10 +200,12 @@ class MatchPlanner(object):
         userInputLoc = self.gui.inputStartLoc()
         userInputYaw = self.gui.inputStartYaw()
 
-        #where it is a choice to pick node or loc pop ups
-        self.gui.askWhich()
-        userInputX = self.gui.userInputStartX
-        userInputY = self.gui.userInputStartY
+        # #where it is a choice to pick node or loc pop ups
+        # self.gui.askWhich()
+        # userInputX = self.gui.userInputStartX
+        # userInputY = self.gui.userInputStartY
+
+        print("User input:", userInputLoc, userInputYaw)
 
 
         userLocList = userInputLoc.split()
@@ -201,8 +213,10 @@ class MatchPlanner(object):
         # node
         if len(userLocList) == 1:
             userNode = int(userLocList[0])
+            print("User node:", userNode)
             if self.olinMap.isValidNode(userNode) or userNode != 99:
                 userX, userY = self.olinMap._nodeToCoord(userNode)
+                print ("user x, y:", userX, userY)
         # x y
         elif len(userLocList) == 2:
             userX = float(userLocList[0])
@@ -237,7 +251,7 @@ class MatchPlanner(object):
         of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
         if self.whichBrain != 'nav':
             self.whichBrain = "nav"
-            self.speak("Navigating Brain Activated")
+            self.speak("matchPlanner.setupNavBrain: Navigating Brain Activated")
             self.brain = PotentialFieldThread.PotentialFieldBrain(self.robot)
             self.brain.add(FieldBehaviors.KeepMoving())
             self.brain.add(FieldBehaviors.BumperReact())
@@ -300,7 +314,7 @@ class MatchPlanner(object):
         (nearNode, currLoc) = localizePose
         justVisitedNode = currPath[0]
         immediateGoalNode = currPath[1]
-        self.logger.log("------------- Checking coordinates -----")
+        self.logger.log("------------- matchPlanner.checkCoordinates: Checking coordinates -----")
 
         # if nearNode == currPath[-1]:
         #     self.respondToLocation(localizePose)
@@ -399,6 +413,9 @@ class MatchPlanner(object):
         self.pub.publish(speakStr)
         self.gui.updateMessageText(speakStr)
         self.logger.log(speakStr)
+
+    def shutdown(self):
+        rospy.on_shutdown("Button pressed")
 
 
 if __name__ == "__main__":

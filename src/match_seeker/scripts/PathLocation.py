@@ -47,6 +47,7 @@ class PathLocation(object):
             self.logger.log("The total path traveled is: " + str(self.prevPath))
         else:
             self.goalPath = self.olinMap.getShortestPath(nodeNum, self.destination)
+            print "got shortest path"
             self.targetAngle = self.nextAngle()
 
 

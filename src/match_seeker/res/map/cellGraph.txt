@@ -1,5 +1,7 @@
 #######################
 # Graph of Olin-Rice 2nd floor made of roughly 2x2 meter cells
+# Similar structure to olinGraph.txt because we want to consider each cell to be a node
+# as our match planner's monte carlo localization and kd-tree deals with nodes.
 
 Number of Nodes: 153
 

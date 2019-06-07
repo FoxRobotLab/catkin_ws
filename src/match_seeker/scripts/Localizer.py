@@ -31,13 +31,14 @@ class Localizer(object):
 
         self.dataset = ImageDataset.ImageDataset(logger, gui, numMatches = 3)
         self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
+        # print("Localizer.__init__: self.dataset.tree: ",self.dataset.tree) #DEBUG
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
         self.mcl.initializeParticles(250)
         # self.mcl.getOlinMap(basePath + "res/map/olinNewMap.txt")
 
         self.odomScore = 100.0
-        self.olin_tester = OlinTest(recent_n_max=50)
+        self.olin_tester = OlinTest(recent_n_max=5)
 
 
     def findLocation(self, cameraIm):
@@ -45,7 +46,12 @@ class Localizer(object):
         with that location. This method returns None if the robot is not at a "significant" location (one of the points
          in the olin graph) with a high confidence. If the robot IS somewhere significant and confidence is high
          enough, then the information about the location is returned so the planner can respond to it."""
+        odomLoc = self.odometer()
+
+        moveInfo = self.robot.getTravelDist()
+
         if self.lastKnownLoc is None:
+            self.lastKnownLoc = odomLoc
             lklSt = "Last known loc: None so far   confidence = {0:4.2f}"
             self.logger.log( lklSt.format(self.confidence) )
             self.gui.updateLastKnownList([0,0,0,self.confidence])
@@ -55,9 +61,7 @@ class Localizer(object):
             self.logger.log( lklSt.format(x, y, h, self.confidence) )
             self.gui.updateLastKnownList([x,y,h,self.confidence])
 
-        odomLoc = self.odometer()
 
-        moveInfo = self.robot.getTravelDist()
 
         ### Modify this line to substitute matchImage --> cnn pred
         # scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
@@ -65,13 +69,19 @@ class Localizer(object):
         # olin_test.test_turtlebot(cameraIm, recent_n_max=50)
         #OBJECT ORIENTED OLINTEST
         # TODO: what do we do about confidence and last known loc?
-        currPred, bestPred = self.olin_tester.get_prediction(cameraIm, recent_n_max=50, confidence=None, last_known_loc=None)
-        currPred = str(currPred)
-        bestPred = str(bestPred)
+        bestPreds = self.olin_tester.get_prediction(cameraIm, recent_n_max=5, confidence=None, last_known_loc=None)
+        # currPred = str(currPred)
+        # bestPred = str(bestPred)
         # self.olin.highlightCell(str(bestPred), color=(254, 127, 156))
-        self.mcl.olinMap.highlightCell(str(bestPred), color=(254, 127, 156)) #TODO: Why is highlighting not working?
+        # self.mcl.olinMap.highlightCell(str(bestPred), color=(254, 127, 156)) #TODO: Why is highlighting not working?
 
-        scores, matchLocs = self.dataset.matchImage(cameraIm, bestPred, self.confidence)
+        print("Localizer.findLocation: bestPred: ", bestPreds)
+        scores, matchLocs = self.dataset.matchImage(cameraIm, self.lastKnownLoc, self.confidence)
+        print("Localizer.findLocation: scores, matchLocs: ", scores, matchLocs)
+
+        # Handles out of range error?
+        while len(matchLocs) < 3:
+            matchLocs.append((0.0,0.0,0.0))
 
         self.gui.updatePicLocs(matchLocs[0],matchLocs[1],matchLocs[2])
         self.gui.updatePicConf(scores)
@@ -120,8 +130,8 @@ class Localizer(object):
         status, matchInfo = response
         if (matchInfo is not None):
             nearNode, pose = matchInfo
-            cellForPose = self.olin.convertLocToCell(pose)
-            self.mcl.olinMap.highlightCell(int(cellForPose))
+            cellForPose = self.olin.convertLocToCell(pose) # TODO: maybe make this actually work
+            # self.mcl.olinMap.highlightCell(int(cellForPose))
         return response
 
 

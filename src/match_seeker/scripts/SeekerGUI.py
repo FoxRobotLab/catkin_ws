@@ -93,7 +93,7 @@ class SeekerGUI():
         popupFrame = tk.Frame(popupWin, bg="gray22", bd=2, relief=tk.GROOVE)
         popupFrame.grid(row=0, column=0)
 
-        nodeButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Node", command= lambda: [popupWin.destroy(), self.nodeButtonpopUp()])
+        nodeButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="Node", command= lambda: [popupWin.destroy(), self.nodeButtonPopUp()])
         nodeButton.grid(row=1, column=0)
 
         locButton = tk.Button(popupFrame, bg="indian red", fg="snow", text="X-Y Coordinates", command= lambda: [popupWin.destroy(), self.locationButtonPopUp()])
@@ -233,7 +233,6 @@ class SeekerGUI():
         confirmButton.grid(row=2, column=0)
 
         self.mainWin.wait_window(popupWin)
-
 
     def inputDes(self):
         return self.userInputDest.get()

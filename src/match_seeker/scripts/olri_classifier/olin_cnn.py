@@ -1,37 +1,40 @@
-# !/usr/bin/env python2.7
-"""--------------------------------------------------------------------------------
-olin_cnn.py
-Author: Jinyoung Lim
-Date: July 2018
-
-A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
-Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
-(layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
-Keras as a framework.
-
-Acknowledgements:
-    ft_floortype_classifier
-        floortype_cnn.py
-
-Notes:
-    Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
-        Do not freak out you get this warning. It is expected and not a problem per
-        https://github.com/tensorpack/tensorpack/issues/502
-
-    Warning:
-        Occurs when .profile is not sourced. ***Make sure to run "source .profile"
-        each time you open a new terminal***
-
-    Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
-        tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
-        empty images/labels
-
-    To open up virtual env:
-        source ~/tensorflow/bin/activate
-
-    Use terminal if import rospy does not work on PyCharm but does work on a
-    terminal
---------------------------------------------------------------------------------"""
+#!/usr/bin/env python2.7
+# """--------------------------------------------------------------------------------
+# olin_cnn.py
+# Author: Jinyoung Lim
+# Date: July 2018
+#
+# A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
+# Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
+# (layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
+# Keras as a framework.
+#
+# Acknowledgements:
+#     ft_floortype_classifier
+#         floortype_cnn.py
+#
+# Notes:
+#     Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
+#         Do not freak out you get this warning. It is expected and not a problem per
+#         https://github.com/tensorpack/tensorpack/issues/502
+#
+#     Warning:
+#         Occurs when .profile is not sourced. ***Make sure to run "source .profile"
+#         each time you open a new terminal***
+#
+#     Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
+#         tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
+#         empty images/labels
+#
+#     To open up virtual env:
+#         source ~/tensorflow/bin/activate
+#
+#     Use terminal if import rospy does not work on PyCharm but does work on a
+#     terminal
+#
+#
+# FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
+# --------------------------------------------------------------------------------"""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -41,8 +44,8 @@ import random
 
 import numpy as np
 import rospy
-import keras
-import turtleControl
+from tensorflow import keras
+# import turtleControl
 import olin_factory as factory
 import olin_inputs
 import olin_test
@@ -50,7 +53,9 @@ import olin_test
 class OlinClassifier(object):
     def __init__(self, use_robot, checkpoint_name=None):
         ### Set up paths and basic model hyperparameters
-        self.model = factory.model
+        self.model = keras.models.load_model(factory.paths.checkpoint_name)
+        self.model.load_weights(factory.paths.checkpoint_name)
+
         self.paths = factory.paths
         self.hyperparameters = factory.hyperparameters
         self.image = factory.image
@@ -61,15 +66,15 @@ class OlinClassifier(object):
         #     exit("*** Please provide a specific checkpoint or use the last checkpoint. Preferrably the one with minimum loss.") #<phase_num>-<epoch_num>-<val_loss>.hdf5
         self.checkpoint_name = checkpoint_name
 
-        ### Set up Turtlebot
-        if (use_robot):
-            rospy.init_node("OlinClassifier")
-            self.robot = turtleControl.TurtleBot()
-            self.robot.pauseMovement() # prevent the robot from shaking
-            print("*** Initialized robot node {}".format("OlinClassifier"))
-        else:
-            self.robot = None
-            print("*** Not using robot")
+        # ### Set up Turtlebot
+        # if (use_robot):
+        #     rospy.init_node("OlinClassifier")
+        #     self.robot = turtleControl.TurtleBot()
+        #     self.robot.pauseMovement() # prevent the robot from shaking
+        #     print("*** Initialized robot node {}".format("OlinClassifier"))
+        # else:
+        #     self.robot = None
+        #     print("*** Not using robot")
 
     ################## Train ##################
     def train(self, train_data):
@@ -214,19 +219,30 @@ class OlinClassifier(object):
         model.add(keras.layers.Dense(units=factory.cell.num_cells, activation="softmax"))
         return model
 
+    def getAccuracy(self, train_data):
+        images, labels = olin_inputs.get_np_train_images_and_labels(train_data)
+        test_loss, test_acc = self.model.evaluate(images, labels)
+
+        print('Test accuracy:', test_acc, "Test loss:", test_loss)
+
+
 def main(unused_argv):
     ### Instantiate the classifier
     olin_classifier = OlinClassifier(
-        use_robot=True,
+        use_robot=False,
         checkpoint_name="/home/macalester/PycharmProjects/olri_classifier/0716181756_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-75-0.72.hdf5",
     )
 
-    ### Train
-    # train_data = np.load(factory.paths.train_data_path)
-    # olin_classifier.train(train_data)
+    #ot = olin_test.OlinTest(50)
 
+    ### Train
+    train_data = np.load(factory.paths.train_data_path)
+    # olin_classifier.train(train_data)
+    print(train_data[:2])
     ### Test with Turtlebot
-    olin_test.test_turtlebot(olin_classifier, recent_n_max=50)
+    #ot.test_turtlebot(olin_classifier, recent_n_max=50)
+
+    olin_classifier.getAccuracy(train_data)
 
 if __name__ == "__main__":
     main(unused_argv=None)

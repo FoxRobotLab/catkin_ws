@@ -79,6 +79,7 @@ cell = Cell(
     num_cells=num_cells,
     num_max_cells=num_max_cells
 )
+print("Num cells:", num_cells,"Num max cells:",num_max_cells)
 """
 ### Reference
 Usage: https://www.geeksforgeeks.org/namedtuple-in-python/

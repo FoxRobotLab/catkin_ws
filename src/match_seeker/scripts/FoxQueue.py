@@ -119,7 +119,7 @@ class PriorityQueue(Queue):
             parentIndex = self._parent(index)
             curr = self.heap[index]
             par = self.heap[parentIndex]
-            if not self.comesBefore(curr[0], par[0]):
+            if not self.comesBefore(curr[1], par[1]):
                 inPlace = 1
             else:
                 self.heap[index] = par
@@ -156,14 +156,14 @@ class PriorityQueue(Queue):
         rightInd = self._rightChild(index)
         while not(leftInd >= self.size) and not inPlace:
             if (rightInd >= self.size) or \
-               (self.heap[leftInd] < self.heap[rightInd]):
+               (self.heap[leftInd][1] < self.heap[rightInd][1]):
                 minInd = leftInd
             else:
                 minInd = rightInd
 
             curr = self.heap[index]
             minVal = self.heap[minInd]
-            if self.comesBefore(curr[0], minVal[0]):
+            if self.comesBefore(curr[1], minVal[1]):
                 inPlace = 1
             else:
                 self.heap[minInd] = curr
@@ -179,7 +179,7 @@ class PriorityQueue(Queue):
         pos = self._findValue(value)
         # [oldP, v] = self.heap[pos]
         [v, oldP] = self.heap[pos]
-        self.heap[pos] = [newP, value]
+        self.heap[pos] = [value, newP]
         if oldP > newP:
             self._walkUp(pos)
         else:
@@ -211,7 +211,7 @@ class PriorityQueue(Queue):
     def _findValue(self, value):
         """Find the position of a value in the priority queue."""
         i = 0
-        for [p, v] in self.heap:
+        for [v, p] in self.heap:
             if v == value:
                 return i
             i = i + 1
@@ -243,7 +243,7 @@ class PriorityQueue(Queue):
         if self.isEmpty():
             val += "<empty>"
         else:
-            p, v = self.firstElement()
+            v, p = self.firstElement()
             val = val + "priority: " + str(p) + ", value: " + str(v)
         return val
 
