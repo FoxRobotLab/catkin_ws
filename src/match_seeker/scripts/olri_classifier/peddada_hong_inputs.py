@@ -1,5 +1,7 @@
 # This program divides the image data into two parts, overrepped, with images corresponding to cells that have too much
-# and underrepped, with images corresponding to cells that have too little. To cull the overrepped data
+# and underrepped, with images corresponding to cells that have too little. To cull the overrepped data, for each
+# overrepped cell we iteratively removed a random image with the most represented heading until we had the desired
+# number of images. To add additional data
 
 import olin_factory as factory
 import cv2
@@ -127,6 +129,8 @@ def cullOverRepped():
     #         overreppedFrames.remove(frame)
     #     except ValueError:
     #         print(frame)
+
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames.npy',overreppedFrames)
     return overreppedFrames
 
 def addUnderRepped():
@@ -160,44 +164,51 @@ def addUnderRepped():
             cell_counts[cell] += 1
 
     print(len(underreppedFrames))
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames.npy',underreppedFrames)
     return underreppedFrames
 
 def resizeAndCrop(image):
-    image = cv2.resize(image,(341,256))
-    x = random.randrange(0,118)
-    y = random.randrange(0,33)
+    # Original size 256x256 cropped to 224x
+    image = cv2.resize(image,(170,128))
+    x = random.randrange(0,70)
+    y = random.randrange(0,28)
 
-    cropped_image = image[y:y+224, x:x+224]
+    cropped_image = image[y:y+100, x:x+100]
+    cropped_image = cv2.cvtColor(cropped_image,cv2.COLOR_BGR2GRAY)
 
     return cropped_image
 
-def getTrainingData():
+def getTrainingData(overRepped=None,underRepped=None):
     frame_cell_dict = getFrameCellDict()
     frame_heading_dict = getFrameHeadingDict()
     training_data = []
 
-    for frame in addUnderRepped():
-        print('Processing frame',frame)
-        image = cv2.imread(factory.paths.train_data_dir+'/frame'+frame+'.jpg')
-        image = resizeAndCrop(image)
-        training_data.append([np.array(image),getOneHotLabel(int(frame_cell_dict[frame]),numCells),getOneHotLabel(int(frame_heading_dict[frame])//45,8)])
-
-    for frame in cullOverRepped():
+    def processFrame(frame):
         print('Processing frame', frame)
-        image = cv2.imread(factory.paths.train_data_dir+'/frame'+frame+'.jpg')
+        image = cv2.imread(factory.paths.train_data_dir + '/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
-        training_data.append([np.array(image),getOneHotLabel(int(frame_cell_dict[frame]),numCells),getOneHotLabel(int(frame_heading_dict[frame])//45,8)])
+        training_data.append([np.array(image), getOneHotLabel(int(frame_cell_dict[frame]), numCells),
+                              getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8)])
 
-    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA.npy',training_data)
+
+    if underRepped is not None:
+        for frame in underRepped:
+            processFrame(frame)
+    else:
+        for frame in addUnderRepped():
+            processFrame(frame)
+
+    if overRepped is not None:
+        for frame in overRepped:
+            processFrame(frame)
+    else:
+        for frame in cullOverRepped():
+            processFrame(frame)
+
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA2_gray.npy',training_data)
 
     print('Done!')
     return training_data
 if __name__ == '__main__':
-    cells = getUnderOverRep(getCellCounts()[0])
-    print(cells)
-    cells = [int(x) for x in cells[0]+cells[1]]
-    cells = sorted(cells)
-    for i in range(len(cells)-1):
-        if (int(cells[i+1])-int(cells[i])) != 1:
-            print i
-    #print(getUnderOverRep(getCellCounts()[0]))
+    getTrainingData(underRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames.npy'),
+    overRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames.npy'))

@@ -6,7 +6,7 @@ import time
 import numpy as np
 import rospy
 from tensorflow import keras
-#import olri_classifier.olin_factory as factory #use for matchPlanner.py
+# import olri_classifier.olin_factory as factory #use for matchPlanner.py
 import olin_factory as factory #use for olin_cnn.py
 from datetime import datetime
 

@@ -50,6 +50,9 @@ import olin_factory as factory
 import olin_inputs
 import olin_test
 
+### Uncomment next line to use CPU instead of GPU: ###
+# os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
 class OlinClassifier(object):
     def __init__(self, use_robot, checkpoint_name=None):
         ### Set up paths and basic model hyperparameters
@@ -78,37 +81,47 @@ class OlinClassifier(object):
 
     ################## Train ##################
     def train(self, train_data):
-        random.shuffle(train_data)
-        images, labels = olin_inputs.get_np_train_images_and_labels(train_data)
 
-        ### Set aside validation data to ensure that the network is learning something...
-        num_eval = int(len(labels) * self.hyperparameters.eval_ratio)
-        train_images = images[:-num_eval]
-        train_labels = labels[:-num_eval]
-        eval_images = images[-num_eval:]
-        eval_labels = labels[-num_eval:]
+        train_data = np.load(
+            '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA2_gray.npy')
+        print(train_data.shape)
+        random.shuffle(train_data)
+        train_images = np.array([i[0] for i in train_data[:30000]]).reshape(-1, 100, 100, 1)
+        train_labels = np.array([i[1] for i in train_data[:30000]])
+        eval_images = np.array([i[0] for i in train_data[30000:]]).reshape(-1, 100, 100, 1)
+        eval_labels = np.array([i[1] for i in train_data[30000:]])
+
+        # random.shuffle(train_data)
+        # images, labels = olin_inputs.get_np_train_images_and_labels(train_data)
+        #
+        # ### Set aside validation data to ensure that the network is learning something...
+        # num_eval = int(len(labels) * self.hyperparameters.eval_ratio)
+        # train_images = images[:-num_eval]
+        # train_labels = labels[:-num_eval]
+        # eval_images = images[-num_eval:]
+        # eval_labels = labels[-num_eval:]
 
         ### Print out labels to check if it is categorical ([1, 0], [0, 1]) not binary (0, 1)
-        print("*** Check label format (Labels should be categorical/one-hot, not binary) :\n", labels[0])
+        #print("*** Check label format (Labels should be categorical/one-hot, not binary) :\n", labels[0])
 
         ### Extract phase number and load
-        phase_num = 0
-        # if (not self.checkpoint_name is None):
-        #     model = keras.models.load_model(
-        #         self.checkpoint_name,
-        #         compile=True
-        #     )
-        #     phase_num = int(self.checkpoint_name[:2]) + 1
+        phase_num = 2
+        if (not self.checkpoint_name is None):
+            model = keras.models.load_model(
+                self.checkpoint_name,
+                compile=True
+            )
+            #phase_num = int(self.checkpoint_name[:2]) + 1
 
-        # else:
-        model = self.inference()
+        else:
+            model = self.inference()
         ### Loss: use categorical if labels are categorical, binary if otherwise. Unless there are only 2 categories,
         ###     should use categorical.
-        model.compile(
-            loss=keras.losses.categorical_crossentropy,
-            optimizer=keras.optimizers.SGD(lr=self.hyperparameters.learning_rate),
-            metrics=["accuracy"]
-        )
+            model.compile(
+                loss=keras.losses.categorical_crossentropy,
+                optimizer=keras.optimizers.SGD(lr=self.hyperparameters.learning_rate),
+                metrics=["accuracy"]
+            )
 
         print("***Phase {}".format(phase_num))
         model.summary()
@@ -143,7 +156,7 @@ class OlinClassifier(object):
         ###########################################################################
         ###                         CONV-POOL-DROPOUT #1                        ###
         ###########################################################################
-        conv1_filter_num = 128
+        conv1_filter_num =128
         conv1_kernel_size = 5
         conv1_strides = 1
         pool1_kernel_size = 2
@@ -157,7 +170,7 @@ class OlinClassifier(object):
             activation="relu",
             padding="same",
             data_format="channels_last",
-            input_shape=[self.image.size, self.image.size, self.image.depth]
+            input_shape=[100,100,1]#[self.image.size, self.image.size, self.image.depth]
         ))
         model.add(keras.layers.MaxPooling2D(
             pool_size=(pool1_kernel_size, pool1_kernel_size),
@@ -216,7 +229,7 @@ class OlinClassifier(object):
         ##########################################################################
         ##                                LOGITS                               ###
         ##########################################################################
-        model.add(keras.layers.Dense(units=factory.cell.num_cells, activation="softmax"))
+        model.add(keras.layers.Dense(units=153, activation="softmax"))#151
         return model
 
     def getAccuracy(self, train_data):
@@ -230,19 +243,20 @@ def main(unused_argv):
     ### Instantiate the classifier
     olin_classifier = OlinClassifier(
         use_robot=False,
-        checkpoint_name="/home/macalester/PycharmProjects/olri_classifier/0716181756_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-75-0.72.hdf5",
+        checkpoint_name="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0610191132_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-20-4.65.hdf5",
     )
 
+# /home/macalester/PycharmProjects/olri_classifier/0716181756_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-75-0.72.hdf5
     #ot = olin_test.OlinTest(50)
 
     ### Train
     train_data = np.load(factory.paths.train_data_path)
-    # olin_classifier.train(train_data)
+    olin_classifier.train(train_data)
     print(train_data[:2])
     ### Test with Turtlebot
     #ot.test_turtlebot(olin_classifier, recent_n_max=50)
 
-    olin_classifier.getAccuracy(train_data)
+    #olin_classifier.getAccuracy(train_data)
 
 if __name__ == "__main__":
     main(unused_argv=None)

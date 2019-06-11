@@ -8,10 +8,10 @@ import time
 ################## Preprocessing of data ##################
 def read_cell_data(cell_file=factory.paths.cell_data_path):
     """
-    Read the cell data file created by locsToCells.py and converts them to a 
+    Read the cell data file created by locsToCells.py and converts them to a
     dictionary. Referred to locsToCells.py
-    :param cell_infile: a txt file that contains <frame#> <cell#> <yaw> each line 
-    :return: a dictionary that has cell number as a key and a list containing the 
+    :param cell_infile: a txt file that contains <frame#> <cell#> <yaw> each line
+    :return: a dictionary that has cell number as a key and a list containing the
     corresponding cell number and yaw as a value
     """
     cell_file = open(cell_file, 'r')
@@ -22,7 +22,7 @@ def read_cell_data(cell_file=factory.paths.cell_data_path):
         parts = line.split()
         frameNum = parts[0]
         cell = int(parts[1])
-        yaw = float(parts[2])
+        yaw = float(parts[-1])
         cell_dict[frameNum] = [cell, yaw]
     cell_file.close()
     print("*** Reading cell data and returning as a dictionary...")
