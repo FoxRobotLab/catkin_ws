@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import turtleControl
 import time
 import cv2
@@ -5,7 +6,13 @@ import datetime
 import rospy
 import os
 
-"""Author: Malini Sharma"""
+#"""Author: Malini Sharma"""
+
+
+currDate = datetime.datetime.now().strftime('%m-%d-%Y-%H-%M-%S')
+os.mkdir(
+    '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/' + currDate + 'newframes/')
+
 
 class StraightToFrames(object):
 
@@ -20,7 +27,9 @@ class StraightToFrames(object):
 
         self.dictOfTimes = dict()
         self.currTime = 0
-        self.currTime2 = 0
+        # self.currTime2 = 0
+
+        self.currCell = 217
 
         self.outputFolder = outputFolder
         self.outputFileName = outputFileName
@@ -41,6 +50,7 @@ class StraightToFrames(object):
         window, and shuts down rospy."""
 
         ch = ''
+
         while ch != 'q' and not rospy.is_shutdown():
             self.img, _ = self.robot.getImage()
             cv2.imshow("Image", self.img)
@@ -48,12 +58,15 @@ class StraightToFrames(object):
             #self.currTime = time.localtime()
             #self.currTime2 = time.strftime("%H:%M:%S", self.currTime)
             self.currTime = datetime.datetime.now()
-            self.currTime2 = datetime.datetime.strftime(self.currTime, "%H:%M:%S:%f")
+            self.currTime = datetime.datetime.strftime(self.currTime, "%H:%M:%S")
             self.picNum = self.picNum + 1
-            self.dictOfTimes[self.picNum] = self.currTime2
+            self.dictOfTimes[self.picNum] = [self.currTime, self.currCell]
             saved = self.saveToFolder(self.img, self.outputFolder, self.picNum)
             x = cv2.waitKey(10)
             ch = chr(x & 0xFF)
+            if ch =='n':
+                print("you're changing loc")
+                self.currCell-=1
             if not saved:
                 break
         self._writeData()
@@ -82,7 +95,7 @@ class StraightToFrames(object):
 
         fileOpen = False
         logFile = None
-        textFileName = os.path.join(self.outputFolder, self.outputFileName)    #Assumes self.outputFileName is just a standalone file name
+        textFileName = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/' + currDate + 'newframes/' + currDate+ 'frames.txt' #os.path.join(self.outputFolder, self.outputFileName)    #Assumes self.outputFileName is just a standalone file name
         try:
             logFile = open(textFileName, 'w')
             fileOpen = True
@@ -90,8 +103,9 @@ class StraightToFrames(object):
             print ("FAILED TO OPEN DATA FILE")
 
         for key in self.dictOfTimes:
-            time = self.dictOfTimes[key]
-            dataStr = str(key) + " " + str(time) + "\n"
+            time = self.dictOfTimes[key][0]
+            cell = self.dictOfTimes[key][1]
+            dataStr = str(key) + ' ' + str(cell) + " " + str(time) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
             print("Frame", key, "at time", time)
@@ -101,6 +115,7 @@ class StraightToFrames(object):
 
         """This function is a helper function for the writeData() function. It gives writeData() the next file name."""
 
+
         fTempl = "frame{0:04d}.jpg"
         fileName = fTempl.format(num)
         return fileName
@@ -108,14 +123,17 @@ class StraightToFrames(object):
 
 def main():
     rospy.init_node('StraightToFrames')
+
     robot = turtleControl.TurtleBot()
 
     framer = StraightToFrames(
-        outputFolder='/home/macalester/catkin_ws/src/match_seeker/scripts/markLocations/july18Frames2/',
-        outputFileName='july18Frames2 .txt',
+        outputFolder='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/' + currDate + 'newframes/',
+        outputFileName='june10frames.txt',
         robot=robot)
     framer.go()
 
 
 if __name__ == "__main__":
     main()
+
+# '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/turtlebotVideoStraightToFrames.py/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/turtlebotVideoStraightToFrames.py'
