@@ -1,6 +1,8 @@
 # Summer 2019. Cycle through image data to verify accuracy of headings, x, y, and cell tags. Writes new file tagged with date/time that copies over approved/changed data.
 # author: Avik Bosshardt, Angel Sylvester, Maddie AlQatami
 
+#fun fact: frames 23836-23842, 24168-24187 are missing from ...frames/moreframes
+
 import os
 import cv2
 from datetime import datetime
@@ -27,27 +29,34 @@ class ImageDataChecker(object):
                 break
 
     def readFiles(self):
-        with open("/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/morecells.txt",'r') as cellfile:
+        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/frameHeadingFile_153_158.txt",'r') as cellfile:
             lines = cellfile.readlines()
             for line in lines:
+                if line == 'NEW SET HERE\n':
+                    break
                 line = line.strip('\n')
                 array = line.split(" ")
-                self.image_ch_dict[int(array[0])] = (array[1],array[2])
+                self.image_ch_dict[int(array[0])] = (array[1],array[4])
+                print line
 
-        with open("/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/morelocs.txt",'r') as cellfile:
+        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/frame-xyh",'r') as cellfile:
+            print 'hello'
             lines = cellfile.readlines()
             for line in lines:
+                if line == 'NEW SET HERE\n':
+                    break
                 line = line.strip('\n')
                 array = line.split(" ")
                 self.image_xyh_dict[int(array[0])] = (array[1],array[2],array[3])
+                print line
 
 
     def slideshow(self):
         newMoreLocs = open(
-            "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/morelocs-" + datetime.now().strftime(
+            "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/morelocs-" + datetime.now().strftime(
                 "%m-%d-%Y %H-%M-%S") + ".txt", 'w')
         newMoreCells = open(
-            "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/morecells-" + datetime.now().strftime(
+            "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/morecells-" + datetime.now().strftime(
                 "%m-%d-%Y %H-%M-%S") + ".txt", 'w')
         for file in self.imgFileList:
             if file.endswith(".jpg"):
@@ -63,6 +72,7 @@ class ImageDataChecker(object):
                 x = cv2.waitKey(0)
                 userChoice = chr(x & 0xFF)
                 # userChoice = raw_input("k for keep, f for fix, q for quit: ")
+                fixOptions = ['u', 'i', 'o', 'j', 'l', 'm', ',', '.']
 
                 if userChoice == ' ':
                     headStr = self.image_xyh_dict[self.picNum][2]
@@ -72,12 +82,14 @@ class ImageDataChecker(object):
                     newMoreCells.writelines(
                         str(self.picNum) + ' ' + self.image_ch_dict[self.picNum][0] + " " +
                         heading + '\n')
-                elif userChoice == 'f':
+                #elif userChoice == 'f':
+
+                elif fixOptions.__contains__(userChoice):
                     # prompt = raw_input("Heading? y/n: ")
                     # if prompt == "y":
-                    x = cv2.waitKey(0)
-                    headKey = chr(x & 0xFF)   # raw_input("Enter new heading: ")
-                    heading = self._makeHeading(headKey)
+                    #x = cv2.waitKey(0)
+                    #headKey = chr(x & 0xFF)   # raw_input("Enter new heading: ")
+                    heading = self._makeHeading(userChoice)
                     print "New heading =", heading
                     # else:
                     #     heading = self.image_ch_dict[self.picNum][1]
@@ -128,7 +140,7 @@ class ImageDataChecker(object):
     def checkforDuplicates(self):
         numList = []
         print("CELL DICT")
-        for i in range(len(self.image_ch_dict.keys())-1):
+        for i in range(len(self.image_ch_dict.keys())):
             num1 = self.image_ch_dict.keys()[i]
             numList.append(int(num1))
         numList.sort()
@@ -139,10 +151,12 @@ class ImageDataChecker(object):
 
 
             if int(num2) - int(num1) != 1:
+                print num1
+                print num2
                 print("problem at", num1)
         print("XYH DICT")
         numList = []
-        for i in range(len(self.image_xyh_dict.keys()) - 1):
+        for i in range(len(self.image_xyh_dict.keys())):
             num1 = self.image_xyh_dict.keys()[i]
             numList.append(int(num1))
         numList.sort()
@@ -152,6 +166,8 @@ class ImageDataChecker(object):
             num2 = numList[i + 1]
 
             if int(num2) - int(num1) != 1:
+                print num1
+                print num2
                 print("problem at", num1)
 
 
@@ -172,7 +188,7 @@ class ImageDataChecker(object):
         #     return self.picNum
 
 
-IMAGE_PATH = "/Volumes/Mom+Dad Copy/moreframes/"
+IMAGE_PATH = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/06-11-2019-13-56-55newframes/"
 
 starting_image_number = raw_input("Enter a starting image number:\n")
 
