@@ -5,3 +5,5 @@
 src/deep_learning/allfloorframes/
 src/deep_learning/floortype_cpcpfdl-1e-3_061318/
 src/deep_learning/testframes/
+devel/
+build/

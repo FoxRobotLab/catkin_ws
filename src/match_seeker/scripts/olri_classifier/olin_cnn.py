@@ -45,10 +45,12 @@ import random
 import numpy as np
 import rospy
 from tensorflow import keras
+import tensorflow as tf
 # import turtleControl
 import olin_factory as factory
 import olin_inputs
 import olin_test
+import cv2
 
 ### Uncomment next line to use CPU instead of GPU: ###
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -56,8 +58,8 @@ import olin_test
 class OlinClassifier(object):
     def __init__(self, use_robot, checkpoint_name=None):
         ### Set up paths and basic model hyperparameters
-        self.model = keras.models.load_model(factory.paths.checkpoint_name)
-        self.model.load_weights(factory.paths.checkpoint_name)
+
+
 
         self.paths = factory.paths
         self.hyperparameters = factory.hyperparameters
@@ -68,6 +70,8 @@ class OlinClassifier(object):
         # if (checkpoint_name is None):
         #     exit("*** Please provide a specific checkpoint or use the last checkpoint. Preferrably the one with minimum loss.") #<phase_num>-<epoch_num>-<val_loss>.hdf5
         self.checkpoint_name = checkpoint_name
+        self.model = keras.models.load_model(self.checkpoint_name)
+        self.model.load_weights(self.checkpoint_name)
 
         # ### Set up Turtlebot
         # if (use_robot):
@@ -84,7 +88,6 @@ class OlinClassifier(object):
 
         train_data = np.load(
             '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA2_gray.npy')
-        print(train_data.shape)
         random.shuffle(train_data)
         train_images = np.array([i[0] for i in train_data[:30000]]).reshape(-1, 100, 100, 1)
         train_labels = np.array([i[1] for i in train_data[:30000]])
@@ -211,6 +214,7 @@ class OlinClassifier(object):
         model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(units=dense1_filter_num, activation="relu"))
 
+
         ###########################################################################
         ###                               DENSE #2                              ###
         ###########################################################################
@@ -233,32 +237,124 @@ class OlinClassifier(object):
         return model
 
     def getAccuracy(self, train_data):
-        images, labels = olin_inputs.get_np_train_images_and_labels(train_data)
-        test_loss, test_acc = self.model.evaluate(images, labels)
+        # images, labels = olin_inputs.get_np_train_images_and_labels(train_data)
+        random.shuffle(train_data)
+        images = np.array([i[0] for i in train_data]).reshape(-1, 100, 100, 1)
+        labels = np.array([i[1] for i in train_data])
+        misid = {}
+        for i in range(len(images)):
+            #print(images[i])
+            #test_loss, test_acc = self.model.evaluate(images[i], labels[i])
+            pred = self.model.predict(images[i].reshape(-1, 100, 100, 1))
+            if np.argmax(pred) == np.argmax(labels[i]):
+                print('correct')
+            else:
+                print(np.argmax(pred),np.argmax(labels[i]))
+                if np.argmax(labels[i]) not in misid.keys():
+                    misid[np.argmax(labels[i])] = 1
+                else:
+                    misid[np.argmax(labels[i])] += 1
+        print(misid)
+            # if test_acc < 0.5:
+            #     cv2.imshow(images[i])
+            #     cv2.waitKey(0)
 
-        print('Test accuracy:', test_acc, "Test loss:", test_loss)
+        #print('Test accuracy:', test_acc, "Test loss:", test_loss)
+
+    def xception_training(self):
+
+        train_data = np.load(
+            '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA.npy')
+        random.shuffle(train_data)
+        train_images = np.array([i[0] for i in train_data[:30000]]).reshape(-1, 224, 224, 3)
+        train_labels = np.array([i[1] for i in train_data[:30000]])
+        eval_images = np.array([i[0] for i in train_data[30000:]]).reshape(-1, 224, 224, 3)
+        eval_labels = np.array([i[1] for i in train_data[30000:]])
+
+        model = keras.models.Sequential()
+
+        #xc = keras.applications.xception.Xception(weights='imagenet', include_top=False, input_shape=(100, 100, 3))
+        xc = keras.applications.resnet50.ResNet50(weights='imagenet',include_top=False, input_shape=(224,224,3))
+        for layer in xc.layers[:-1]:
+            layer.trainable = False
 
 
+        model.add(xc)
+        model.add(keras.layers.Flatten())
+        # dense2_filter_num = 256
+        # ###########################################################################
+        # model.add(keras.layers.Dense(units=dense2_filter_num, activation="relu"))
+        #
+        # ###########################################################################
+        # ###                              DROPOUT #3                             ###
+        # ###########################################################################
+        # ### Prevent some strongly featured images to affect training            ###
+        # drop3_rate = 0.2
+        # ###########################################################################
+        # model.add(keras.layers.Dropout(drop3_rate))
+
+        ##########################################################################
+        ##                                LOGITS                               ###
+        ##########################################################################
+        model.add(keras.layers.Dense(units=153, activation="softmax"))  # 151
+        model.summary()
+        model.compile(
+            loss=keras.losses.categorical_crossentropy,
+            optimizer=keras.optimizers.Adam(lr=.001),
+            metrics=["accuracy"]
+        )
+        model.fit(
+                train_images, train_labels,
+                batch_size=self.hyperparameters.batch_size,
+                epochs=self.hyperparameters.num_epochs,
+                verbose=1,
+                validation_data=(eval_images, eval_labels),
+                shuffle=True,
+                # class_weight=class_weight,
+                callbacks=[
+                    keras.callbacks.History(),
+                    keras.callbacks.ModelCheckpoint(
+                        self.paths.checkpoint_dir + "{:02}".format(0) + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                        period=5  # save every n epoch
+                    ),
+                    keras.callbacks.TensorBoard(
+                        log_dir=self.paths.checkpoint_dir,
+                        batch_size=self.hyperparameters.batch_size,
+                        write_images=False,
+                        write_grads=True,
+                        histogram_freq=0,
+                    ),
+                    keras.callbacks.TerminateOnNaN(),
+                    keras.callbacks.EarlyStopping(monitor='val_loss')
+                ]
+            )
 def main(unused_argv):
     ### Instantiate the classifier
     olin_classifier = OlinClassifier(
         use_robot=False,
-        checkpoint_name="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0610191132_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-20-4.65.hdf5",
+        checkpoint_name="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0718181503_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-90-0.72.hdf5",
     )
 
 # /home/macalester/PycharmProjects/olri_classifier/0716181756_olin-CPDrCPDrDDDrL_lr0.001-bs100/00-75-0.72.hdf5
     #ot = olin_test.OlinTest(50)
 
     ### Train
-    train_data = np.load(factory.paths.train_data_path)
-    olin_classifier.train(train_data)
-    print(train_data[:2])
+    train_data = np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA2_gray.npy')#np.load(factory.paths.train_data_path)
+    #olin_classifier.train(train_data)
+    #print(train_data[:2])
     ### Test with Turtlebot
     #ot.test_turtlebot(olin_classifier, recent_n_max=50)
 
-    #olin_classifier.getAccuracy(train_data)
+    olin_classifier.xception_training()
 
 if __name__ == "__main__":
+
+    # misid_dict = {0: 32, 1: 126, 2: 80, 3: 69, 4: 47, 5: 139, 6: 79, 7: 100, 8: 56, 9: 183, 10: 108, 11: 106, 12: 98, 13: 171, 14: 141, 15: 169, 16: 107, 17: 58, 19: 29, 20: 123, 21: 14, 22: 181, 23: 203, 24: 199, 25: 173, 26: 199, 27: 65, 28: 193, 29: 179, 30: 102, 31: 106, 32: 98, 33: 86, 34: 83, 35: 82, 36: 76, 37: 93, 38: 88, 39: 111, 40: 51, 41: 22, 42: 36, 43: 74, 44: 46, 45: 171, 46: 138, 47: 4, 48: 40, 49: 180, 50: 175, 51: 130, 52: 163, 53: 150, 54: 157, 55: 186, 56: 129, 57: 72, 58: 100, 59: 93, 60: 88, 61: 156, 62: 80, 63: 137, 64: 158, 65: 111, 66: 72, 67: 109, 68: 67, 69: 89, 70: 10, 71: 14, 72: 13, 73: 8, 74: 14, 75: 27, 76: 17, 77: 20, 78: 3, 79: 8, 80: 158, 81: 144, 82: 133, 83: 137, 84: 122, 85: 142, 86: 50, 87: 115, 88: 123, 89: 148, 90: 56, 91: 103, 92: 54, 93: 58, 94: 79, 95: 84, 96: 65, 97: 91, 98: 67, 99: 79, 100: 120, 101: 57, 102: 110, 103: 131, 104: 114, 105: 123, 106: 129, 107: 129, 108: 144, 109: 136, 110: 140, 111: 150, 112: 146, 113: 126, 114: 82, 115: 56, 116: 76, 117: 51, 118: 132, 119: 48, 120: 138, 121: 21, 122: 135, 123: 23, 124: 159, 125: 134, 126: 142, 127: 133, 128: 166, 129: 91, 130: 130, 131: 158, 132: 162, 133: 4, 134: 174, 135: 143, 136: 165, 137: 140, 138: 160, 139: 14, 140: 27, 141: 22, 142: 29, 143: 31, 144: 41, 145: 122, 146: 174, 147: 33, 148: 177, 149: 200, 150: 39, 151: 166, 152: 68}
+    # arr=[]
+    # for key in misid_dict.keys():
+    #     arr.append([misid_dict[key],key])
+    # print(sorted(arr))
+
     main(unused_argv=None)
 
 

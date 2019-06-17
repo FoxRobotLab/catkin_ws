@@ -116,13 +116,13 @@ class WorldMap(object):
         """Draws the cell data on the current image."""
         for cell in self.cellData:
             [x1, y1, x2, y2] = self.cellData[cell]
-            self.drawBox((x1, y1), (x2, y2), (113, 179, 60))
+            self.drawBox((x1, y1), (x2, y2), (0, 0, 255))
             ### Draw the cell number on the bottom right corner of each cell
             if (drawCellNum):
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                textSize = cv2.getTextSize(str(cell), font, 0.4, 1)[0]
+                textSize = cv2.getTextSize(str(cell), font, 1.5, 2)[0]
                 mapX1, mapY1 = self._convertWorldToPixels((x1, y1))
-                cv2.putText(self.currentMapImg, str(cell), (mapX1-textSize[0], mapY1-textSize[1]), font, 0.4, (113, 179, 60), 1)
+                cv2.putText(self.currentMapImg, str(cell), (mapX1-textSize[0], mapY1-textSize[1]), font, 1.5, (255, 0, 0), 2)
 
 
     def drawBox(self, lrpt, ulpt, color, thickness = 1):
@@ -141,7 +141,7 @@ class WorldMap(object):
         for node in range(numNodes):
             x, y = self._nodeToCoord(node)
             center = self._convertWorldToPixels((x, y))
-            cv2.circle(self.currentMapImg, center, 5, (200, 200, 200), -1)
+            #cv2.circle(self.currentMapImg, center, 5, (200, 200, 200), -1)
 
 
     def drawPose(self, particle, size = 4, color = (0, 0, 0), fill = True):
@@ -544,6 +544,7 @@ class WorldMap(object):
 
         self.mapTotalXDim = self._scaleRawToMeters(maxX - minX + 1)
         self.mapTotalYDim = self._scaleRawToMeters(maxY - minY + 1)
+
         self.imageHeight = self._scaleMetersToPixels(self.mapTotalXDim)
         self.imageWidth = self._scaleMetersToPixels(self.mapTotalYDim)
 
@@ -581,12 +582,23 @@ class WorldMap(object):
             pt1 = self._convertWorldToPixels((x, 0.0))
             pt2 = self._convertWorldToPixels((x, self.mapTotalYDim))
             cv2.line(self.olinImage, pt1, pt2, lineCol)
+            if x%5 == 0:
+                cv2.putText(self.olinImage,str(x),self._convertWorldToPixels((x,1)),cv2.FONT_HERSHEY_SIMPLEX,1,(0,128,0),2)
         # Next, vertical lines
         for y in range(0, int(self.mapTotalYDim)):
             lineCol = self._setLineColor(y)
             pt1 = self._convertWorldToPixels((0.0, y))
             pt2 = self._convertWorldToPixels((self.mapTotalXDim, y))
             cv2.line(self.olinImage, pt1, pt2, lineCol)
+            if y%5 == 0:
+                cv2.putText(self.olinImage,str(y),self._convertWorldToPixels((0.2,y)),cv2.FONT_HERSHEY_SIMPLEX,1,(0,128,0),2)
+
+        cv2.line(self.olinImage,self._convertWorldToPixels((45,15)),self._convertWorldToPixels((55,15)),(0,0,255))
+        cv2.line(self.olinImage, self._convertWorldToPixels((50, 10)), self._convertWorldToPixels((50, 20)),(0, 0, 255))
+        cv2.putText(self.olinImage,'0', self._convertWorldToPixels((56,15.5)),cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255))
+        cv2.putText(self.olinImage, '180', self._convertWorldToPixels((43, 16)), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255))
+        cv2.putText(self.olinImage, '90', self._convertWorldToPixels((49.5, 23)), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255))
+        cv2.putText(self.olinImage, '270', self._convertWorldToPixels((49.5, 9)), cv2.FONT_HERSHEY_SIMPLEX, 2,(0, 0, 255))
 
 
     def _setLineColor(self, value):
@@ -595,9 +607,9 @@ class WorldMap(object):
         if value == 0:
             return (0, 0, 0)
         elif value % 5 == 0:
-            return (139, 139, 0)
-        else:
             return (255, 255, 0)
+        else:
+            return (200, 200, 200)
 
 
     # -------------------------------------------------------------------
@@ -642,8 +654,8 @@ class WorldMap(object):
         flipY = self.mapTotalXDim - 1 - mapX
         flipX = self.mapTotalYDim - 1 - mapY
         # Next convert to meters from pixels, assuming 20 pixels per meter
-        mapXMeters = flipX / 20.0
-        mapYMeters = flipY / 20.0
+        mapXMeters = flipX / 50.0
+        mapYMeters = flipY / 50.0
         return (mapXMeters, mapYMeters)
 
 
@@ -651,8 +663,8 @@ class WorldMap(object):
         """Converts coordinates in meters in the world to integer coordinates on the map
         Note that this also has to adjust for the rotation and flipping of the map."""
         # First convert from meters to pixels, assuming 20 pixels per meter
-        pixelX = worldX * 20.0
-        pixelY = worldY * 20.0
+        pixelX = worldX * 50.0 #originally 20
+        pixelY = worldY * 50.0
         # Next flip x and y values around
         mapX = self.imageWidth - 1 - pixelY
         mapY = self.imageHeight - 1 - pixelX
@@ -664,13 +676,14 @@ class WorldMap(object):
 if __name__ == '__main__':
     # Uncomment to run matchPlanner
     mapper = WorldMap()
-    mapper.cleanMapImage(obstacles=True) #, cells=True, drawCellNum=True)# True)
+    mapper.cleanMapImage(obstacles=True,cells=True, drawCellNum=True)
     mapper.drawNodes()
     # mapper.drawLocsAllFrames()
     print "starting"
     mapper.getShortestPath(87,92)
     print "stopping"
     mapper.displayMap()
+    cv2.imwrite("BIGMAP.jpg", mapper.currentMapImg)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 

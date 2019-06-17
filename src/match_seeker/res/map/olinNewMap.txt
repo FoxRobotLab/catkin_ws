@@ -1,8 +1,8 @@
 2D-Map
 LineMinPos: 0 0
-LineMaxPos: 60000 110000
+LineMaxPos: 150000 275000
 NumLines: 390
-Scale: 1500
+Scale: 1000
 LINES
 #New Biology Lines
 6900 60000 6900 71000

@@ -168,12 +168,13 @@ def addUnderRepped():
     return underreppedFrames
 
 def resizeAndCrop(image):
-    # Original size 256x256 cropped to 224x
-    image = cv2.resize(image,(170,128))
+    # Original size 341x256 cropped to 224x224
+    # smaller size 170x128 cropped to 100x100
+    image = cv2.resize(image,(341,256))
     x = random.randrange(0,70)
     y = random.randrange(0,28)
 
-    cropped_image = image[y:y+100, x:x+100]
+    cropped_image = image[y:y+224, x:x+224]
     cropped_image = cv2.cvtColor(cropped_image,cv2.COLOR_BGR2GRAY)
 
     return cropped_image
@@ -205,7 +206,7 @@ def getTrainingData(overRepped=None,underRepped=None):
         for frame in cullOverRepped():
             processFrame(frame)
 
-    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA2_gray.npy',training_data)
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_gray.npy',training_data)
 
     print('Done!')
     return training_data

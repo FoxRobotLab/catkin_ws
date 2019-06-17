@@ -29,17 +29,16 @@ class ImageDataChecker(object):
                 break
 
     def readFiles(self):
-        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/frameHeadingFile_153_158.txt",'r') as cellfile:
+        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/Cell18MissingImages/cell18FrameInfo.txt",'r') as cellfile:
             lines = cellfile.readlines()
             for line in lines:
                 if line == 'NEW SET HERE\n':
                     break
                 line = line.strip('\n')
                 array = line.split(" ")
-                self.image_ch_dict[int(array[0])] = (array[1],array[4])
-                print line
+                self.image_ch_dict[int(array[0])] = (array[1],array[-1])
 
-        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/frame-xyh",'r') as cellfile:
+        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/Cell18MissingImages/cell18FrameInfo.txt",'r') as cellfile:
             print 'hello'
             lines = cellfile.readlines()
             for line in lines:
@@ -47,8 +46,7 @@ class ImageDataChecker(object):
                     break
                 line = line.strip('\n')
                 array = line.split(" ")
-                self.image_xyh_dict[int(array[0])] = (array[1],array[2],array[3])
-                print line
+                self.image_xyh_dict[int(array[0])] = (array[2],array[3],array[4])
 
 
     def slideshow(self):
@@ -175,7 +173,7 @@ class ImageDataChecker(object):
         """finds sequence of digits"""
         numStr = ""
         foundDigits = False
-        for ch in fileString:
+        for ch in fileString[7:]:
             if ch in '0123456789':
                 foundDigits = True
                 numStr += ch
@@ -188,7 +186,7 @@ class ImageDataChecker(object):
         #     return self.picNum
 
 
-IMAGE_PATH = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/06-11-2019-13-56-55newframes/"
+IMAGE_PATH = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/Cell18MissingImages/"
 
 starting_image_number = raw_input("Enter a starting image number:\n")
 

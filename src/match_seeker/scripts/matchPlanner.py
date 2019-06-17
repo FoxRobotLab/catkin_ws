@@ -408,7 +408,7 @@ class MatchPlanner(object):
 
     def speak(self, speakStr):
         """Takes in a string and "speaks" it to the base station and also to the  robot's computer."""
-        espeak.set_voice("english-us", gender=2, age=10)
+        espeak.set_voice("english-us", gender=2, age=60)
         espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
         self.pub.publish(speakStr)
         self.gui.updateMessageText(speakStr)

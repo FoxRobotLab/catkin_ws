@@ -13,6 +13,7 @@ from DataPaths import basePath, imageDirectory, locData
 import ImageDataset
 import MonteCarloLocalize
 from olri_classifier.olin_test import OlinTest
+# from olin_test import OlinTest
 
 class Localizer(object):
 

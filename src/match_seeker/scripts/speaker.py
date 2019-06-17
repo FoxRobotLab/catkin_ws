@@ -15,7 +15,7 @@ from std_msgs.msg import String
 from espeak import espeak
 
 def callback(data):
-    espeak.set_voice("english-us", gender=2, age=10)
+    espeak.set_voice("english-us", gender=1, age=600)
     rospy.loginfo(data.data)
     print data.data
     espeak.synth(data.data)

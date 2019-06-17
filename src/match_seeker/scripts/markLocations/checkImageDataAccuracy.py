@@ -10,7 +10,8 @@ class ImageDataChecker(object):
 
         self.picNum = picNum
         self.imgFileList = os.listdir(dataSource)
-        self.imgFileList.sort()
+        #self.imgFileList.sort()
+        self.imgFileList = sorted(self.imgFileList, key = lambda x: int(self._extractNum(x)))
         self.setupImgFileList()
         self.dataSource = dataSource
 
@@ -65,16 +66,19 @@ class ImageDataChecker(object):
                     self.image_ch_dict[self.picNum][1] + '\n')
 
             elif prompt == 'f':
-                prompt = raw_input("Heading? y/n: ")
-                if prompt == "y":
-                    heading = raw_input("Enter new heading: ")
-                else:
-                    heading = self.image_ch_dict[self.picNum][1]
-                prompt = raw_input("Other errors? y/n: ")
-                if prompt == "y":
-                    xyc = raw_input("Enter x y cell: ").split(" ")
-                else:
-                    xyc = [self.image_xyh_dict[self.picNum][0], self.image_xyh_dict[self.picNum][1], self.image_ch_dict[self.picNum][0]]
+                heading = raw_input("Enter new heading: ")
+                # prompt = raw_input("Heading? y/n: ")
+                # if prompt == "y":
+                #     heading = raw_input("Enter new heading: ")
+                # else:
+                #     heading = self.image_ch_dict[self.picNum][1]
+                xyc = [self.image_xyh_dict[self.picNum][0], self.image_xyh_dict[self.picNum][1],
+                       self.image_ch_dict[self.picNum][0]]
+                # prompt = raw_input("Other errors? y/n: ")
+                # if prompt == "y":
+                #     xyc = raw_input("Enter x y cell: ").split(" ")
+                # else:
+                #     xyc = [self.image_xyh_dict[self.picNum][0], self.image_xyh_dict[self.picNum][1], self.image_ch_dict[self.picNum][0]]
 
                 newMoreLocs.writelines(str(self.picNum) + ' ' + xyc[0] + " " + xyc[1] + " " + heading + '\n')
                 newMoreCells.writelines(
