@@ -57,8 +57,8 @@ class StraightToFrames(object):
             time.sleep(.5)
             #self.currTime = time.localtime()
             #self.currTime2 = time.strftime("%H:%M:%S", self.currTime)
-            self.currTime = datetime.datetime.now()
-            self.currTime = datetime.datetime.strftime(self.currTime, "%H:%M:%S")
+            self.currTime = int(time.time() * 1000)
+            #self.currTime = datetime.datetime.strftime(self.currTime, "%H:%M:%S")
             self.picNum = self.picNum + 1
             self.dictOfTimes[self.picNum] = [self.currTime, self.currCell]
             saved = self.saveToFolder(self.img, self.outputFolder, self.picNum)
@@ -105,7 +105,7 @@ class StraightToFrames(object):
         for key in self.dictOfTimes:
             time = self.dictOfTimes[key][0]
             cell = self.dictOfTimes[key][1]
-            dataStr = str(key) + ' ' + str(cell) + " " + str(time) + "\n"
+            dataStr = str(key) + " " + str(time) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
             print("Frame", key, "at time", time)
