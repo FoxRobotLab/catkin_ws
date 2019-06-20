@@ -25,7 +25,7 @@ class CnnPH(object):
     def buildModel(self):
         model = keras.models.Sequential()
 
-        model.add(keras.layers.Conv2D(filters=32, strides=1,padding='valid', kernel_size=(5,5),input_shape=[224,224,3]))
+        model.add(keras.layers.Conv2D(filters=32, strides=1,padding='valid', kernel_size=(5,5),input_shape=[100,100,1]))
         model.add(keras.layers.Dense(units = 32, activation='relu'))
         model.add(keras.layers.MaxPool2D(pool_size=(3,3),strides=2))
         # model.add(keras.layers.Dropout(0.4))
@@ -48,12 +48,12 @@ class CnnPH(object):
         return model
 
     def train(self,model):
-        train_data = np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA.npy')
+        train_data = np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray.npy')
         print(train_data.shape)
-        random.shuffle(train_data)
-        train_images = np.array([i[0] for i in train_data[:36000]]).reshape(-1,224,224,3)
+        np.random.shuffle(train_data)
+        train_images = np.array([i[0] for i in train_data[:36000]]).reshape(-1,100,100,1)
         train_labels = np.array([i[1] for i in train_data[:36000]])
-        eval_images = np.array([i[0] for i in train_data[36000:]]).reshape(-1,224,224,3)
+        eval_images = np.array([i[0] for i in train_data[36000:]]).reshape(-1,100  ,100,1)
         eval_labels = np.array([i[1] for i in train_data[36000:]])
 
         model.compile(

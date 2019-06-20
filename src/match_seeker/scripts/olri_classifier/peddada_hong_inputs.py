@@ -10,7 +10,7 @@ import os
 import random
 from datetime import datetime
 
-numCells = 153
+numCells = 271
 
 def getCellCounts():
     with open(factory.paths.cell_data_path,'r') as masterlist:
@@ -170,11 +170,11 @@ def addUnderRepped():
 def resizeAndCrop(image):
     # Original size 341x256 cropped to 224x224
     # smaller size 170x128 cropped to 100x100
-    image = cv2.resize(image,(341,256))
+    image = cv2.resize(image,(170,128))
     x = random.randrange(0,70)
     y = random.randrange(0,28)
 
-    cropped_image = image[y:y+224, x:x+224]
+    cropped_image = image[y:y+100, x:x+100]
     cropped_image = cv2.cvtColor(cropped_image,cv2.COLOR_BGR2GRAY)
 
     return cropped_image
@@ -206,10 +206,28 @@ def getTrainingData(overRepped=None,underRepped=None):
         for frame in cullOverRepped():
             processFrame(frame)
 
-    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_gray.npy',training_data)
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_95k_100_gray.npy',training_data)
 
     print('Done!')
     return training_data
 if __name__ == '__main__':
-    getTrainingData(underRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames.npy'),
-    overRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames.npy'))
+    # getTrainingData(underRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames.npy'),
+    # overRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames.npy'))
+    # getTrainingData()
+
+    # over = np.load(
+    #    '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames.npy')
+    #under = np.load(
+    #   '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames.npy')
+    arr = []
+    for cell in getCellCounts()[0].keys():
+
+        arr.append(int(cell))
+    arr.sort()
+    print(arr)
+    for i in range(len(arr)-1):
+        if arr[i+1] - arr[i] != 1:
+            print(i,arr[i])
+# for i in range(95837):
+    #     if '%04d'%i not in over and '%04d'%i not in under:
+    #         print i

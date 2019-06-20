@@ -115,7 +115,6 @@ class OrganizeData(object):
             fileName = self.makeFilename(num)
             newFileName = self.makeNewFilename(newNum)
             self.nameChange[num] = newNum
-            self.nameChangeFile.write(str(newNum) + ' ' + str(num) + '\n')
 
             poseData = self.locData[num]
             self.outLocFile.write(self._dataToString(newNum, poseData))
@@ -133,13 +132,12 @@ class OrganizeData(object):
 if __name__ == "__main__":
     #TODO: Check for "/" at the end of directory paths
 
-    #DONE (allFrames) : atriumClockwiseFrames, westAtriumFrames, atriumSouthFrames_2, atriumSouthFrames, atriumNorthFrames, goodFrom2017
     #TODO: Always check for the correct startNewNum (usually by going into name changes file.
-    startNewNum = 70425
-    organizer = OrganizeData(origFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/Cell18MissingImages/",
+    startNewNum = 95838
+    organizer = OrganizeData(origFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/06-18-2019-15-58-47newframes/",
                              desFramesPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/moreframes_temp/",
-                             origLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/THE_MASTER_CELL_LOC_18.txt",
-                             desLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/THE_MASTER_CELL_LOC_18_renum.txt",
+                             origLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/markLocations/frameHeadingFile06-19-2019-11-21-30.txt",
+                             desLocFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/THE_MASTER_CELL_LOC_244-256_renum.txt",
                              nameChangeFile="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/morenamechanges229.txt",
                              startNewNum=startNewNum)
     organizer.go()

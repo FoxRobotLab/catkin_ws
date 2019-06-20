@@ -37,8 +37,8 @@ hyperparameters = Hyperparameters(
     eval_ratio=0.1,
 )
 mdyHM_str = time.strftime("%m%d%y%H%M") # e.g. 0706181410 (mmddyyHHMM)
-checkpoint_dir_name = "{}_{}-{}_lr{}-bs{}".format(
-    mdyHM_str, model.name, model.architecture, hyperparameters.learning_rate, hyperparameters.batch_size
+checkpoint_dir_name = "{}_lr{}-bs{}".format(
+    mdyHM_str, hyperparameters.learning_rate, hyperparameters.batch_size
 )
 paths = Paths(
     base_path="/home/macalester/PycharmProjects/olri_classifier",

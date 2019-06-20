@@ -165,7 +165,7 @@ def create_train_data(extension=".jpg", ascolor=False, normalize=True, exclude_r
 
                 cell_counts[cell_num] += 1
 
-            if (not normalize):
+            if not (normalize):
                 training_data.append([np.array(resized_img), cell_num]) # TODO: Modify labeling when label dict is changed (array -> num)
             else:
                 if (cell_num in cell_to_frames_dict.keys()):

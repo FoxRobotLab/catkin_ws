@@ -101,7 +101,7 @@ class Localizer(object):
         if self.odomScore < 1 and var < 3.0:
             self.gui.updateMessageText("Scattering points around MCL")
 
-        bestScore = scores[0]
+        bestScore = scores[0] # In range 0-100
         bestX, bestY, bestHead = matchLocs[0]
 
         odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"

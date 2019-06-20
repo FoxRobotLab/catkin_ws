@@ -5,6 +5,7 @@ import cv2
 import datetime
 import rospy
 import os
+import numpy as np
 
 #"""Author: Malini Sharma"""
 
@@ -53,7 +54,8 @@ class StraightToFrames(object):
 
         while ch != 'q' and not rospy.is_shutdown():
             self.img, _ = self.robot.getImage()
-            cv2.imshow("Image", self.img)
+            #cv2.imshow("Image", self.img)
+            cv2.imshow("Blank", np.zeros((50,50, 1), np.uint8))
             time.sleep(.5)
             #self.currTime = time.localtime()
             #self.currTime2 = time.strftime("%H:%M:%S", self.currTime)

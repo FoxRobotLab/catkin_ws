@@ -116,7 +116,7 @@ class MatchPlanner(object):
                 status, nodeAndPose = self.locator.findLocation(image)
 
 
-                if status == "continue":            #bestMatch score > 90 but lostCount < 10
+                if status == "continue":            #bestMatch score < 5 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
                     # self.logger.log("======Goal seeker off")
                 elif status == "keep-going":        #LookAround found a match
