@@ -14,6 +14,7 @@ from datetime import datetime
 from turtleControl import TurtleBot
 
 
+
 class OlinTest(object):
     def __init__(self, recent_n_max):
         self.recent_n_cells = []
@@ -51,13 +52,16 @@ class OlinTest(object):
 
         self.recent_n_max=recent_n_max
 
-    def clean_image(self, image):
-        #resized_image = cv2.resize(image, (factory.image.size, factory.image.size))
-        image = cv2.resize(image, (170, 128))
-        x = random.randrange(0, 70)
-        y = random.randrange(0, 28)
-        cropped_image = image[y:y + 100, x:x + 100]
-        gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+    def clean_image(self, image, data = 'old'):
+        if data == 'old':
+            resized_image = cv2.resize(image, (factory.image.size, factory.image.size))
+            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+        else:
+            image = cv2.resize(image, (170, 128))
+            x = random.randrange(0, 70)
+            y = random.randrange(0, 28)
+            cropped_image = image[y:y + 100, x:x + 100]
+            gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
         submean_image = np.subtract(gray_image, self.mean)
         cleaned_image = np.array([submean_image], dtype="float") \
             .reshape(1, factory.image.size, factory.image.size, 1)
@@ -81,10 +85,11 @@ class OlinTest(object):
                 lastpreds.pop(0)
                 lastpreds.append(self.get_prediction(turtle_image))
 
-            print(potentialHeadings[max(set(lastpreds), key=lastpreds.count)])
+            #print(potentialHeadings[max(set(lastpreds), key=lastpreds.count)])
             predValues.append(self.get_prediction(turtle_image)[0])
-            print("mean:", np.mean(predValues))
-            print("std:", np.std(predValues))
+            print (self.get_prediction(turtle_image))
+            #print("mean:", np.mean(predValues))
+            #print("std:", np.std(predValues))
 
             key = cv2.waitKey(10)
             ch = chr(key & 0xFF)
