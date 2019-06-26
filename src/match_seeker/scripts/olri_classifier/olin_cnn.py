@@ -49,7 +49,7 @@ import tensorflow as tf
 # import turtleControl
 import olin_factory as factory
 import olin_inputs
-import olin_test
+#import olin_cnn_predictor
 import cv2
 
 
@@ -70,6 +70,7 @@ class OlinClassifier(object):
         self.hyperparameters = factory.hyperparameters
         self.train_data = np.load(train_data)
         self.image_size = self.train_data[0][0].shape[0]
+        self.train_with_headings = train_with_headings
 
         try:
             self.image_depth = self.train_data[0][0].shape[2]
@@ -77,7 +78,7 @@ class OlinClassifier(object):
             self.image_depth = 1
 
         self.num_eval = int(self.eval_ratio * self.train_data.size / 3)
-
+        np.random.seed(12)
         np.random.shuffle(self.train_data)
 
         if train_with_headings:
@@ -101,18 +102,21 @@ class OlinClassifier(object):
 
         self.checkpoint_name = checkpoint_name
         if self.checkpoint_name is not None:
-            self.model = keras.models.load_model(self.checkpoint_name, compile=False)
+            self.model = keras.models.load_model(self.checkpoint_name, compile=True)
             # self.model.load_weights(self.checkpoint_name)
 
     ################## Train ##################
     def train(self):
+        # if training with headings cannot use categorical crossentropy to evaluate loss
+        if self.train_with_headings == True:
+            loss = keras.losses.binary_crossentropy
+        else:
+            loss = keras.losses.categorical_crossentropy
 
         if (self.checkpoint_name is None):
             self.model = self.inference()
-            ### Loss: use categorical if labels are categorical, binary if otherwise. Unless there are only 2 categories,
-            ###     should use categorical.
             self.model.compile(
-                loss=keras.losses.binary_crossentropy,
+                loss=loss,
                 optimizer=keras.optimizers.SGD(lr=self.hyperparameters.learning_rate),
                 metrics=["accuracy"]
             )
@@ -122,7 +126,7 @@ class OlinClassifier(object):
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=self.hyperparameters.batch_size,
-            epochs=self.hyperparameters.num_epochs,
+            epochs=100,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -130,7 +134,7 @@ class OlinClassifier(object):
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
                     self.paths.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    period=5  # save every n epoch
+                    period=1  # save every n epoch
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.paths.checkpoint_dir,
@@ -144,6 +148,7 @@ class OlinClassifier(object):
         )
 
     def inference(self):
+
         model = keras.models.Sequential()
         ###########################################################################
         ###                         CONV-POOL-DROPOUT #1                        ###
@@ -221,35 +226,43 @@ class OlinClassifier(object):
         ##########################################################################
         ##                                LOGITS                               ###
         ##########################################################################
-        model.add(keras.layers.Dense(units=self.num_cells, activation="sigmoid"))
+        # activate with softmax when training one label and sigmoid when training both headings and cells
+        activation = self.train_with_headings * "sigmoid" + (not self.train_with_headings) * "softmax"
+        model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
         return model
 
     def getAccuracy(self):
         num_eval = 1500
         correctCells = 0
         correctHeadings = 0
+        eval_copy = self.eval_images
+        np.random.shuffle(eval_copy)
         for i in range(num_eval):
-            print(i)
-            pred = self.model.predict(self.train_images[i].reshape(-1,self.image_size,self.image_size,self.image_depth))
+            loading_bar(i,num_eval)
+            pred = self.model.predict(eval_copy[i].reshape(-1,self.image_size,self.image_size,self.image_depth))
 
             # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
             # print(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
 
-            if np.argmax(self.train_labels[i][:self.num_cells-8]) == np.argmax(pred[0][:self.num_cells-8]):
+            if np.argmax(self.train_labels[i][:self.num_cells]) == np.argmax(pred[0][:self.num_cells]):
                 correctCells += 1
-            if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
-                 correctHeadings += 1
+            # if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
+            #      correctHeadings += 1
 
         print("%Correct Cells: " + str(float(correctCells) / num_eval))
         print("%Correct Headings: " + str(float(correctHeadings) / num_eval))
+        return float(correctCells) / num_eval
 
-    def retraining(self):
-
-        # TODO: Make it possible to load a model checkpoint for retraining
+    def retrain(self):
+        # if training with headings cannot use categorical crossentropy to evaluate loss
+        if self.train_with_headings == True:
+            loss = keras.losses.binary_crossentropy
+        else:
+            loss = keras.losses.categorical_crossentropy
         if self.checkpoint_name is None:
             self.model = keras.models.Sequential()
 
-            xc = keras.applications.xception.Xception(weights='imagenet', include_top=False,
+            xc = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False,
                                                         input_shape=(self.image_size, self.image_size, self.image_depth))
             for layer in xc.layers[:-1]:
                 layer.trainable = False
@@ -257,25 +270,27 @@ class OlinClassifier(object):
             self.model.add(xc)
             self.model.add(keras.layers.Flatten())
             self.model.add(keras.layers.Dropout(rate=0.4))
-            self.model.add(keras.layers.Dense(units=self.num_cells, activation="sigmoid"))
+            # activate with softmax when training one label and sigmoid when training both headings and cells
+            activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
+            self.model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
             self.model.summary()
             self.model.compile(
-                loss=keras.losses.binary_crossentropy,
+                loss=loss,
                 optimizer=keras.optimizers.Adam(lr=.001),
-                metrics=["accuracy",self.precision]
+                metrics=["accuracy"]
             )
         else:
             print("Loaded model")
             self.model = keras.models.load_model(self.checkpoint_name, compile=False)
             self.model.compile(
-                loss=keras.losses.binary_crossentropy,
+                loss=loss,
                 optimizer=keras.optimizers.Adam(lr=.001),
-                metrics=["accuracy", self.precision]
+                metrics=["accuracy"]
             )
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=self.hyperparameters.batch_size,
-            epochs=self.hyperparameters.num_epochs,
+            epochs=10,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -310,6 +325,11 @@ class OlinClassifier(object):
         precision = true_positives / (predicted_positives + keras.backend.epsilon())
         return precision
 
+def loading_bar(start,end, size = 20):
+    loadstr = str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
+    if start % 10 == 0:
+        print(loadstr)
+
 if __name__ == "__main__":
 
     data_100_gray = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray.npy'
@@ -318,18 +338,36 @@ if __name__ == "__main__":
     data_224 = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_224.npy'
 
     data_95k_100_gray = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_95k_100_gray.npy'
+    data_100_norm = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm.npy'
+    data_100_norm_randerase = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm_randerase.npy' #randerase ratio = 0.2
+    data_128_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_128_squished.npy'
+    data_100_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_squished.npy'
+    data_100_norm_randerase_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm_randerase_squished.npy' #randerase ratio = 1
 
     data_original_2018 = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_data-gray-re1.0-en250-max300-submean.npy'
 
     olin_classifier = OlinClassifier(
-        checkpoint_name=None,
-        #'/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0620191638_lr0.001-bs100/NEWTRAININGDATA_100-01-0.13.hdf5',
-        train_data=data_100,
-        train_with_headings=True,
+        checkpoint_name= '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/olin_cnn-CellsOnly-125epochs/NEWTRAININGDATA_100_gray_norm_randerase_squished-05-0.45.hdf5',
+        train_data=data_100_norm_randerase_squished,
+        train_with_headings=False,
         num_cells=153,
         eval_ratio=0.1
     )
 
     # olin_classifier.train()
-    # olin_classifier.getAccuracy()
-    olin_classifier.retraining()
+
+    # olin_classifier = OlinClassifier(
+    #     checkpoint_name=None,
+    #     train_data=data_100_norm_randerase,
+    #     train_with_headings=False,
+    #     num_cells=153,
+    #     eval_ratio=0.1
+    # )
+    #
+    # olin_classifier.train()
+    total = 0
+    for i in range(10):
+        total+=olin_classifier.getAccuracy()
+        print("Avg", total/(i+1))
+    #olin_classifier.retraining()
+
