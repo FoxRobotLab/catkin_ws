@@ -126,6 +126,11 @@ class PotentialFieldBrain(threading.Thread):
         with self.lock:
             self.paused = False
 
+    def isPaused(self):
+        with self.lock:
+            p = self.paused
+        return p
+
     # def stopAll(self):
     #     """Stops the robot from moving, and could shut down anything else that was requried"""
     #     self.myRobot.stop()

@@ -13,9 +13,8 @@ import numpy as np
 class Particle():
 
     def __init__(self, mapObj, initPose = (0, 0, 0), mode = 'spec'):
-        """Input is a global map object, an optional initial pose, and
-        a mode. In "spec" mode the initial pose is used, and if the mode
-        is 'random' then a new random pose is generated."""
+        """Input is a global map object, an optional initial pose, and a mode. In "spec" mode the initial pose is
+        used, and if the mode is 'random' then a new random pose is generated."""
         self.mapObj = mapObj
         # random perturbation constants: std dev for movement and turning as a percentage of movement
         # so if movement in x direction is 500 cm, then the std dev is 100
@@ -38,9 +37,8 @@ class Particle():
                 return
 
 
-    def scatter(self, x, y):
+    def scatter(self, x, y, range = 5.0):
         """generates a new x, y in a uniform distribution around a given point and a random heading between 0-360"""
-        range = 5.0
         while True:
             self.x = np.random.uniform(x-range, x+range)
             self.y = np.random.uniform(y-range, y+range)
@@ -79,7 +77,7 @@ class Particle():
         radHead = math.radians(self.heading)
         gx = moveX * math.cos(radHead) - moveY * math.sin(radHead)
         gy = moveX * math.sin(radHead) + moveY * math.cos(radHead)
-        self.x += gx
+        self.x -= gx
         self.y += gy
         self.heading += moveAngle
         self.heading = self.heading % 360

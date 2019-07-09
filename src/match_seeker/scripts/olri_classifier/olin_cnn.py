@@ -78,7 +78,7 @@ class OlinClassifier(object):
             self.image_depth = 1
 
         self.num_eval = int(self.eval_ratio * self.train_data.size / 3)
-        np.random.seed(12)
+        np.random.seed(2845) #45600
         np.random.shuffle(self.train_data)
 
         if train_with_headings:
@@ -125,8 +125,8 @@ class OlinClassifier(object):
 
         self.model.fit(
             self.train_images, self.train_labels,
-            batch_size=self.hyperparameters.batch_size,
-            epochs=100,
+            batch_size=100,
+            epochs=150,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -134,7 +134,7 @@ class OlinClassifier(object):
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
                     self.paths.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    period=1  # save every n epoch
+                    period=5  # save every n epoch
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.paths.checkpoint_dir,
@@ -210,7 +210,7 @@ class OlinClassifier(object):
 
         ###########################################################################
         ###                               DENSE #2                              ###
-        ###########################################################################
+        ##########################################################################
         dense2_filter_num = 256
         ###########################################################################
         model.add(keras.layers.Dense(units=dense2_filter_num, activation="relu"))
@@ -230,6 +230,67 @@ class OlinClassifier(object):
         activation = self.train_with_headings * "sigmoid" + (not self.train_with_headings) * "softmax"
         model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
         return model
+
+    def heading_model(self):
+
+        self.train_labels = np.array([i[2] for i in self.train_data[:-self.num_eval]])
+        train_data_ims = np.array([i[0] for i in self.train_data[:-self.num_eval]]).reshape(-1, self.image_size,
+                                                                                               self.image_size,
+                                                                                               self.image_depth)
+        train_data_cells = np.array([i[1] for i in self.train_data[:-self.num_eval]])
+
+        eval_ims = np.array([i[0] for i in self.train_data[-self.num_eval:]]).reshape(-1, self.image_size,
+                                                                                               self.image_size,
+                                                                                               self.image_depth)
+        eval_cells = np.array([i[1] for i in self.train_data[-self.num_eval:]])
+        eval_labels = np.array([i[2] for i in self.train_data[-self.num_eval:]])
+
+        # define two sets of inputs
+        inputA = keras.layers.Input(shape=(self.image_size,self.image_size,self.image_depth))
+        inputB = keras.layers.Input(shape=(153,))
+
+        # the first branch operates on the first input
+        x = keras.layers.Conv2D(filters=128, kernel_size=(5,5), strides=5, padding="same", data_format="channels_last",activation="relu")(inputA)
+        x = keras.layers.MaxPooling2D(pool_size=(2, 2),strides=(2, 2),padding="same")(x)
+        x = keras.layers.Dropout(rate=0.4)(x)
+
+        x = keras.layers.Conv2D(filters=64, kernel_size=(5, 5), strides=5, padding="same", data_format="channels_last",activation="relu")(x)
+        x = keras.layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="same")(x)
+        x = keras.layers.Dropout(rate=0.4)(x)
+
+        x = keras.layers.Flatten()(x)
+        x = keras.layers.Dense(units=256, activation="relu")(x)
+        x = keras.layers.Dense(units=256, activation="relu")(x)
+        x = keras.layers.Dropout(rate=0.2)(x)
+        x = keras.layers.Dense(units=256, activation="relu")(x)
+
+        x = keras.models.Model(inputs=inputA, outputs=x)
+
+        # the second branch opreates on the second input
+        y = keras.layers.Dense(128, activation="relu")(inputB)
+        y = keras.layers.Dense(64, activation="relu")(y)
+        y = keras.layers.Dense(32, activation="relu")(y)
+        y = keras.models.Model(inputs=inputB, outputs=y)
+
+        # combine the output of the two branches
+        combined = keras.layers.concatenate([x.output, y.output])
+
+        # apply a FC layer and then a regression prediction on the
+        # combined outputs
+        z = keras.layers.Dense(16, activation="relu")(combined)
+        z = keras.layers.Dense(8, activation="softmax")(z)
+
+        # our model will accept the inputs of the two branches and
+        # then output a single value
+        model = keras.models.Model(inputs=[x.input, y.input], outputs=z)
+
+        model.compile(optimizer=keras.optimizers.Adam(lr=0.001),loss=keras.losses.categorical_crossentropy,metrics=["accuracy"])
+        model.summary()
+
+        model.fit([train_data_ims,train_data_cells],self.train_labels,batch_size=100,validation_data=([eval_ims,eval_cells],eval_labels),
+                  epochs=1,callbacks=[keras.callbacks.TerminateOnNaN()])
+
+
 
     def getAccuracy(self):
         num_eval = 1500
@@ -299,7 +360,9 @@ class OlinClassifier(object):
                 keras.callbacks.ModelCheckpoint(
                     self.paths.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
                     period=1  # save every n epoch
-                ),
+
+                )
+                ,
                 keras.callbacks.TensorBoard(
                     log_dir=self.paths.checkpoint_dir,
                     batch_size=self.hyperparameters.batch_size,
@@ -343,18 +406,19 @@ if __name__ == "__main__":
     data_128_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_128_squished.npy'
     data_100_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_squished.npy'
     data_100_norm_randerase_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm_randerase_squished.npy' #randerase ratio = 1
-
+    data_with_cell_channel = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_500withCellInput.npy'
     data_original_2018 = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_data-gray-re1.0-en250-max300-submean.npy'
 
     olin_classifier = OlinClassifier(
-        checkpoint_name= '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/olin_cnn-CellsOnly-125epochs/NEWTRAININGDATA_100_gray_norm_randerase_squished-05-0.45.hdf5',
-        train_data=data_100_norm_randerase_squished,
+        checkpoint_name=None,# '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0628191006_lr0.001-bs100/NEWTRAININGDATA_100_gray_norm_randerase_squished-68-0.92.hdf5',
+        train_data=data_100_norm_randerase_squished,#'/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_500_gray_norm_randerase_squished.npy',
         train_with_headings=False,
-        num_cells=153,
+        num_cells=8, #153
         eval_ratio=0.1
     )
 
-    # olin_classifier.train()
+    olin_classifier.heading_model()
+    #olin_classifier.train()
 
     # olin_classifier = OlinClassifier(
     #     checkpoint_name=None,
@@ -365,9 +429,9 @@ if __name__ == "__main__":
     # )
     #
     # olin_classifier.train()
-    total = 0
-    for i in range(10):
-        total+=olin_classifier.getAccuracy()
-        print("Avg", total/(i+1))
-    #olin_classifier.retraining()
+    # total = 0
+    # for i in range(10):
+    #     total+=olin_classifier.getAccuracy()
+    #     print("Avg", total/(i+1))
+    # olin_classifier.retrain()
 

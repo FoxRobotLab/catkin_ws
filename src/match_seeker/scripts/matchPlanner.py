@@ -26,9 +26,10 @@ import OutputLogger
 import OlinWorldMap
 import SeekerGUI2
 # from DataPaths import basePath, graphMapData
+import time
+import LocalizerStringConstants as loc_const
 
 from std_msgs.msg import String
-
 
 
 class MatchPlanner(object):
@@ -37,7 +38,7 @@ class MatchPlanner(object):
 
         self.robot = turtleControl.TurtleBot()
         # print("MatchPlanner: Robot ::: Pause Movement")
-        # self.robot.pauseMovement()
+        self.robot.pauseMovement()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
         self.gui = SeekerGUI2.SeekerGUI2(self, self.robot)
@@ -50,7 +51,7 @@ class MatchPlanner(object):
         # cv2.namedWindow("Turtlebot View")
         # cv2.moveWindow("Turtlebot View",820,25)
         cv2.namedWindow("MCL Display")
-        cv2.moveWindow("MCL Display", 1500,25)
+        cv2.moveWindow("MCL Display", 1500, 25)
 
         self.logger = OutputLogger.OutputLogger(True, False)
 
@@ -65,121 +66,126 @@ class MatchPlanner(object):
 
         self.destinationNode = None
 
-        self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger,self.gui)
+        self.locator = None
 
         self.ignoreLocationCount = 0
 
         self.pub = rospy.Publisher('chatter', String, queue_size=10)
 
-
-
-
     def run(self):
         """Runs the program for the duration of 'runtime'"""
-        self.setupNavBrain()
+
         iterationCount = 0
+        self.setupNavBrain()
+        self.brain.pause()
 
-        ready = (self.getStartLocation() and self.getNextGoalDestination())
+        start, status = self.getStartLocation()
+        nodeAndPose = int(self.olinMap.convertLocToCell((self.startX, self.startY, self.startYaw))), (self.startX, self.startY, self.startYaw)
+        ready = (start and self.getNextGoalDestination())
 
+        self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger, self.gui)
+        self.robot.unpauseMovement()
         while ready and not rospy.is_shutdown():
             self.gui.update()
 
-            #print("p1")
+            # print("p1")
             image = self.robot.getImage()[0]
-            #print("p2")
+            # print("p2")
             cv2.imshow("Turtlebot View", image)
             cv_image = self.robot.getDepth()
             cv_image = cv_image.astype(np.uint8)
             im = cv2.normalize(cv_image, None, 0, 255, cv2.NORM_MINMAX)
-            ret, im = cv2.threshold(cv_image,1,255,cv2.THRESH_BINARY)
+            ret, im = cv2.threshold(cv_image, 1, 255, cv2.THRESH_BINARY)
             cv2.imshow("Depth View", im)
             cv2.waitKey(20)
 
-            #self.brain.unpause()
-
-
+            self.brain.unpause()
 
             ## if iterationCount > 20 and self.whichBrain == "nav":
             ##     self.brain.step()
 
-
-
             if self.whichBrain == "loc":
                 self.lookAround()
 
-
-            if iterationCount % 1 == 0 or self.whichBrain == "loc":
+            if True:
                 # odomInfo = self.locator.odometer()
                 # self.checkCoordinates(odomInfo)
 
                 self.logger.log("-------------- New Match ---------------")
-                status, nodeAndPose = self.locator.findLocation(image)
+                ##find location was here
+                time.sleep(1)
 
-
-                if status == "continue":            #bestMatch score < 5 but lostCount < 10
+                if status == loc_const.temp_lost:  # bestMatch score < 5 but lostCount < 10
                     self.goalSeeker.setGoal(None, None, None)
                     # self.logger.log("======Goal seeker off")
-                elif status == "keep-going":        #LookAround found a match
+                elif status == loc_const.keep_going:  # LookAround found a match
                     if self.whichBrain != "nav":
                         self.speak("Navigating...")
                         self.gui.navigatingMode()
-                        self.robot.turnByAngle(35)         #turn back 35 degrees bc the behavior is faster than the matching
+                        # self.robot.turnByAngle(35)  # turn back 35 degrees bc the behavior is faster than the matching
                         self.brain.unpause()
-                        self.checkCoordinates(nodeAndPose)    #react to the location data of the match
+                        self.checkCoordinates(nodeAndPose)  # react to the location data of the match
                         self.whichBrain = "nav"
-                elif status == "look":          #enter LookAround behavior
+                elif status == loc_const.look:  # enter LookAround behavior
                     if self.whichBrain != "loc":
                         self.speak("Localizing...")
                         self.gui.localizingMode()
                         self.brain.pause()
                         self.whichBrain = "loc"
-                    self.goalSeeker.setGoal(None,None,None)
+                    self.goalSeeker.setGoal(None, None, None)
                     self.lookAround()
                     # self.logger.log("======Goal seeker off")
-                else:                                       # found a node
+                else:  # found a node
                     if self.whichBrain == "loc":
                         self.whichBrain = "nav"
                         self.speak("Navigating...")
                         self.gui.navigatingMode()
                         self.brain.unpause()
-                    if status == "at node":
+                    if status == loc_const.at_node:
                         # self.logger.log("Found a good enough match: " + str(matchInfo))
                         self.respondToLocation(nodeAndPose)
                         if self.pathLoc.atDestination(nodeAndPose[0]):
                             # reached destination. ask for new destination again. returns false if you're not at the final node
                             self.speak("Destination reached")
                             self.robot.stop()
+                            self.robot.updateOdomLocation(nodeAndPose[1][0], nodeAndPose[1][1], nodeAndPose[1][2])
+                            self.locator.odomScore = 100
+                            self.getStartLocation(nextDest=True)
                             ready = self.getNextGoalDestination()
                             self.goalSeeker.setGoal(None, None, None)
                             # self.logger.log("======Goal seeker off")
                         else:
                             h = self.pathLoc.getTargetAngle()
-                            currHead = nodeAndPose[1][-1] #yaw
-                            self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1],h,currHead)
+                            currHead = nodeAndPose[1][-1]  # yaw
+                            self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1], h, currHead)
                             self.checkCoordinates(nodeAndPose)
                             # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
                             #                 str(h) + " " + str(currHead))
-                    elif status == "check coord":
+                    elif status == loc_const.close:
                         self.checkCoordinates(nodeAndPose)
-            print("matchPlanner.run " + str(iterationCount) + " status=" + status+" whichBrain="+self.whichBrain)
+                    self.brain.unpause()
+
+                status, nodeAndPose = self.locator.findLocation(image)
+            print("matchPlanner.run " + str(iterationCount) + " status=" + status + " whichBrain=" + self.whichBrain)
             iterationCount += 1
 
         self.logger.log("Quitting...")
         self.gui.updateMessageText("Quitting...")
         self.robot.stop()
         self.gui.stop()
-        self.brain.stop()       # was stopAll
+        self.brain.stop()  # was stopAll
 
-
-    def getStartLocation(self):
-        self.brain.pause()
-        self.startX, self.startY, self.startYaw = self._userStartLoc()
-        print(self.startX, self.startY, self.startYaw)
+    def getStartLocation(self, nextDest=False):
+        #self.brain.pause()
+        if nextDest:
+            self.startX, self.startY, self.startYaw = self.robot.getOdomData()
+        else:
+            self.startX, self.startY, self.startYaw = self._userStartLoc()
         if self.startYaw == 99 or self.startYaw is None:
             return False
         self.robot.updateOdomLocation(x=self.startX, y=self.startY, yaw=self.startYaw)
-        return True
-
+        # self.brain.unpause()
+        return True, loc_const.at_node
 
     def getNextGoalDestination(self):
         """Gets goal from user and sets up path location tracker etc. Returns False if
@@ -193,20 +199,16 @@ class MatchPlanner(object):
         self.brain.unpause()
         return True
 
-
-
     def _userStartLoc(self):
         self.gui.popupStart()
         userInputLoc = self.gui.inputStartLoc()
         userInputYaw = self.gui.inputStartYaw()
-
         # #where it is a choice to pick node or loc pop ups
         # self.gui.askWhich()
         # userInputX = self.gui.userInputStartX
         # userInputY = self.gui.userInputStartY
 
         print("User input:", userInputLoc, userInputYaw)
-
 
         userLocList = userInputLoc.split()
 
@@ -224,9 +226,6 @@ class MatchPlanner(object):
 
         return userX, userY, float(userInputYaw)
 
-
-
-
     def _userGoalDest(self):
         """Asks the user for a goal destination or 99 to cause the robot to shut down."""
         # while True:
@@ -242,37 +241,33 @@ class MatchPlanner(object):
             if self.olinMap.isValidNode(userNum) or userNum == 99:
                 return userNum
 
-
-
-
     def setupNavBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
         of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
-        if self.whichBrain != 'nav':
-            self.whichBrain = "nav"
-            self.speak("matchPlanner.setupNavBrain: Navigating Brain Activated")
-            self.brain = PotentialFieldThread.PotentialFieldBrain(self.robot)
-            self.brain.add(FieldBehaviors.KeepMoving())
-            self.brain.add(FieldBehaviors.BumperReact())
-            self.brain.add(FieldBehaviors.CliffReact())
-            self.goalSeeker = FieldBehaviors.seekGoal()
-            self.brain.add(self.goalSeeker)
-            numPieces = 6
-            widthPieces = int(math.floor(self.fWidth / float(numPieces)))
-            speedMultiplier = 50
-            for i in range(0, numPieces):
-                obstBehavior = FieldBehaviors.ObstacleForce(i * widthPieces,
-                                                            widthPieces / 2,
-                                                            speedMultiplier,
-                                                            self.fWidth,
-                                                            self.fHeight)
-                self.brain.add(obstBehavior)
-                # The way these pieces are made leads to the being slightly more responsive to its left side
-                # further investigation into this could lead to a more uniform obstacle reacting
-            self.brain.start()
-            self.brain.pause()
-
+        self.whichBrain = "nav"
+        self.speak("matchPlanner.setupNavBrain: Navigating Brain Activated")
+        self.brain = PotentialFieldThread.PotentialFieldBrain(self.robot)
+        self.brain.pause()
+        self.brain.add(FieldBehaviors.KeepMoving())
+        self.brain.add(FieldBehaviors.BumperReact())
+        self.brain.add(FieldBehaviors.CliffReact())
+        self.goalSeeker = FieldBehaviors.seekGoal()
+        self.brain.add(self.goalSeeker)
+        numPieces = 6
+        widthPieces = int(math.floor(self.fWidth / float(numPieces)))
+        speedMultiplier = 50
+        for i in range(0, numPieces):
+            obstBehavior = FieldBehaviors.ObstacleForce(i * widthPieces,
+                                                        widthPieces / 2,
+                                                        speedMultiplier,
+                                                        self.fWidth,
+                                                        self.fHeight)
+            self.brain.add(obstBehavior)
+            # The way these pieces are made leads to the being slightly more responsive to its left side
+            # further investigation into this could lead to a more uniform obstacle reacting
+        self.brain.start()
+        self.brain.pause()
 
     def respondToLocation(self, matchInfo):
         """Given information about a location that matches this one "enough". Uses the heading data from the match
@@ -299,8 +294,6 @@ class MatchPlanner(object):
             speakStr = "At node " + str(nearNode)
             self.speak(speakStr)
 
-
-
     def checkCoordinates(self, localizePose):
         """Check the current match information to see if we should change headings. If node that is
         confidently "not close enough" is what we expect, then make sure heading is right. Otherwise,
@@ -323,10 +316,11 @@ class MatchPlanner(object):
             nextNode = immediateGoalNode
             self.logger.log("Nearest node is previous node or current goal")
         elif nearNode in currPath:
-            self.logger.log("Nearest node is on current path, may have missed current goal")  # TODO: What is best response here
+            self.logger.log(
+                "Nearest node is on current path, may have missed current goal")  # TODO: What is best response here
             pathInd = currPath.index(nearNode)
-            if len(currPath)>pathInd+1 and self.olinMap.calcAngle(currLoc,currPath[pathInd+1])<20:
-                nextNode = currPath[pathInd+1]
+            if len(currPath) > pathInd + 1 and self.olinMap.calcAngle(currLoc, currPath[pathInd + 1]) < 20:
+                nextNode = currPath[pathInd + 1]
             else:
                 nextNode = nearNode
         elif self.olinMap.areNeighbors(nearNode, immediateGoalNode):
@@ -338,7 +332,7 @@ class MatchPlanner(object):
             nextNode = justVisitedNode
         else:  # near a node but you don't need to be there!
             self.logger.log("Nearest node is not on/near path")
-            if type(nearNode) == str:  #when node is x or y
+            if type(nearNode) == str:  # when node is x or y
                 nextNode = immediateGoalNode
             else:
                 nextNode = nearNode
@@ -350,7 +344,6 @@ class MatchPlanner(object):
             self.turn(nextNode, currLoc[2], targetAngle, tDist)
         else:
             self.logger.log("Not Turning. TDist = " + str(tDist))
-
 
     def turn(self, node, heading, targetHeading, tDist):
         # adjust heading based on previous if statement
@@ -370,9 +363,9 @@ class MatchPlanner(object):
             self.gui.endTurn()
         else:
             # self.goalSeeker.setGoal(tDist, targetHeading, heading)
-            self.goalSeeker.setGoal(None,None,None)
-            formSt = "Angle1 = {0:4.2f}     Angle2 = {1:4.2f}" #: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
-            self.logger.log( formSt.format(angle1,angle2))#.format(tDist, targetHeading, heading) )
+            self.goalSeeker.setGoal(None, None, None)
+            formSt = "Angle1 = {0:4.2f}     Angle2 = {1:4.2f}"  #: target distance = {0:4.2f}  target heading = {1:4.2f}  current heading = {2:4.2f}"
+            self.logger.log(formSt.format(angle1, angle2))  # .format(tDist, targetHeading, heading) )
 
         self.logger.log("  targetDistance = " + str(tDist))
         self.gui.updateTDist(tDist)
@@ -399,7 +392,7 @@ class MatchPlanner(object):
         self.logger.log("  targetAngle = " + str(targetAngle))
         self.logger.log("  angleToTurn = " + str(angleToTurn))
 
-        self.gui.updateTurnInfo([currHeading,targetAngle,angleToTurn])
+        self.gui.updateTurnInfo([currHeading, targetAngle, angleToTurn])
         self.gui.update()
 
         self.brain.pause()

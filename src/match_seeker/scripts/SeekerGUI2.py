@@ -83,28 +83,6 @@ class SeekerGUI2():
         self.turtleBot = turtleObj
         self.matchPlanner = matchPlannerObj
 
-    def askWhich(self):
-
-        popUpWindow = tk.Toplevel()
-        popUpWindow.wm_title("Input start node/location (space in between x and y)")
-        popUpWindow.geometry("+550+400")
-        self.userInputStartLoc.set("")
-        self.userInputStartYaw.set("")
-        self.confirmClickedStart = False
-
-        popupFrame = tk.Frame(popUpWindow, bg="gray22", bd=2, relief=tk.GROOVE)
-        popupFrame.grid(row=0, column=0)
-
-        nodeButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="Node",
-                               command=lambda: [popUpWindow.destroy(), self.nodeButtonPopUp()])
-        nodeButton.grid(row=1, column=0)
-
-        locButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="X-Y Coordinates",
-                              command=lambda: [popUpWindow.destroy(), self.locationButtonPopUp()])
-        locButton.grid(row=2, column=0)
-
-        self.mainWindow.wait_window(popUpWindow)
-
     def nodeButtonPopUp(self):
 
         popUpWindow = tk.Toplevel()
@@ -135,43 +113,43 @@ class SeekerGUI2():
 
         self.mainWindow.wait_window(popUpWindow)
 
-    def locationButtonPopUp(self):
-
-        popUpWindow = tk.Toplevel()
-        popUpWindow.wm_title("Input start Coordinates)")
-        popUpWindow.geometry("+550+400")
-        self.userInputStartX.set("")
-        self.userInputStartY.set("")
-        self.userInputStartYaw.set("")
-        self.confirmClickedStart = False
-
-        popupFrame = tk.Frame(popUpWindow, bg="gray22", bd=2, relief=tk.GROOVE)
-        popupFrame.grid(row=0, column=0)
-
-        xInfo = tk.Label(popupFrame, bg="gray22", fg="snow",
-                         text="Enter x coordinate (99 to quit): ")
-        xInfo.grid(row=0, column=0)
-
-        xInput = tk.Entry(popupFrame, textvariable=self.userInputStartX)
-        xInput.grid(row=1, column=0)
-
-        yInfo = tk.Label(popupFrame, bg="gray22", fg="snow",
-                         text="Enter y coordinate (99 to quit): ")
-        yInfo.grid(row=0, column=0)
-
-        yInput = tk.Entry(popupFrame, textvariable=self.userInputStartY)
-        yInput.grid(row=1, column=0)
-
-        yawInfo = tk.Label(popupFrame, bg="gray22", fg="snow", text="Enter start yaw (99 to quit): ")
-        yawInfo.grid(row=2, column=0)
-
-        yawCoordInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
-        yawCoordInput.grid(row=3, column=0)
-
-        confirmButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="Confirm", command=popUpWindow.destroy)
-        confirmButton.grid(row=4, column=0)
-
-        self.mainWindow.wait_window(popUpWindow)
+    # def locationButtonPopUp(self):
+    #
+    #     popUpWindow = tk.Toplevel()
+    #     popUpWindow.wm_title("Input start Coordinates)")
+    #     popUpWindow.geometry("+550+400")
+    #     self.userInputStartX.set("")
+    #     self.userInputStartY.set("")
+    #     self.userInputStartYaw.set("")
+    #     self.confirmClickedStart = False
+    #
+    #     popupFrame = tk.Frame(popUpWindow, bg="gray22", bd=2, relief=tk.GROOVE)
+    #     popupFrame.grid(row=0, column=0)
+    #
+    #     xInfo = tk.Label(popupFrame, bg="gray22", fg="snow",
+    #                      text="Enter x coordinate (99 to quit): ")
+    #     xInfo.grid(row=0, column=0)
+    #
+    #     xInput = tk.Entry(popupFrame, textvariable=self.userInputStartX)
+    #     xInput.grid(row=1, column=0)
+    #
+    #     yInfo = tk.Label(popupFrame, bg="gray22", fg="snow",
+    #                      text="Enter y coordinate (99 to quit): ")
+    #     yInfo.grid(row=0, column=0)
+    #
+    #     yInput = tk.Entry(popupFrame, textvariable=self.userInputStartY)
+    #     yInput.grid(row=1, column=0)
+    #
+    #     yawInfo = tk.Label(popupFrame, bg="gray22", fg="snow", text="Enter start yaw (99 to quit): ")
+    #     yawInfo.grid(row=2, column=0)
+    #
+    #     yawCoordInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
+    #     yawCoordInput.grid(row=3, column=0)
+    #
+    #     confirmButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="Confirm", command=popUpWindow.destroy)
+    #     confirmButton.grid(row=4, column=0)
+    #
+    #     self.mainWindow.wait_window(popUpWindow)
 
     def popupStart(self):
 
@@ -451,7 +429,7 @@ class SeekerGUI2():
         imageTitle.config(fg="green4")
         self.canvas.create_window(120, 365, window=imageTitle)
 
-        closetLab = tk.Label(self.canvas, bg="gray22", text="Closet Node:", font="MSSansSerif 14", width=10)
+        closetLab = tk.Label(self.canvas, bg="gray22", text="Closest Node:", font="MSSansSerif 14", width=10)
         closetLab.config(fg="green2")
         self.canvas.create_window(69, 395, window=closetLab)
         closestInfoLab = tk.Label(self.canvas, textvariable=self.cNode, bg="gray22", font="MSSansSerif 14 italic",

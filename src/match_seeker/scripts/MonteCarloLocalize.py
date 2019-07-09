@@ -9,7 +9,7 @@ import cv2
 import math
 
 from Particle import Particle
-# from OlinWorldMap import WorldMap
+from OlinWorldMap import WorldMap
 # import matplotlib.pyplot as plt
 
 
@@ -49,13 +49,13 @@ class monteCarloLoc(object):
         # plt.show()
 
 
-    def initializeParticles(self, partNum):
+    def initializeParticles(self, partNum,point):
         """Given partNum, the number of particles, this generates that many
         randomly placed particles."""
         self.maxLen = partNum
         # print "initializing particles"
         for i in range(partNum):
-            newParticle = Particle(self.olinMap, mode='random')
+            newParticle = Particle(self.olinMap, mode='spec',initPose=point)
             self.validPosList.append(newParticle)
 
 
@@ -82,7 +82,7 @@ class monteCarloLoc(object):
         if self.currentData["odomScore"] < 1 and var < 3.0:
             self.scatter()
 
-        self.olinMap.cleanMapImage(obstacles=True)
+        self.olinMap.cleanMapImage(obstacles=True,cells=True,drawCellNum=True)
         self.drawParticles(self.validPosList, (0, 0, 0), fill = False)      # draw set of particles  in black
         self.drawParticles(matchCopies[1:], (255, 0, 255))   # draw particles for matched images in magenta
         self.drawParticles(matchCopies[:1], (0, 170, 255))   # draw particle for odometry location in orange
@@ -122,6 +122,8 @@ class monteCarloLoc(object):
             posPoint.moveParticle(moveX, moveY, moveAngle)
             if posPoint.isValid():
                 moveList.append(posPoint)
+            # else:
+            #    print "NOT VALID"
         self.validPosList = moveList
 
 
@@ -168,7 +170,7 @@ class monteCarloLoc(object):
             x, y, heading = loc
 
         for part in self.validPosList:
-            part.scatter(x, y)
+            part.scatter(x, y, 5.0)
 
     def resampleParticles(self):
         """Generate the next set of particles by resampling based on their current weights, which should
@@ -263,12 +265,34 @@ class monteCarloLoc(object):
 
 
 if __name__ == '__main__':
-    # test = monteCarloLoc()
-    # test.initializeParticles(1000)
+    olinMap = WorldMap()
+
+    p = Particle(olinMap, (31, 56, 270))
+    print(p)
+    olinMap.drawPose(p)
+    olinMap.displayMap()
+    cv2.waitKey()
+
+    while True:
+        olinMap.cleanMapImage(obstacles=True,cells=True, drawCellNum=True)
+        dir = input("change in heading: ")
+        dir = int(dir)
+        p.moveParticle(0, 0, dir)
+        print(p)
+        olinMap.drawPose(p)
+        olinMap.displayMap()
+        cv2.waitKey(10)
+
+    # test = monteCarloLoc(olinMap)
+    # test.initializeParticles(1,(31,56,270))
     # # print "total len ", len(test.validPosList)
     # test.drawParticles(test.validPosList, (255,100,0))
+    # cv2.imshow("Particles", olinMap.currentMapImg)
     # cv2.waitKey(0)
-    #
+    # test.particleMove((1, 0, 0))
+    # test.drawParticles(test.validPosList, (255, 100, 0))
+
+
     # for i in range(50):
     #     # print "in the for loop", i
     #
@@ -295,40 +319,40 @@ if __name__ == '__main__':
     #     test.drawSingleParticle(test.currentMap, probX, probY, probAngle, (255, 255, 0))
     #
     #
-    #     cv2.imshow("Particles", test.currentMap)
-    #     cv2.waitKey( 0)
-    #
-    #
+    # cv2.imshow("Particles", olinMap.currentMapImg)
     # cv2.waitKey(0)
+    # #
+    #
+    #
     # cv2.destroyAllWindows()
-
-    olinMap = WorldMap()
-    test = monteCarloLoc(olinMap)
-    test.initializeParticles(1)
+    #
+    #
+    # test = monteCarloLoc(olinMap)
+    # test.initializeParticles(10, (15, 6, 180))
     # mclDataFake = {'matchPoses': [(12.8, 6.3, 180), (10.0, 6.1, 180), (13.1, 6.5, 0)],
     #                'matchScores': [67.0, 55.2, 41.3],
     #                'odomPose': (12.4, 6.45, 169),
     #                'odomScore': 89.0}
-    # centerPos = test.mclCycle(mclDataFake, (0.24, 0.003, 0.1))
+    # centerPos = test.mclCycle(mclDataFake, (0.24, 0.003, 2.0))
     # print centerPos
     # cv2.waitKey()
 
 
-
-    part = test.validPosList[0]
-    part.setLoc(15.0,50.0,112)
-    test.drawParticles(test.validPosList, (0,0,255))
-
-    for i in range(50):
-        test.particleMove((-1.0,-1.0,0.0))
-        print test.validPosList[0]
-        test.drawParticles(test.validPosList, (0,0,255))
-        if len(test.validPosList) == 0:
-            break
-        test.olinMap.displayMap()
-        cv2.waitKey(0)
-
-    cv2.destroyAllWindows()
+    #
+    # part = test.validPosList[0]
+    # part.setLoc(15.0,50.0,112)
+    # test.drawParticles(test.validPosList, (0,0,255))
+    #
+    # for i in range(50):
+    #     test.particleMove((-1.0,-1.0,0.0))
+    #     print test.validPosList[0]
+    #     test.drawParticles(test.validPosList, (0,0,255))
+    #     if len(test.validPosList) == 0:
+    #         break
+    #     test.olinMap.displayMap()
+    #     cv2.waitKey(0)
+    #
+    # cv2.destroyAllWindows()
 
 
     # test.maxLen = 10

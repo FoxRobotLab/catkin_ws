@@ -1,4 +1,4 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 
 """ ========================================================================
   turtleControl.py
@@ -48,7 +48,7 @@ class TurtleBot(object):
             self.degreeToSeconds = 0.046
             self.angleTurnSpeed = 0.4
         elif self.robotType == "kobuki":
-            self.degreeToSeconds = 0.039
+            self.degreeToSeconds = 0.025  #0.039
             self.angleTurnSpeed = 0.5
 
         self.moveControl = MovementControlThread(self.robotType)
@@ -614,7 +614,7 @@ class OdometryListener(threading.Thread):
 
         self.x = 0.0
         self.y = 0.0
-        self.yaw = 0.0
+        self.yaw = 0
 
         # # robot lab hall
         # self.offsetX = 22.2
@@ -644,8 +644,11 @@ class OdometryListener(threading.Thread):
         """Callback function connected to ROS odometry data, gets called whenever the odometry object
         produces any data."""
         with self.lock:
-            self.x = data.pose.pose.position.x
-            self.y = data.pose.pose.position.y
+            # robot orientation is 0 deg, with forward along the x axis
+            radHead = math.radians(self.offsetYaw)
+            self.x = data.pose.pose.position.x * math.cos(radHead) - data.pose.pose.position.y * math.sin(radHead)
+            self.y = data.pose.pose.position.x * math.sin(radHead) + data.pose.pose.position.y * math.cos(radHead)
+
             #converts weird quarternian data points from the robots orientation to radians.
             (roll, pitch, self.yaw) = tf.transformations.euler_from_quaternion([data.pose.pose.orientation.x,
                                                                                 data.pose.pose.orientation.y,
@@ -666,7 +669,6 @@ class OdometryListener(threading.Thread):
         rx = dx * math.cos(radYaw) + dy * math.sin(radYaw)
         ry = -dx * math.sin(radYaw) + dy * math.cos(radYaw)
 
-
         self.prevX = currX
         self.prevY = currY
         self.prevYaw = currYaw
@@ -682,7 +684,6 @@ class OdometryListener(threading.Thread):
         oldX = self.prevX - self.offsetX
         oldY = self.prevY - self.offsetY
         oldYaw = self.prevYaw - self.offsetYaw
-
 
         self.offsetX = x - self.x
         self.offsetY = y - self.y
@@ -736,4 +737,6 @@ if __name__ == "__main__":
     rospy.init_node('test_movement')
     controller = TurtleBot()
     rospy.on_shutdown(controller.exit)
+    controller.turnByAngle(180)
     rospy.spin()
+

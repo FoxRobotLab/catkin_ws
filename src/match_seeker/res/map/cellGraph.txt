@@ -3,7 +3,7 @@
 # Similar structure to olinGraph.txt because we want to consider each cell to be a node
 # as our match planner's monte carlo localization and kd-tree deals with nodes.
 
-Number of Nodes: 153
+Number of Nodes: 271
 
 Nodes:
 # This maps roughly 2x2 meter squares in the Olin-Rice map to cell numbers for
@@ -287,7 +287,44 @@ Nodes:
 Markers:
 
 Invalid Locations:
-
+                    # top obstacle across classrooms
+32.5   0.0  60.4  42
+                    #area above entrance
+34 42 60.4 59
+                    #area above robot lab
+32 59 60.4 77
+                    # ES office more or less
+23.7   0.0  32.5   5.5
+                    # Near the origin
+ 0.0   0.0  17.5   5.5
+                    # Covers 205 and 250
+21.0   7.2  30.0  42.2
+                    # Covers 258 etc
+ 9.7   7.2  18.9  42.4
+                    # The dropoff and sitting area
+ 7.0   7.2   9.7  41.8
+                    # Faculty offices
+ 0.0   5.5   5.1  110
+                    # long wall of robot lab
+17.5   0.0  21.7   5.5
+                    # short wall of robot lab
+22.8   0.0  23.7   5.5
+                    # bio labs
+12 59 29 89
+                    # floor holes
+7 59 9 71
+7 77 9 89.5
+                    # The Hub
+11 46 29 54
+                    # North bio labs
+33 79 57 106
+                    # South bio labs
+12 92 29 106
+                    # West of bio offices
+0 110 60 108
+                    # South elevator area
+7 108 9 92
+5 95 7 108
 Edges:
 0 1
 0 19
@@ -482,17 +519,17 @@ Edges:
 
 96 97
 96 98
-96 99
+
+# 96 99
+# 97 99
+# 98 99
+# 99 100
+# 99 101
 
 97 98
-97 99
-
-98 99
 98 100
 98 101
 
-99 100
-99 101
 
 100 101
 100 102

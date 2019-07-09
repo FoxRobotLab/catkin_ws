@@ -105,7 +105,7 @@ class WorldMap(object):
         """Draws the obstacles on the current image."""
         for obst in self.illegalBoxes:
             (lrX, lrY, ulX, ulY) = obst
-            self.drawBox((lrX, lrY), (ulX, ulY), (255, 0, 0), 2)
+            self.drawBox((lrX, lrY), (ulX, ulY), (0, 255, 0), 2)
 
     def highlightCell(self, cellNum, color=(113, 179, 60)):
         """Takes in a cell number and draws a box around it to highlight it."""
@@ -120,9 +120,9 @@ class WorldMap(object):
             ### Draw the cell number on the bottom right corner of each cell
             if (drawCellNum):
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                textSize = cv2.getTextSize(str(cell), font, 1.5, 2)[0]
+                textSize = cv2.getTextSize(str(cell), font, .5, 1 )[0]
                 mapX1, mapY1 = self._convertWorldToPixels((x1, y1))
-                cv2.putText(self.currentMapImg, str(cell), (mapX1-textSize[0], mapY1-textSize[1]), font, 1.5, (255, 0, 0), 2)
+                cv2.putText(self.currentMapImg, str(cell), (mapX1-textSize[0], mapY1-textSize[1]), font, .5, (255, 0, 0), 1)
 
 
     def drawBox(self, lrpt, ulpt, color, thickness = 1):
@@ -245,6 +245,7 @@ class WorldMap(object):
     # -------------------------------------------------------------------
     # Other calculations
 
+    ## WARNING: returns string for cell num
     def convertLocToCell(self, pose):
         """Takes in a location that has 2 or 3 values and reports the cell, if any, that it is a part
         of."""
@@ -344,19 +345,19 @@ class WorldMap(object):
         closestNode = None
         closestX = None
         closestY = None
-        bestVal = None
+        bestDist = None
         for nodeNum in self.olinGraph.getVertices():
             if closestNode is None:
                 closestNode = nodeNum
                 closestX, closestY = self.olinGraph.getData(nodeNum)
-                bestVal = self.straightDist2d((closestX, closestY), (x, y))
+                bestDist = self.straightDist2d((closestX, closestY), (x, y))
             (nodeX, nodeY) = self.olinGraph.getData(nodeNum)
             val = self.straightDist2d((nodeX, nodeY), (x, y))
-            if (val <= bestVal):
-                bestVal = val
+            if (val <= bestDist):
+                bestDist = val
                 closestNode = nodeNum
                 closestX, closestY = (nodeX, nodeY)
-        return (closestNode, closestX, closestY, bestVal)
+        return (closestNode, closestX, closestY, bestDist)
 
     # -------------------------------------------------------------------
     # These public methods add marker information to this class (somewhat deprecated)
@@ -654,8 +655,8 @@ class WorldMap(object):
         flipY = self.mapTotalXDim - 1 - mapX
         flipX = self.mapTotalYDim - 1 - mapY
         # Next convert to meters from pixels, assuming 20 pixels per meter
-        mapXMeters = flipX / 50.0
-        mapYMeters = flipY / 50.0
+        mapXMeters = flipX / 20.0
+        mapYMeters = flipY / 20.0
         return (mapXMeters, mapYMeters)
 
 
@@ -663,8 +664,8 @@ class WorldMap(object):
         """Converts coordinates in meters in the world to integer coordinates on the map
         Note that this also has to adjust for the rotation and flipping of the map."""
         # First convert from meters to pixels, assuming 20 pixels per meter
-        pixelX = worldX * 50.0 #originally 20
-        pixelY = worldY * 50.0
+        pixelX = worldX * 20.0 #originally 20
+        pixelY = worldY * 20.0
         # Next flip x and y values around
         mapX = self.imageWidth - 1 - pixelY
         mapY = self.imageHeight - 1 - pixelX
@@ -677,13 +678,20 @@ if __name__ == '__main__':
     # Uncomment to run matchPlanner
     mapper = WorldMap()
     mapper.cleanMapImage(obstacles=True,cells=True, drawCellNum=True)
-    mapper.drawNodes()
-    # mapper.drawLocsAllFrames()
-    print "starting"
-    mapper.getShortestPath(87,92)
-    print "stopping"
+    mapper.drawPose((34, 16, 0))
+    mapper.drawPose((30, 16, 90))
+    mapper.drawPose((26, 16, -90))
+    mapper.drawPose((22, 16, 180))
+    mapper.drawPose((15, 16, 270))
+    mapper.drawPose((10, 16, 360))
+
+    # mapper.drawNodes()
+    # # mapper.drawLocsAllFrames()
+    # print "starting"
+    # mapper.getShortestPath(87,92)
+    # print "stopping"
     mapper.displayMap()
-    cv2.imwrite("BIGMAP.jpg", mapper.currentMapImg)
+    #cv2.imwrite("BIGMAP.jpg", mapper.currentMapImg)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 

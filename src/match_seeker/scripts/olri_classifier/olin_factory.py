@@ -53,7 +53,7 @@ paths = Paths(
     class_weight_path= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_cellcounts-gray-re1.0-en250-max300-submean.npy",
     train_mean_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_mean-gray-re1.0-en250-max300-submean.npy",
     one_hot_dict_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_onehotdict-gray-re1.0-en250-max300-submean.npy",
-    checkpoint_name="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181447_olin-CPDr-CPDr-CPDr-DDDDr-L_lr0.001-bs128-weighted/00-745-0.71.hdf5"
+    checkpoint_name= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181447_olin-CPDr-CPDr-CPDr-DDDDr-L_lr0.001-bs128-weighted/00-745-0.71.hdf5"
 )
 
 
@@ -72,11 +72,11 @@ for line in cell_graph:
             break
 cell_graph.close()
 
-np.load(paths.one_hot_dict_path).item().keys()
-num_cells = len(np.load(paths.one_hot_dict_path).item().keys())
+# np.load(paths.one_hot_dict_path).item().keys()
+# num_cells = len(np.load(paths.one_hot_dict_path).item().keys())
 cell = Cell(
     cell_size=2,
-    num_cells=num_cells,
+    num_cells=153,
     num_max_cells=num_max_cells
 )
 #print("Num cells:", num_cells,"Num max cells:",num_max_cells)

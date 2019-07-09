@@ -52,7 +52,16 @@ class PathLocation(object):
 
 
     def nextAngle(self,):
+        try:
+            print self.goalPath[0]
+        except IndexError:
+            pass
+        try:
+            print self.goalPath[1]
+        except IndexError:
+            pass
         currentNode, nextNode = self.goalPath[0], self.goalPath[1]
+        print "GOAl PATH: " + str(self.goalPath)
         probAngle = self.olinMap.calcAngle(currentNode, nextNode)
         self.logger.log("Turning from node " + str(currentNode) + " to node " + str(nextNode))
         return probAngle
