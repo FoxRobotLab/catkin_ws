@@ -43,14 +43,11 @@ import os
 import random
 
 import numpy as np
-import rospy
 from tensorflow import keras
 import tensorflow as tf
 # import turtleControl
 import olin_factory as factory
-import olin_inputs
 #import olin_cnn_predictor
-import cv2
 
 
 
@@ -68,7 +65,7 @@ class OlinClassifier(object):
         self.paths = factory.paths
 
         self.hyperparameters = factory.hyperparameters
-        self.train_data = np.load(train_data)
+        self.train_data = np.load(train_data,allow_pickle=True,encoding='latin1')
         self.image_size = self.train_data[0][0].shape[0]
         self.train_with_headings = train_with_headings
 
@@ -200,6 +197,21 @@ class OlinClassifier(object):
         ))
         model.add(keras.layers.Dropout(drop2_rate))
 
+        model.add(keras.layers.Conv2D(
+            filters=64,
+            kernel_size=(5, 5),
+            strides=1,
+            activation="relu",
+            padding="same",
+            data_format="channels_last",
+            input_shape=[self.image_size, self.image_size, self.image_depth]
+        ))
+        model.add(keras.layers.MaxPooling2D(
+            pool_size=(2, 2),
+            strides=2,
+            padding="same"
+        ))
+        model.add(keras.layers.Dropout(0.4))
         ###########################################################################
         ###                               DENSE #1                              ###
         ###########################################################################
@@ -288,7 +300,7 @@ class OlinClassifier(object):
         model.summary()
 
         model.fit([train_data_ims,train_data_cells],self.train_labels,batch_size=100,validation_data=([eval_ims,eval_cells],eval_labels),
-                  epochs=1,callbacks=[keras.callbacks.TerminateOnNaN()])
+                  epochs=100,callbacks=[keras.callbacks.TerminateOnNaN(), keras.callbacks.ModelCheckpoint(self.paths.checkpoint_dir+self.data_name+".hdf5",period=5)])
 
 
 
@@ -395,30 +407,30 @@ def loading_bar(start,end, size = 20):
 
 if __name__ == "__main__":
 
-    data_100_gray = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray.npy'
-    data_100 = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100.npy'
-    data_224_gray =  '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_224_gray.npy'
-    data_224 = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_224.npy'
+    data_100_gray = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray.npy'
+    data_100 = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100.npy'
+    data_224_gray =  '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_224_gray.npy'
+    data_224 = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_224.npy'
 
-    data_95k_100_gray = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_95k_100_gray.npy'
-    data_100_norm = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm.npy'
-    data_100_norm_randerase = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm_randerase.npy' #randerase ratio = 0.2
-    data_128_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_128_squished.npy'
-    data_100_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_squished.npy'
-    data_100_norm_randerase_squished = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm_randerase_squished.npy' #randerase ratio = 1
-    data_with_cell_channel = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_500withCellInput.npy'
-    data_original_2018 = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_data-gray-re1.0-en250-max300-submean.npy'
+    data_95k_100_gray = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_95k_100_gray.npy'
+    data_100_norm = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm.npy'
+    data_100_norm_randerase = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm_randerase.npy' #randerase ratio = 0.2
+    data_128_squished = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_128_squished.npy'
+    data_100_squished = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_squished.npy'
+    data_100_norm_randerase_squished = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_gnrs.npy' #randerase ratio = 1
+    data_with_cell_channel = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/data_cellInput.npy'
+    data_original_2018 = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_data-gray-re1.0-en250-max300-submean.npy'
 
     olin_classifier = OlinClassifier(
-        checkpoint_name=None,# '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0628191006_lr0.001-bs100/NEWTRAININGDATA_100_gray_norm_randerase_squished-68-0.92.hdf5',
-        train_data=data_100_norm_randerase_squished,#'/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_500_gray_norm_randerase_squished.npy',
+        checkpoint_name='/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/0711191447_lr0.001-bs100/data_cellInput-40-0.26.hdf5',
+        train_data=data_with_cell_channel, # '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_500_gray_norm_randerase_squished.npy',
         train_with_headings=False,
         num_cells=8, #153
         eval_ratio=0.1
     )
 
-    olin_classifier.heading_model()
-    #olin_classifier.train()
+    # olin_classifier.heading_model()
+    olin_classifier.train()
 
     # olin_classifier = OlinClassifier(
     #     checkpoint_name=None,
