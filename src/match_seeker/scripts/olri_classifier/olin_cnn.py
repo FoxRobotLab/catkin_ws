@@ -197,20 +197,20 @@ class OlinClassifier(object):
         ))
         model.add(keras.layers.Dropout(drop2_rate))
 
-        model.add(keras.layers.Conv2D(
-            filters=64,
-            kernel_size=(5, 5),
-            strides=1,
-            activation="relu",
-            padding="same",
-            data_format="channels_last",
-            input_shape=[self.image_size, self.image_size, self.image_depth]
-        ))
-        model.add(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=2,
-            padding="same"
-        ))
+        # model.add(keras.layers.Conv2D(
+        #     filters=64,
+        #     kernel_size=(5, 5),
+        #     strides=1,
+        #     activation="relu",
+        #     padding="same",
+        #     data_format="channels_last",
+        #     input_shape=[self.image_size, self.image_size, self.image_depth]
+        # ))
+        # model.add(keras.layers.MaxPooling2D(
+        #     pool_size=(2, 2),
+        #     strides=2,
+        #     padding="same"
+        # ))
         model.add(keras.layers.Dropout(0.4))
         ###########################################################################
         ###                               DENSE #1                              ###
@@ -406,26 +406,11 @@ def loading_bar(start,end, size = 20):
         print(loadstr)
 
 if __name__ == "__main__":
-
-    data_100_gray = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray.npy'
-    data_100 = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100.npy'
-    data_224_gray =  '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_224_gray.npy'
-    data_224 = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_224.npy'
-
-    data_95k_100_gray = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_95k_100_gray.npy'
-    data_100_norm = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm.npy'
-    data_100_norm_randerase = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_gray_norm_randerase.npy' #randerase ratio = 0.2
-    data_128_squished = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_128_squished.npy'
-    data_100_squished = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_squished.npy'
-    data_100_norm_randerase_squished = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_gnrs.npy' #randerase ratio = 1
-    data_with_cell_channel = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/data_cellInput.npy'
-    data_original_2018 = '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_data-gray-re1.0-en250-max300-submean.npy'
-
     olin_classifier = OlinClassifier(
-        checkpoint_name='/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/0711191447_lr0.001-bs100/data_cellInput-40-0.26.hdf5',
-        train_data=data_with_cell_channel, # '/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_500_gray_norm_randerase_squished.npy',
+        checkpoint_name=None, #'/tmp/catkin_ws/src/match_seeker/scripts/olri_classifier/0711191447_lr0.001-bs100/data_cellInput-40-0.26.hdf5',
+        train_data=None, #TODO: replace with correct path
         train_with_headings=False,
-        num_cells=8, #153
+        num_cells=153,
         eval_ratio=0.1
     )
 
