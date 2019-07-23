@@ -29,7 +29,7 @@ class ImageDataChecker(object):
                 break
 
     def readFiles(self):
-        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/THE_MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",'r') as cellfile:
+        with open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",'r') as cellfile:
             lines = cellfile.readlines()
             for line in lines:
                 if line == 'NEW SET HERE\n':

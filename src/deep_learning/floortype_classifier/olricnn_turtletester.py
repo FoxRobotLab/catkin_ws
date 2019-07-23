@@ -24,7 +24,7 @@ def predict_turtlebot_image(olricnn):
     image = tf.placeholder(tf.float32, shape=(1, olricnn.image_size, olricnn.image_size, olricnn.image_depth), name="input")
 
     ### Make the graph to use and initialize
-    softmax = olricnn.inference(image, mode="PREDICT", reuse=None)
+    softmax = olricnn.cnn_headings(image, mode="PREDICT", reuse=None)
     init = tf.global_variables_initializer()
     saver = tf.train.import_meta_graph(olricnn.checkpoint_dir + olricnn.checkpoint_name + ".meta")
 

@@ -8,6 +8,14 @@ This file borrows code from the qrPlanner.py in qr_seeker.
 It manages the robot, from low-level motion control (using PotentialFieldBrain)
 to higher level path planning, plus matching camera images to a database of images
 in order to localize the robot.
+
+Team Summer 2019 did not make a lot of changes here, however now the GUI doesn't
+always accurately reflect what is happening. Fix what is being logged to the
+GUI here and in SeekerGUI2.py
+
+Note: Do not start matchPlanner unless the robot is on the ground, otherwise the odometry
+will be off.
+
 ======================================================================== """
 
 import math
@@ -28,6 +36,7 @@ import SeekerGUI2
 # from DataPaths import basePath, graphMapData
 import time
 import LocalizerStringConstants as loc_const
+import sys
 
 from std_msgs.msg import String
 
@@ -41,8 +50,7 @@ class MatchPlanner(object):
         self.robot.pauseMovement()
         self.fHeight, self.fWidth, self.fDepth = self.robot.getImage()[0].shape
 
-        self.gui = SeekerGUI2.SeekerGUI2(self, self.robot)
-        self.gui.update()
+
 
         self.brain = None
         self.goalSeeker = None
@@ -51,7 +59,7 @@ class MatchPlanner(object):
         # cv2.namedWindow("Turtlebot View")
         # cv2.moveWindow("Turtlebot View",820,25)
         cv2.namedWindow("MCL Display")
-        cv2.moveWindow("MCL Display", 1500, 25)
+        cv2.moveWindow("MCL Display", 1300, 25)
 
         self.logger = OutputLogger.OutputLogger(True, False)
 
@@ -70,6 +78,9 @@ class MatchPlanner(object):
 
         self.ignoreLocationCount = 0
 
+        self.gui = SeekerGUI2.SeekerGUI2(self, self.robot)
+        self.gui.update()
+
         self.pub = rospy.Publisher('chatter', String, queue_size=10)
 
     def run(self):
@@ -80,17 +91,19 @@ class MatchPlanner(object):
         self.brain.pause()
 
         start, status = self.getStartLocation()
-        nodeAndPose = int(self.olinMap.convertLocToCell((self.startX, self.startY, self.startYaw))), (self.startX, self.startY, self.startYaw)
-        ready = (start and self.getNextGoalDestination())
 
-        self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger, self.gui)
-        self.robot.unpauseMovement()
+        if start:
+            nodeAndPose = int(self.olinMap.convertLocToCell((self.startX, self.startY, self.startYaw))), (self.startX, self.startY, self.startYaw)
+            ready = (start and self.getNextGoalDestination())
+            self.locator = Localizer.Localizer(self.robot, self.olinMap, self.logger, self.gui)
+            self.robot.unpauseMovement()
+        else:
+            ready = False
+
+
         while ready and not rospy.is_shutdown():
             self.gui.update()
-
-            # print("p1")
             image = self.robot.getImage()[0]
-            # print("p2")
             cv2.imshow("Turtlebot View", image)
             cv_image = self.robot.getDepth()
             cv_image = cv_image.astype(np.uint8)
@@ -101,79 +114,82 @@ class MatchPlanner(object):
 
             self.brain.unpause()
 
-            ## if iterationCount > 20 and self.whichBrain == "nav":
-            ##     self.brain.step()
-
+            """------------------------------------------------------------------------------------------------
+            Team Summer 2019 more or less made no changes here and now the behavior in this while loop is out
+            of date. Start here to make changes to reactionary behavior.
+            
+            lookAround() is currently not utilized. However in some cases it may be helpful i.e. when the
+            robot has decided to stare at a wall and not move because it doesn't know where it is. 
+            
+            Perhaps experiment with ways to reincorporate this behavior.
+            ---------------------------------------------------------------------------------------------------"""
             if self.whichBrain == "loc":
                 self.lookAround()
 
-            if True:
-                # odomInfo = self.locator.odometer()
-                # self.checkCoordinates(odomInfo)
+            # TODO: check to see if we still need this
+            # odomInfo = self.locator.odometer()
+            # self.checkCoordinates(odomInfo)
 
-                self.logger.log("-------------- New Match ---------------")
-                ##find location was here
-                time.sleep(1)
+            self.logger.log("-------------- New Match ---------------")
+            time.sleep(1)
 
-                if status == loc_const.temp_lost:  # bestMatch score < 5 but lostCount < 10
-                    self.goalSeeker.setGoal(None, None, None)
-                    # self.logger.log("======Goal seeker off")
-                elif status == loc_const.keep_going:  # LookAround found a match
-                    if self.whichBrain != "nav":
-                        self.speak("Navigating...")
-                        self.gui.navigatingMode()
-                        # self.robot.turnByAngle(35)  # turn back 35 degrees bc the behavior is faster than the matching
-                        self.brain.unpause()
-                        self.checkCoordinates(nodeAndPose)  # react to the location data of the match
-                        self.whichBrain = "nav"
-                elif status == loc_const.look:  # enter LookAround behavior
-                    if self.whichBrain != "loc":
-                        self.speak("Localizing...")
-                        self.gui.localizingMode()
-                        self.brain.pause()
-                        self.whichBrain = "loc"
-                    self.goalSeeker.setGoal(None, None, None)
-                    self.lookAround()
-                    # self.logger.log("======Goal seeker off")
-                else:  # found a node
-                    if self.whichBrain == "loc":
-                        self.whichBrain = "nav"
-                        self.speak("Navigating...")
-                        self.gui.navigatingMode()
-                        self.brain.unpause()
-                    if status == loc_const.at_node:
-                        # self.logger.log("Found a good enough match: " + str(matchInfo))
-                        self.respondToLocation(nodeAndPose)
-                        if self.pathLoc.atDestination(nodeAndPose[0]):
-                            # reached destination. ask for new destination again. returns false if you're not at the final node
-                            self.speak("Destination reached")
-                            self.robot.stop()
-                            self.robot.updateOdomLocation(nodeAndPose[1][0], nodeAndPose[1][1], nodeAndPose[1][2])
-                            self.locator.odomScore = 100
-                            self.getStartLocation(nextDest=True)
-                            ready = self.getNextGoalDestination()
-                            self.goalSeeker.setGoal(None, None, None)
-                            # self.logger.log("======Goal seeker off")
-                        else:
-                            h = self.pathLoc.getTargetAngle()
-                            currHead = nodeAndPose[1][-1]  # yaw
-                            self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1], h, currHead)
-                            self.checkCoordinates(nodeAndPose)
-                            # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
-                            #                 str(h) + " " + str(currHead))
-                    elif status == loc_const.close:
-                        self.checkCoordinates(nodeAndPose)
+            if status == loc_const.temp_lost:  # bestMatch score < 5 but lostCount < 10
+                self.goalSeeker.setGoal(None, None, None)
+                # self.logger.log("======Goal seeker off")
+            elif status == loc_const.keep_going:  # LookAround found a match
+                if self.whichBrain != "nav":
+                    self.speak("Navigating...")
+                    self.gui.navigatingMode()
+                    # self.robot.turnByAngle(35)  # turn back 35 degrees bc the behavior is faster than the matching
                     self.brain.unpause()
+                    self.checkCoordinates(nodeAndPose)  # react to the location data of the match
+                    self.whichBrain = "nav"
+            elif status == loc_const.look:  # enter LookAround behavior
+                if self.whichBrain != "loc":
+                    self.speak("Localizing...")
+                    self.gui.localizingMode()
+                    self.brain.pause()
+                    self.whichBrain = "loc"
+                self.goalSeeker.setGoal(None, None, None)
+                self.lookAround()
+            else:  # found a node
+                if self.whichBrain == "loc":
+                    self.whichBrain = "nav"
+                    self.speak("Navigating...")
+                    self.gui.navigatingMode()
+                    self.brain.unpause()
+                if status == loc_const.at_node:
+                    # self.logger.log("Found a good enough match: " + str(matchInfo))
+                    self.respondToLocation(nodeAndPose)
 
+                    if self.pathLoc.atDestination(nodeAndPose[0]):
+                        # reached destination. ask for new destination again. returns false if you're not at the final node
+                        self.speak("Destination reached")
+                        self.robot.stop()
+                        self.robot.updateOdomLocation(nodeAndPose[1][0], nodeAndPose[1][1], nodeAndPose[1][2])
+                        self.locator.odomScore = 100
+                        self.getStartLocation(nextDest=True)
+                        ready = self.getNextGoalDestination()
+                        print("matchPlanner 168 --------- "+str(ready))
+                        self.goalSeeker.setGoal(None, None, None)
+                        # self.logger.log("======Goal seeker off")
+                    else:
+                        h = self.pathLoc.getTargetAngle()
+                        currHead = nodeAndPose[1][-1]  # yaw
+                        self.goalSeeker.setGoal(self.pathLoc.getCurrentPath()[1], h, currHead)
+                        self.checkCoordinates(nodeAndPose)
+                        # self.logger.log("=====Updating goalSeeker: " + str(self.pathLoc.getCurrentPath()[1]) + " " +
+                        #                 str(h) + " " + str(currHead))
+
+                elif status == loc_const.close:
+                    self.checkCoordinates(nodeAndPose)
+                self.brain.unpause()
+
+            if ready:
                 status, nodeAndPose = self.locator.findLocation(image)
-            print("matchPlanner.run " + str(iterationCount) + " status=" + status + " whichBrain=" + self.whichBrain)
-            iterationCount += 1
-
-        self.logger.log("Quitting...")
-        self.gui.updateMessageText("Quitting...")
-        self.robot.stop()
-        self.gui.stop()
-        self.brain.stop()  # was stopAll
+                print("matchPlanner.run " + str(iterationCount) + " status=" + status + " whichBrain=" + self.whichBrain)
+                iterationCount += 1
+        self.shutdown()
 
     def getStartLocation(self, nextDest=False):
         #self.brain.pause()
@@ -181,8 +197,8 @@ class MatchPlanner(object):
             self.startX, self.startY, self.startYaw = self.robot.getOdomData()
         else:
             self.startX, self.startY, self.startYaw = self._userStartLoc()
-        if self.startYaw == 99 or self.startYaw is None:
-            return False
+        if self.startYaw == -1 or self.startYaw is None:
+            return False, None
         self.robot.updateOdomLocation(x=self.startX, y=self.startY, yaw=self.startYaw)
         # self.brain.unpause()
         return True, loc_const.at_node
@@ -192,7 +208,7 @@ class MatchPlanner(object):
         the user wants to quit."""
         self.brain.pause()
         self.destinationNode = self._userGoalDest()
-        if self.destinationNode == 99:
+        if self.destinationNode == -1:
             return False
         self.pathLoc.beginJourney(self.destinationNode)
         self.speak("Heading to " + str(self.destinationNode))
@@ -216,9 +232,11 @@ class MatchPlanner(object):
         if len(userLocList) == 1:
             userNode = int(userLocList[0])
             print("User node:", userNode)
-            if self.olinMap.isValidNode(userNode) or userNode != 99:
+            if self.olinMap.isValidNode(userNode) or userNode != -1:
                 userX, userY = self.olinMap._nodeToCoord(userNode)
                 print ("user x, y:", userX, userY)
+            else:
+                return -1,-1,-1
         # x y
         elif len(userLocList) == 2:
             userX = float(userLocList[0])
@@ -227,19 +245,18 @@ class MatchPlanner(object):
         return userX, userY, float(userInputYaw)
 
     def _userGoalDest(self):
-        """Asks the user for a goal destination or 99 to cause the robot to shut down."""
+        """Asks the user for a goal destination or -1 to cause the robot to shut down."""
         # while True:
-        #     userInp = raw_input("Enter destination index (99 to quit): ")
+        #     userInp = raw_input("Enter destination index (-1 to quit): ")
         #     if userInp.isdigit():
         #         userNum = int(userInp)
-        #         if self.olinMap.isValidNode(userNum) or userNum == 99:
+        #         if self.olinMap.isValidNode(userNum) or userNum == -1:
         #             return userNum
         self.gui.popupDest()
         userInput = self.gui.inputDes()
-        if userInput.isdigit():
-            userNum = int(userInput)
-            if self.olinMap.isValidNode(userNum) or userNum == 99:
-                return userNum
+        userNum = int(userInput)
+        if self.olinMap.isValidNode(userNum) or userNum == -1:
+            return userNum
 
     def setupNavBrain(self):
         """Sets up the potential field brain with access to the robot's sensors and motors, and add the
@@ -408,7 +425,15 @@ class MatchPlanner(object):
         self.logger.log(speakStr)
 
     def shutdown(self):
-        rospy.on_shutdown("Button pressed")
+        # TODO: This doesn't actually shut down all the way
+        self.logger.log("Quitting...")
+        self.logger.close()
+        self.robot.stop()
+        self.gui.stop()
+        self.brain.stop()  # was stopAll
+        cv2.destroyAllWindows()
+        rospy.signal_shutdown("Button pressed")
+        sys.exit(0)
 
 
 if __name__ == "__main__":

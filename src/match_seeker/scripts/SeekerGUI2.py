@@ -5,6 +5,10 @@ from turtleControl import TurtleBot
 class SeekerGUI2():
 
     def __init__(self, matchPlannerObj, turtleObj):
+
+        self.turtleBot = turtleObj
+        self.matchPlanner = matchPlannerObj
+
         self.mainWindow = tk.Tk()
         self.mainWindow.title("Seeker GUI")
         self.mainWindow.geometry("+550+650")
@@ -12,7 +16,7 @@ class SeekerGUI2():
         self.mode = tk.StringVar()
         self.mode.set("Navigating")
         self.navType = tk.StringVar()
-        self.navType.set("Images")
+        self.navType.set("CNN")
         self.prediction = tk.StringVar()
         self.prediction.set("No Prediction")
 
@@ -35,6 +39,9 @@ class SeekerGUI2():
         self.bestPicList = []
         self.secondPicList = []
         self.thirdPicList = []
+
+
+
         self.setupLocLists()
 
         self.messageText = "Booting up..."
@@ -80,11 +87,9 @@ class SeekerGUI2():
         self.confirmClickedQuit = False
         self.confirmClickedMotors = False
 
-        self.turtleBot = turtleObj
-        self.matchPlanner = matchPlannerObj
-
     def nodeButtonPopUp(self):
-
+        def destroy_callback(e):
+            popUpWindow.destroy()
         popUpWindow = tk.Toplevel()
         popUpWindow.wm_title("Input start node)")
         popUpWindow.geometry("+550+400")
@@ -96,13 +101,14 @@ class SeekerGUI2():
         popupFrame.grid(row=0, column=0)
 
         nodeInfo = tk.Label(popupFrame, bg="gray22", fg="snow", font="MSSansSerif 14",
-                            text="Enter start node (99 to quit): ")
+                            text="Enter start node (-1 to quit): ")
         nodeInfo.grid(row=0, column=0)
 
         nodeInput = tk.Entry(popupFrame, textvariable=self.userInputStartNode)
         nodeInput.grid(row=1, column=0)
+        nodeInput.focus()
 
-        yawInfo = tk.Label(popupFrame, bg="gray22", fg="snow", font="MSSansSerif 14",text="Enter start yaw (99 to quit): ")
+        yawInfo = tk.Label(popupFrame, bg="gray22", fg="snow", font="MSSansSerif 14",text="Enter start yaw (-1 to quit): ")
         yawInfo.grid(row=2, column=0)
 
         yawNodeInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
@@ -110,49 +116,15 @@ class SeekerGUI2():
 
         confirmButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="Confirm", command=popUpWindow.destroy)
         confirmButton.grid(row=4, column=0)
+        popUpWindow.bind("<Return>", destroy_callback)
+        popUpWindow.bind("<KP_Enter>", destroy_callback)
 
         self.mainWindow.wait_window(popUpWindow)
 
-    # def locationButtonPopUp(self):
-    #
-    #     popUpWindow = tk.Toplevel()
-    #     popUpWindow.wm_title("Input start Coordinates)")
-    #     popUpWindow.geometry("+550+400")
-    #     self.userInputStartX.set("")
-    #     self.userInputStartY.set("")
-    #     self.userInputStartYaw.set("")
-    #     self.confirmClickedStart = False
-    #
-    #     popupFrame = tk.Frame(popUpWindow, bg="gray22", bd=2, relief=tk.GROOVE)
-    #     popupFrame.grid(row=0, column=0)
-    #
-    #     xInfo = tk.Label(popupFrame, bg="gray22", fg="snow",
-    #                      text="Enter x coordinate (99 to quit): ")
-    #     xInfo.grid(row=0, column=0)
-    #
-    #     xInput = tk.Entry(popupFrame, textvariable=self.userInputStartX)
-    #     xInput.grid(row=1, column=0)
-    #
-    #     yInfo = tk.Label(popupFrame, bg="gray22", fg="snow",
-    #                      text="Enter y coordinate (99 to quit): ")
-    #     yInfo.grid(row=0, column=0)
-    #
-    #     yInput = tk.Entry(popupFrame, textvariable=self.userInputStartY)
-    #     yInput.grid(row=1, column=0)
-    #
-    #     yawInfo = tk.Label(popupFrame, bg="gray22", fg="snow", text="Enter start yaw (99 to quit): ")
-    #     yawInfo.grid(row=2, column=0)
-    #
-    #     yawCoordInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
-    #     yawCoordInput.grid(row=3, column=0)
-    #
-    #     confirmButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="Confirm", command=popUpWindow.destroy)
-    #     confirmButton.grid(row=4, column=0)
-    #
-    #     self.mainWindow.wait_window(popUpWindow)
-
     def popupStart(self):
-
+        def destroy_callback(e):
+            print("DESTROYING")
+            popupWin.destroy()
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input start node/location (space in between x and y)")
         popupWin.geometry("+550+400")
@@ -164,13 +136,14 @@ class SeekerGUI2():
         popupFrame.grid(row=0, column=0)
 
         locInfo = tk.Label(popupFrame, bg="gray22", fg="snow",
-                           text="Enter start node index or location (99 to quit): ")
+                           text="Enter start cell (-1 to quit): ")
         locInfo.grid(row=0, column=0)
 
         locInput = tk.Entry(popupFrame, textvariable=self.userInputStartLoc)
         locInput.grid(row=1, column=0)
+        locInput.focus()
 
-        yawInfo = tk.Label(popupFrame, bg="gray22", fg="snow", text="Enter start yaw (99 to quit): ")
+        yawInfo = tk.Label(popupFrame, bg="gray22", fg="snow", text="Enter start heading (-1 to quit): ")
         yawInfo.grid(row=2, column=0)
 
         yawInput = tk.Entry(popupFrame, textvariable=self.userInputStartYaw)
@@ -178,13 +151,19 @@ class SeekerGUI2():
 
         confirmButton = tk.Button(popupFrame, bg="gray22", fg="snow", text="Confirm", command=popupWin.destroy)
         confirmButton.grid(row=4, column=0)
+        popupWin.bind("<Return>", destroy_callback)
+        popupWin.bind("<KP_Enter>", destroy_callback)
 
         self.mainWindow.wait_window(popupWin)
 
+
+
     def popupDest(self):
         """
-        The popup window that askes the reader to type a destination node number.
+        The popup window that asks the reader to type a destination node number.
         """
+        def destroy_callback(e):
+            popupWin.destroy()
         popupWin = tk.Toplevel()
         popupWin.wm_title("Input destination")
         popupWin.geometry("+550+400")
@@ -195,14 +174,17 @@ class SeekerGUI2():
         popupFrame = tk.Frame(popupWin, bg="gray22", bd=2, relief=tk.GROOVE)
         popupFrame.grid(row=0, column=0)
 
-        info = tk.Label(popupFrame, bg="gray22", fg="snow", text = "Enter destination index (99 to quit): ")
+        info = tk.Label(popupFrame, bg="gray22", fg="snow", text = "Enter destination cell (-1 to quit): ")
         info.grid(row=0, column=0)
 
         input = tk.Entry(popupFrame, textvariable = self.userInputDest)
         input.grid(row=1, column=0)
+        input.focus()
 
         confirmButton = tk.Button(popupFrame,  bg="gray22", fg="snow", text = "Confirm", command= popupWin.destroy)
         confirmButton.grid(row=2, column=0)
+        popupWin.bind("<Return>", destroy_callback)
+        popupWin.bind("<KP_Enter>", destroy_callback)
 
         self.mainWindow.wait_window(popupWin)
 
@@ -218,7 +200,7 @@ class SeekerGUI2():
     def setupLocLists(self):
         """each list has x, y, heading, and confidence"""
         for list in [self.odomList, self.lastKnownList, self.MCLList, self.bestPicList, self.secondPicList, self.thirdPicList]:
-            for i in range(4):
+            for i in range(5):
                 var = tk.StringVar()
                 var.set(0.0)
                 list.append(var)
@@ -246,13 +228,13 @@ class SeekerGUI2():
                                    width=16, height=1)
         self.currentNav.config(fg="dark orange")
         self.canvas.create_window(184, 45, window=self.currentNav)
-        predictLab = tk.Label(self.canvas, bg="gray22", text="Prediction:", font="MSSansSerif 14", width=8, height=1)
-        predictLab.config(fg="dark orange")
-        self.canvas.create_window(61, 75, window=predictLab)
-        self.currentPred = tk.Label(self.canvas, textvariable=self.prediction, bg="gray22", font="MSSansSerif 14 italic",
-                                    width=14, height=1)
-        self.currentPred.config(fg="dark orange")
-        self.canvas.create_window(210, 75, window=self.currentPred)
+        # predictLab = tk.Label(self.canvas, bg="gray22", text="Prediction:", font="MSSansSerif 14", width=8, height=1)
+        # predictLab.config(fg="dark orange")
+        # self.canvas.create_window(61, 75, window=predictLab)
+        # self.currentPred = tk.Label(self.canvas, textvariable=self.prediction, bg="gray22", font="MSSansSerif 14 italic",
+        #                             width=14, height=1)
+        # self.currentPred.config(fg="dark orange")
+        # self.canvas.create_window(210, 75, window=self.currentPred)
 
     def setUpButtons(self):
 
@@ -312,20 +294,26 @@ class SeekerGUI2():
         hLabel.config(fg="gold")
         self.canvas.create_window(425, 110, window=hLabel)
 
+        cellLabel = tk.Label(self.canvas, bg="gray22", text="cell", font="MSSansSerif 14", width=6)
+        cellLabel.config(fg="gold")
+        self.canvas.create_window(525, 110, window=cellLabel)
+
         confLabel = tk.Label(self.canvas, bg="gray22", text="conf", font="MSSansSerif 14", width=6)
         confLabel.config(fg="gold")
-        self.canvas.create_window(525, 110, window=confLabel)
+        self.canvas.create_window(625, 110, window=confLabel)
 
         self.canvas.create_line(180, 105, 180, 333, fill="white")
-        self.canvas.create_line(10, 125, 575, 125, fill="white")
-        self.canvas.create_line(10, 160, 575, 160, fill="white")
-        self.canvas.create_line(10, 195, 575, 195, fill="white")
-        self.canvas.create_line(10, 230, 575, 230, fill="white")
-        self.canvas.create_line(10, 265, 575, 265, fill="white")
-        self.canvas.create_line(10, 300, 575, 300, fill="white")
+        self.canvas.create_line(10, 125, 675, 125, fill="white")
+        self.canvas.create_line(10, 160, 675, 160, fill="white")
+        self.canvas.create_line(10, 195, 675, 195, fill="white")
+        self.canvas.create_line(10, 230, 675, 230, fill="white")
+        self.canvas.create_line(10, 265, 675, 265, fill="white")
+        self.canvas.create_line(10, 300, 675, 300, fill="white")
+
         self.canvas.create_line(275, 105, 275, 333, fill="white")
         self.canvas.create_line(375, 105, 375, 333, fill="white")
         self.canvas.create_line(475, 105, 475, 333, fill="white")
+        self.canvas.create_line(575, 105, 575, 333, fill="white")
 
         odomX = tk.Label(self.canvas, textvariable=self.odomList[0], bg="gray22", font="MSSansSerif 14 bold", width=5)
         odomX.config(fg="gold")
@@ -336,10 +324,15 @@ class SeekerGUI2():
         odomYaw = tk.Label(self.canvas, textvariable=self.odomList[2], bg="gray22", font="MSSansSerif 14 bold", width=6)
         odomYaw.config(fg="gold")
         self.canvas.create_window(425, 144, window=odomYaw)
+
+        odomCell = tk.Label(self.canvas, textvariable=self.odomList[4], bg="gray22", font="MSSansSerif 14 bold", width=6)
+        odomCell.config(fg="gold")
+        self.canvas.create_window(525, 144, window=odomCell)
+
         odomConf = tk.Label(self.canvas, textvariable=self.odomList[3], bg="gray22", font="MSSansSerif 14 bold",
                             width=5)
         odomConf.config(fg="gold")
-        self.canvas.create_window(525, 144, window=odomConf)
+        self.canvas.create_window(625, 144, window=odomConf)
 
         lastKnownX = tk.Label(self.canvas, textvariable=self.lastKnownList[0], bg="gray22", font="MSSansSerif 14 bold",
                               width=5)
@@ -355,8 +348,13 @@ class SeekerGUI2():
         self.canvas.create_window(425, 177, window=lastKnownYaw)
         lastKnownConf = tk.Label(self.canvas, textvariable=self.lastKnownList[3], bg="gray22", font="MSSansSerif 14 bold",
                                  width=5)
+
+        lastKnownCell = tk.Label(self.canvas, textvariable=self.lastKnownList[4], bg="gray22", font="MSSansSerif 14 bold", width=6)
+        lastKnownCell.config(fg="gold")
+        self.canvas.create_window(525, 177, window=lastKnownCell)
+
         lastKnownConf.config(fg="gold")
-        self.canvas.create_window(525, 177, window=lastKnownConf)
+        self.canvas.create_window(625, 177, window=lastKnownConf)
 
         MCLX = tk.Label(self.canvas, textvariable=self.MCLList[0], bg="gray22", font="MSSansSerif 14 bold", width=5)
         MCLX.config(fg="gold")
@@ -369,8 +367,13 @@ class SeekerGUI2():
         self.canvas.create_window(425, 212, window=MCLYaw)
         self.MCLConf = tk.Label(self.canvas, textvariable=self.MCLList[3], bg="gray22", font="MSSansSerif 14 bold",
                                 width=5)
+
+        MCLCell = tk.Label(self.canvas, textvariable=self.MCLList[4], bg="gray22", font="MSSansSerif 14 bold", width=6)
+        MCLCell.config(fg="gold")
+        self.canvas.create_window(525, 212, window=MCLCell)
+
         self.MCLConf.config(fg="gold")
-        self.canvas.create_window(525, 212, window=self.MCLConf)
+        self.canvas.create_window(625, 212, window=self.MCLConf)
 
         bestPicX = tk.Label(self.canvas, textvariable=self.bestPicList[0], bg="gray22", font="MSSansSerif 14 bold",
                             width=5)
@@ -386,8 +389,13 @@ class SeekerGUI2():
         self.canvas.create_window(425, 247, window=bestPicYaw)
         self.bestPicConf = tk.Label(self.canvas, textvariable=self.bestPicList[3], bg="gray22",
                                     font="MSSansSerif 14 bold", width=5)
+
+        bestCell = tk.Label(self.canvas, textvariable=self.bestPicList[4], bg="gray22", font="MSSansSerif 14 bold", width=6)
+        bestCell.config(fg="gold")
+        self.canvas.create_window(525, 247, window=bestCell)
+
         self.bestPicConf.config(fg="gold")
-        self.canvas.create_window(525, 247, window=self.bestPicConf)
+        self.canvas.create_window(625, 247, window=self.bestPicConf)
 
         secondPicX = tk.Label(self.canvas, textvariable=self.secondPicList[0], bg="gray22", font="MSSansSerif 14 bold",
                               width=5)
@@ -403,8 +411,13 @@ class SeekerGUI2():
         self.canvas.create_window(425, 282, window=secondPicYaw)
         secondPicConf = tk.Label(self.canvas, textvariable=self.secondPicList[3], bg="gray22",
                                  font="MSSansSerif 14 bold", width=5)
+
+        secondCell = tk.Label(self.canvas, textvariable=self.secondPicList[4], bg="gray22", font="MSSansSerif 14 bold", width=6)
+        secondCell.config(fg="gold")
+        self.canvas.create_window(525, 282, window=secondCell)
+
         secondPicConf.config(fg="gold")
-        self.canvas.create_window(525, 282, window=secondPicConf)
+        self.canvas.create_window(625, 282, window=secondPicConf)
 
         thirdPicX = tk.Label(self.canvas, textvariable=self.thirdPicList[0], bg="gray22", font="MSSansSerif 14 bold",
                              width=5)
@@ -420,22 +433,28 @@ class SeekerGUI2():
         self.canvas.create_window(425, 319, window=thirdPicYaw)
         thirdPicConf = tk.Label(self.canvas, textvariable=self.thirdPicList[3], bg="gray22", font="MSSansSerif 14 bold",
                                 width=5)
+
+        thirdCell = tk.Label(self.canvas, textvariable=self.thirdPicList[4], bg="gray22", font="MSSansSerif 14 bold", width=6)
+        thirdCell.config(fg="gold")
+        self.canvas.create_window(525, 319, window=thirdCell)
+
         thirdPicConf.config(fg="gold")
-        self.canvas.create_window(525, 319, window=thirdPicConf)
+        self.canvas.create_window(625, 319, window=thirdPicConf)
 
     def setUpImgMatch(self):
 
-        imageTitle = tk.Label(self.canvas, bg="gray22", text="Image Matching Info", font="MSSansSerif 14 bold", width=18)
-        imageTitle.config(fg="green4")
-        self.canvas.create_window(120, 365, window=imageTitle)
+        imageTitle = tk.Label(self.canvas, bg="gray22", text="Path Planning", font="MSSansSerif 14 bold")
+        imageTitle.config(fg="green2")
+        self.canvas.create_window(82, 395, window=imageTitle)
 
-        closetLab = tk.Label(self.canvas, bg="gray22", text="Closest Node:", font="MSSansSerif 14", width=10)
-        closetLab.config(fg="green2")
-        self.canvas.create_window(69, 395, window=closetLab)
-        closestInfoLab = tk.Label(self.canvas, textvariable=self.cNode, bg="gray22", font="MSSansSerif 14 italic",
-                                  width=12)
-        closestInfoLab.config(fg="green2")
-        self.canvas.create_window(250, 395, window=closestInfoLab)
+        # Didn't make sense in context of current system
+        # closetLab = tk.Label(self.canvas, bg="gray22", text="Closest Node:", font="MSSansSerif 14", width=10)
+        # closetLab.config(fg="green2")
+        # self.canvas.create_window(69, 395, window=closetLab)
+        # closestInfoLab = tk.Label(self.canvas, textvariable=self.cNode, bg="gray22", font="MSSansSerif 14 italic",
+        #                           width=12)
+        # closestInfoLab.config(fg="green2")
+        # self.canvas.create_window(250, 395, window=closestInfoLab)
 
         nextLabel = tk.Label(self.canvas, bg="gray22", text="Next Node:", font="MSSansSerif 14", width=8)
         nextLabel.config(fg="green2")
@@ -453,27 +472,28 @@ class SeekerGUI2():
         targetInfoLabel.config(fg="green2")
         self.canvas.create_window(250, 455, window=targetInfoLabel)
 
-        searchLabel = tk.Label(self.canvas, bg="gray22", text="Search Radius:", font="MSSansSerif 14", width=12)
-        searchLabel.config(fg="green2")
-        self.canvas.create_window(79, 485, window=searchLabel)
-        searchInfoLabel = tk.Label(self.canvas, textvariable=self.radius, bg="gray22", font="MSSansSerif 14 italic",
-                                   width=12)
-        searchInfoLabel.config(fg="green2")
-        self.canvas.create_window(250, 485, window=searchInfoLabel)
-
-        matchLabel = tk.Label(self.canvas, bg="gray22", text="Match Status:", font="MSSansSerif 14", width=10)
-        matchLabel.config(fg="green2")
-        self.canvas.create_window(71, 515, window=matchLabel)
-        matchInfoLabel = tk.Label(self.canvas, textvariable=self.matchStatusInfo, bg="gray22", font="MSSansSerif 14 italic",
-                                width=25, justify="right")
-        matchInfoLabel.config(fg="green2")
-        self.canvas.create_window(360, 515, window=matchInfoLabel)
+        # Didn't make sense in context of current system
+        # searchLabel = tk.Label(self.canvas, bg="gray22", text="Search Radius:", font="MSSansSerif 14", width=12)
+        # searchLabel.config(fg="green2")
+        # self.canvas.create_window(79, 485, window=searchLabel)
+        # searchInfoLabel = tk.Label(self.canvas, textvariable=self.radius, bg="gray22", font="MSSansSerif 14 italic",
+        #                            width=12)
+        # searchInfoLabel.config(fg="green2")
+        # self.canvas.create_window(250, 485, window=searchInfoLabel)
+        #
+        # matchLabel = tk.Label(self.canvas, bg="gray22", text="Match Status:", font="MSSansSerif 14", width=10)
+        # matchLabel.config(fg="green2")
+        # self.canvas.create_window(71, 515, window=matchLabel)
+        # matchInfoLabel = tk.Label(self.canvas, textvariable=self.matchStatusInfo, bg="gray22", font="MSSansSerif 14 italic",
+        #                         width=25, justify="right")
+        # matchInfoLabel.config(fg="green2")
+        # self.canvas.create_window(360, 515, window=matchInfoLabel)
 
     def setUpTurnInfo(self):
 
-        turnInfo = tk.Label(self.canvas, bg="gray22", text="Turn Info", font="MSSansSerif 14 bold", width=8)
-        turnInfo.config(fg="blue")
-        self.canvas.create_window(57, 555, window=turnInfo)
+        turnInfo = tk.Label(self.canvas, bg="gray22", text="Most Recent Turn", font="MSSansSerif 14 bold")
+        turnInfo.config(fg="cyan")
+        self.canvas.create_window(100, 555, window=turnInfo)
 
         turnStatus = tk.Label(self.canvas, textvariable=self.turnState, bg="gray22", font="MSSansSerif 14 italic", width=30)
         turnStatus.config(fg="cyan")
@@ -526,12 +546,17 @@ class SeekerGUI2():
         scrollbar.config(command=self.messages.yview)
 
     def updateOdomList(self,loc):
-        for i in range(len(self.odomList)):
+        for i in range(len(self.odomList)-1):
             self.odomList[i].set('%.2f'%loc[i])
+        self.odomList[4].set(self.locToCell(self.odomList))
+        self.odomList[2].set(positive_heading(self.odomList[2]))
+
 
     def updateLastKnownList(self,loc):
-        for i in range(len(self.lastKnownList)):
+        for i in range(len(self.lastKnownList)-1):
             self.lastKnownList[i].set('%.2f'%loc[i])
+        self.lastKnownList[4].set(self.locToCell(self.lastKnownList))
+        self.lastKnownList[2].set(positive_heading(self.lastKnownList[2]))
 
     def updateMCLList(self,loc):
         if self.navType.get() == "MCL":
@@ -539,11 +564,21 @@ class SeekerGUI2():
         else:
             self.MCLConf.configure(bg="light blue")
 
-        for i in range(len(self.MCLList)):
+        for i in range(len(self.MCLList)-1):
             self.MCLList[i].set('%.2f'%loc[i])
 
+        self.MCLList[4].set(self.locToCell(self.MCLList))
+        self.MCLList[2].set(positive_heading(self.MCLList[2]))
+
     def updatePicLocs(self,loc1, loc2, loc3):
-        if self.navType.get() == "Images":
+
+        # If the network prediction confidence is less than 20, ignore prediction
+        if loc2 == loc1:
+            loc2 = [-1,-1,-1]
+            loc3 = [-1,-1,-1]
+        elif loc3 == loc1:
+            loc3 = [-1,-1,-1]
+        if self.navType.get() == "CNN":
             self.bestPicConf.configure(bg="cornflower blue")
         else:
             self.bestPicConf.configure(bg="light blue")
@@ -552,6 +587,10 @@ class SeekerGUI2():
             self.bestPicList[i].set('%.2f'%loc1[i])
             self.secondPicList[i].set('%.2f'%loc2[i])
             self.thirdPicList[i].set('%.2f'%loc3[i])
+
+        self.bestPicList[4].set(self.locToCell(self.bestPicList))
+        self.secondPicList[4].set(self.locToCell(self.secondPicList))
+        self.thirdPicList[4].set(self.locToCell(self.thirdPicList))
 
     def updatePicConf(self,scores):
         self.bestPicList[3].set('%.2f'%scores[0])
@@ -575,7 +614,10 @@ class SeekerGUI2():
         # self.targetAngle2.configure(bg="pink")
         # self.angleToTurn2.configure(bg="pink")
         for i in range(len(turnData)):
-            self.turnInfo[i].set('%.2f'%turnData[i])
+            if i <2:
+                self.turnInfo[i].set('%.2f'%positive_heading(turnData[i]))
+            else:
+                self.turnInfo[i].set('%.2f'%turnData[i])
 
     def endTurn(self):
         s= "Was " + self.turnState.get()
@@ -587,9 +629,11 @@ class SeekerGUI2():
     def toggleMotors(self):
         if self.button1.config('text')[-1] == 'Stop Motors':
             self.turtleBot.pauseMovement()
+            #self.matchPlanner.brain.pause()
             self.button1.config(text="Run Motors")
         else:
             self.turtleBot.unpauseMovement()
+            #self.matchPlanner.brain.unpause()
             self.button1.config(text="Stop Motors")
 
     def quitProgram(self):
@@ -635,6 +679,24 @@ class SeekerGUI2():
         except tk.TclError:
             pass
 
+    def locToCell(self,locList):
+        x = float(locList[0].get())
+        y = float(locList[1].get())
+        h = float(locList[2].get())
+        cell = self.matchPlanner.olinMap.convertLocToCell((x,y,h))
+        return str(cell)
+
+def positive_heading(heading):
+    if type(heading) is float or type(heading) is int:
+        if heading < 0:
+            return heading + 360
+        else:
+            return heading
+    else:
+        if float(heading.get()) < 0:
+            heading.set(str(float(heading.get())+360))
+            return "%.2f" % float(heading.get())
+        return heading.get()
 
 if __name__ == '__main__':
     gui = SeekerGUI2()

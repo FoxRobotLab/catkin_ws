@@ -625,7 +625,7 @@ class WorldMap(object):
                 continue
             parts = line.split()
             cellNum = parts[0]
-            locList = [int(v) for v in parts[1:]]
+            locList = [float(v) for v in parts[1:]]
             # print("Cell " + cellNum + ": ", locList)
             cellDict[cellNum] = locList
         self.cellData = cellDict

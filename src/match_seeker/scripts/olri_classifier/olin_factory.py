@@ -48,12 +48,12 @@ paths = Paths(
     map_path = "OlinGraphCellMap.png",
     cell_graph_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/cellGraph.txt",
     maptocell_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/mapToCells.txt",
-    cell_data_path = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/THE_MASTER_CELL_LOC_FRAME_IDENTIFIER.txt',#"/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/morecells.txt",
-    train_data_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_data-gray-re1.0-en250-max300-submean.npy",
-    class_weight_path= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_cellcounts-gray-re1.0-en250-max300-submean.npy",
-    train_mean_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_mean-gray-re1.0-en250-max300-submean.npy",
-    one_hot_dict_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181357train_onehotdict-gray-re1.0-en250-max300-submean.npy",
-    checkpoint_name= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/0725181447_olin-CPDr-CPDr-CPDr-DDDDr-L_lr0.001-bs128-weighted/00-745-0.71.hdf5"
+    cell_data_path = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt',#"/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/morecells.txt",
+    train_data_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/DATA/0725181357train_data-gray-re1.0-en250-max300-submean.npy",
+    class_weight_path= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/DATA/0725181357train_cellcounts-gray-re1.0-en250-max300-submean.npy",
+    train_mean_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/DATA/0725181357train_mean-gray-re1.0-en250-max300-submean.npy",
+    one_hot_dict_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/DATA/0725181357train_onehotdict-gray-re1.0-en250-max300-submean.npy",
+    checkpoint_name= "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/0725181447_olin-CPDr-CPDr-CPDr-DDDDr-L_lr0.001-bs128-weighted/00-745-0.71.hdf5"
 )
 
 

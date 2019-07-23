@@ -4,6 +4,8 @@ DataPaths.py
 This defines the base path where this code is, so we can switch between
 computers more easily.
 
+Update 2019: only correct/necessary for map paths
+
 ======================================================================== """
 
 
