@@ -427,4 +427,4 @@ if __name__ == "__main__":
     print("Classifier built")
     # olin_classifier.getAccuracy()
     # model = olin_classifier.threeConv()
-    # olin_classifier.train()
+    #olin_classifier.train()
