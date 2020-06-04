@@ -14,7 +14,8 @@ from olin_cnn import loading_bar
 numCells = 271
 image_size = 100
 images_per_cell = 500
-master_cell_loc_frame_id = 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+path_to_match = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker'
+master_cell_loc_frame_id = path_to_match + '/res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 
 def getCellCounts():
     # Counts number of frames per cell, also returns dictionary with list of all frames associated with each cell
@@ -137,7 +138,7 @@ def cullOverRepped():
     #     except ValueError:
     #         print(frame)
 
-    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames95k.npy',overreppedFrames)
+    np.save(path_to_match+  '/res/classifier2019data/newdata_overreppedFrames95k.npy',overreppedFrames)
     return overreppedFrames
 
 def addUnderRepped():
@@ -171,7 +172,7 @@ def addUnderRepped():
             cell_counts[cell] += 1
 
     print(len(underreppedFrames))
-    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames95k.npy',underreppedFrames)
+    np.save(path_to_match+'/res/classifier2019data/newdata_underreppedFrames95k.npy',underreppedFrames)
     return underreppedFrames
 
 def resizeAndCrop(image):
@@ -204,10 +205,10 @@ def add_cell_channel(overRepped=None, underRepped=None):
 
 
     def processFrame(frame):
-        print "Processing frame " + str(frameNum) + " / " + str(
-            len(overRepped) + len(underRepped)) + "     (Frame number: " + frame + ")"
+        print( "Processing frame " + str(frameNum) + " / " + str(
+            len(overRepped) + len(underRepped)) + "     (Frame number: " + frame + ")")
         print("frame",frame)
-        image = cv2.imread('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/moreframes/frame' + frame + '.jpg')
+        image = cv2.imread(path_to_match+'/scripts/olri_classifier/frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
 
@@ -267,8 +268,7 @@ def add_cell_channel(overRepped=None, underRepped=None):
         # heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
         # training_data[i][0] = np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
 
-    np.save(
-        '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_' + str(
+    np.save( path_to_match + '/scripts/olri_classifier/NEWTRAININGDATA_' + str(
             image_size) + '_' + str(images_per_cell) + 'withCellInput95k.npy', training_data)
 
     print('Done!')
@@ -332,7 +332,7 @@ def getTrainingData(overRepped=None,underRepped=None):
     allImages = []
 
     def processFrame(frame):
-        print "Processing frame " + str(frameNum) + " / " + str(len(overRepped) + len(underRepped))+ "     (Frame number: " + frame + ")"
+        print ("Processing frame " + str(frameNum) + " / " + str(len(overRepped) + len(underRepped))+ "     (Frame number: " + frame + ")")
 
 
         image = cv2.imread('frames/moreframes/frame' + frame + '.jpg')
@@ -384,7 +384,7 @@ def getTrainingData(overRepped=None,underRepped=None):
     #
     #     training_data[i][0] = re_image
 
-    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_'+str(image_size)+'_'+str(images_per_cell)+'95k.npy',training_data)
+    np.save(path_to_match + '/scripts/olri_classifier/NEWTRAININGDATA_'+str(image_size)+'_'+str(images_per_cell)+'95k.npy',training_data)
 
     print('Done!')
     return training_data
@@ -394,5 +394,5 @@ if __name__ == '__main__':
     # overRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames.npy'))
     # getTrainingData()
     # add_cell_channel()
-    add_cell_channel(underRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames95k.npy'),
-                      overRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames95k.npy'))
+    add_cell_channel(underRepped=np.load(path_to_match + '/res/classifier2019data/newdata_underreppedFrames95k.npy'),
+                      overRepped=np.load(path_to_match + '/res/classifier2019data/newdata_overreppedFrames95k.npy'))

@@ -1,8 +1,0 @@
-prefix=/home/macalester/PycharmProjects/catkin_ws/devel
-
-Name: test_movement
-Description: Description of test_movement
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/macalester/PycharmProjects/catkin_ws/devel/lib 
-Requires: 

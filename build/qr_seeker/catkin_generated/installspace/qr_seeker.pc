@@ -1,8 +1,0 @@
-prefix=/home/macalester/PycharmProjects/catkin_ws/install
-
-Name: qr_seeker
-Description: Description of qr_seeker
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/macalester/PycharmProjects/catkin_ws/install/lib 
-Requires: 
