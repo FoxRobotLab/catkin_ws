@@ -1,44 +1,52 @@
-#!/usr/bin/env python2.7
-# """--------------------------------------------------------------------------------
-# olin_cnn.py
-# Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
-# Date: July 2018
-#
-# A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
-# Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
-# (layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
-# Keras as a framework.
-#
-# Acknowledgements:
-#     ft_floortype_classifier
-#         floortype_cnn.py
-#
-# Notes:
-#     Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
-#         Do not freak out you get this warning. It is expected and not a problem per
-#         https://github.com/tensorpack/tensorpack/issues/502
-#
-#     Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
-#         tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
-#         empty images/labels
-#
-#     To open up virtual env:
-#         source ~/tensorflow/bin/activate
-#
-#     Use terminal if import rospy does not work on PyCharm but does work on a
-#     terminal
-#
-#
-# FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
-# --------------------------------------------------------------------------------"""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+#!/usr/bin/env python3.5
+
+"""--------------------------------------------------------------------------------
+olin_cnn.py
+Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
+Creation Date: July 2018
+Updated: Summer 2019, Summer 2020 
+
+A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
+Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
+(layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
+Keras as a framework.
+
+Acknowledgements:
+    ft_floortype_classifier
+        floortype_cnn.py
+
+Notes:
+    Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
+        Do not freak out you get this warning. It is expected and not a problem per
+        https://github.com/tensorpack/tensorpack/issues/502
+
+    Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
+        tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
+        empty images/labels
+
+    To open up virtual env:
+        source ~/tensorflow/bin/activate
+
+    Use terminal if import rospy does not work on PyCharm but does work on a
+    terminal
+
+
+FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
+--------------------------------------------------------------------------------"""
+
+
+# from __future__ import absolute_import
+# from __future__ import division
+# from __future__ import print_function
 import os
 import numpy as np
 from tensorflow import keras
-import cv2
+#import cv2
 import time
+
+
+pathToMatchSeeker = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/'
+
 
 ### Uncomment next line to use CPU instead of GPU: ###
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -47,7 +55,7 @@ class OlinClassifier(object):
     def __init__(self, eval_ratio=0.1, checkpoint_name=None, train_data=None, num_cells=271, train_with_headings=False):
         ### Set up paths and basic model hyperparameters
 
-        self.checkpoint_dir = "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.checkpoint_dir = pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.num_cells = num_cells
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -65,22 +73,23 @@ class OlinClassifier(object):
         np.random.seed(2845) #45600
         np.random.shuffle(self.train_data)
 
+        trainPart = self.train_data[:-self.num_eval, :]
+        evalPart = self.train_data[-self.num_eval:, :]
         # train_with_headings was used for models which had two outputs - cell and heading
         if train_with_headings:
             self.num_cells += 8
-            self.train_labels = np.array([i[1] + i[2] for i in self.train_data[:-self.num_eval]])
-            self.eval_labels = np.array([i[1] + i[2] for i in self.train_data[-self.num_eval:]])
+            self.train_labels = trainPart[:, 1] + trainPart[:, 2]  # np.array([i[1] + i[2] for i in self.train_data[:-self.num_eval]])
+            self.eval_labels = evalPart[:, 1] + evalPart[:, 2]  # np.array([i[1] + i[2] for i in self.train_data[-self.num_eval:]])
         else:
-            self.train_labels = np.array([i[1] for i in self.train_data[:-self.num_eval]])
-            self.eval_labels = np.array([i[1] for i in self.train_data[-self.num_eval:]])
+            self.train_labels = trainPart[:, 1] # np.array([i[1] for i in self.train_data[:-self.num_eval]])
+            self.eval_labels = evalPart[:, 1] # np.array([i[1] for i in self.train_data[-self.num_eval:]])
 
-        self.train_images = np.array([i[0] for i in self.train_data[:-self.num_eval]]).reshape(-1, self.image_size,
-                                                                                               self.image_size,
-                                                                                               self.image_depth)
-
-        self.eval_images = np.array([i[0] for i in self.train_data[-self.num_eval:]]).reshape(-1, self.image_size,
-                                                                                              self.image_size,
-                                                                                              self.image_depth)
+        self.train_images = trainPart[:, 0]   # .reshape(-1, self.image_size, self.image_size, self.image_depth)
+        # np.array([i[0] for i in self.train_data[:-self.num_eval]]).reshape(-1, self.image_size, self.image_size, self.image_depth)
+        self.eval_images = evalPart[:, 0]   # .reshape(-1, self.image_size, self.image_size, self.image_depth)
+        # self.eval_images = np.array([i[0] for i in self.train_data[-self.num_eval:]]).reshape(-1, self.image_size,
+        #                                                                                       self.image_size,
+        #                                                                                       self.image_depth)
 
 
         self.data_name = train_data.split('/')[-1].strip('.npy')
@@ -260,7 +269,7 @@ class OlinClassifier(object):
            optimizer=keras.optimizers.SGD(lr=0.001),
            metrics=["accuracy"]
         )
-        self.model.load_weights('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9704_headingInput_235epochs.hdf5')
+        self.model.load_weights(pathToMatchSeeker + '/res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5')
         #self.model = keras.models.load_model('CHECKPOINTS/heading_acc9536_cellInput_3CPD_NEW.hdf5',compile=True)
         for i in range(num_eval):
             loading_bar(i,num_eval)
@@ -372,7 +381,7 @@ def loading_bar(start,end, size = 20):
 
 
 def check_data():
-    data = np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/DATA/TRAININGDATA_100_500_heading-input_gnrs.npy')
+    data = np.load(pathToMatchSeeker + '/res/classifier2019Data/DATA/TRAININGDATA_100_500_heading-input_gnrs.npy')
 
     np.random.shuffle(data)
     print(data[0])
@@ -380,9 +389,9 @@ def check_data():
     for i in range(len(data)):
         print("cell:"+str(np.argmax(data[i][1])))
         print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
-        cv2.imshow('im',data[i][0][:,:,0])
-        cv2.moveWindow('im',200,200)
-        cv2.waitKey(0)
+  #      cv2.imshow('im',data[i][0][:,:,0])
+   #     cv2.moveWindow('im',200,200)
+    #    cv2.waitKey(0)
 
 def resave_from_wulver(datapath):
     """Networks trained on wulver are saved in a slightly different format because it uses a newer version of keras. Use this function to load the weights from a
@@ -409,13 +418,13 @@ def resave_from_wulver(datapath):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        checkpoint_name=None,#'/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc95_headingInput_150epochs.hdf5', #None,
-        train_data='/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_100_500withCellInput95k.npy', #TODO: replace with correct path
+        checkpoint_name=None,
+        train_data=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withCellInput95k.npy', #TODO: replace with correct path
         train_with_headings=False, #Only use when training networks with BOTH cells and headings
         num_cells=8,
         eval_ratio=0.1
     )
+    print("Classifier built")
     # olin_classifier.getAccuracy()
     # model = olin_classifier.threeConv()
     # olin_classifier.train()
-
