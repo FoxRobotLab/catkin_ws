@@ -43,10 +43,10 @@ import numpy as np
 from tensorflow import keras
 #import cv2
 import time
+from paths import pathToMatchSeeker
 
 
 
-pathToMatchSeeker = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/'
 
 
 ### Uncomment next line to use CPU instead of GPU: ###
@@ -79,31 +79,29 @@ class OlinClassifier(object):
         # train_with_headings was used for models which had two outputs - cell and heading
         if train_with_headings:
             self.num_cells += 8
-            self.train_labels = trainPart[:, 1] + trainPart[:, 2]  # np.array([i[1] + i[2] for i in self.train_data[:-self.num_eval]])
-            self.eval_labels = evalPart[:, 1] + evalPart[:, 2]  # np.array([i[1] + i[2] for i in self.train_data[-self.num_eval:]])
+            self.train_labels = trainPart[:, 1] + trainPart[:, 2]
+            self.eval_labels = evalPart[:, 1] + evalPart[:, 2]
         else:
-            self.train_labels = trainPart[:, 1] # np.array([i[1] for i in self.train_data[:-self.num_eval]])
-            self.eval_labels = evalPart[:, 1] # np.array([i[1] for i in self.train_data[-self.num_eval:]])
+            self.train_labels = trainPart[:, 1]
+            self.eval_labels = evalPart[:, 1]
 
-        self.train_images = trainPart[:, 0]   # .reshape(-1, self.image_size, self.image_size, self.image_depth)
-        # np.array([i[0] for i in self.train_data[:-self.num_eval]]).reshape(-1, self.image_size, self.image_size, self.image_depth)
-        self.eval_images = evalPart[:, 0]   # .reshape(-1, self.image_size, self.image_size, self.image_depth)
-        # self.eval_images = np.array([i[0] for i in self.train_data[-self.num_eval:]]).reshape(-1, self.image_size,
-        #                                                                                       self.image_size,
-        #                                                                                       self.image_depth)
+        self.train_images = trainPart[:, 0]
+        self.eval_images = evalPart[:, 0]
+
 
 
         self.data_name = train_data.split('/')[-1].strip('.npy')
 
+        self.model = self.cnn_cells()
+        self.model.compile(
+            loss=keras.losses.categorical_crossentropy,
+            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            metrics=["accuracy"])
+
         self.checkpoint_name = checkpoint_name
         if self.checkpoint_name is not None:
-            # keras.models.load_model(self.checkpoint_name, compile=True)
-            self.model = self.cnn_cells()
-            self.model.compile(
-                loss=keras.losses.categorical_crossentropy,
-                optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-                metrics=["accuracy"])
             self.model.load_weights(self.checkpoint_name)
+
 
     def train(self):
         # if training with headings, cannot use categorical crossentropy to evaluate loss
@@ -270,12 +268,8 @@ class OlinClassifier(object):
            optimizer=keras.optimizers.SGD(lr=0.001),
            metrics=["accuracy"]
         )
-<<<<<<< HEAD
-        self.model.load_weights(pathToMatchSeeker + '/res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5')
-=======
-        self.model.load_weights(pathToMatchSeeker + 'scripts/olri_classifier/CHECKPOINTS/cell_acc9704_headingInput_235epochs.hdf5')
->>>>>>> cb5655d149e58df120122085bbe36eecf80700b8
-        #self.model = keras.models.load_model('CHECKPOINTS/heading_acc9536_cellInput_3CPD_NEW.hdf5',compile=True)
+        self.model.load_weights(pathToMatchSeeker + '/res/classifier2019data/CHECKPOINTS/cell_acc9517_headingInput_155epochs_95k_NEW.hdf5')
+
         for i in range(num_eval):
             loading_bar(i,num_eval)
             image = eval_copy[i]
@@ -386,7 +380,7 @@ def loading_bar(start,end, size = 20):
 
 
 def check_data():
-    data = np.load(pathToMatchSeeker + '/res/classifier2019Data/DATA/TRAININGDATA_100_500_heading-input_gnrs.npy')
+    data = np.load(pathToMatchSeeker + 'res/classifier2019Data/DATA/TRAININGDATA_100_500_heading-input_gnrs.npy')
     np.random.shuffle(data)
     print(data[0])
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -432,6 +426,10 @@ if __name__ == "__main__":
 
     print("Classifier built")
     print(len(olin_classifier.train_images))
+    print(olin_classifier.model.summary())
+    olin_classifier.train()
     # olin_classifier.getAccuracy()
-ß    # model = olin_classifier.threeConv()
+
+
+    # model = olin_classifier.threeConv()
     #olin_classifier.train()
