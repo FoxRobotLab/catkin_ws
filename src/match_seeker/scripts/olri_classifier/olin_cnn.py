@@ -53,7 +53,7 @@ from paths import pathToMatchSeeker
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataFile=None, num_cells=271, train_with_headings=False,
+    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataFile=None, num_cells=271, cellInput=False, headingInput=False,
                  image_size=224, image_depth=3):
         ### Set up paths and basic model hyperparameters
 
@@ -62,7 +62,9 @@ class OlinClassifier(object):
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
 
-        self.train_with_headings = train_with_headings
+        self.cellInput = cellInput
+        self.headingInput = headingInput
+        self.neitherAsInput = (not cellInput) and (not headingInput)
 
         self.dataFile = dataFile
         self.dataArray = None
@@ -75,21 +77,30 @@ class OlinClassifier(object):
         self.eval_labels = None
         self.data_name = None
 
-        if train_with_headings:
+        if self.neitherAsInput:
             self.model = self.cnn_headings()
             self.loss = keras.losses.binary_crossentropy
-        else:
+        elif self.headingInput:
+            self.model = self.cnn_headings()
+            self.loss = keras.losses.categorical_crossentropy
+        elif self.cellInput:
             self.model = self.cnn_cells()
             self.loss = keras.losses.categorical_crossentropy
+        else:  # both as input, seems weird
+            print("At most one of cellInput and headingInput should be true.")
+            self.model = None
+            self.loss = None
+            return
 
         self.model.compile(
-            loss=keras.losses.categorical_crossentropy,
+            loss=self.loss,
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
 
         self.checkpoint_name = checkpoint_name
         if self.checkpoint_name is not None:
             self.model.load_weights(self.checkpoint_name)
+
 
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
@@ -108,14 +119,21 @@ class OlinClassifier(object):
 
         trainPart = self.dataArray[:-self.num_eval, :]
         evalPart = self.dataArray[-self.num_eval:, :]
-        # train_with_headings was used for models which had two outputs - cell and heading
-        if self.train_with_headings:
+
+        # input could include cell data, heading data, or neither (no method right now for doing both as input)
+        if self.neitherAsInput:
             self.num_cells += 8
             self.train_labels = trainPart[:, 1] + trainPart[:, 2]
             self.eval_labels = evalPart[:, 1] + evalPart[:, 2]
-        else:
+        elif self.cellInput:
             self.train_labels = trainPart[:, 1]
             self.eval_labels = evalPart[:, 1]
+        elif self.headingInput:
+            self.train_labels = trainPart[:, 2]
+            self.eval_lables = trainPart[:, 2]
+        else:
+            print("Cannot have both cell and heading data in input")
+            return
 
         self.train_images = trainPart[:, 0]
         self.eval_images = evalPart[:, 0]
@@ -131,12 +149,12 @@ class OlinClassifier(object):
             print("No training data loaded yet.")
             return
 
-        if (self.checkpoint_name is None):
-            self.model.compile(
-                loss=self.loss,
-                optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-                metrics=["accuracy"]
-            )
+        # if (self.checkpoint_name is None):
+        #     self.model.compile(
+        #         loss=self.loss,
+        #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+        #         metrics=["accuracy"]
+        #     )
 
         self.model.summary()
 
@@ -207,13 +225,16 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         # activate with softmax when training one label and sigmoid when training both headings and cells
-        activation = self.train_with_headings * "sigmoid" + (not self.train_with_headings) * "softmax"
+        if self.neitherAsInput:
+            activation = "sigmoid"
+        else:
+            activation = "softmax"
         model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
         return model
 
     def cnn_cells(self):
         """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
-
+        print("Building a model that takes cell number as input")
         model = keras.models.Sequential()
 
         model.add(keras.layers.Conv2D(
@@ -268,13 +289,18 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         # activate with softmax when training one label and sigmoid when training both headings and cells
-        activation = self.train_with_headings * "sigmoid" + (not self.train_with_headings) * "softmax"
+        if self.neitherAsInput:
+            activation = "sigmoid"
+        else:
+            activation = "softmax"
         model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
 
         return model
 
+
     def getAccuracy(self):
-        """Sets up the network, and produces an accuracy value on the evaluation data. If no data is set up, it quits."""
+        """Sets up the network, and produces an accuracy value on the evaluation data.
+        If no data is set up, it quits."""
 
         if self.eval_images is None:
             return
@@ -283,20 +309,14 @@ class OlinClassifier(object):
         correctCells = 0
         correctHeadings = 0
         eval_copy = self.eval_images
-        self.model.compile(
-           loss=self.loss,
-           optimizer=keras.optimizers.SGD(lr=0.001),
-           metrics=["accuracy"]
-        )
+        self.model.compile(loss=self.loss, optimizer=keras.optimizers.SGD(lr=0.001), metrics=["accuracy"])
         self.model.load_weights()
 
         for i in range(num_eval):
             loading_bar(i,num_eval)
             image = eval_copy[i]
-            image = np.array([image],dtype="float").reshape(-1,100,100,2)
+            image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
             potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-
-
 
             pred = self.model.predict(image)
             print("correct:{}".format(np.argmax(self.eval_labels[i])))
@@ -349,6 +369,8 @@ class OlinClassifier(object):
                 optimizer=keras.optimizers.Adam(lr=.001),
                 metrics=["accuracy"]
             )
+        print("Train:", self.train_images.shape, self.train_labels.shape)
+        print("Eval:", self.eval_images.shape, self.eval_labels.shape)
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=100,
@@ -420,7 +442,7 @@ def resave_from_wulver(datapath):
     olin_classifier = OlinClassifier(
         checkpoint_name=None,
         train_data=None,
-        train_with_headings=False,  # Only use when training networks with BOTH cells and headings
+        extraInput=False,  # Only use when training networks with BOTH cells and headings
         num_cells=8, #TODO 271 for cells, 8 for headings
         eval_ratio=0.1
     )
@@ -444,7 +466,7 @@ if __name__ == "__main__":
         checkpoint_name=None,    # pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5',
         dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
 
-        train_with_headings=False, #Only use when training networks with BOTH cells and headings
+        extraInput=True,
         num_cells=8,
         eval_ratio=0.1,
         image_size=100,
