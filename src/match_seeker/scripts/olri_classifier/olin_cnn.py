@@ -41,7 +41,7 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 import os
 import numpy as np
 from tensorflow import keras
-#import cv2
+import cv2
 import time
 from paths import pathToMatchSeeker
 
@@ -53,7 +53,8 @@ from paths import pathToMatchSeeker
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.1, checkpoint_name=None, train_data=None, num_cells=271, train_with_headings=False):
+    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataFile=None, num_cells=271, train_with_headings=False,
+                 image_size=224, image_depth=3):
         ### Set up paths and basic model hyperparameters
 
         self.checkpoint_dir = pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
@@ -61,23 +62,54 @@ class OlinClassifier(object):
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
 
-        self.train_data = np.load(train_data,allow_pickle=True,encoding='latin1')
-        self.image_size = self.train_data[0][0].shape[0]
         self.train_with_headings = train_with_headings
 
+        self.dataFile = dataFile
+        self.dataArray = None
+        self.image_size = image_size
+        self.image_depth = image_depth
+        self.num_eval = None
+        self.train_images = None
+        self.train_labels = None
+        self.eval_images = None
+        self.eval_labels = None
+        self.data_name = None
+
+        if train_with_headings:
+            self.model = self.cnn_headings()
+            self.loss = keras.losses.binary_crossentropy
+        else:
+            self.model = self.cnn_cells()
+            self.loss = keras.losses.categorical_crossentropy
+
+        self.model.compile(
+            loss=keras.losses.categorical_crossentropy,
+            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            metrics=["accuracy"])
+
+        self.checkpoint_name = checkpoint_name
+        if self.checkpoint_name is not None:
+            self.model.load_weights(self.checkpoint_name)
+
+    def loadData(self):
+        """Loads the data from the given data file, setting several instance variables to hold training and testing
+        inputs and outputs, as well as other helpful values."""
+        self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
+        self.image_size = self.dataArray[0][0].shape[0]
+
         try:
-            self.image_depth = self.train_data[0][0].shape[2]
+            self.image_depth = self.dataArray[0][0].shape[2]
         except IndexError:
             self.image_depth = 1
 
-        self.num_eval = int(self.eval_ratio * self.train_data.size / 3)
+        self.num_eval = int(self.eval_ratio * self.dataArray.size / 3)
         np.random.seed(2845) #45600
-        np.random.shuffle(self.train_data)
+        np.random.shuffle(self.dataArray)
 
-        trainPart = self.train_data[:-self.num_eval, :]
-        evalPart = self.train_data[-self.num_eval:, :]
+        trainPart = self.dataArray[:-self.num_eval, :]
+        evalPart = self.dataArray[-self.num_eval:, :]
         # train_with_headings was used for models which had two outputs - cell and heading
-        if train_with_headings:
+        if self.train_with_headings:
             self.num_cells += 8
             self.train_labels = trainPart[:, 1] + trainPart[:, 2]
             self.eval_labels = evalPart[:, 1] + evalPart[:, 2]
@@ -88,32 +120,20 @@ class OlinClassifier(object):
         self.train_images = trainPart[:, 0]
         self.eval_images = evalPart[:, 0]
 
+        self.data_name = self.dataFile.split('/')[-1].strip('.npy')
 
-
-        self.data_name = train_data.split('/')[-1].strip('.npy')
-
-        self.model = self.cnn_cells()
-        self.model.compile(
-            loss=keras.losses.categorical_crossentropy,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-            metrics=["accuracy"])
-
-        self.checkpoint_name = checkpoint_name
-        if self.checkpoint_name is not None:
-            self.model.load_weights(self.checkpoint_name)
 
 
     def train(self):
-        # if training with headings, cannot use categorical crossentropy to evaluate loss
-        if self.train_with_headings == True:
-            loss = keras.losses.binary_crossentropy
-        else:
-            loss = keras.losses.categorical_crossentropy
+        """Sets up the loss function and optimizer, an d then trains the model on the current training data. Quits if no
+        training data is set up yet."""
+        if self.train_images is None:
+            print("No training data loaded yet.")
+            return
 
         if (self.checkpoint_name is None):
-            self.model = self.cnn_headings()
             self.model.compile(
-                loss=loss,
+                loss=self.loss,
                 optimizer=keras.optimizers.SGD(lr=self.learning_rate),
                 metrics=["accuracy"]
             )
@@ -145,7 +165,8 @@ class OlinClassifier(object):
         )
 
     def cnn_headings(self):
-        #Original model from summer 2018
+        """Builds the model for the network that takes heading as input along with image and produces the cell numbeer."""
+
         model = keras.models.Sequential()
 
         model.add(keras.layers.Conv2D(
@@ -191,10 +212,7 @@ class OlinClassifier(object):
         return model
 
     def cnn_cells(self):
-        """
-        Has 3 conv-pool-dropout layers, otherwise identical to inference. Used with success for image/heading input
-        network and image/cell input network.
-        """
+        """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
 
         model = keras.models.Sequential()
 
@@ -256,19 +274,21 @@ class OlinClassifier(object):
         return model
 
     def getAccuracy(self):
-        # Used to evaluate the accuracy of models with two outputs (cell and heading), where precision was used as a custom metric
+        """Sets up the network, and produces an accuracy value on the evaluation data. If no data is set up, it quits."""
+
+        if self.eval_images is None:
+            return
+
         num_eval = 5000
         correctCells = 0
         correctHeadings = 0
         eval_copy = self.eval_images
-        # np.random.shuffle(eval_copy)
-        self.model = self.cnn_cells()
         self.model.compile(
-           loss=keras.losses.categorical_crossentropy,
+           loss=self.loss,
            optimizer=keras.optimizers.SGD(lr=0.001),
            metrics=["accuracy"]
         )
-        self.model.load_weights(pathToMatchSeeker + '/res/classifier2019data/CHECKPOINTS/cell_acc9517_headingInput_155epochs_95k_NEW.hdf5')
+        self.model.load_weights()
 
         for i in range(num_eval):
             loading_bar(i,num_eval)
@@ -296,13 +316,11 @@ class OlinClassifier(object):
         #print("%Correct Headings: " + str(float(correctHeadings) / num_eval))
         return float(correctCells) / num_eval
 
+
     def retrain(self):
+        """This method seems out of date, was used for transfer learning from VGG. DON"T CALL IT!"""
         # Use for retraining models included with keras
         # if training with headings cannot use categorical crossentropy to evaluate loss
-        if self.train_with_headings == True:
-            loss = keras.losses.binary_crossentropy
-        else:
-            loss = keras.losses.categorical_crossentropy
         if self.checkpoint_name is None:
             self.model = keras.models.Sequential()
 
@@ -319,7 +337,7 @@ class OlinClassifier(object):
             self.model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
             self.model.summary()
             self.model.compile(
-                loss=loss,
+                loss=self.loss,
                 optimizer=keras.optimizers.Adam(lr=.001),
                 metrics=["accuracy"]
             )
@@ -327,7 +345,7 @@ class OlinClassifier(object):
             print("Loaded model")
             self.model = keras.models.load_model(self.checkpoint_name, compile=False)
             self.model.compile(
-                loss=loss,
+                loss=self.loss,
                 optimizer=keras.optimizers.Adam(lr=.001),
                 metrics=["accuracy"]
             )
@@ -356,6 +374,7 @@ class OlinClassifier(object):
             ]
         )
 
+
     def precision(self,y_true, y_pred):
         """Precision metric.
 
@@ -372,6 +391,9 @@ class OlinClassifier(object):
         precision = true_positives / (predicted_positives + keras.backend.epsilon())
         return precision
 
+
+
+
 def loading_bar(start,end, size = 20):
     # Useful when running a method that takes a long time
     loadstr = '\r'+str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
@@ -387,9 +409,9 @@ def check_data():
     for i in range(len(data)):
         print("cell:"+str(np.argmax(data[i][1])))
         print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
-  #      cv2.imshow('im',data[i][0][:,:,0])
-   #     cv2.moveWindow('im',200,200)
-    #    cv2.waitKey(0)
+        cv2.imshow('im',data[i][0][:,:,0])
+        cv2.moveWindow('im',200,200)
+        cv2.waitKey(0)
 
 def resave_from_wulver(datapath):
     """Networks trained on wulver are saved in a slightly different format because it uses a newer version of keras. Use this function to load the weights from a
@@ -413,18 +435,25 @@ def resave_from_wulver(datapath):
     print("Loaded weights. Saving...")
     model.save(datapath[:-4]+'_NEW.hdf5')
 
+
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        checkpoint_name=None,
-        train_data=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withCellInput95k.npy', #TODO: replace with correct path
+        # checkpoint_name=pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/heading_acc9517_cellInput_250epochs_95k_NEW.hdf5',
+        # dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withCellInput95k.npy',
+        checkpoint_name=None,    # pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5',
+        dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
 
         train_with_headings=False, #Only use when training networks with BOTH cells and headings
         num_cells=8,
-        eval_ratio=0.1
+        eval_ratio=0.1,
+        image_size=100,
+        image_depth=1
     )
 
     print("Classifier built")
+    olin_classifier.loadData()
+    print("Data loaded")
     print(len(olin_classifier.train_images))
     print(olin_classifier.model.summary())
     olin_classifier.train()
