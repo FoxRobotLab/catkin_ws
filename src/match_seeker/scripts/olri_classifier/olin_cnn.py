@@ -45,6 +45,7 @@ from tensorflow import keras
 import time
 
 
+
 pathToMatchSeeker = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/'
 
 
@@ -269,7 +270,11 @@ class OlinClassifier(object):
            optimizer=keras.optimizers.SGD(lr=0.001),
            metrics=["accuracy"]
         )
+<<<<<<< HEAD
         self.model.load_weights(pathToMatchSeeker + '/res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5')
+=======
+        self.model.load_weights(pathToMatchSeeker + 'scripts/olri_classifier/CHECKPOINTS/cell_acc9704_headingInput_235epochs.hdf5')
+>>>>>>> cb5655d149e58df120122085bbe36eecf80700b8
         #self.model = keras.models.load_model('CHECKPOINTS/heading_acc9536_cellInput_3CPD_NEW.hdf5',compile=True)
         for i in range(num_eval):
             loading_bar(i,num_eval)
@@ -382,7 +387,6 @@ def loading_bar(start,end, size = 20):
 
 def check_data():
     data = np.load(pathToMatchSeeker + '/res/classifier2019Data/DATA/TRAININGDATA_100_500_heading-input_gnrs.npy')
-
     np.random.shuffle(data)
     print(data[0])
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -420,11 +424,14 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         checkpoint_name=None,
         train_data=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withCellInput95k.npy', #TODO: replace with correct path
+
         train_with_headings=False, #Only use when training networks with BOTH cells and headings
         num_cells=8,
         eval_ratio=0.1
     )
+
     print("Classifier built")
+    print(len(olin_classifier.train_images))
     # olin_classifier.getAccuracy()
-    # model = olin_classifier.threeConv()
+ß    # model = olin_classifier.threeConv()
     #olin_classifier.train()
