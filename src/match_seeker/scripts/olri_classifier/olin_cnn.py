@@ -609,10 +609,11 @@ if __name__ == "__main__":
     print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    for i in range(5):
+    count = 0
+    for i in range(1000):
         num = random.randint(0,95000)
         thing, cell = olin_classifier.runSingleImage(num)
-        print("imnum = ", num, "predict =  ", np.argmax(thing), " and actual = ", cell )
+        count += (np.argmax(thing)==cell)
 
 
     # model = olin_classifier.threeConv()
