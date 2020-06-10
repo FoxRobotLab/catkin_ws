@@ -443,7 +443,7 @@ class OlinClassifier(object):
                     count += 1
 
 
-            cell = oi2.getOneHotLabel(int(cell), 8)
+            cell = oi2.getOneHotLabel(int(cell), 271)
             cell_arr = []
             im_arr = []
             cell_arr.append(cell)
