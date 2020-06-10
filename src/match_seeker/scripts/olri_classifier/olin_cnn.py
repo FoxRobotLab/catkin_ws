@@ -84,7 +84,7 @@ class OlinClassifier(object):
             self.loss = keras.losses.binary_crossentropy
         elif self.headingInput:
             # self.model = self.cnn_headings()
-            # self.loss = keras.losses.categorical_crossentropy
+            self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
                 pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
