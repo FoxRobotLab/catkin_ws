@@ -590,7 +590,7 @@ if __name__ == "__main__":
         dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
 
 
-        num_cells=8,
+        num_cells=271,
         eval_ratio=0.1,
         image_size=100,
         image_depth=1
