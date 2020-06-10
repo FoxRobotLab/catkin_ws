@@ -436,8 +436,8 @@ class OlinClassifier(object):
         print(filename)
         if filename is not None:
             image = cv2.imread(filename)
-            print("This is image:", image)
-            print("This is the shape", image.shape)
+            # print("This is image:", image)
+            # print("This is the shape", image.shape)
             cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
             count = 0
             with open(cellDirectory) as fp:
@@ -458,7 +458,7 @@ class OlinClassifier(object):
             # im_arr = np.asarray(im_arr)
 
 
-            image = clean_image(image, heading=head)
+            image = clean_image(image, data='heading_channel', heading=head)
 
 
             return self.model.predict(image), cell
