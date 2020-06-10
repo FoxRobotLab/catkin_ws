@@ -413,7 +413,66 @@ class OlinClassifier(object):
         precision = true_positives / (predicted_positives + keras.backend.epsilon())
         return precision
 
+    
+    def runSingleImage(self, num):
+        imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes'
+        count = 0
+        filename = makeFilename(imDirectory, num)
+        # st = None
 
+        # for fname in os.listdir(imDirectory):
+        #     if count == num:
+        #         st = imDirectory + fname
+        #         break
+
+        # print(imgs)
+        print(filename)
+        if filename is not None:
+            image = cv2.imread(filename)
+
+            cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+            count = 0
+
+            with open(cellDirectory) as fp:
+                for line in fp:
+                    (fNum, cell, x, y, head) = line.strip().split(' ')
+                    if fNum == num:
+                        break
+                    count += 1
+            return self.model.evaluate(image, cell, verbose=2)
+            
+
+def makeFilename(path, fileNum):
+    """Makes a filename for reading or writing image files"""
+    formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
+    name = formStr.format(path, 'frame', fileNum, "jpg")
+    return name
+
+
+def getImageFilenames(path):
+    """Read filenames in folder, and keep those that end with jpg or png  (from copyMarkedFiles.py)"""
+    filenames = os.listdir(path)
+    keepers = []
+    for name in filenames:
+        if name.endswith("jpg") or name.endswith("png"):
+            keepers.append(name)
+    return keepers
+
+
+def extractNum(fileString):
+    """Finds sequence of digits"""
+    numStr = ""
+    foundDigits = False
+    for c in fileString:
+        if c in '0123456789':
+            foundDigits = True
+            numStr += c
+        elif foundDigits:
+            break
+    if numStr != "":
+        return int(numStr)
+    else:
+        return -1
 
 
 def loading_bar(start,end, size = 20):
@@ -466,7 +525,7 @@ if __name__ == "__main__":
         checkpoint_name=None,    # pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5',
         dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
 
-        extraInput=True,
+      
         num_cells=8,
         eval_ratio=0.1,
         image_size=100,
@@ -474,12 +533,13 @@ if __name__ == "__main__":
     )
 
     print("Classifier built")
-    olin_classifier.loadData()
-    print("Data loaded")
-    print(len(olin_classifier.train_images))
+    #olin_classifier.loadData()
+    #print("Data loaded")
+    # print(len(olin_classifier.train_images))
     print(olin_classifier.model.summary())
-    olin_classifier.train()
+    #olin_classifier.train()
     # olin_classifier.getAccuracy()
+    olin_classifier.runSingleImage(50)  #pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/frame0000.jpg', pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/frame0000.jpg')
 
 
     # model = olin_classifier.threeConv()
