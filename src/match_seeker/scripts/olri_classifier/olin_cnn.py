@@ -456,7 +456,7 @@ class OlinClassifier(object):
             image = clean_image(image, heading=head)
 
 
-            return self.model.predict(image)
+            return self.model.predict(image), cell
         return None
 
 
@@ -604,7 +604,8 @@ if __name__ == "__main__":
     print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    print(np.argmax(olin_classifier.runSingleImage(0)))
+    thing = np.argmax(olin_classifier.runSingleImage(0))
+    print("predict =  ", thing[0], " and actual = ", thing[1] )
 
 
     # model = olin_classifier.threeConv()
