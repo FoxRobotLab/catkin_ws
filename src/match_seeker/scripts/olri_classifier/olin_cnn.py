@@ -611,7 +611,7 @@ if __name__ == "__main__":
     # olin_classifier.getAccuracy()
     for i in range(5):
         num = random.randint(0,95000)
-        thing, cell = olin_classifier.runSingleImage(94000)
+        thing, cell = olin_classifier.runSingleImage(num)
         print("imnum = ", num, "predict =  ", np.argmax(thing), " and actual = ", cell )
 
 
