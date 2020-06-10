@@ -604,8 +604,8 @@ if __name__ == "__main__":
     print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    thing = np.argmax(olin_classifier.runSingleImage(0))
-    print("predict =  ", thing[0], " and actual = ", thing[1] )
+    thing, cell = np.argmax(olin_classifier.runSingleImage(0))
+    print("predict =  ", thing, " and actual = ", cell )
 
 
     # model = olin_classifier.threeConv()
