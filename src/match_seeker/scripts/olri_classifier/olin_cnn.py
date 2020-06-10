@@ -433,7 +433,7 @@ class OlinClassifier(object):
         #         break
 
         # print(imgs)
-        print(filename)
+        # print(filename)
         if filename is not None:
             image = cv2.imread(filename)
             # print("This is image:", image)
@@ -614,6 +614,7 @@ if __name__ == "__main__":
         num = random.randint(0,95000)
         thing, cell = olin_classifier.runSingleImage(num)
         count += (np.argmax(thing)==cell)
+        print(count)
 
 
     # model = olin_classifier.threeConv()
