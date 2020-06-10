@@ -458,7 +458,7 @@ class OlinClassifier(object):
             # im_arr = np.asarray(im_arr)
 
 
-            image = clean_image(image, data='heading_channel', heading=head)
+            image = clean_image(image, data='heading_channel', heading=int(head))
 
 
             return self.model.predict(image), cell
