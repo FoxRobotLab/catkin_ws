@@ -609,7 +609,7 @@ if __name__ == "__main__":
     print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    thing, cell = olin_classifier.runSingleImage(0)
+    thing, cell = olin_classifier.runSingleImage(6453)
     print("predict =  ", np.argmax(thing), " and actual = ", cell )
 
 
