@@ -4,7 +4,7 @@
 olin_cnn.py
 Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
 Creation Date: July 2018
-Updated: Summer 2019, Summer 2020 
+Updated: Summer 2019, Summer 2020
 
 A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
 Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
@@ -45,6 +45,7 @@ import cv2
 import time
 from paths import pathToMatchSeeker
 import olin_inputs_2019 as oi2
+import random
 
 
 
@@ -414,7 +415,7 @@ class OlinClassifier(object):
         precision = true_positives / (predicted_positives + keras.backend.epsilon())
         return precision
 
-    
+
     def runSingleImage(self, num):
         imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
         count = 0
@@ -441,6 +442,7 @@ class OlinClassifier(object):
                         break
                     count += 1
 
+
             cell = oi2.getOneHotLabel(int(cell), 271)
             cell_arr = []
             im_arr = []
@@ -451,9 +453,11 @@ class OlinClassifier(object):
             im_arr = np.asarray(im_arr)
 
 
-            
-            return self.model.evaluate(im_arr, cell_arr, verbose=2)
-            
+            image = clean_image(image, cell=cell)
+
+
+            return self.model.evaluate(image, cell_arr, verbose=2)
+
 
 def makeFilename(path, fileNum):
     """Makes a filename for reading or writing image files"""
@@ -530,6 +534,53 @@ def resave_from_wulver(datapath):
     model.save(datapath[:-4]+'_NEW.hdf5')
 
 
+def clean_image(image, data = 'old', cell = None, heading = None):
+    mean = np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/DATA/TRAININGDATA_100_500_mean.npy')
+    image_size = 100
+    if data == 'old': #compatible with olin_cnn 2018
+        resized_image = cv2.resize(image, (image_size, image_size))
+        gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+        image = np.subtract(gray_image, mean)
+        depth = 1
+    elif data == 'vgg16': #compatible with vgg16 network for headings
+        image = cv2.resize(image, (170, 128))
+        x = random.randrange(0, 70)
+        y = random.randrange(0, 28)
+        image = image[y:y + 100, x:x + 100]
+        depth = 3
+    elif data == 'cell_channel':
+        if cell != None:
+            resized_image = cv2.resize(image, (image_size, image_size))
+            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+            image = np.subtract(gray_image, mean)
+            cell_arr = cell * np.ones((image_size, image_size, 1))
+            image = np.concatenate((np.expand_dims(image,axis=-1),cell_arr),axis=-1)
+            depth = 2
+        else:
+            print("No value for cell found")
+    elif data == 'heading_channel':
+        if heading != None:
+            resized_image = cv2.resize(image, (image_size, image_size))
+            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+            image = np.subtract(gray_image, mean)
+            cell_arr = heading * np.ones((image_size, image_size, 1))
+            image = np.concatenate((np.expand_dims(image,axis=-1)),axis=-1)
+            depth = 2
+        else:
+            print("No value for heading found")
+    else: #compatible with olin_cnn 2019
+        image = cv2.resize(image, (170, 128))
+        x = random.randrange(0, 70)
+        y = random.randrange(0, 28)
+        cropped_image = image[y:y + 100, x:x + 100]
+        gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        image = np.subtract(gray_image, mean)
+        depth = 1
+    cleaned_image = np.array([image], dtype="float") \
+        .reshape(1, image_size, image_size, depth)
+    return cleaned_image
+
+
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
@@ -538,7 +589,7 @@ if __name__ == "__main__":
         checkpoint_name=None,    # pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5',
         dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
 
-      
+
         num_cells=8,
         eval_ratio=0.1,
         image_size=100,
@@ -552,7 +603,7 @@ if __name__ == "__main__":
     print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    olin_classifier.runSingleImage(0)  
+    olin_classifier.runSingleImage(0)
 
 
     # model = olin_classifier.threeConv()
