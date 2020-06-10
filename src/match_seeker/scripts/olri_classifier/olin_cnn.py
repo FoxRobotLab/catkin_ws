@@ -603,7 +603,7 @@ if __name__ == "__main__":
     print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    olin_classifier.runSingleImage(0)
+    print(olin_classifier.runSingleImage(0))
 
 
     # model = olin_classifier.threeConv()
