@@ -587,7 +587,7 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # checkpoint_name=pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/heading_acc9517_cellInput_250epochs_95k_NEW.hdf5',
         # dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withCellInput95k.npy',
-        checkpoint_name=pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5',
+        checkpoint_name=pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/heading_acc9492_cellInput_165epochs_95k_NEW.hdf5',
         dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
 
 
