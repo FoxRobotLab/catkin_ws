@@ -443,20 +443,23 @@ class OlinClassifier(object):
                     count += 1
 
 
-            cell = oi2.getOneHotLabel(int(cell), 271)
-            cell_arr = []
-            im_arr = []
-            cell_arr.append(cell)
-            im_arr.append(image)
-
-            cell_arr = np.asarray(cell_arr)
-            im_arr = np.asarray(im_arr)
-
-
-            image = clean_image(image, cell=cell)
+            # cell = oi2.getOneHotLabel(int(cell), 271)
+            # cell_arr = []
+            # im_arr = []
+            # cell_arr.append(cell)
+            # im_arr.append(image)
+            #
+            # cell_arr = np.asarray(cell_arr)
+            # im_arr = np.asarray(im_arr)
 
 
-            return self.model.evaluate(image, cell_arr, verbose=2)
+            image = clean_image(image, heading=head)
+
+            im_arr = np.asarray([image])
+
+
+            return self.model.predict(image)
+        return None
 
 
 def makeFilename(path, fileNum):
@@ -564,7 +567,7 @@ def clean_image(image, data = 'old', cell = None, heading = None):
             gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
             image = np.subtract(gray_image, mean)
             cell_arr = heading * np.ones((image_size, image_size, 1))
-            image = np.concatenate((np.expand_dims(image,axis=-1)),axis=-1)
+            image = np.concatenate((np.expand_dims(image,axis=-1), cell_arr),axis=-1)
             depth = 2
         else:
             print("No value for heading found")
