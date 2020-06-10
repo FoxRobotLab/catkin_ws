@@ -102,9 +102,9 @@ class OlinClassifier(object):
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
 
-        self.checkpoint_name = checkpoint_name
-        if self.checkpoint_name is not None:
-            self.model.load_weights(self.checkpoint_name)
+        # self.checkpoint_name = checkpoint_name
+        # if self.checkpoint_name is not None:
+        #     self.model.load_weights(self.checkpoint_name)
 
 
     def loadData(self):
@@ -595,7 +595,7 @@ if __name__ == "__main__":
         checkpoint_name=pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/heading_acc9492_cellInput_165epochs_95k_NEW.hdf5',
         dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
 
-
+        headingInput=True,
         num_cells=271,
         eval_ratio=0.1,
         image_size=100,
