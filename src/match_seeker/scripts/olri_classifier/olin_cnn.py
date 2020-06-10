@@ -44,6 +44,7 @@ from tensorflow import keras
 import cv2
 import time
 from paths import pathToMatchSeeker
+import olin_inputs_2019 as oi2
 
 
 
@@ -415,7 +416,7 @@ class OlinClassifier(object):
 
     
     def runSingleImage(self, num):
-        imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes'
+        imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
         count = 0
         filename = makeFilename(imDirectory, num)
         # st = None
@@ -429,17 +430,29 @@ class OlinClassifier(object):
         print(filename)
         if filename is not None:
             image = cv2.imread(filename)
-
+            print("This is image:", image)
+            print("This is the shape", image.shape)
             cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
             count = 0
-
             with open(cellDirectory) as fp:
                 for line in fp:
                     (fNum, cell, x, y, head) = line.strip().split(' ')
-                    if fNum == num:
+                    if fNum == str(num):
                         break
                     count += 1
-            return self.model.evaluate(image, cell, verbose=2)
+
+            cell = oi2.getOneHotLabel(int(cell), 271)
+            cell_arr = []
+            im_arr = []
+            cell_arr.append(cell)
+            im_arr.append(image)
+
+            cell_arr = np.asarray(cell_arr)
+            im_arr = np.asarray(im_arr)
+
+
+            
+            return self.model.evaluate(im_arr, cell_arr, verbose=2)
             
 
 def makeFilename(path, fileNum):
@@ -539,7 +552,7 @@ if __name__ == "__main__":
     print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    olin_classifier.runSingleImage(50)  #pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/frame0000.jpg', pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/frame0000.jpg')
+    olin_classifier.runSingleImage(0)  
 
 
     # model = olin_classifier.threeConv()
