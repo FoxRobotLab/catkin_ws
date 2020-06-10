@@ -128,8 +128,11 @@ class OlinClassifier(object):
             self.train_labels = trainPart[:, 1] + trainPart[:, 2]
             self.eval_labels = evalPart[:, 1] + evalPart[:, 2]
         elif self.cellInput:
-            self.train_labels = trainPart[:, 1]
-            self.eval_labels = evalPart[:, 1]
+        #     self.train_labels = trainPart[:, 1]
+        #     self.eval_labels = evalPart[:, 1]
+            self.model = keras.models.load_model(pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+                compile=True)
+
         elif self.headingInput:
             self.train_labels = trainPart[:, 2]
             self.eval_lables = trainPart[:, 2]
@@ -610,3 +613,7 @@ if __name__ == "__main__":
 
     # model = olin_classifier.threeConv()
     #olin_classifier.train()
+
+    # self.cell_model = keras.models.load_model(
+    #     "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+    #     compile=True)
