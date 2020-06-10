@@ -83,8 +83,11 @@ class OlinClassifier(object):
             self.model = self.cnn_headings()
             self.loss = keras.losses.binary_crossentropy
         elif self.headingInput:
-            self.model = self.cnn_headings()
-            self.loss = keras.losses.categorical_crossentropy
+            # self.model = self.cnn_headings()
+            # self.loss = keras.losses.categorical_crossentropy
+            self.model = keras.models.load_model(
+                pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+                compile=True)
         elif self.cellInput:
             self.model = self.cnn_cells()
             self.loss = keras.losses.categorical_crossentropy
@@ -128,10 +131,9 @@ class OlinClassifier(object):
             self.train_labels = trainPart[:, 1] + trainPart[:, 2]
             self.eval_labels = evalPart[:, 1] + evalPart[:, 2]
         elif self.cellInput:
-        #     self.train_labels = trainPart[:, 1]
-        #     self.eval_labels = evalPart[:, 1]
-            self.model = keras.models.load_model(pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-                compile=True)
+            self.train_labels = trainPart[:, 1]
+            self.eval_labels = evalPart[:, 1]
+
 
         elif self.headingInput:
             self.train_labels = trainPart[:, 2]
