@@ -421,7 +421,7 @@ class OlinClassifier(object):
         return precision
 
 
-    def runSingleImage(self, num):
+    def runSingleImageHeadingInput(self, num):
         imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
         count = 0
         filename = makeFilename(imDirectory, num)
@@ -438,14 +438,15 @@ class OlinClassifier(object):
             image = cv2.imread(filename)
             # print("This is image:", image)
             # print("This is the shape", image.shape)
-            cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-            count = 0
-            with open(cellDirectory) as fp:
-                for line in fp:
-                    (fNum, cell, x, y, head) = line.strip().split(' ')
-                    if fNum == str(num):
-                        break
-                    count += 1
+            if image is not None:
+                cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+                count = 0
+                with open(cellDirectory) as fp:
+                    for line in fp:
+                        (fNum, cell, x, y, head) = line.strip().split(' ')
+                        if fNum == str(num):
+                            break
+                        count += 1
 
 
             # cell = oi2.getOneHotLabel(int(cell), 271)
@@ -458,10 +459,10 @@ class OlinClassifier(object):
             # im_arr = np.asarray(im_arr)
 
 
-            image = clean_image(image, data='heading_channel', heading=int(head))
+                image = clean_image(image, data='heading_channel', heading=int(head))
 
 
-            return self.model.predict(image), cell
+                return self.model.predict(image), cell
         return None
 
 
@@ -612,7 +613,7 @@ if __name__ == "__main__":
     count = 0
     for i in range(1000):
         num = random.randint(0,95000)
-        thing, cell = olin_classifier.runSingleImage(num)
+        thing, cell = olin_classifier.runSingleImageHeadingInput(num)
         count += (np.argmax(thing)==cell)
     print(count)
 
