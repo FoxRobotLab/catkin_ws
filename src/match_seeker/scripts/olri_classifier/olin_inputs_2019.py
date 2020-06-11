@@ -10,10 +10,10 @@ import numpy as np
 import os
 import random
 from datetime import datetime
-from olin_cnn import loading_bar
+#from olin_cnn import loading_bar
 from paths import pathToClassifier2019 
 
-numCells = 50 #ORIG 271 
+numCells = 25 #ORIG 271 
 image_size = 100
 images_per_cell = 500
 master_cell_loc_frame_id = pathToClassifier2019 + '/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -141,7 +141,8 @@ def cullOverRepped():
     #     except ValueError:
     #         print(frame)
 
-    np.save(pathToClassifier2019 + '/sampleTest_overreppedFrames25k.npy', overreppedFrames)
+    #np.save(pathToClassifier2019 + '/sampleTest_overreppedFrames25k.npy', overreppedFrames)
+    np.save(pathToClassifier2019 + 'sampleTest_overreppedFrames12k.npy', overreppedFrames)
     #ORIG np.save(pathToClassifier2019 +  '/newdata_overreppedFrames95k.npy',overreppedFrames)
     return overreppedFrames
 
@@ -180,8 +181,10 @@ def addUnderRepped():
 
     
     #PC Also save rndUnderRepSubset as a npy file
-    np.save(pathToClassifier2019+ '/sampleTest_underreppedFrames25k.npy', underreppedFrames)
-    np.save(pathToClassifier2019+ '/sampleTest_rndUnderRepSubsetFrames25k.npy', rndUnderRepSubset)
+    np.save(pathToClassifier2019+ '/sampleTest_underreppedFrames12k.npy', underreppedFrames)
+    np.save(pathToClassifier2019+ '/sampleTest_rndUnderRepSubsetFrames12k.npy', rndUnderRepSubset)
+    #np.save(pathToClassifier2019+ '/sampleTest_underreppedFrames25k.npy', underreppedFrames)
+    #np.save(pathToClassifier2019+ '/sampleTest_rndUnderRepSubsetFrames25k.npy', rndUnderRepSubset)
     #ORIG np.save(pathToClassifier2019 +'/newdata_underreppedFrames95k.npy',underreppedFrames)
     return underreppedFrames, rndUnderRepSubset
 
@@ -255,7 +258,7 @@ def add_cell_channel(underRepped=None, randomUnderRepSubset=None, overRepped=Non
 
 
     mean = calculate_mean(allImages)
-    loading_bar(frameNum, len(overRepped) + len(underRepped) + len(randomUnderRepSubset), 150)
+    #loading_bar(frameNum, len(overRepped) + len(underRepped) + len(randomUnderRepSubset), 150)
 
     
        
@@ -266,7 +269,7 @@ def add_cell_channel(underRepped=None, randomUnderRepSubset=None, overRepped=Non
             frame = randomUnderRepSubset[i-len(underRepped)]
         else:
             frame = overRepped[i - (len(underRepped)+len(randomUnderRepSubset))] 
-        loading_bar(i,len(training_img))
+        #loading_bar(i,len(training_img))
         image = training_img[i]
         image = image - mean
         image = np.squeeze(image)
@@ -282,8 +285,10 @@ def add_cell_channel(underRepped=None, randomUnderRepSubset=None, overRepped=Non
             #image_size) + '_' + str(images_per_cell) + 'withCellInput95k.npy', training_data)
     np.asarray(training_img)
     np.asarray(training_hotLabel)
-    np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput25K.npy', training_img)
-    np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput25K.npy', training_hotLabel)
+    #np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput25K.npy', training_img)
+    #np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput25K.npy', training_hotLabel)
+    np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput12K.npy', training_img)
+    np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy', training_hotLabel)
 
     print('Done!')
     return training_img, training_hotLabel
@@ -365,7 +370,7 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
     return training_data
 
 if __name__ == '__main__':
-    
-    add_cell_channel(underRepped= np.load(pathToClassifier2019 + 'sampleTest_underreppedFrames25k.npy'), randomUnderRepSubset = np.load(pathToClassifier2019 + 'sampleTest_rndUnderRepSubsetFrames25k.npy'), overRepped = np.load(pathToClassifier2019 + 'sampleTest_overreppedFrames25k.npy'))
+    add_cell_channel()
+    #add_cell_channel(underRepped= np.load(pathToClassifier2019 + 'sampleTest_underreppedFrames25k.npy'), randomUnderRepSubset = np.load(pathToClassifier2019 + 'sampleTest_rndUnderRepSubsetFrames25k.npy'), overRepped = np.load(pathToClassifier2019 + 'sampleTest_overreppedFrames25k.npy'))
   
     

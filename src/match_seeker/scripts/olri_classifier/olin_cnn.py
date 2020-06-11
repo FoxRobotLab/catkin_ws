@@ -55,7 +55,7 @@ import random
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataFile=None, num_cells=271, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataImg= None, dataLabel= None, num_cells=271, cellInput=False, headingInput=False,
                  image_size=224, image_depth=3):
         ### Set up paths and basic model hyperparameters
 
@@ -68,7 +68,8 @@ class OlinClassifier(object):
         self.headingInput = headingInput
         self.neitherAsInput = (not cellInput) and (not headingInput)
 
-        self.dataFile = dataFile
+        self.dataImg = dataImg
+        self.dataLabel = dataLabel 
         self.dataArray = None
         self.image_size = image_size
         self.image_depth = image_depth
@@ -110,34 +111,40 @@ class OlinClassifier(object):
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
-        self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
-        self.image_size = self.dataArray[0][0].shape[0]
+        #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
+        self.image = np.load(self.dataImg)
+        self.label = np.load(self.dataLabel)
+        self.image_totalImgs = self.image.shape[0]
+      
 
         try:
-            self.image_depth = self.dataArray[0][0].shape[2]
+            self.image_depth = self.image[0].shape[2]
         except IndexError:
             self.image_depth = 1
 
-        self.num_eval = int(self.eval_ratio * self.dataArray.size / 3)
+        self.num_eval = int((self.eval_ratio * self.image_totalImgs/3))
         np.random.seed(2845) #45600
-        np.random.shuffle(self.dataArray)
 
-        trainPart = self.dataArray[:-self.num_eval, :]
-        evalPart = self.dataArray[-self.num_eval:, :]
+        if(len(self.image) == len(self.label)):
+            p = np.random.permutation(len(self.image))
+            self.image = self.image[p]
+            self.label = self.label[p]
+        else:
+            print("Image data and heading data are  not the same size")
+            return 0
+
+        trainPart = self.image[:-self.num_eval, :]
+        evalPart = self.image[-self.num_eval:, :]
 
         # input could include cell data, heading data, or neither (no method right now for doing both as input)
         if self.neitherAsInput:
-            self.num_cells += 8
-            self.train_labels = trainPart[:, 1] + trainPart[:, 2]
-            self.eval_labels = evalPart[:, 1] + evalPart[:, 2]
+            print("There is no cell or heading as input!")
         elif self.cellInput:
-            self.train_labels = trainPart[:, 1]
-            self.eval_labels = evalPart[:, 1]
-
-
+            self.train_labels = self.label[:-self.num_eval, :]
+            self.eval_labels = self.label[-self.num_eval:, :]
         elif self.headingInput:
-            self.train_labels = trainPart[:, 2]
-            self.eval_lables = trainPart[:, 2]
+            self.train_labels = self.label[:-self.num_eval, :]
+            self.eval_labels = self.label[-self.num_eval:, :]
         else:
             print("Cannot have both cell and heading data in input")
             return
@@ -145,7 +152,7 @@ class OlinClassifier(object):
         self.train_images = trainPart[:, 0]
         self.eval_images = evalPart[:, 0]
 
-        self.data_name = self.dataFile.split('/')[-1].strip('.npy')
+        
 
 
 
