@@ -421,7 +421,7 @@ class OlinClassifier(object):
         return precision
 
 
-    def runSingleImageHeadingInput(self, num):
+    def runSingleImage(self, num, input='heading'):
         imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
         count = 0
         filename = makeFilename(imDirectory, num)
@@ -458,8 +458,12 @@ class OlinClassifier(object):
             # cell_arr = np.asarray(cell_arr)
             # im_arr = np.asarray(im_arr)
 
+                if input=='heading':
+                    image = clean_image(image, data='heading_channel', heading=int(head))
 
-                image = clean_image(image, data='heading_channel', heading=int(head))
+                elif input=='cell':
+                    image = clean_image(image, data='cell_channel', heading=int(cell))
+
 
 
                 return self.model.predict(image), cell
@@ -613,7 +617,7 @@ if __name__ == "__main__":
     count = 0
     for i in range(1000):
         num = random.randint(0,95000)
-        thing, cell = olin_classifier.runSingleImageHeadingInput(num)
+        thing, cell = olin_classifier.runSingleImage(num)
         count += (np.argmax(thing)==cell)
     print(count)
 
