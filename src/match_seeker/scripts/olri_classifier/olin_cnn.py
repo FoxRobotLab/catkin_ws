@@ -44,7 +44,7 @@ from tensorflow import keras
 import cv2
 import time
 from paths import pathToMatchSeeker
-import olin_inputs_2019 as oi2
+# ORIG import olin_inputs_2019 as oi2
 import random
 
 
@@ -55,12 +55,12 @@ import random
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataImg= None, dataLabel= None, num_cells=271, cellInput=False, headingInput=False,
-                 image_size=224, image_depth=3):
+    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
+                 image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
         self.checkpoint_dir = pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
-        self.num_cells = num_cells
+        self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
 
@@ -78,7 +78,9 @@ class OlinClassifier(object):
         self.train_labels = None
         self.eval_images = None
         self.eval_labels = None
-        self.data_name = None
+        self.data_name = data_name
+
+        print("This is the headingInput status", self.headingInput)
 
         if self.neitherAsInput:
             self.model = self.cnn_headings()
@@ -111,21 +113,21 @@ class OlinClassifier(object):
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
+
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
       
-
         try:
             self.image_depth = self.image[0].shape[2]
         except IndexError:
             self.image_depth = 1
 
-        self.num_eval = int((self.eval_ratio * self.image_totalImgs/3))
+        self.num_eval = int((self.eval_ratio * self.image_totalImgs / 3))
         np.random.seed(2845) #45600
 
-        if(len(self.image) == len(self.label)):
+        if (len(self.image) == len(self.label)):
             p = np.random.permutation(len(self.image))
             self.image = self.image[p]
             self.label = self.label[p]
@@ -133,8 +135,8 @@ class OlinClassifier(object):
             print("Image data and heading data are  not the same size")
             return 0
 
-        trainPart = self.image[:-self.num_eval, :]
-        evalPart = self.image[-self.num_eval:, :]
+        self.train_images = self.image[:-self.num_eval, :]
+        self.eval_images = self.image[-self.num_eval:, :]
 
         # input could include cell data, heading data, or neither (no method right now for doing both as input)
         if self.neitherAsInput:
@@ -149,11 +151,7 @@ class OlinClassifier(object):
             print("Cannot have both cell and heading data in input")
             return
 
-        self.train_images = trainPart[:, 0]
-        self.eval_images = evalPart[:, 0]
-
-        
-
+       
 
 
     def train(self):
@@ -175,7 +173,7 @@ class OlinClassifier(object):
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=50,
-            epochs=150,
+            epochs=3,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -183,7 +181,7 @@ class OlinClassifier(object):
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
                     self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    period=5  # save every n epoch
+                    period=1  # save every n epoch
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
@@ -195,6 +193,7 @@ class OlinClassifier(object):
                 keras.callbacks.TerminateOnNaN()
             ]
         )
+
 
     def cnn_headings(self):
         """Builds the model for the network that takes heading as input along with image and produces the cell numbeer."""
@@ -243,7 +242,7 @@ class OlinClassifier(object):
             activation = "sigmoid"
         else:
             activation = "softmax"
-        model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
+        model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
         return model
 
     def cnn_cells(self):
@@ -307,7 +306,7 @@ class OlinClassifier(object):
             activation = "sigmoid"
         else:
             activation = "softmax"
-        model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
+        model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
 
         return model
 
@@ -368,7 +367,7 @@ class OlinClassifier(object):
             self.model.add(keras.layers.Dropout(rate=0.4))
             # activate with softmax when training one label and sigmoid when training both headings and cells
             activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
-            self.model.add(keras.layers.Dense(units=self.num_cells, activation=activation))
+            self.model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
             self.model.summary()
             self.model.compile(
                 loss=self.loss,
@@ -537,7 +536,7 @@ def resave_from_wulver(datapath):
         checkpoint_name=None,
         train_data=None,
         extraInput=False,  # Only use when training networks with BOTH cells and headings
-        num_cells=8, #TODO 271 for cells, 8 for headings
+        outputSize=8, #TODO 271 for cells, 8 for headings
         eval_ratio=0.1
     )
 
@@ -553,7 +552,7 @@ def resave_from_wulver(datapath):
 
 
 def clean_image(image, data = 'old', cell = None, heading = None):
-    mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
+    #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
     image_size = 100
     if data == 'old': #compatible with olin_cnn 2018
         resized_image = cv2.resize(image, (image_size, image_size))
@@ -602,31 +601,32 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        # checkpoint_name=pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/heading_acc9517_cellInput_250epochs_95k_NEW.hdf5',
-        # dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withCellInput95k.npy',
-        checkpoint_name=pathToMatchSeeker + 'res/classifier2019data/CHECKPOINTS/heading_acc9492_cellInput_165epochs_95k_NEW.hdf5',
-        dataFile=pathToMatchSeeker + 'res/classifier2019data/NEWTRAININGDATA_100_500withHeadingInput95k.npy',
-
-        headingInput=True,
-        num_cells=271,
+        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput12K.npy',
+        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy',
+        data_name = "cell",
+        outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        image_depth=1
+        cellInput= True,
+        image_depth= 2
     )
-
     print("Classifier built")
-    #olin_classifier.loadData()
-    #print("Data loaded")
+    olin_classifier.loadData()
+    print("Data loaded")
+    olin_classifier.train()
+
+
+
+
     # print(len(olin_classifier.train_images))
-    print(olin_classifier.model.summary())
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    count = 0
-    for i in range(1000):
-        num = random.randint(0,95000)
-        thing, cell = olin_classifier.runSingleImage(num)
-        count += (np.argmax(thing)==cell)
-    print(count)
+    #ORIG count = 0
+    # ORIG for i in range(1000):
+    #     num = random.randint(0,95000)
+    #     thing, cell = olin_classifier.runSingleImage(num)
+    #     count += (np.argmax(thing)==cell)
+    # print(count)
 
 
     # model = olin_classifier.threeConv()
