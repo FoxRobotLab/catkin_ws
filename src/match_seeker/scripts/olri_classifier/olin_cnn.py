@@ -69,7 +69,7 @@ class OlinClassifier(object):
         self.neitherAsInput = (not cellInput) and (not headingInput)
 
         self.dataImg = dataImg
-        self.dataLabel = dataLabel 
+        self.dataLabel = dataLabel
         self.dataArray = None
         self.image_size = image_size
         self.image_depth = image_depth
@@ -79,6 +79,8 @@ class OlinClassifier(object):
         self.eval_images = None
         self.eval_labels = None
         self.data_name = data_name
+
+        print("This is the headingInput status", self.headingInput)
 
         print("This is the headingInput status", self.headingInput)
 
@@ -113,6 +115,11 @@ class OlinClassifier(object):
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
+
+        self.image = np.load(self.dataImg)
+        self.label = np.load(self.dataLabel)
+
+        self.image_totalImgs = self.image.shape[0]
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
@@ -151,7 +158,6 @@ class OlinClassifier(object):
             print("Cannot have both cell and heading data in input")
             return
 
-       
 
 
     def train(self):
