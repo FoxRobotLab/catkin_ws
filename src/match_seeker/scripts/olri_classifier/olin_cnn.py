@@ -80,10 +80,6 @@ class OlinClassifier(object):
         self.eval_labels = None
         self.data_name = data_name
 
-        print("This is the headingInput status", self.headingInput)
-
-        print("This is the headingInput status", self.headingInput)
-
         if self.neitherAsInput:
             self.model = self.cnn_headings()
             self.loss = keras.losses.binary_crossentropy
@@ -116,16 +112,12 @@ class OlinClassifier(object):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
 
-        self.image = np.load(self.dataImg)
-        self.label = np.load(self.dataLabel)
-
-        self.image_totalImgs = self.image.shape[0]
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
-      
+
         try:
             self.image_depth = self.image[0].shape[2]
         except IndexError:
