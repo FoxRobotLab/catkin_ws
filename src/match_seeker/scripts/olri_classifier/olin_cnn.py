@@ -599,13 +599,13 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput12K.npy',
-        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy',
-        data_name = "cell",
+        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withHeadingInput12K.npy',
+        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withHeadingInput12K.npy',
+        data_name = "heading",
         outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        cellInput= True,
+        headingInput=True,
         image_depth= 2
     )
     print("Classifier built")
