@@ -4,7 +4,7 @@
 olin_cnn.py
 Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
 Creation Date: July 2018
-Updated: Summer 2019, Summer 2020 
+Updated: Summer 2019, Summer 2020
 
 A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
 Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
