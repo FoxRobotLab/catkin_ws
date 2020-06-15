@@ -184,7 +184,6 @@ def resizeAndCrop(image):
     else:
         cropped_image = cv2.resize(image, (image_size,image_size))
         cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-        print("This is the image cropped", cropped_image.shape)
         return cropped_image
     ### Uncomment to crop square and preserve aspect ratio ###
     # image = cv2.resize(image,(170,128))
@@ -200,13 +199,10 @@ def getLabels():
     #Places all labels of cells (that now have the correct images_per_cell) in one array. The random frames are placed
     #last in the array
     overLabels = cullOverRepped()
-    print("This is the overLabels", len(overLabels))
     underLabels, randLabels = addUnderRepped()
-    print("This is the underLabels", len(underLabels))
-    print("This is the randomLabels", len(randLabels))
     allLabels = overLabels + underLabels + randLabels
-    print("This is the size of allLabels", len(allLabels))
     randStart = len(overLabels)+len(underLabels)
+    print("This is the value of randStart")
     np.save(pathToClassifier2019 +'/newdata_allFramesToBeProcessed12k.npy', allLabels)
     return allLabels, randStart
 
@@ -228,15 +224,12 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
         image = cv2.imread(pathToClassifier2019 +'/frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
-        print("This is it after resize and crop", image.shape)
         allImages.append(image)
         return image
 
     frameNum = 1
     for frame in allLabels:
         img = processFrame(frame)
-        print("This is the image shape", img.shape)
-        return 0
         if (frameNum -1) >= randStart:
             img = randerase_image(img, 1)
         if(cellInput == True):
@@ -252,11 +245,12 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
 
     def whichTrainImg():
         if len(train_imgWCell) > len(train_imgWHeading):
-            return train_imgWHeading
+            return train_imgWCell
         else:
             return train_imgWHeading
 
     train_img = whichTrainImg()
+    print("this is the len of train_img", len(train_img))
 
     for i in range(len(train_img)):
         frame = allLabels[i]
@@ -266,20 +260,17 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         if cellInput == True:
             cell = int(frame_cell_dict[frame])
             cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWHeading[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
+            train_imgWCell[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
         if headingInput == True:
             heading = (int(frame_heading_dict[frame])) // 45
             heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWCell[i] = np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
+            train_imgWHeading[i]= np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
 
     if cellInput == True:
         train_imgWCell = np.asarray(train_imgWCell)
         hotLabelHeading = np.asarray(hotLabelHeading)
         np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput12K.npy', train_imgWCell)
         np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy', hotLabelHeading)
-    print("This is the shape of train_imgWCell", train_imgWCell.shape)
-    print("This is the shape of hotLabelHeading", hotLabelHeading.shape)
-
     if headingInput == True:
         train_imgWHeading = np.asarray(train_imgWHeading)
         hotLabelCell = np.asarray(hotLabelCell)
