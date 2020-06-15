@@ -356,7 +356,8 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 
 if __name__ == '__main__':
-    add_cell_channel(allLabels = np.load(pathToClassifier2019+ 'newdata_allFramesToBeProcessed12k.npy'), randStart = 11351,cellInput = True)
+    add_cell_channel(allLabels = np.load(pathToClassifier2019+ 'newdata_allFramesToBeProcessed12k.npy'),
+                     randStart = 11351, headingInput = True)
 
 
 
