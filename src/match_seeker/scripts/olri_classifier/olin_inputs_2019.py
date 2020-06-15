@@ -13,7 +13,7 @@ from datetime import datetime
 #from olin_cnn import loading_bar
 from paths import pathToClassifier2019
 
-numCells = 25 #ORIG 271
+numCells = 271 #ORIG 271
 image_size = 100
 images_per_cell = 500
 master_cell_loc_frame_id = pathToClassifier2019 + '/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -24,7 +24,7 @@ def getCellCounts():
         lines = masterlist.readlines()
         cell_counts = dict()
         cell_frame_dict = dict()
-        for i in range(271): #ORIG range(numCells) ALSO COULD BE WASTING SPACE
+        for i in range(numCells): #ORIG range(numCells) ALSO COULD BE WASTING SPACE
             cell_frame_dict[str(i)] = []
 
         for line in lines:
@@ -54,7 +54,7 @@ def getFrameCellDict():
 def getHeadingRep():
     # Returns dict with cell --> counts of num frames taken at each heading in that cell
     cellHeadingCounts = dict()
-    for i in range(271): #ORIG range(numCells)
+    for i in range(numCells): #ORIG range(numCells)
         cellHeadingCounts[str(i)] = [['0',0],['45',0],['90',0],['135',0],['180',0],['225',0],['270',0],['315',0]]
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -203,7 +203,7 @@ def getLabels():
     allLabels = overLabels + underLabels + randLabels
     randStart = len(overLabels)+len(underLabels)
     print("This is the value of randStart")
-    np.save(pathToClassifier2019 +'/newdata_allFramesToBeProcessed12k.npy', allLabels)
+    np.save(pathToClassifier2019 +'/newdata_allFramesToBeProcessed135k.npy', allLabels)
     return allLabels, randStart
 
 
@@ -219,6 +219,9 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
 
     if allLabels is None:
         allLabels, randStart = getLabels()
+
+    print("This is the length", len(allLabels))
+    print("This is the randVal", randStart)
 
     def processFrame(frame):
         print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
@@ -237,7 +240,7 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
             hotLabelHeading.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
         if(headingInput == True):
             train_imgWHeading.append(img)
-            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), 271)) # ORIG numCells
+            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells)) # ORIG numCells
         frameNum += 1
 
     mean = calculate_mean(allImages)
@@ -269,13 +272,13 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
     if cellInput == True:
         train_imgWCell = np.asarray(train_imgWCell)
         hotLabelHeading = np.asarray(hotLabelHeading)
-        np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput12K.npy', train_imgWCell)
-        np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy', hotLabelHeading)
+        np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
+        np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
     if headingInput == True:
         train_imgWHeading = np.asarray(train_imgWHeading)
         hotLabelCell = np.asarray(hotLabelCell)
-        np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withHeadingInput12K.npy', train_imgWHeading)
-        np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_HEADING_withHeadingInput12K.npy', hotLabelCell)
+        np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy', train_imgWHeading)
+        np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy', hotLabelCell)
 
     print('Done!')
     return train_imgWCell, hotLabelHeading, train_imgWHeading, hotLabelCell
@@ -306,7 +309,7 @@ def calculate_mean(images):
         return None
     ### IF USING NEW IMAGE SET, BE SURE TO SAVE MEAN!!
     #np.save('TRAININGDATA_100_500_mean95k.npy',mean)
-    np.save('SAMPLETRAINING_100_500_mean25k.npy', mean)
+    np.save(pathToClassifier2019 + 'SAMPLETRAINING_100_500_mean135k.npy', mean)
     print("*** Done. Returning mean.")
     return mean
 
@@ -356,8 +359,7 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 
 if __name__ == '__main__':
-    add_cell_channel(allLabels = np.load(pathToClassifier2019+ 'newdata_allFramesToBeProcessed12k.npy'),
-                     randStart = 11351, headingInput = True, cellInput = True)
+    add_cell_channel(headingInput = True, cellInput = True)
 
 
 
