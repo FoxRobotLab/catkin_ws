@@ -602,16 +602,16 @@ if __name__ == "__main__":
         dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput12K.npy',
         dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy',
         data_name = "cell",
-        outputSize= 8,
+        outputSize= 271,
         eval_ratio=0.1,
         image_size=100,
-        cellInput= True,
+        headingInput= True,
         image_depth= 2
     )
-    print("Classifier built")
-    olin_classifier.loadData()
-    print("Data loaded")
-    olin_classifier.train()
+    # print("Classifier built")
+    # olin_classifier.loadData()
+    # print("Data loaded")
+    # olin_classifier.train()
 
 
 
@@ -619,17 +619,17 @@ if __name__ == "__main__":
     # print(len(olin_classifier.train_images))
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
-    #ORIG count = 0
-    # ORIG for i in range(1000):
-    #     num = random.randint(0,95000)
-    #     thing, cell = olin_classifier.runSingleImage(num)
-    #     count += (np.argmax(thing)==cell)
-    # print(count)
+    count = 0
+    for i in range(1000):
+        num = random.randint(0,95000)
+        thing, cell = olin_classifier.runSingleImage(num)
+        count += (np.argmax(thing)==cell)
+    print(count)
 
 
     # model = olin_classifier.threeConv()
-    #olin_classifier.train()
-
+    # olin_classifier.train()
+    #
     # self.cell_model = keras.models.load_model(
     #     "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
     #     compile=True)
