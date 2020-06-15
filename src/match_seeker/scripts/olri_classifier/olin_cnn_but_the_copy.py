@@ -550,7 +550,7 @@ def resave_from_wulver(datapath):
 
 
 def clean_image(image, data = 'old', cell = None, heading = None):
-    #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
+    mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
     image_size = 100
     if data == 'old': #compatible with olin_cnn 2018
         resized_image = cv2.resize(image, (image_size, image_size))
