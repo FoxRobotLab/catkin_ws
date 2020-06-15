@@ -442,18 +442,24 @@ class OlinClassifier(object):
         # print(imgs)
         # print(filename)
         if filename is not None:
-            image = cv2.imread(filename)
-            # print("This is image:", image)
-            # print("This is the shape", image.shape)
-            if image is not None:
-                cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-                count = 0
-                with open(cellDirectory) as fp:
-                    for line in fp:
-                        (fNum, cell, x, y, head) = line.strip().split(' ')
-                        if fNum == str(num):
-                            break
-                        count += 1
+            try:
+                image = cv2.imread(filename)
+                # print("This is image:", image)
+                # print("This is the shape", image.shape)
+                if image is not None:
+                    cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+                    count = 0
+                    with open(cellDirectory) as fp:
+                        for line in fp:
+                            (fNum, cell, x, y, head) = line.strip().split(' ')
+                            if fNum == str(num):
+                                break
+                            count += 1
+
+            except:
+                return
+
+            finally:
 
 
             # cell = oi2.getOneHotLabel(int(cell), 271)
