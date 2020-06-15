@@ -629,3 +629,5 @@ if __name__ == "__main__":
         thing, cell = olin_classifier.runSingleImage(num)
         count += (np.argmax(thing) == np.int(cell))
         # print("thing = ", np.argmax(thing), " and cell = ", cell, " and this is ", np.argmax(thing) == np.int(cell))
+
+    print(count)
