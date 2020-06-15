@@ -625,7 +625,7 @@ if __name__ == "__main__":
     count = 0
     for i in range(10):
         num = random.randint(0,95000)
-        thing, heading = olin_classifier.runSingleImage(num)
+        thing, heading = olin_classifier.runSingleImage(num, input='cell')
         print(np.argmax(thing), " thing")
         print(heading, " heading")
 
