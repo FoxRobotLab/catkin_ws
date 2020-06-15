@@ -254,7 +254,7 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
 
     for i in range(len(train_img)):
         frame = allLabels[i]
-        image = train_imgWCell[i]
+        image = train_img[i]
         image = image - mean
         image = np.squeeze(image)
         if cellInput == True:
