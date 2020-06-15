@@ -23,7 +23,7 @@ def closest_bound_pt(robot_x, robot_y):
         if dist < best_dist:
             best_dist = dist
             best_pt = (x1, y1)
-    print "Localizer 288 best pt: " + str(best_pt)
+    print ("Localizer 288 best pt: " + str(best_pt))
     return best_pt
 
 if __name__ == '__main__':
