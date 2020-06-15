@@ -628,4 +628,4 @@ if __name__ == "__main__":
         num = random.randint(0, 95000)
         thing, cell = olin_classifier.runSingleImage(num)
         # count += (np.argmax(thing) == cell)
-        print("thing = ", np.argmax(thing), " and cell = ", np.argmax(cell), " and this is ", np.argmax(thing) == cell)
+        print("thing = ", np.argmax(thing), " and cell = ", cell, " and this is ", np.argmax(thing) == np.int(cell))
