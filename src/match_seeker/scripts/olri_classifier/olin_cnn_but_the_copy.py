@@ -476,7 +476,6 @@ class OlinClassifier(object):
                     return self.model.predict(image), cell
 
                 elif input=='cell':
-                    print("hi")
                     image = clean_image(image, data='cell_channel', cell=int(cell))
                     return self.model.predict(image), head
 
@@ -638,7 +637,7 @@ if __name__ == "__main__":
     )
 
     count = 0
-    for i in range(10):
+    for i in range(1000):
         num = random.randint(0,95000)
         thing, heading = olin_classifier.runSingleImage(num, input='cell')
         if np.argmax(thing) == np.int(heading):
