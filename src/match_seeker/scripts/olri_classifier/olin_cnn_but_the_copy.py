@@ -467,13 +467,15 @@ class OlinClassifier(object):
 
                 if input=='heading':
                     image = clean_image(image, data='heading_channel', heading=int(head))
+                    return self.model.predict(image), cell
 
                 elif input=='cell':
                     image = clean_image(image, data='cell_channel', cell=int(cell))
+                    return self.model.predict(image), head
 
 
 
-                return self.model.predict(image), cell
+
         return None
 
 
