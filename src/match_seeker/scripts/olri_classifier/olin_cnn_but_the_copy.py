@@ -470,6 +470,7 @@ class OlinClassifier(object):
                     return self.model.predict(image), cell
 
                 elif input=='cell':
+                    print("hi")
                     image = clean_image(image, data='cell_channel', cell=int(cell))
                     return self.model.predict(image), head
 
