@@ -595,7 +595,7 @@ def clean_image(image, data = 'old', cell = None, heading = None):
         image = np.subtract(gray_image, mean)
         depth = 1
     cleaned_image = np.array([image], dtype="float") \
-        .reshape(1, image_size, image_size, depth)
+    .reshape(1, image_size, image_size, depth)
     return cleaned_image
 
 
