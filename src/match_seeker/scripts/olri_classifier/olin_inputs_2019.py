@@ -183,16 +183,16 @@ def resizeAndCrop(image):
         print("No Image")
     else:
     	cropped_image = cv2.resize(image, (image_size,image_size))
-
+        cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        print("This is the image cropped", cropped_image.shape)
+        return cropped_image
     ### Uncomment to crop square and preserve aspect ratio ###
     # image = cv2.resize(image,(170,128))
     # x = random.randrange(0,70)
     # y = random.randrange(0,28)
     #
     # cropped_image = image[y:y+100, x:x+100]f
-    	cropped_image = cv2.cvtColor(cropped_image,cv2.COLOR_BGR2GRAY)
-
-    	return cropped_image
+    
 
 
 strtRand = None
@@ -200,10 +200,14 @@ def getLabels():
     #Places all labels of cells (that now have the correct images_per_cell) in one array. The random frames are placed
     #last in the array
     overLabels = cullOverRepped()
+    print("This is the overLabels", len(overLabels))
     underLabels, randLabels = addUnderRepped()
+    print("This is the underLabels", len(underLabels))
+    print("This is the randomLabels", len(randLabels))
     allLabels = overLabels + underLabels + randLabels
+    print("This is the size of allLabels", len(allLabels))
     randStart = len(overLabels)+len(underLabels)
-    np.save(pathToClassifier2019 +'/newdata_allFramesToBeProcessed15k.npy', allLabels)
+    np.save(pathToClassifier2019 +'/newdata_allFramesToBeProcessed12k.npy', allLabels)
     return allLabels, randStart
 
 
@@ -215,6 +219,7 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
     train_imgWHeading =[]
     hotLabelCell= []
     allImages = []
+   
 
     if allLabels is None:
         allLabels, randStart = getLabels()
@@ -223,20 +228,23 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
         image = cv2.imread(pathToClassifier2019 +'/frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
+        print("This is it after resize and crop", image.shape)
         allImages.append(image)
         return image
 
     frameNum = 1
     for frame in allLabels:
         img = processFrame(frame)
+        print("This is the image shape", img.shape)
+        return 0
         if (frameNum -1) >= randStart:
             img = randerase_image(img, 1)
         if(cellInput == True):
             train_imgWCell.append(img)
-            hotLabelHeading.append(getOneHotLabel(int(frame_cell_dict[frame]), 271))  # ORIG numCells
+            hotLabelHeading.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
         if(headingInput == True):
             train_imgWHeading.append(img)
-            hotLabelCell.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
+            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), 271)) # ORIG numCells
         frameNum += 1
 
     mean = calculate_mean(allImages)
@@ -269,6 +277,8 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         hotLabelHeading = np.asarray(hotLabelHeading)
         np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput12K.npy', train_imgWCell)
         np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy', hotLabelHeading)
+    print("This is the shape of train_imgWCell", train_imgWCell.shape)
+    print("This is the shape of hotLabelHeading", hotLabelHeading.shape)
 
     if headingInput == True:
         train_imgWHeading = np.asarray(train_imgWHeading)
@@ -355,7 +365,8 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 
 if __name__ == '__main__':
-    add_cell_channel(cellInput=True)
-    #add_cell_channel(underRepped= np.load(pathToClassifier2019 + 'sampleTest_underreppedFrames25k.npy'), randomUnderRepSubset = np.load(pathToClassifier2019 + 'sampleTest_rndUnderRepSubsetFrames25k.npy'), overRepped = np.load(pathToClassifier2019 + 'sampleTest_overreppedFrames25k.npy'))
+    add_cell_channel(allLabels = np.load(pathToClassifier2019+ 'newdata_allFramesToBeProcessed12k.npy'), randStart = 11351,cellInput = True)
+    
+    
 
 
