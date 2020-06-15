@@ -182,7 +182,7 @@ def resizeAndCrop(image):
     if image is None:
         print("No Image")
     else:
-    	cropped_image = cv2.resize(image, (image_size,image_size))
+        cropped_image = cv2.resize(image, (image_size,image_size))
         cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
         print("This is the image cropped", cropped_image.shape)
         return cropped_image
@@ -192,7 +192,7 @@ def resizeAndCrop(image):
     # y = random.randrange(0,28)
     #
     # cropped_image = image[y:y+100, x:x+100]f
-    
+
 
 
 strtRand = None
@@ -219,7 +219,7 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
     train_imgWHeading =[]
     hotLabelCell= []
     allImages = []
-   
+
 
     if allLabels is None:
         allLabels, randStart = getLabels()
@@ -366,7 +366,7 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 if __name__ == '__main__':
     add_cell_channel(allLabels = np.load(pathToClassifier2019+ 'newdata_allFramesToBeProcessed12k.npy'), randStart = 11351,cellInput = True)
-    
-    
+
+
 
 
