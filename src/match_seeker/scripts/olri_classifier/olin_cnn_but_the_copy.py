@@ -92,7 +92,10 @@ class OlinClassifier(object):
                 pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            self.model = self.cnn_cells()
+            #self.model = self.cnn_cells()
+            self.model = keras.models.load_model(
+                pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/heading_acc9492_cellInput_165epochs_95k_NEW.hdf5",
+                compile=True)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -599,13 +602,13 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput12K.npy',
-        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy',
+        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         data_name = "cell",
-        outputSize= 271,
+        outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        headingInput= True,
+        cellInput= True,
         image_depth= 2
     )
     # print("Classifier built")
@@ -620,11 +623,11 @@ if __name__ == "__main__":
     #olin_classifier.train()
     # olin_classifier.getAccuracy()
     count = 0
-    for i in range(1000):
+    for i in range(10):
         num = random.randint(0,95000)
-        thing, cell = olin_classifier.runSingleImage(num)
-        count += (np.argmax(thing)==cell)
-    print(count)
+        thing, heading = olin_classifier.runSingleImage(num)
+        print(thing, " thing")
+        print(heading, " heading")
 
 
     # model = olin_classifier.threeConv()
