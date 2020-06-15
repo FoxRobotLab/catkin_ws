@@ -469,7 +469,7 @@ class OlinClassifier(object):
                     image = clean_image(image, data='heading_channel', heading=int(head))
 
                 elif input=='cell':
-                    image = clean_image(image, data='cell_channel', heading=int(cell))
+                    image = clean_image(image, data='cell_channel', cell=int(cell))
 
 
 
