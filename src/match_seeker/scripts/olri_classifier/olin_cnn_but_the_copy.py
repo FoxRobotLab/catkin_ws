@@ -624,8 +624,9 @@ if __name__ == "__main__":
 
 
     count = 0
-    for i in range(10):
+    for i in range(100):
         num = random.randint(0, 95000)
         thing, cell = olin_classifier.runSingleImage(num)
-        print(np.argmax(thing), " thing")
-        print(cell, " cell")
+        count += (np.argmax(thing) == cell)
+
+    print(count)
