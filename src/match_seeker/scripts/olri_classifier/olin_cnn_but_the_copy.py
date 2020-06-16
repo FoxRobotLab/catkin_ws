@@ -92,7 +92,10 @@ class OlinClassifier(object):
                 pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            self.model = self.cnn_cells()
+            #self.model = self.cnn_cells()
+            self.model = keras.models.load_model(
+                pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/heading_acc9492_cellInput_165epochs_95k_NEW.hdf5",
+                compile=True)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -427,7 +430,6 @@ class OlinClassifier(object):
 
     def runSingleImage(self, num, input='heading'):
         imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
-        count = 0
         filename = makeFilename(imDirectory, num)
         # st = None
 
@@ -439,10 +441,17 @@ class OlinClassifier(object):
         # print(imgs)
         # print(filename)
         if filename is not None:
-            image = cv2.imread(filename)
-            # print("This is image:", image)
-            # print("This is the shape", image.shape)
-            if image is not None:
+            try:
+                image = cv2.imread(filename)
+                # print("This is image:", image)
+                # print("This is the shape", image.shape)
+
+            except:
+
+                return
+
+            finally:
+
                 cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
                 count = 0
                 with open(cellDirectory) as fp:
@@ -464,13 +473,15 @@ class OlinClassifier(object):
 
                 if input=='heading':
                     image = clean_image(image, data='heading_channel', heading=int(head))
+                    return self.model.predict(image), cell
 
                 elif input=='cell':
-                    image = clean_image(image, data='cell_channel', heading=int(cell))
+                    image = clean_image(image, data='cell_channel', cell=int(cell))
+                    return self.model.predict(image), head
 
 
 
-                return self.model.predict(image), cell
+
         return None
 
 
@@ -550,7 +561,7 @@ def resave_from_wulver(datapath):
 
 
 def clean_image(image, data = 'old', cell = None, heading = None):
-    #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
+    mean = np.load(pathToMatchSeeker + 'res/classifier2019data/SAMPLETRAINING_100_500_mean135k.npy')   #TRAININGDATA_100_500_mean95k.npy')
     image_size = 100
     if data == 'old': #compatible with olin_cnn 2018
         resized_image = cv2.resize(image, (image_size, image_size))
@@ -592,44 +603,52 @@ def clean_image(image, data = 'old', cell = None, heading = None):
         image = np.subtract(gray_image, mean)
         depth = 1
     cleaned_image = np.array([image], dtype="float") \
-        .reshape(1, image_size, image_size, depth)
+    .reshape(1, image_size, image_size, depth)
     return cleaned_image
 
 
 if __name__ == "__main__":
     # check_data()
+
+
+    '''heading input'''
+    # olin_classifier = OlinClassifier(
+    #     dataImg= pathToMatchSeeker+ 'res/classifier2019data/TRAININGDATA_IMG_withHeadingInput135K.npy',
+    #     dataLabel = pathToMatchSeeker+ 'res/classifier2019data/TRAININGDATA_CELL_withHeadingInput135K.np',
+    #     data_name = "cell",
+    #     outputSize= 271,
+    #     eval_ratio=0.1,
+    #     image_size=100,
+    #     headingInput= True,
+    #     image_depth= 2
+    # )
+
+
+    '''cell input'''
     olin_classifier = OlinClassifier(
-        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput12K.npy',
-        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy',
-        data_name = "cell",
-        outputSize= 8,
+        dataImg=pathToMatchSeeker + 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        dataLabel=pathToMatchSeeker + 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+        data_name="cell",
+        outputSize=8,
         eval_ratio=0.1,
         image_size=100,
-        cellInput= True,
-        image_depth= 2
+        cellInput=True,
+        image_depth=2
     )
-    print("Classifier built")
-    olin_classifier.loadData()
-    print("Data loaded")
-    olin_classifier.train()
+
+    count = 0
+    for i in range(1000):
+        num = random.randint(0,95000)
+        thing, heading = olin_classifier.runSingleImage(num, input='cell')
+        if np.argmax(thing) == np.int(heading):
+            count += 1
 
 
-
-
-    # print(len(olin_classifier.train_images))
-    #olin_classifier.train()
-    # olin_classifier.getAccuracy()
-    #ORIG count = 0
-    # ORIG for i in range(1000):
-    #     num = random.randint(0,95000)
+    # count = 0
+    # for i in range(1000):
+    #     num = random.randint(0, 95000)
     #     thing, cell = olin_classifier.runSingleImage(num)
-    #     count += (np.argmax(thing)==cell)
-    # print(count)
+    #     if np.argmax(thing) == np.int(cell):
+    #         count += 1
 
-
-    # model = olin_classifier.threeConv()
-    #olin_classifier.train()
-
-    # self.cell_model = keras.models.load_model(
-    #     "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-    #     compile=True)
+    print(count)

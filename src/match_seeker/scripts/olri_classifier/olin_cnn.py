@@ -601,11 +601,11 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withHeadingInput12K.npy',
         dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withHeadingInput12K.npy',
-        data_name = "heading",
+        data_name = "cellInput",
         outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        headingInput=True,
+        headingInput= True,
         image_depth= 2
     )
     print("Classifier built")
