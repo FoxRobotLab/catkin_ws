@@ -21,5 +21,6 @@ src/match_seeker/res/052517
 src/match_seeker/res/colorTest
 src/match_seeker/res/homesigns
 src/match_seeker/res/QRCodes
+src/match_seeker/scripts/olri_classifier/paths.py
 devel/
 build/

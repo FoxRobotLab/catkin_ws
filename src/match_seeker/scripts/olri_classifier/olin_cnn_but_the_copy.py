@@ -78,7 +78,9 @@ class OlinClassifier(object):
         self.train_labels = None
         self.eval_images = None
         self.eval_labels = None
-        self.data_name = data_name
+        self.data_name = None
+
+        print("This is the headingInput status", self.headingInput)
 
         if self.neitherAsInput:
             self.model = self.cnn_headings()
@@ -111,11 +113,9 @@ class OlinClassifier(object):
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
-
-
-        #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         self.label = np.load(self.dataLabel)
+
         self.image_totalImgs = self.image.shape[0]
 
         try:
@@ -599,13 +599,13 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withHeadingInput12K.npy',
-        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withHeadingInput12K.npy',
-        data_name = "heading",
+        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput12K.npy',
+        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy',
+        data_name = "cell",
         outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        headingInput=True,
+        cellInput= True,
         image_depth= 2
     )
     print("Classifier built")
