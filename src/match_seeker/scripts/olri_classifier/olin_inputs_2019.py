@@ -11,9 +11,9 @@ import os
 import random
 from datetime import datetime
 #from olin_cnn import loading_bar
-from paths import pathToClassifier2019 
+from paths import pathToClassifier2019
 
-numCells = 25 #ORIG 271 
+numCells = 271 #ORIG 271
 image_size = 100
 images_per_cell = 500
 master_cell_loc_frame_id = pathToClassifier2019 + '/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -24,7 +24,7 @@ def getCellCounts():
         lines = masterlist.readlines()
         cell_counts = dict()
         cell_frame_dict = dict()
-        for i in range(271): #ORIG range(numCells) ALSO COULD BE WASTING SPACE
+        for i in range(numCells): #ORIG range(numCells) ALSO COULD BE WASTING SPACE
             cell_frame_dict[str(i)] = []
 
         for line in lines:
@@ -37,7 +37,7 @@ def getCellCounts():
                 cell_counts[splitline[1]] += 1
 
             cell_frame_dict[splitline[1]].append('%04d'%int(splitline[0]))
-	    
+
 
     return cell_counts, cell_frame_dict
 
@@ -54,7 +54,7 @@ def getFrameCellDict():
 def getHeadingRep():
     # Returns dict with cell --> counts of num frames taken at each heading in that cell
     cellHeadingCounts = dict()
-    for i in range(271): #ORIG range(numCells) 
+    for i in range(numCells): #ORIG range(numCells)
         cellHeadingCounts[str(i)] = [['0',0],['45',0],['90',0],['135',0],['180',0],['225',0],['270',0],['315',0]]
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -68,6 +68,8 @@ def getHeadingRep():
     return cellHeadingCounts
 
 def getUnderOverRep(cell_counts):
+    #Returns two arrays, one with cells that have or are below 'images_per_cell' and the other with cells that have more
+    #labels than 'images_per_cell'
     underRep = []
     overRep = []
 
@@ -106,6 +108,8 @@ def getOneHotLabel(number,size):
     return onehot
 
 def cullOverRepped():
+    #Takes all cells that have more than images_per_cell and randomly erases labels until the cell has exactly the same
+    #number as images_per_cell
     cell_counts, cell_frame_dict = getCellCounts()
     cell_heading_counts = getHeadingRep()
     under, overRepList = getUnderOverRep(cell_counts)
@@ -134,19 +138,11 @@ def cullOverRepped():
             cell_frame_dict[cell].remove(toBeRemoved)
             cell_counts[cell] -= 1
 
-    print(len(overreppedFrames))
-    # for frame in remove:
-    #     try:
-    #         overreppedFrames.remove(frame)
-    #     except ValueError:
-    #         print(frame)
-
-    #np.save(pathToClassifier2019 + '/sampleTest_overreppedFrames25k.npy', overreppedFrames)
-    np.save(pathToClassifier2019 + 'sampleTest_overreppedFrames12k.npy', overreppedFrames)
-    #ORIG np.save(pathToClassifier2019 +  '/newdata_overreppedFrames95k.npy',overreppedFrames)
     return overreppedFrames
 
 def addUnderRepped():
+    #Takes all cells that have below or the same amount of images_per_cell and keeps adding labels until it has the same
+    #number of labels as images_per_cell
     cell_counts, cell_frame_dict = getCellCounts()
     cell_heading_counts = getHeadingRep()
     underRepList, over = getUnderOverRep(cell_counts)
@@ -168,9 +164,9 @@ def addUnderRepped():
             smallestHeading = headingList[h][0] #BORIG smallestHeading = headingList[0][0]
             headingList[h][1] = headingList[h][1] + 1 #ORIG headingList[0][1] = headingList[0][1] + 1
             potentialAdditions = []
-            for frame in heading_frame_dict[smallestHeading]: 
-                if frame in cell_frame_dict[cell]: 
-                    potentialAdditions.append(frame) 
+            for frame in heading_frame_dict[smallestHeading]:
+                if frame in cell_frame_dict[cell]:
+                    potentialAdditions.append(frame)
             if len(potentialAdditions) == 0:#UNNECESSARY?
                 print(cell, 'has very little data')
                 continue
@@ -178,14 +174,6 @@ def addUnderRepped():
             rndUnderRepSubset.append(toBeAdded)
             cell_frame_dict[cell].append(toBeAdded)
             cell_counts[cell] += 1
-
-    
-    #PC Also save rndUnderRepSubset as a npy file
-    np.save(pathToClassifier2019+ '/sampleTest_underreppedFrames12k.npy', underreppedFrames)
-    np.save(pathToClassifier2019+ '/sampleTest_rndUnderRepSubsetFrames12k.npy', rndUnderRepSubset)
-    #np.save(pathToClassifier2019+ '/sampleTest_underreppedFrames25k.npy', underreppedFrames)
-    #np.save(pathToClassifier2019+ '/sampleTest_rndUnderRepSubsetFrames25k.npy', rndUnderRepSubset)
-    #ORIG np.save(pathToClassifier2019 +'/newdata_underreppedFrames95k.npy',underreppedFrames)
     return underreppedFrames, rndUnderRepSubset
 
 def resizeAndCrop(image):
@@ -194,111 +182,107 @@ def resizeAndCrop(image):
     if image is None:
         print("No Image")
     else:
-    	cropped_image = cv2.resize(image, (image_size,image_size))
-
+        cropped_image = cv2.resize(image, (image_size,image_size))
+        cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        return cropped_image
     ### Uncomment to crop square and preserve aspect ratio ###
     # image = cv2.resize(image,(170,128))
     # x = random.randrange(0,70)
     # y = random.randrange(0,28)
     #
     # cropped_image = image[y:y+100, x:x+100]f
-    	cropped_image = cv2.cvtColor(cropped_image,cv2.COLOR_BGR2GRAY)
 
-    	return cropped_image
 
-def add_cell_channel(underRepped=None, randomUnderRepSubset=None, overRepped=None):
+
+strtRand = None
+def getLabels():
+    #Places all labels of cells (that now have the correct images_per_cell) in one array. The random frames are placed
+    #last in the array
+    overLabels = cullOverRepped()
+    underLabels, randLabels = addUnderRepped()
+    allLabels = overLabels + underLabels + randLabels
+    randStart = len(overLabels)+len(underLabels)
+    np.save(pathToClassifier2019 +'/newdata_allFramesToBeProcessed135k.npy', allLabels)
+    return allLabels, randStart
+
+
+def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headingInput=None ):
     frame_cell_dict = getFrameCellDict()
     frame_heading_dict = getFrameHeadingDict()
-    training_data = []
-    training_img = []
-    training_hotLabel= []
+    train_imgWCell = []
+    hotLabelHeading = []
+    train_imgWHeading =[]
+    hotLabelCell= []
     allImages = []
 
-    if underRepped is None:
-        underRepped, randomUnderRepSubset = addUnderRepped()
-    if overRepped is None:
-        overRepped = cullOverRepped()
 
-
+    if allLabels is None:
+        allLabels, randStart = getLabels()
 
     def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(
-            len(overRepped) + len(underRepped) + len(randomUnderRepSubset)) + "     (Frame number: " + frame + ")")
+        print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
         image = cv2.imread(pathToClassifier2019 +'/frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
         return image
 
-        
-       
-
     frameNum = 1
-    for frame in underRepped:
-        img= processFrame(frame)
-        training_img.append(img)
-        training_hotLabel.append(getOneHotLabel(int(frame_cell_dict[frame]), 271)) #ORIG numCells
-        #training_hotLabel.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-        frameNum += 1
-
-    for frame in randomUnderRepSubset:
+    for frame in allLabels:
         img = processFrame(frame)
-        new_img = randerase_image(img, 1)
-        training_img.append(new_img)
-        training_hotLabel.append(getOneHotLabel(int(frame_cell_dict[frame]), 271)) #ORIG numCells
-        #training_hotLabel.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-        frameNum +=1
+        if (frameNum -1) >= randStart:
+            img = randerase_image(img, 1)
+        if(cellInput == True):
+            train_imgWCell.append(img)
+            hotLabelHeading.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
 
+        if(headingInput == True):
+            train_imgWHeading.append(img)
+            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
 
-    for frame in overRepped:
-        img = processFrame(frame)
-        training_img.append(img)
-        training_hotLabel.append(getOneHotLabel(int(frame_cell_dict[frame]), 271)) #ORIG numCells
-        #training_hotLabel.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
         frameNum += 1
-
-
 
     mean = calculate_mean(allImages)
     #loading_bar(frameNum, len(overRepped) + len(underRepped) + len(randomUnderRepSubset), 150)
 
-    
-       
-    for i in range(len(training_img)):
-        if (i < len(underRepped)):
-            frame = underRepped[i]
-        elif (i < len(underRepped) + len(randomUnderRepSubset)):
-            frame = randomUnderRepSubset[i-len(underRepped)]
+    def whichTrainImg():
+        if len(train_imgWCell) > len(train_imgWHeading):
+            return train_imgWCell
         else:
-            frame = overRepped[i - (len(underRepped)+len(randomUnderRepSubset))] 
-        #loading_bar(i,len(training_img))
-        image = training_img[i]
+            return train_imgWHeading
+
+    train_img = whichTrainImg()
+    print("expecting a one", len(train_img))
+
+    for i in range(len(train_img)):
+        frame = allLabels[i]
+        image = train_img[i]
         image = image - mean
         image = np.squeeze(image)
-        #cell = int(frame_cell_dict[frame])
-        #cell_arr = cell*np.ones((image.shape[0], image.shape[1], 1))
-        #training_img[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
+        if cellInput == True:
+            cell = int(frame_cell_dict[frame])
+            cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
+            train_imgWCell[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
 
-        heading = (int(frame_heading_dict[frame])) // 45
-        heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
-        training_img[i] = np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
+        if headingInput == True:
+            heading = (int(frame_heading_dict[frame])) // 45
+            heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
+            train_imgWHeading[i]= np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
 
-    #np.save(pathToClassifier2019 + '/NEWTRAININGDATA_' + str(
-            #image_size) + '_' + str(images_per_cell) + 'withCellInput95k.npy', training_data)
 
-    #Turning the array into numpy array
-    np.asarray(training_img)
-    np.asarray(training_hotLabel)
 
-    #Saving the data
-    #np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput25K.npy', training_img)
-    #np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput25K.npy', training_hotLabel)
-    #np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput12K.npy', training_img)
-    #np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput12K.npy', training_hotLabel)
-    np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withHeadingInput12K.npy', training_img)
-    np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withHeadingInput12K.npy', training_hotLabel)
+    if cellInput == True:
+        train_imgWCell = np.asarray(train_imgWCell)
+        hotLabelHeading = np.asarray(hotLabelHeading)
+        np.save(pathToClassifier2019 + '/SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
+        np.save(pathToClassifier2019+ '/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
+    if headingInput == True:
+        train_imgWHeading = np.asarray(train_imgWHeading)
+        hotLabelCell = np.asarray(hotLabelCell)
+        np.save(pathToClassifier2019 + '/TRAININGDATA_IMG_withHeadingInput135K.npy', train_imgWHeading)
+        np.save(pathToClassifier2019 + '/TRAININGDATA_CELL_withHeadingInput135K.npy', hotLabelCell)
 
     print('Done!')
-    return training_img, training_hotLabel
+    return train_imgWCell, hotLabelHeading, train_imgWHeading, hotLabelCell
 
 def calculate_mean(images):
     # If adding additional channel with heading/cell identification, following lines can be problematic, watch out!
@@ -326,7 +310,7 @@ def calculate_mean(images):
         return None
     ### IF USING NEW IMAGE SET, BE SURE TO SAVE MEAN!!
     #np.save('TRAININGDATA_100_500_mean95k.npy',mean)
-    np.save('SAMPLETRAINING_100_500_mean25k.npy', mean)
+    np.save(pathToClassifier2019 + 'SAMPLETRAINING_100_500_mean135k.npy', mean)
     print("*** Done. Returning mean.")
     return mean
 
@@ -371,13 +355,14 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
     #
     #     training_data[i][0] = re_image
 
-    np.save(pathToClassifier2019 + '/NEWTRAININGDATA_'+str(image_size)+'_'+str(images_per_cell)+'95k.npy',training_data)
 
-    print('Done!')
-    return training_data
+
+
 
 if __name__ == '__main__':
-    add_cell_channel(underRepped= np.load(pathToClassifier2019 + 'sampleTest_underreppedFrames12k.npy'), randomUnderRepSubset = np.load(pathToClassifier2019 + 'sampleTest_rndUnderRepSubsetFrames12k.npy'), overRepped = np.load(pathToClassifier2019 + 'sampleTest_overreppedFrames12k.npy'))
-    #add_cell_channel(underRepped= np.load(pathToClassifier2019 + 'sampleTest_underreppedFrames25k.npy'), randomUnderRepSubset = np.load(pathToClassifier2019 + 'sampleTest_rndUnderRepSubsetFrames25k.npy'), overRepped = np.load(pathToClassifier2019 + 'sampleTest_overreppedFrames25k.npy'))
-  
-    
+    add_cell_channel(allLabels= np.load(pathToClassifier2019+'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
+
+
+
+
+
