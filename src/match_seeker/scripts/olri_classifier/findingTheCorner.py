@@ -23,10 +23,10 @@ def getCorner():
             if currentCell!= beforeCell:
                 print(currentCell)
                 print(currentCell)
-                print(#)
                 print(cornerNum)
-                cornerNum +=1
-                break 
+                print('#')
+                cornerNum+=1
+                return 0
             #if currentCell != beforeCell:
                 #f5 = lines[lineNum+1].split()[0]
                 #f5 = numFormat.format(int(f5))
@@ -41,7 +41,7 @@ def getCorner():
             print(pastFrame)
             beforeCell = currentCell
             lineNum += 1
-      
+
 
 
 if __name__ == '__main__':
