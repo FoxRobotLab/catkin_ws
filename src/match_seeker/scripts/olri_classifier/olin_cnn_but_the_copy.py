@@ -432,7 +432,7 @@ class OlinClassifier(object):
         dict = makeHeadDict()
         imDirectory = pathToMatchSeeker + 'res/classifier2019data/DATA/frames/moreframes/'
         filename = makeFilename(imDirectory, num)
-        print(filename)
+        # print(filename)
         # st = None
 
         # for fname in os.listdir(imDirectory):
