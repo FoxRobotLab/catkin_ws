@@ -445,7 +445,6 @@ class OlinClassifier(object):
         if filename is not None:
             try:
                 image = cv2.imread(filename)
-                imageDict = dict[num]
 
             except:
 
@@ -453,6 +452,7 @@ class OlinClassifier(object):
 
             finally:
 
+                imageDict = dict[num]
                 head = imageDict['heading']
                 cell = imageDict['cell']
 
