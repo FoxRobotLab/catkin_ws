@@ -430,7 +430,7 @@ class OlinClassifier(object):
 
     def runSingleImage(self, num, input='heading'):
         dict = makeHeadDict()
-        imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
+        imDirectory = pathToMatchSeeker + 'res/classifier2019data/DATAframes/moreframes/'
         filename = makeFilename(imDirectory, num)
         # st = None
 
@@ -445,8 +445,6 @@ class OlinClassifier(object):
             try:
                 image = cv2.imread(filename)
                 imageDict = dict[num]
-                print("This is image:", image)
-                # print("This is the shape", image.shape)
 
             except:
 
