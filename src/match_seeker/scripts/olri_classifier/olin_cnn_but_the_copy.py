@@ -486,7 +486,7 @@ class OlinClassifier(object):
 
 
 def makeHeadDict():
-    file = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+    file = pathToMatchSeeker + 'res/classifier2019data/DATA/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
     dict = {}
     with open(file) as fp:
         for line in fp:
