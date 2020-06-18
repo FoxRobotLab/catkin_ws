@@ -495,7 +495,7 @@ def makeHeadDict():
             dict[entry] = {}
             dict[entry]['cell'] = int(ln[1])
             dict[entry]['heading'] = int(ln[4])
-            dict[entry]['location'] = (int(ln[2]), int(ln[3]))
+            dict[entry]['location'] = (float(ln[2]), float(ln[3]))
 
     return dict
 
