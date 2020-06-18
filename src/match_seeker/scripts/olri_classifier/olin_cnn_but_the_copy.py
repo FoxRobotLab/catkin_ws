@@ -92,10 +92,10 @@ class OlinClassifier(object):
                 pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            #self.model = self.cnn_cells()
-            self.model = keras.models.load_model(
-                pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5",
-                compile=True)
+            self.model = self.cnn_cells()
+            # self.model = keras.models.load_model(
+            #     pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5",
+            #     compile=True)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -108,9 +108,9 @@ class OlinClassifier(object):
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
 
-        # self.checkpoint_name = checkpoint_name
-        # if self.checkpoint_name is not None:
-        #     self.model.load_weights(self.checkpoint_name)
+        self.checkpoint_name = checkpoint_name
+        if self.checkpoint_name is not None:
+            self.model.load_weights(self.checkpoint_name)
 
 
     def loadData(self):
@@ -630,7 +630,8 @@ if __name__ == "__main__":
         eval_ratio=0.1,
         image_size=100,
         cellInput=True,
-        image_depth=2
+        image_depth=2,
+        checkpoint_name=pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5"
     )
 
     count = 0
