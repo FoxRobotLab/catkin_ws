@@ -660,7 +660,7 @@ if __name__ == "__main__":
         thing, heading = olin_classifier.runSingleImage(num, input='cell')
         if np.argmax(thing) == np.int(heading):
             count += 1
+        print(i)
 
-
-
+    print(count)
 
