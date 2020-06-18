@@ -94,7 +94,7 @@ class OlinClassifier(object):
         elif self.cellInput:
             #self.model = self.cnn_cells()
             self.model = keras.models.load_model(
-                pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/heading_acc9492_cellInput_165epochs_95k_NEW.hdf5",
+                pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5",
                 compile=True)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
@@ -626,29 +626,29 @@ if __name__ == "__main__":
 
 
     '''heading input'''
-    olin_classifier = OlinClassifier(
-        dataImg= pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_IMG_withHeadingInput135K.npy',
-        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_CELL_withHeadingInput135K.np',
-        data_name = "cell",
-        outputSize= 271,
-        eval_ratio=0.1,
-        image_size=100,
-        headingInput= True,
-        image_depth= 2
-    )
+    # olin_classifier = OlinClassifier(
+    #     dataImg= pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_IMG_withHeadingInput135K.npy',
+    #     dataLabel = pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_CELL_withHeadingInput135K.np',
+    #     data_name = "cell",
+    #     outputSize= 271,
+    #     eval_ratio=0.1,
+    #     image_size=100,
+    #     headingInput= True,
+    #     image_depth= 2
+    # )
 
 
     '''cell input'''
-    # olin_classifier = OlinClassifier(
-    #     dataImg=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-    #     dataLabel=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-    #     data_name="cell",
-    #     outputSize=8,
-    #     eval_ratio=0.1,
-    #     image_size=100,
-    #     cellInput=True,
-    #     image_depth=2
-    # )
+    olin_classifier = OlinClassifier(
+        dataImg=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        dataLabel=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+        data_name="cell",
+        outputSize=8,
+        eval_ratio=0.1,
+        image_size=100,
+        cellInput=True,
+        image_depth=2
+    )
 
     # count = 0
     # for i in range(1000):
@@ -665,4 +665,4 @@ if __name__ == "__main__":
     #     if np.argmax(thing) == np.int(cell):
     #         count += 1
 
-    print(makeHeadDict()[1500])
+    print(makeHeadDict()[1:10])
