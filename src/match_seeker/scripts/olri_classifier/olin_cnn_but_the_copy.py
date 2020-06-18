@@ -445,7 +445,7 @@ class OlinClassifier(object):
             try:
                 image = cv2.imread(filename)
                 imageDict = dict[num]
-                # print("This is image:", image)
+                print("This is image:", image)
                 # print("This is the shape", image.shape)
 
             except:
