@@ -430,7 +430,7 @@ class OlinClassifier(object):
 
     def runSingleImage(self, num, input='heading'):
         dict = makeHeadDict()
-        imDirectory = pathToMatchSeeker + 'res/classifier2019data/DATAframes/moreframes/'
+        imDirectory = pathToMatchSeeker + 'res/classifier2019data/DATA/frames/moreframes/'
         filename = makeFilename(imDirectory, num)
         print(filename)
         # st = None
