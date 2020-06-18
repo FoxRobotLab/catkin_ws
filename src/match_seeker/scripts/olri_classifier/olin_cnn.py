@@ -44,6 +44,7 @@ from tensorflow import keras
 import cv2
 import time
 from paths import pathToMatchSeeker
+from paths import DATA
 # ORIG import olin_inputs_2019 as oi2
 import random
 
@@ -59,7 +60,7 @@ class OlinClassifier(object):
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
-        self.checkpoint_dir = pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -87,7 +88,7 @@ class OlinClassifier(object):
             # self.model = self.cnn_headings()
             self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
-                pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+                DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
             self.model = self.cnn_cells()
@@ -426,7 +427,7 @@ class OlinClassifier(object):
 
 
     def runSingleImage(self, num, input='heading'):
-        imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
+        imDirectory = DATA + 'frames/moreframes/'
         count = 0
         filename = makeFilename(imDirectory, num)
         # st = None
@@ -443,7 +444,7 @@ class OlinClassifier(object):
             # print("This is image:", image)
             # print("This is the shape", image.shape)
             if image is not None:
-                cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+                cellDirectory = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
                 count = 0
                 with open(cellDirectory) as fp:
                     for line in fp:
@@ -515,7 +516,7 @@ def loading_bar(start,end, size = 20):
 
 
 def check_data():
-    data = np.load(pathToMatchSeeker + 'res/classifier2019Data/DATA/TRAININGDATA_100_500_heading-input_gnrs.npy')
+    data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
     np.random.shuffle(data)
     print(data[0])
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -599,13 +600,13 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        data_name = "cellInput",
+        dataImg= DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
+        dataLabel = DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
+        data_name = "headingInput",
         outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        cellInput= True,
+        headingInput= True,
         image_depth= 2
     )
     print("Classifier built")
