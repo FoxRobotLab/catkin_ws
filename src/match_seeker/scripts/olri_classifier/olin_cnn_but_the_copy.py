@@ -429,6 +429,7 @@ class OlinClassifier(object):
 
 
     def runSingleImage(self, num, input='heading'):
+        dict = makeHeadDict()
         imDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/moreframes/'
         filename = makeFilename(imDirectory, num)
         # st = None
@@ -443,6 +444,7 @@ class OlinClassifier(object):
         if filename is not None:
             try:
                 image = cv2.imread(filename)
+                imageDict = dict[num]
                 # print("This is image:", image)
                 # print("This is the shape", image.shape)
 
@@ -452,14 +454,10 @@ class OlinClassifier(object):
 
             finally:
 
-                cellDirectory = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-                count = 0
-                with open(cellDirectory) as fp:
-                    for line in fp:
-                        (fNum, cell, x, y, head) = line.strip().split(' ')
-                        if fNum == str(num):
-                            break
-                        count += 1
+                head = imageDict['heading']
+                cell = imageDict['cell']
+
+
 
 
             # cell = oi2.getOneHotLabel(int(cell), 271)
@@ -472,7 +470,7 @@ class OlinClassifier(object):
             # im_arr = np.asarray(im_arr)
 
                 if input=='heading':
-                    image = clean_image(image, data='heading_channel', heading=int(head))
+                    image = clean_image(image, data='heading_channel', heading=head)
                     return self.model.predict(image), cell
 
                 elif input=='cell':
@@ -664,5 +662,3 @@ if __name__ == "__main__":
     #     thing, cell = olin_classifier.runSingleImage(num)
     #     if np.argmax(thing) == np.int(cell):
     #         count += 1
-
-    print(makeHeadDict()[23540])
