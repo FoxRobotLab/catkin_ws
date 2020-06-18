@@ -626,29 +626,29 @@ if __name__ == "__main__":
 
 
     '''heading input'''
-    # olin_classifier = OlinClassifier(
-    #     dataImg= pathToMatchSeeker+ 'res/classifier2019data/TRAININGDATA_IMG_withHeadingInput135K.npy',
-    #     dataLabel = pathToMatchSeeker+ 'res/classifier2019data/TRAININGDATA_CELL_withHeadingInput135K.np',
-    #     data_name = "cell",
-    #     outputSize= 271,
-    #     eval_ratio=0.1,
-    #     image_size=100,
-    #     headingInput= True,
-    #     image_depth= 2
-    # )
+    olin_classifier = OlinClassifier(
+        dataImg= pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_IMG_withHeadingInput135K.npy',
+        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_CELL_withHeadingInput135K.np',
+        data_name = "cell",
+        outputSize= 271,
+        eval_ratio=0.1,
+        image_size=100,
+        headingInput= True,
+        image_depth= 2
+    )
 
 
     '''cell input'''
-    olin_classifier = OlinClassifier(
-        dataImg=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-        dataLabel=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        data_name="cell",
-        outputSize=8,
-        eval_ratio=0.1,
-        image_size=100,
-        cellInput=True,
-        image_depth=2
-    )
+    # olin_classifier = OlinClassifier(
+    #     dataImg=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+    #     dataLabel=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+    #     data_name="cell",
+    #     outputSize=8,
+    #     eval_ratio=0.1,
+    #     image_size=100,
+    #     cellInput=True,
+    #     image_depth=2
+    # )
 
     # count = 0
     # for i in range(1000):
