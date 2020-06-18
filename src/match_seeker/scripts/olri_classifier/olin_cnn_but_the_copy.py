@@ -640,8 +640,8 @@ if __name__ == "__main__":
 
     '''cell input'''
     olin_classifier = OlinClassifier(
-        dataImg=pathToMatchSeeker + 'res/classifier2019data/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-        dataLabel=pathToMatchSeeker + 'res/classifier2019data/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+        dataImg=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        dataLabel=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         data_name="cell",
         outputSize=8,
         eval_ratio=0.1,
