@@ -89,7 +89,7 @@ class OlinClassifier(object):
             # self.model = self.cnn_headings()
             self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
-                pathToMatchSeeker + "res/classifier2019data/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+                pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0618201246/headingInput-03-0.28.hdf5",
                 compile=True)
         elif self.cellInput:
             self.model = self.cnn_cells()
@@ -602,45 +602,45 @@ if __name__ == "__main__":
 
 
     '''heading input'''
-    # olin_classifier = OlinClassifier(
-    #     dataImg= pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_IMG_withHeadingInput135K.npy',
-    #     dataLabel = pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_CELL_withHeadingInput135K.np',
-    #     data_name = "cell",
-    #     outputSize= 271,
-    #     eval_ratio=0.1,
-    #     image_size=100,
-    #     headingInput= True,
-    #     image_depth= 2
-    # )
-    #
-    # count = 0
-    # for i in range(1000):
-    #     num = random.randint(0, 95000)
-    #     thing, cell = olin_classifier.runSingleImage(num)
-    #     if np.argmax(thing) == np.int(cell):
-    #         count += 1
-
-
-    '''cell input'''
     olin_classifier = OlinClassifier(
-        dataImg=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-        dataLabel=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        data_name="cell",
-        outputSize=8,
+        dataImg= pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_IMG_withHeadingInput135K.npy',
+        dataLabel = pathToMatchSeeker+ 'res/classifier2019data/DATA/TRAININGDATA_CELL_withHeadingInput135K.np',
+        data_name = "cell",
+        outputSize= 271,
         eval_ratio=0.1,
         image_size=100,
-        cellInput=True,
-        image_depth=2,
-        checkpoint_name=pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5"
+        headingInput= True,
+        image_depth= 2
     )
 
     count = 0
     for i in range(1000):
-        num = random.randint(0,95000)
-        thing, heading = olin_classifier.runSingleImage(num, input='cell')
-        if np.argmax(thing) == np.int(heading):
+        num = random.randint(0, 95000)
+        thing, cell = olin_classifier.runSingleImage(num)
+        if np.argmax(thing) == np.int(cell):
             count += 1
-        print(i)
+
+
+    # '''cell input'''
+    # olin_classifier = OlinClassifier(
+    #     dataImg=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+    #     dataLabel=pathToMatchSeeker + 'res/classifier2019data/DATA/SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+    #     data_name="cell",
+    #     outputSize=8,
+    #     eval_ratio=0.1,
+    #     image_size=100,
+    #     cellInput=True,
+    #     image_depth=2,
+    #     checkpoint_name=pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5"
+    # )
+    #
+    # count = 0
+    # for i in range(1000):
+    #     num = random.randint(0,95000)
+    #     thing, heading = olin_classifier.runSingleImage(num, input='cell')
+    #     if np.argmax(thing) == np.int(heading):
+    #         count += 1
+    #     print(i)
 
     print(count)
 
