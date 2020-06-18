@@ -485,6 +485,20 @@ class OlinClassifier(object):
         return None
 
 
+def makeHeadDict():
+    file = pathToMatchSeeker + 'res/classifier2019data/frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+    dict = {}
+    with open(file) as fp:
+        for line in fp:
+            ln = line.strip().split(' ')
+            entry = int(ln[0])
+            dict[entry] = {}
+            dict[entry]['cell'] = int(ln[1])
+            dict[entry]['heading'] = int(ln[4])
+            dict[entry]['location'] = (int(ln[2]), int(ln[3]))
+
+    return dict
+
 def makeFilename(path, fileNum):
     """Makes a filename for reading or writing image files"""
     formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
@@ -636,12 +650,12 @@ if __name__ == "__main__":
         image_depth=2
     )
 
-    count = 0
-    for i in range(1000):
-        num = random.randint(0,95000)
-        thing, heading = olin_classifier.runSingleImage(num, input='cell')
-        if np.argmax(thing) == np.int(heading):
-            count += 1
+    # count = 0
+    # for i in range(1000):
+    #     num = random.randint(0,95000)
+    #     thing, heading = olin_classifier.runSingleImage(num, input='cell')
+    #     if np.argmax(thing) == np.int(heading):
+    #         count += 1
 
 
     # count = 0
@@ -651,4 +665,4 @@ if __name__ == "__main__":
     #     if np.argmax(thing) == np.int(cell):
     #         count += 1
 
-    print(count)
+    print(makeHeadDict()[1500])
