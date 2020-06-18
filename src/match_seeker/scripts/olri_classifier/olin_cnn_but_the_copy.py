@@ -634,6 +634,13 @@ if __name__ == "__main__":
     #     headingInput= True,
     #     image_depth= 2
     # )
+    #
+    # count = 0
+    # for i in range(1000):
+    #     num = random.randint(0, 95000)
+    #     thing, cell = olin_classifier.runSingleImage(num)
+    #     if np.argmax(thing) == np.int(cell):
+    #         count += 1
 
 
     '''cell input'''
@@ -648,17 +655,12 @@ if __name__ == "__main__":
         image_depth=2
     )
 
-    # count = 0
-    # for i in range(1000):
-    #     num = random.randint(0,95000)
-    #     thing, heading = olin_classifier.runSingleImage(num, input='cell')
-    #     if np.argmax(thing) == np.int(heading):
-    #         count += 1
+    count = 0
+    for i in range(1000):
+        num = random.randint(0,95000)
+        thing, heading = olin_classifier.runSingleImage(num, input='cell')
+        if np.argmax(thing) == np.int(heading):
+            count += 1
 
 
-    # count = 0
-    # for i in range(1000):
-    #     num = random.randint(0, 95000)
-    #     thing, cell = olin_classifier.runSingleImage(num)
-    #     if np.argmax(thing) == np.int(cell):
-    #         count += 1
+
