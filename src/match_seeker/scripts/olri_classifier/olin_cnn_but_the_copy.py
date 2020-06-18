@@ -442,44 +442,23 @@ class OlinClassifier(object):
 
         # print(imgs)
         # print(filename)
-        if filename is not None:
-            try:
-                image = cv2.imread(filename)
+        if num in dict.keys():
+            image = cv2.imread(filename)
+            imageDict = dict[num]
+            head = imageDict['heading']
+            cell = imageDict['cell']
 
-            except:
+            if input=='heading':
+                image = clean_image(image, data='heading_channel', heading=head)
+                return self.model.predict(image), cell
 
-                return
-
-            finally:
-
-                imageDict = dict[num]
-                head = imageDict['heading']
-                cell = imageDict['cell']
-
-
+            elif input=='cell':
+                image = clean_image(image, data='cell_channel', cell=int(cell))
+                return self.model.predict(image), head
 
 
-            # cell = oi2.getOneHotLabel(int(cell), 271)
-            # cell_arr = []
-            # im_arr = []
-            # cell_arr.append(cell)
-            # im_arr.append(image)
-            #
-            # cell_arr = np.asarray(cell_arr)
-            # im_arr = np.asarray(im_arr)
-
-                if input=='heading':
-                    image = clean_image(image, data='heading_channel', heading=head)
-                    return self.model.predict(image), cell
-
-                elif input=='cell':
-                    image = clean_image(image, data='cell_channel', cell=int(cell))
-                    return self.model.predict(image), head
-
-
-
-
-        return None
+        else:
+            return -1, -2
 
 
 def makeHeadDict():
