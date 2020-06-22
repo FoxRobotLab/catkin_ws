@@ -521,7 +521,7 @@ def clean_image(image, datasetMean, image_size=100, data = 'old', cell = None, h
             resized_image = cv2.resize(image, (image_size, image_size))
             gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
             image = np.subtract(gray_image, datasetMean)
-            image = np.divide(image, 255)
+            image = np.divide(image, 255.0)
             cell_arr = cell * np.ones((image_size, image_size, 1), dtype=np.float64)
             image = np.concatenate((np.expand_dims(image,axis=-1),cell_arr),axis=-1)
             depth = 2
@@ -529,13 +529,13 @@ def clean_image(image, datasetMean, image_size=100, data = 'old', cell = None, h
             print("No value for cell found")
     elif data == 'heading_channel':
         if heading != None:
-            cv2.imshow("Original", image)
+            #cv2.imshow("Original", image)
             resized_image = cv2.resize(image, (image_size, image_size))
             gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-            cv2.imshow("GrayAndResized", gray_image)
+            #cv2.imshow("GrayAndResized", gray_image)
             image = np.subtract(gray_image, datasetMean)
-            cv2.imshow("Meansubbed", image)
-            image = np.divide(image, 255)
+            #cv2.imshow("Meansubbed", image)
+            image = np.divide(image, 255.0)
             heading_arr = heading * np.ones((image_size, image_size, 1), dtype=np.float64)
             image = np.concatenate((np.expand_dims(image,axis=-1), heading_arr),axis=-1)
             print(image.shape, image.dtype)
@@ -551,7 +551,7 @@ def clean_image(image, datasetMean, image_size=100, data = 'old', cell = None, h
         image = np.subtract(gray_image, datasetMean)
         depth = 1
     cleaned_image = np.array([image]).reshape(1, image_size, image_size, depth)
-    cv2.imshow("clean image", cleaned_image[0][:,:,0])
+    #cv2.imshow("clean image", cleaned_image[0][:,:,0])
     return cleaned_image
 
 
@@ -565,14 +565,14 @@ if __name__ == "__main__":
         dataImg= dataPath + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
         dataLabel = dataPath + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
         checkpoint_dir = dataPath + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M")),
-        savedCheckpoint = dataPath + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",   
+        savedCheckpoint = dataPath + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
         # olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5",
         data_name = "cell",
         outputSize= 271,
         eval_ratio=0.1,
         image_size=100,
         headingInput= True,
-        image_depth= 2 
+        image_depth= 2
     )
 
     mean = np.load(dataPath + 'SAMPLETRAINING_100_500_mean135k.npy')   #TRAININGDATA_100_500_mean95k.npy')
@@ -590,7 +590,7 @@ if __name__ == "__main__":
         head = imageDict['heading']
         cell = imageDict['cell']
         print("Selected image:", num, imageDict)
-        
+
         filename = makeFilename(imDirectory, num)
         print(filename)
         image = cv2.imread(filename)
@@ -600,10 +600,10 @@ if __name__ == "__main__":
         print("Result from network =", result, "   Correct result =", np.int(cell))
         if result == np.int(cell):
             count += 1
-        x = cv2.waitKey(0)
-        c = chr(x & 0xFF)
-        if c == 'q':
-            break
+        # x = cv2.waitKey(0)
+        # c = chr(x & 0xFF)
+        # if c == 'q':
+        #     break
 
 
     # '''cell input'''
