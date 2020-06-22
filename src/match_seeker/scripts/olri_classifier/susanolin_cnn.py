@@ -91,40 +91,6 @@ def loading_bar(start,end, size = 20):
         print(loadstr)
 
 
-def check_data():
-    data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
-    np.random.shuffle(data)
-    print(data[0])
-    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    for i in range(len(data)):
-        print("cell:"+str(np.argmax(data[i][1])))
-        print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
-        cv2.imshow('im',data[i][0][:,:,0])
-        cv2.moveWindow('im',200,200)
-        cv2.waitKey(0)
-
-def resave_from_wulver(datapath):
-    """Networks trained on wulver are saved in a slightly different format because it uses a newer version of keras. Use this function to load the weights from a
-    wulver trained checkpoint and resave it in a format that this computer will recognize."""
-
-    olin_classifier = OlinClassifier(
-        checkpoint_name=None,
-        train_data=None,
-        extraInput=False,  # Only use when training networks with BOTH cells and headings
-        outputSize=8, #TODO 271 for cells, 8 for headings
-        eval_ratio=0.1
-    )
-
-    model = olin_classifier.cnn_headings()
-    model.compile(
-        loss=keras.losses.categorical_crossentropy,
-        optimizer=keras.optimizers.SGD(lr=0.001),
-        metrics=["accuracy"]
-    )
-    model.load_weights(datapath)
-    print("Loaded weights. Saving...")
-    model.save(datapath[:-4]+'_NEW.hdf5')
-
 
 def clean_image(image, data = 'old', cell = None, heading = None):
     #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
@@ -174,39 +140,24 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 
 
 if __name__ == "__main__":
-    # check_data()
-    olin_classifier = OlinClassifier(
-        dataImg= DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
-        dataLabel = DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
-        data_name = "headingInput",
-        outputSize= 8,
-        eval_ratio=0.1,
-        image_size=100,
-        headingInput= True,
-        image_depth= 2
-    )
-    print("Classifier built")
-    olin_classifier.loadData()
-    print("Data loaded")
-    olin_classifier.train()
+    olin_classifier = OlinClassifier()
+    dataPath = pathToMatchSeeker + 'res/classifier2019data/DATA/'
+    allData = np.load(dataPath + 
+    # olin_classifier = OlinClassifier(
+    #     dataImg= DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
+    #     dataLabel = DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
+    #     data_name = "headingInput",
+    #     outputSize= 8,
+    #     eval_ratio=0.1,
+    #     image_size=100,
+    #     headingInput= True,
+    #     image_depth= 2
+    # )
+    # print("Classifier built")
+    # olin_classifier.loadData()
+    # print("Data loaded")
+    # olin_classifier.train()
 
 
 
 
-    # print(len(olin_classifier.train_images))
-    #olin_classifier.train()
-    # olin_classifier.getAccuracy()
-    #ORIG count = 0
-    # ORIG for i in range(1000):
-    #     num = random.randint(0,95000)
-    #     thing, cell = olin_classifier.runSingleImage(num)
-    #     count += (np.argmax(thing)==cell)
-    # print(count)
-
-
-    # model = olin_classifier.threeConv()
-    #olin_classifier.train()
-
-    # self.cell_model = keras.models.load_model(
-    #     "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-    #     compile=True)
