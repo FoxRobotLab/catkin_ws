@@ -260,6 +260,7 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         frame = allLabels[i]
         image = train_img[i]
         image = image - mean
+        image /= 255
         image = np.squeeze(image)
         if cellInput == True:
             cell = int(frame_cell_dict[frame])
@@ -365,7 +366,7 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 
 if __name__ == '__main__':
-    add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), cellInput = True, randStart = 86648)
+    add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
 
 
 

@@ -600,8 +600,8 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
-        dataLabel = DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
+        dataImg= DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
+        dataLabel = DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
         data_name = "headingInput",
         outputSize= 8,
         eval_ratio=0.1,
