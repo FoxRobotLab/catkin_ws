@@ -37,15 +37,15 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 
 import os
 import numpy as np
-from tensorflow import keras
+# from tensorflow import keras
 import cv2
-import time
+# import time
 from paths import pathToMatchSeeker
-from paths import DATA
+# from paths import DATA
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olinClassifers import OlinClassifier
 
+from olinClassifiers import OlinClassifier
 
 ### Uncomment next line to use CPU instead of GPU: ###
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -140,9 +140,40 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 
 
 if __name__ == "__main__":
-    olin_classifier = OlinClassifier()
-    dataPath = pathToMatchSeeker + 'res/classifier2019data/DATA/'
-    allData = np.load(dataPath + 
+    dataPath = pathToMatchSeeker + 'res/classifier2019data/'
+    mean = np.load(dataPath + 'TRAININGDATA_100_500_mean.npy')
+
+    checkPts = dataPath + "CHECKPOINTS/"
+    olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
+                                     savedCheckpoint=checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+                                     data_name="headingInput",
+                                     headingInput=True,
+                                     outputSize=271,
+                                     image_size=100,
+                                     image_depth=2)
+
+    allData = np.load(dataPath + "NEWTRAININGDATA_100_500withHeadingInput95k.npy", allow_pickle=True, encoding='latin1')
+    imageData = allData[:, 0]
+    cellData = allData[:, 1]
+
+    imDims = imageData.shape
+    cellDims = cellData.shape
+    numExamples = imDims[0]
+    count = 0
+    for i in range(1000):
+        randRow = random.randrange(numExamples)
+        img = imageData[randRow]
+        output = cellData[randRow]
+        expectedResult = np.argmax(output)
+        predImg = np.array([img])
+        networkResult = olin_classifier.predictSingleImage(predImg)
+        print("Expected result:", expectedResult, "Actual result:", networkResult)
+        if expectedResult == networkResult:
+            count += 1
+    print("Number correct =", count)
+
+
+
     # olin_classifier = OlinClassifier(
     #     dataImg= DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
     #     dataLabel = DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',

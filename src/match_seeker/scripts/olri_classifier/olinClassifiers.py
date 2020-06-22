@@ -1,13 +1,24 @@
 
-
+import os
+import numpy as np
+from tensorflow import keras
+# import cv2
+# import time
+# from paths import pathToMatchSeeker
+# from paths import DATA
+# # ORIG import olin_inputs_2019 as oi2
+# import random
 
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
-                 image_size=224, image_depth=2, data_name = None):
+    def __init__(self, eval_ratio=0.1, checkpoint_dir=None, savedCheckpoint=None, dataImg=None, dataLabel=None,
+                 outputSize=271,
+                 cellInput=False, headingInput=False,
+                 image_size=224, image_depth=2, data_name=None):
         ### Set up paths and basic model hyperparameters
 
-        self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.checkpoint_dir = checkpoint_dir
+        self.savedCheckpoint = savedCheckpoint
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -28,20 +39,27 @@ class OlinClassifier(object):
         self.eval_labels = None
         self.data_name = data_name
 
+        print("This is the headingInput status", self.headingInput)
+
         if self.neitherAsInput:
+            self.activation = "sigmoid"
             self.model = self.cnn_headings()
             self.loss = keras.losses.binary_crossentropy
         elif self.headingInput:
             # self.model = self.cnn_headings()
+            self.activation = "softmax"
             self.loss = keras.losses.categorical_crossentropy
-            self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-                compile=True)
+            self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
         elif self.cellInput:
+            self.activation = "softmax"
             self.model = self.cnn_cells()
+            # self.model = keras.models.load_model(
+            #     pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5",
+            #     compile=True)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
+            self.activation = None
             self.model = None
             self.loss = None
             return
@@ -51,10 +69,8 @@ class OlinClassifier(object):
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
 
-        # self.checkpoint_name = checkpoint_name
-        # if self.checkpoint_name is not None:
-        #     self.model.load_weights(self.checkpoint_name)
-
+        if self.savedCheckpoint is not None:
+            self.model.load_weights(self.savedCheckpoint)
 
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
@@ -272,7 +288,7 @@ class OlinClassifier(object):
         self.model.load_weights()
 
         for i in range(num_eval):
-            loading_bar(i,num_eval)
+            # loading_bar(i,num_eval)
             image = eval_copy[i]
             image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
             potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -300,7 +316,7 @@ class OlinClassifier(object):
         """This method seems out of date, was used for transfer learning from VGG. DON"T CALL IT!"""
         # Use for retraining models included with keras
         # if training with headings cannot use categorical crossentropy to evaluate loss
-        if self.checkpoint_name is None:
+        if self.savedCheckpoint is None:
             self.model = keras.models.Sequential()
 
             xc = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False,
@@ -312,7 +328,7 @@ class OlinClassifier(object):
             self.model.add(keras.layers.Flatten())
             self.model.add(keras.layers.Dropout(rate=0.4))
             # activate with softmax when training one label and sigmoid when training both headings and cells
-            activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
+            activation = self.headingInput*"sigmoid" + (not self.headingInput)*"softmax"
             self.model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
             self.model.summary()
             self.model.compile(
@@ -322,7 +338,7 @@ class OlinClassifier(object):
             )
         else:
             print("Loaded model")
-            self.model = keras.models.load_model(self.checkpoint_name, compile=False)
+            self.model = keras.models.load_model(self.savedCheckpoint, compile=False)
             self.model.compile(
                 loss=self.loss,
                 optimizer=keras.optimizers.Adam(lr=.001),
