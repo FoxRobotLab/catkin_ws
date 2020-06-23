@@ -53,6 +53,7 @@ def cnn_cells(self):
 
     model.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
     model.add(keras.layers.LSTM(
+        units = 256,
         activation="tanh",
         recurrent_activation="sigmoid",
         recurrent_dropout=0.0,
