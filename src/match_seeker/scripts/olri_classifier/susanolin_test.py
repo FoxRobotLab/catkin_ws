@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     checkPts = dataPath + "CHECKPOINTS/"
     olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
-                                     savedCheckpoint=checkPts + headingOutputCheckpoint,
+                                     savedCheckpoint=checkPts + cellOutputCheckpoint,
                                      data_name="cellInput",
                                      cellInput=True,
                                      outputSize=8,
@@ -158,7 +158,7 @@ if __name__ == "__main__":
                                      image_depth=2)
 
 
-    allData = np.load(dataPath +  headingOutputData, allow_pickle=True, encoding='latin1')
+    allData = np.load(dataPath +  cellOutputData, allow_pickle=True, encoding='latin1')
     imageData = allData[:, 0]
     cellData = allData[:, 1]
 
