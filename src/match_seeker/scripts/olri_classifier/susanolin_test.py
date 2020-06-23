@@ -145,7 +145,7 @@ if __name__ == "__main__":
     headingOutputData = "SAMPLETRAININGDATA_HEADING_withCellInput135K.npy"
     headingOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
 
-    dataPath = pathToMatchSeeker + 'res/classifier2019data/'
+    dataPath = pathToMatchSeeker + 'res/classifier2019data/DATA'
     mean = np.load(dataPath + 'TRAININGDATA_100_500_mean.npy')
 
     checkPts = dataPath + "CHECKPOINTS/"
@@ -158,7 +158,7 @@ if __name__ == "__main__":
                                      image_depth=2)
 
 
-    allData = np.load(dataPath + "DATA/" + headingOutputData, allow_pickle=True, encoding='latin1')
+    allData = np.load(dataPath +  headingOutputData, allow_pickle=True, encoding='latin1')
     imageData = allData[:, 0]
     cellData = allData[:, 1]
 
