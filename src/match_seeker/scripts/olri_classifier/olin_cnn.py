@@ -93,7 +93,7 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             #self.model = self.cnn_cells()
-            self.model = cnn_cells
+            self.model = cnn_cells.cnn_cells(self)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
