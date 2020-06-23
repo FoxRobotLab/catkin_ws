@@ -146,7 +146,7 @@ if __name__ == "__main__":
     headingOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
 
     dataPath = pathToMatchSeeker + 'res/classifier2019data/DATA/'
-    mean = np.load(dataPath + 'TRAININGDATA_100_500_mean.npy')
+    mean = np.load(dataPath + 'SAMPLETRAINING_100_500_mean135k.np')
 
     checkPts = dataPath + "CHECKPOINTS/"
     olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
