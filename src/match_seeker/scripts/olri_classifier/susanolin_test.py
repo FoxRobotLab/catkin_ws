@@ -141,6 +141,8 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 
 if __name__ == "__main__":
     cellOutputData = "SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy"
+    cellOutputImg = "SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy"
+
     cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
     headingOutputData = "SAMPLETRAININGDATA_HEADING_withCellInput135K.npy"
     headingOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
@@ -152,15 +154,14 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
                                      savedCheckpoint=checkPts + cellOutputCheckpoint,
                                      data_name="cellInput",
-                                     cellInput=True,
-                                     outputSize=8,
+                                     headingInput=True,
+                                     outputSize=271,
                                      image_size=100,
                                      image_depth=2)
 
 
-    allData = np.load(dataPath +  cellOutputData, allow_pickle=True, encoding='latin1')
-    imageData = allData[:, 0]
-    cellData = allData[:, 1]
+    imageData = np.load(dataPath +  cellOutputImg, allow_pickle=True, encoding='latin1')
+    cellData = np.load(dataPath +  cellOutputData, allow_pickle=True, encoding='latin1')
 
     imDims = imageData.shape
     cellDims = cellData.shape
