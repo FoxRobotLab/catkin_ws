@@ -47,6 +47,7 @@ from paths import pathToMatchSeeker
 from paths import DATA
 # ORIG import olin_inputs_2019 as oi2
 import random
+from olin_cnn_lstm import cnn_cells
 
 
 
@@ -91,7 +92,8 @@ class OlinClassifier(object):
                 DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            self.model = self.cnn_cells()
+            #self.model = self.cnn_cells()
+            self.model = cnn_cells
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -600,13 +602,13 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
-        dataLabel = DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
-        data_name = "headingInput",
+        dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+        data_name = "cellInput",
         outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        headingInput= True,
+        cellInput= True,
         image_depth= 2
     )
     print("Classifier built")
