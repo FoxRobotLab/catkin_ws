@@ -152,7 +152,7 @@ if __name__ == "__main__":
                                      image_size=100,
                                      image_depth=2)
 
-    allData = np.load(dataPath + "NEWTRAININGDATA_100_500withHeadingInput95k.npy", allow_pickle=True, encoding='latin1')
+    allData = np.load(dataPath + "DATA/SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy", allow_pickle=True, encoding='latin1')
     imageData = allData[:, 0]
     cellData = allData[:, 1]
 

@@ -589,10 +589,10 @@ if __name__ == "__main__":
         imageDict = dataDict[num]
         head = imageDict['heading']
         cell = imageDict['cell']
-        print("Selected image:", num, imageDict)
+        # print("Selected image:", num, imageDict)
 
         filename = makeFilename(imDirectory, num)
-        print(filename)
+        # print(filename)
         image = cv2.imread(filename)
         cleanImage = clean_image(image, mean, data='heading_channel', heading=head)
 
