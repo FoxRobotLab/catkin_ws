@@ -140,19 +140,24 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 
 
 if __name__ == "__main__":
+    cellOutputData = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
+    cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
+    headingOutputData = "NEWTRAININGDATA_100_500withCellInput95k.npy"
+    headingOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
+
     dataPath = pathToMatchSeeker + 'res/classifier2019data/'
     mean = np.load(dataPath + 'TRAININGDATA_100_500_mean.npy')
 
     checkPts = dataPath + "CHECKPOINTS/"
     olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
-                                     savedCheckpoint=checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-                                     data_name="headingInput",
-                                     headingInput=True,
-                                     outputSize=271,
+                                     savedCheckpoint=checkPts + headingOutputCheckpoint,
+                                     data_name="cellInput",
+                                     cellInput=True,
+                                     outputSize=8,
                                      image_size=100,
                                      image_depth=2)
 
-    allData = np.load(dataPath + "NEWTRAININGDATA_100_500withHeadingInput95k.npy", allow_pickle=True, encoding='latin1')
+    allData = np.load(dataPath + headingOutputData, allow_pickle=True, encoding='latin1')
     imageData = allData[:, 0]
     cellData = allData[:, 1]
 

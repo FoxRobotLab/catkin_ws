@@ -52,10 +52,8 @@ class OlinClassifier(object):
             self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
         elif self.cellInput:
             self.activation = "softmax"
-            self.model = self.cnn_cells()
-            # self.model = keras.models.load_model(
-            #     pathToMatchSeeker + "res/classifier2019data/DATA/CHECKPOINTS/olin_cnn_checkpoint-0615201323/cellInput-03-1.74.hdf5",
-            #     compile=True)
+            #self.model = self.cnn_cells()
+            self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
