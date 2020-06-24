@@ -25,7 +25,7 @@ def getCellCounts():
         lines = masterlist.readlines()
         cell_counts = dict()
         cell_frame_dict = dict()
-        for i in range(numCells): #ORIG range(numCells) ALSO COULD BE WASTING SPACE
+        for i in range(271): #ORIG range(numCells) ALSO COULD BE WASTING SPACE
             cell_frame_dict[str(i)] = []
 
         for line in lines:
@@ -277,8 +277,10 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
     if cellInput == True:
         train_imgWCell = np.asarray(train_imgWCell)
         hotLabelHeading = np.asarray(hotLabelHeading)
-        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
-        np.save(DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
+        #np.save(DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
+        #np.save(DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
+        np.save(DATA + 'IMG_CellInput_12K.npy', train_imgWCell)
+        np.save(DATA + 'Heading_CellInput12k.npy', hotLabelHeading)
     if headingInput == True:
         train_imgWHeading = np.asarray(train_imgWHeading)
         hotLabelCell = np.asarray(hotLabelCell)
@@ -366,7 +368,8 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 
 if __name__ == '__main__':
-    add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
+    #add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
+    add_cell_channel(headingInput= True)
 
 
 
