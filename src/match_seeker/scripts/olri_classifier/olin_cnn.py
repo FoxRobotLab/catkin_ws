@@ -71,7 +71,9 @@ class OlinClassifier(object):
         self.neitherAsInput = (not cellInput) and (not headingInput)
 
         self.dataImg = dataImg
-        print("This is the data shape", dataImg.shape)
+        if dataImg is None:
+            print("There is no DATA")
+        print("This is the data shape", self.dataImg.shape)
         self.dataLabel = dataLabel
         self.dataArray = None
         self.image_size = image_size
