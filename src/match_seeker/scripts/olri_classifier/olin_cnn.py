@@ -71,6 +71,7 @@ class OlinClassifier(object):
         self.neitherAsInput = (not cellInput) and (not headingInput)
 
         self.dataImg = dataImg
+        print("This is the data shape", dataImg.shape)
         self.dataLabel = dataLabel
         self.dataArray = None
         self.image_size = image_size
@@ -94,8 +95,9 @@ class OlinClassifier(object):
         elif self.cellInput:
             #self.model = self.cnn_cells()
             self.model = cnn_cells(self)
-            print("This is the model", self.model)
             self.loss = keras.losses.categorical_crossentropy
+            #self.model.build((12000, 100, 100, 2))
+
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
             self.model = None
@@ -169,7 +171,6 @@ class OlinClassifier(object):
         #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
         #         metrics=["accuracy"]
         #     )
-
         self.model.summary()
 
         self.model.fit(
