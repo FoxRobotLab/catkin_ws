@@ -71,8 +71,6 @@ class OlinClassifier(object):
         self.neitherAsInput = (not cellInput) and (not headingInput)
 
         self.dataImg = dataImg
-        print(dataImg)
-        print("This is the data shape", self.dataImg.shape)
         self.dataLabel = dataLabel
         self.dataArray = None
         self.image_size = image_size
@@ -122,6 +120,7 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
+        print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
 
@@ -165,6 +164,7 @@ class OlinClassifier(object):
         if self.train_images is None:
             print("No training data loaded yet.")
             return
+        print("This is the shape of train_shape", self.train_images.shape)
 
         # if (self.checkpoint_name is None):
         #     self.model.compile(
@@ -172,6 +172,7 @@ class OlinClassifier(object):
         #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
         #         metrics=["accuracy"]
         #     )
+        self.model.build(self.train_images.shape)
         self.model.summary()
 
         self.model.fit(
