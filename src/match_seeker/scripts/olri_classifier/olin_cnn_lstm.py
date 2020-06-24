@@ -61,7 +61,7 @@ def cnn_cells(self):
         use_bias=True
     ))
     model.add(keras.layers.Dense(
-        units=256,
+        units=self.outputSize ,
         activation="sigmoid",
     ))
     return model
