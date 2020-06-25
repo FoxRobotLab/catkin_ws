@@ -605,8 +605,10 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-        dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+        # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+        dataImg = DATA + 'IMG_CellInput_12K.npy',
+        dataLabel = DATA + 'Heading_CellInput12k.npy',
         data_name = "cellInputReference",
         outputSize= 8,
         eval_ratio=0.1,
