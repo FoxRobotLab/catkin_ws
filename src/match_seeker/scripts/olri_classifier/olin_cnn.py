@@ -95,7 +95,7 @@ class OlinClassifier(object):
             #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
             self.model = cnn_cells(self)
             self.loss = keras.losses.categorical_crossentropy
-            
+
 
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -173,9 +173,10 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
         #self.model.build(self.train_images.shape)
-        self.model.build((None, 100, 100))
+        print("This is the shape of the model", self.train_images.shape)
+        self.model.build((None, 100, 100, 1))
         self.model.summary()
-       
+
 
         self.model.fit(
             self.train_images, self.train_labels,
