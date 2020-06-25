@@ -173,7 +173,7 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
-
+        self.train_images = np.asarray(self.train_images)
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=50,
