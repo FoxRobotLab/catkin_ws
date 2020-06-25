@@ -92,7 +92,9 @@ class OlinClassifier(object):
                 DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            self.model = self.cnn_cells()
+            #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
+            self.model = cnn_cells(self)
+
             self.loss = keras.losses.categorical_crossentropy
             #self.model.build((12000, 100, 100, 2))
 
@@ -173,6 +175,7 @@ class OlinClassifier(object):
         #     )
         #self.model.build(self.train_images.shape)
         self.model.summary()
+        return 0 #!!!!!!!!!CHANGE THIS BACK!!!!!!!!!!
 
         self.model.fit(
             self.train_images, self.train_labels,
