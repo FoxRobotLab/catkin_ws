@@ -92,8 +92,7 @@ class OlinClassifier(object):
                 DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            #self.model = self.cnn_cells()
-            self.model = cnn_cells(self)
+            self.model = self.cnn_cells()
             self.loss = keras.losses.categorical_crossentropy
             #self.model.build((12000, 100, 100, 2))
 
@@ -172,7 +171,7 @@ class OlinClassifier(object):
         #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
         #         metrics=["accuracy"]
         #     )
-        self.model.build(self.train_images.shape)
+        #self.model.build(self.train_images.shape)
         self.model.summary()
 
         self.model.fit(
@@ -608,7 +607,7 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        data_name = "cellInput",
+        data_name = "cellInputReference",
         outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
