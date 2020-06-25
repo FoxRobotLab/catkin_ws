@@ -17,6 +17,10 @@ def cnn_cells(self):
         padding="same"
     )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
-    print("This is what it was before", cnn)
+    cnn.add(keras.layers.LSTM(50))
+    cnn.add(keras.layers.Dense(1, activation='sigmoid'))
+    cnn.summary()
+    return 0
+
     return cnn
 
