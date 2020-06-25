@@ -174,7 +174,7 @@ class OlinClassifier(object):
         #     )
         #self.model.build(self.train_images.shape)
         print("This is the shape of the model", self.train_images.shape)
-        self.model.build((None, 100, 100, 1))
+        # self.model.build((None, 100, 100, 1))
         self.model.summary()
 
 
