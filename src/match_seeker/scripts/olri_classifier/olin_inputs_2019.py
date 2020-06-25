@@ -203,7 +203,8 @@ def getLabels():
     underLabels, randLabels = addUnderRepped()
     allLabels = overLabels + underLabels + randLabels
     randStart = len(overLabels)+len(underLabels)
-    np.save(DATA +'newdata_allFramesToBeProcessed135k.npy', allLabels)
+    np.save(DATA +'newdata_allFramesToBeProcessed135k.npy', allLabels) #!!!!THIS HAS TO BE RUN AGAIN!!!!!
+    print("This is the randStart", randStart)
 
     return allLabels, randStart
 
@@ -317,7 +318,8 @@ def calculate_mean(images):
         return None
     ### IF USING NEW IMAGE SET, BE SURE TO SAVE MEAN!!
     #np.save('TRAININGDATA_100_500_mean95k.npy',mean)
-    np.save(DATA + 'SAMPLETRAINING_100_500_mean135k.npy', mean)
+    #np.save(DATA + 'SAMPLETRAINING_100_500_mean135k.npy', mean)
+    np.save(DATA + '100_500_mean12k.npy', mean)
 
     print("*** Done. Returning mean.")
     return mean
@@ -369,7 +371,7 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 if __name__ == '__main__':
     #add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
-    add_cell_channel(headingInput= True)
+    add_cell_channel(cellInput= True)
 
 
 
