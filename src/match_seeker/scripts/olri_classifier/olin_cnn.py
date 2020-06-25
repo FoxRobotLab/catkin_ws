@@ -174,14 +174,14 @@ class OlinClassifier(object):
         #     )
 
         self.train_images = self.train_images.reshape([1, 12084, 100, 100, 2])
-        print("This is the labels shape", self.eval_labels)
+        print("This is the labels shape", self.eval_labels.shape)
 
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=50,
             epochs=3,
             verbose=1,
-            validation_data=(self.eval_images, self.eval_labels.shape),
+            validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
             callbacks=[
                 keras.callbacks.History(),
