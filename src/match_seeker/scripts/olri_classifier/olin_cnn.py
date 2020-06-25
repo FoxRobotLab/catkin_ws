@@ -94,9 +94,8 @@ class OlinClassifier(object):
         elif self.cellInput:
             #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
             self.model = cnn_cells(self)
-
             self.loss = keras.losses.categorical_crossentropy
-            #self.model.build((12000, 100, 100, 2))
+            
 
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -121,6 +120,7 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
+        self.image = self.image[:,:,:,0]
         print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -173,9 +173,9 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
         #self.model.build(self.train_images.shape)
-        self.model.build((None, 100, 100, 128))
+        self.model.build((None, 100, 100))
         self.model.summary()
-        return 0 #!!!!!!!!!CHANGE THIS BACK!!!!!!!!!!
+       
 
         self.model.fit(
             self.train_images, self.train_labels,
