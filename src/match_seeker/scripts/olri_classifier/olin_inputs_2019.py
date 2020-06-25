@@ -14,7 +14,7 @@ from datetime import datetime
 
 from paths import DATA
 
-numCells = 271 #ORIG 271
+numCells = 25 #ORIG 271
 image_size = 100
 images_per_cell = 500
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -55,7 +55,7 @@ def getFrameCellDict():
 def getHeadingRep():
     # Returns dict with cell --> counts of num frames taken at each heading in that cell
     cellHeadingCounts = dict()
-    for i in range(numCells): #ORIG range(numCells)
+    for i in range(271): #ORIG range(numCells)
         cellHeadingCounts[str(i)] = [['0',0],['45',0],['90',0],['135',0],['180',0],['225',0],['270',0],['315',0]]
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
