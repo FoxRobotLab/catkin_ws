@@ -173,7 +173,7 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
-        self.train_images = self.train_images.reshape([1, 12084, 100, 100, 2])
+        self.train_images = self.train_images.reshape([-1, 12084, 100, 100, 2])
         print("This is the labels shape", self.eval_labels.shape)
 
         self.model.fit(
