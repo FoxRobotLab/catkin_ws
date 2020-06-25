@@ -165,7 +165,6 @@ class OlinClassifier(object):
         if self.train_images is None:
             print("No training data loaded yet.")
             return
-        print("This is the shape of train_shape", self.train_images.shape)
 
         # if (self.checkpoint_name is None):
         #     self.model.compile(
@@ -174,7 +173,7 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
         #self.model.build(self.train_images.shape)
-        self.model.build([self.image_size, self.image_size, self.image_depth])
+        self.model.build(self.train_images.shape)
         self.model.summary()
         return 0 #!!!!!!!!!CHANGE THIS BACK!!!!!!!!!!
 
