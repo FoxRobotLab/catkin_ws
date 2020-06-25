@@ -173,7 +173,7 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
         #self.model.build(self.train_images.shape)
-        self.model.build(keras.layers.Input(shape = (time, 100, 100, 1)))
+        self.model.build(time, 100, 100, 1)
         self.model.summary()
         return 0 #!!!!!!!!!CHANGE THIS BACK!!!!!!!!!!
 
