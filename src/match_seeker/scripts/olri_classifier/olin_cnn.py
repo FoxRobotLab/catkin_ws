@@ -175,6 +175,7 @@ class OlinClassifier(object):
         #     )
         #self.model.build(self.train_images.shape)
         self.model.summary()
+        return 0 #!!!!!!!!!CHANGE THIS BACK!!!!!!!!!!
 
         self.model.fit(
             self.train_images, self.train_labels,
