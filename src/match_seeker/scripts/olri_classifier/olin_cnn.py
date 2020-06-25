@@ -120,7 +120,7 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        self.image = self.image[:,:,:,0]
+        #self.image = self.image[:,:,:,0]
         print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -172,8 +172,6 @@ class OlinClassifier(object):
         #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
         #         metrics=["accuracy"]
         #     )
-        #self.model.build(self.train_images.shape)
-        self.model.summary()
 
 
         self.model.fit(
@@ -249,6 +247,7 @@ class OlinClassifier(object):
         else:
             activation = "softmax"
         model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+        model.summary()
         return model
 
     def cnn_cells(self):
