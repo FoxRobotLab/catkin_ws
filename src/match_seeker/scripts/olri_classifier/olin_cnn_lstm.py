@@ -9,9 +9,8 @@ def cnn_cells(self):
         activation="relu",
         padding="same",
         data_format="channels_last",
-        input_shape=[self.image_size, self.image_size, self.image_depth]
 
-    )))
+    ), input_shape=[self.image_size, self.image_size, self.image_depth]))
     cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
         pool_size=(2, 2),
         strides=(2, 2),
