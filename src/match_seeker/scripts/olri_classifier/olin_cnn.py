@@ -174,6 +174,7 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
         #self.model.build(self.train_images.shape)
+        self.model.build([self.image_size, self.image_size, self.image_depth])
         self.model.summary()
         return 0 #!!!!!!!!!CHANGE THIS BACK!!!!!!!!!!
 
