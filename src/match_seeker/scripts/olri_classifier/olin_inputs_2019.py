@@ -375,6 +375,7 @@ if __name__ == '__main__':
 
     useless, dict = getCellCounts()
     print(dict['37'])
+    print(len(dict['37']))
 
 
 
