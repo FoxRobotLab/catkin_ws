@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.5
+ #!/usr/bin/env python3.5
 
 """--------------------------------------------------------------------------------
 olin_cnn.py
@@ -177,18 +177,21 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
-        #self.train_images = self.train_images.reshape(None, 12084, 100, 100, 1)
-        #self.train_images = np.expand_dims(self.train_images, axis = 0)
-        print(self.train_images.shape)
-        start = 0
-        for image in self.train_images:
-            cv2.imshow("Window", image)
-            if start == 50:
-                break
-            cv2.waitKey(100)
-            start +=1
+      
+        self.train_images = self.train_images.reshape(12084, 1, 100, 100, 1)
+        self.eval_images = self.eval_images.reshape(416, 1, 100, 100, 1)
+        
+        #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
+        
+        #start = 0
+        #for image in self.train_images:
+            #cv2.imshow("Window", image)
+            #if start == 50:
+                #break
+            #cv2.waitKey(100)
+            #start +=1
         print("This is the image", self.train_images.shape)
-        print("This is the labels shape", self.eval_labels.shape)
+        print("This is the labels shape", self.eval_images.shape)
 
         self.model.fit(
             self.train_images, self.train_labels,
