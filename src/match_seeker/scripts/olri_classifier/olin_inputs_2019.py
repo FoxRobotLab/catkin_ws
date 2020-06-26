@@ -374,9 +374,7 @@ if __name__ == '__main__':
     # add_cell_channel(cellInput= True)
 
     useless, dict = getCellCounts()
-    for i in range(2):
-        print(dict[str(i)])
-        print(i)
+    print(dict['37'])
 
 
 
