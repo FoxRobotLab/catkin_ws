@@ -384,7 +384,7 @@ if __name__ == '__main__':
     count = 0
     # Strips the newline character
     for line in Lines:
-        print("Line{}: {}".format(count, line.strip()))
+        print(line)
         count += 1
         if count == 2:
             break
