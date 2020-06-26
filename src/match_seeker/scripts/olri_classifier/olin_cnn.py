@@ -136,13 +136,13 @@ class OlinClassifier(object):
         self.num_eval = int((self.eval_ratio * self.image_totalImgs / 3))
         np.random.seed(2845) #45600
 
-        if (len(self.image) == len(self.label)):
-            p = np.random.permutation(len(self.image))
-            self.image = self.image[p]
-            self.label = self.label[p]
-        else:
-            print("Image data and heading data are  not the same size")
-            return 0
+        #if (len(self.image) == len(self.label)):
+            #p = np.random.permutation(len(self.image))
+            #self.image = self.image[p]
+            #self.label = self.label[p]
+        #else:
+            #print("Image data and heading data are  not the same size")
+            #return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         self.eval_images = self.image[-self.num_eval:, :]
@@ -180,23 +180,16 @@ class OlinClassifier(object):
       
         self.train_images = self.train_images.reshape(12084, 1, 100, 100, 1)
         self.eval_images = self.eval_images.reshape(416, 1, 100, 100, 1)
+      
         
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
         
-        #start = 0
-        #for image in self.train_images:
-            #cv2.imshow("Window", image)
-            #if start == 50:
-                #break
-            #cv2.waitKey(100)
-            #start +=1
-        print("This is the image", self.train_images.shape)
-        print("This is the labels shape", self.eval_images.shape)
+    
 
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=50,
-            epochs=3,
+            epochs=6,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
