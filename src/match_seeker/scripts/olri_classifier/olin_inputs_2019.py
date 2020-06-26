@@ -373,17 +373,20 @@ if __name__ == '__main__':
     # add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
     # add_cell_channel(cellInput= True)
 
-    useless, dict = getCellCounts()
-    print(dict['37'])
-    print(len(dict['37']))
+    # useless, dict = getCellCounts()
+    # print(dict['37'])
+    # print(len(dict['37']))
 
-    file1 = open("newData.txt", "w")
+    file1 = open(DATA + "newData.txt", "r")
 
+    Lines = file1.readlines()
 
-    for i in range (271):
-        array = dict[str(i)]
-        for item in array:
-            file1.write(item + "\n")
-        file1.write("\n")
+    count = 0
+    # Strips the newline character
+    for line in Lines:
+        print("Line{}: {}".format(count, line.strip()))
+        count += 1
+        if count == 2:
+            break
 
     file1.close()
