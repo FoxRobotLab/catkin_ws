@@ -14,7 +14,7 @@ from datetime import datetime
 
 from paths import DATA
 
-numCells = 25 #ORIG 271
+numCells = 271
 image_size = 100
 images_per_cell = 500
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -377,6 +377,13 @@ if __name__ == '__main__':
     print(dict['37'])
     print(len(dict['37']))
 
+    file1 = open("newData.txt", "w")
 
 
+    for i in range (271):
+        array = dict[str(i)]
+        for item in array:
+            file1.write(item + "\n")
+        file1.write("\n")
 
+    file1.close()
