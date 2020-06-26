@@ -191,7 +191,7 @@ class OlinClassifier(object):
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
-                    batch_size=100,
+                    batch_size=100, 
                     write_images=False,
                     write_grads=True,
                     histogram_freq=1,
