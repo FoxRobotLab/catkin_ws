@@ -1,4 +1,6 @@
 from tensorflow import keras
+import numpy as np
+
 def cnn_cells(self):
     print("Building a model that takes cell number as input")
     cnn = keras.models.Sequential()
@@ -10,7 +12,7 @@ def cnn_cells(self):
         padding="same",
         data_format="channels_last",
 
-    ), input_shape=[12084, 1, 100, 100, 1]))
+    ), input_shape= [12084,1, 100, 100]))
     cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
         pool_size=(2, 2),
         strides=(2, 2),
