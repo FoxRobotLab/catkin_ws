@@ -373,7 +373,7 @@ if __name__ == '__main__':
     # add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
     # add_cell_channel(cellInput= True)
 
-    dict = getCellCounts()
+    dict = getCellCounts()[1]
     for i in range(2):
         print(dict[i])
 
