@@ -12,7 +12,7 @@ def cnn_cells(self):
         padding="same",
         data_format="channels_last",
 
-    ), input_shape= [12084,1, 100, 100]))
+    ), input_shape= [None, 100, 100, 1]))
     cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
         pool_size=(2, 2),
         strides=(2, 2),
