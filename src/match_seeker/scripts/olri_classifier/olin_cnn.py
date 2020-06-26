@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.5
+ #!/usr/bin/env python3.5
 
 """--------------------------------------------------------------------------------
 olin_cnn.py
@@ -120,7 +120,10 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        #self.image = self.image[:,:,:,0]
+        self.image = self.image[:,:,:,0] #This takes out the color channel
+        self.image = self.image.reshape(12500, 100, 100, 1) 
+ 
+       
         print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -162,9 +165,10 @@ class OlinClassifier(object):
     def train(self):
         """Sets up the loss function and optimizer, an d then trains the model on the current training data. Quits if no
         training data is set up yet."""
+        print("This is the shape of the train images!!", self.train_images.shape)
         if self.train_images is None:
             print("No training data loaded yet.")
-            return
+            return 0
 
         # if (self.checkpoint_name is None):
         #     self.model.compile(
@@ -173,8 +177,21 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
-        self.train_images = self.train_images.reshape([12084, 12084, 100, 100, 2])
-        print("This is the labels shape", self.eval_labels.shape)
+      
+        self.train_images = self.train_images.reshape(12084, 1, 100, 100, 1)
+        self.eval_images = self.eval_images.reshape(416, 1, 100, 100, 1)
+        
+        #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
+        
+        #start = 0
+        #for image in self.train_images:
+            #cv2.imshow("Window", image)
+            #if start == 50:
+                #break
+            #cv2.waitKey(100)
+            #start +=1
+        print("This is the image", self.train_images.shape)
+        print("This is the labels shape", self.eval_images.shape)
 
         self.model.fit(
             self.train_images, self.train_labels,
@@ -191,7 +208,7 @@ class OlinClassifier(object):
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
-                    batch_size=100,
+                    batch_size=100, 
                     write_images=False,
                     write_grads=True,
                     histogram_freq=1,
@@ -617,7 +634,7 @@ if __name__ == "__main__":
         eval_ratio=0.1,
         image_size=100,
         cellInput= True,
-        image_depth= 2
+        image_depth= 1
     )
     print("Classifier built")
     olin_classifier.loadData()
