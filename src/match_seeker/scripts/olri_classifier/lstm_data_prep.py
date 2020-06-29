@@ -6,6 +6,7 @@ master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 numCells = 25
 image_size = 100
 images_per_cell = 500
+
 def getCellCounts():
     # Counts number of frames per cell, also returns dictionary with list of all frames associated with each cell
     with open(master_cell_loc_frame_id,'r') as masterlist:
@@ -25,3 +26,6 @@ def getCellCounts():
 
     print(cell_frame_dict)
     return cell_counts, cell_frame_dict
+
+if __name__ == '__main__':
+    getCellCounts()
