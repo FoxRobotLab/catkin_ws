@@ -35,11 +35,39 @@ def getUnderOverRep(cell_counts):
             underRep.append(key)
         else:
             overRep.append(key)
-
     return underRep, overRep
+
+def getFrameCellDict():
+    # Returns dict with cell corresponding to each frame
+    frame_cell_dict = {}
+    with open(master_cell_loc_frame_id,'r') as masterlist:
+        lines = masterlist.readlines()
+        for line in lines:
+            split = line.split()
+            frame_cell_dict['%04d'%int(split[0])] = split[1]
+    return frame_cell_dict
+
+def getHeadingRep():
+    # Returns dict with cell --> counts of num frames taken at each heading in that cell
+    cellHeadingCounts = dict()
+    for key in cell_counts.keys(): #ORIG range(numCells)
+        cellHeadingCounts[key] = [['0',0],['45',0],['90',0],['135',0],['180',0],['225',0],['270',0],['315',0]]
+    with open(master_cell_loc_frame_id,'r') as masterlist:
+        lines = masterlist.readlines()
+        for line in lines:
+            split = line.split()
+            cell = str(split[1])
+            if cell in cell_counts.keys():
+                for head in cellHeadingCounts[cell]:
+                    if head[0] == split[-1]:
+                        head[1] += 1
+                        break
+
+    return cellHeadingCounts
 
 if __name__ == '__main__':
     cell_counts, cell_frame_dict = getCellCounts()
     underRep, overRep = getUnderOverRep(cell_counts)
     print("This is the underRep", underRep)
     print("This is the overRep", overRep)
+    print(getHeadingRep())
