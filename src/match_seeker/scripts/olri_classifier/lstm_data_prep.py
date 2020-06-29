@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import cv2
 from paths import DATA
 from collections import OrderedDict
 
@@ -134,6 +135,19 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     np.save(DATA + 'cell_newframes_dict', rndUnderRepSubset)
     return cell_frame_dict, rndUnderRepSubset
 
+def resizeAndCrop(image):
+    if image is None:
+        print("No Image")
+    else:
+        cropped_image = cv2.resize(image, (image_size,image_size))
+        cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        return cropped_image
+
+def getOneHotLabel(number,size):
+    onehot = [0] * size
+    onehot[number] = 1
+    return onehot
+
 def getFrameHeadingDict():
     fhd = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
@@ -144,23 +158,77 @@ def getFrameHeadingDict():
 
     return fhd
 
+def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0.3, ratio_max=1/0.3, val_min=0, val_max=255):
+    """ Randomly erase a rectangular part of the given image in order to augment data
+    https://github.com/yu4u/cutout-random-erasing/blob/master/random_eraser.py"""
+    re_image = image.copy()
+    h, w = re_image.shape
+    er = random.random() # a float [0.0, 1.0)
+    if er > erase_ratio:
+        return None
+
+    while True:
+        size = np.random.uniform(size_min, size_max) * h * w
+        ratio = np.random.uniform(ratio_min, ratio_max)
+        width = int(np.sqrt(size / ratio))
+        height = int(np.sqrt(size * ratio))
+        left = np.random.randint(0, w)
+        top = np.random.randint(0, h)
+        if (left + width <= w and top + height <= h):
+            break
+    color = np.random.uniform(val_min, val_max)
+    re_image[top:top+height, left:left+width] = color
+    return re_image
+
 def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
     notNewImages = OrderedDict()
     newImages = OrderedDict
+    allImages = []
 
-    # def processFrame(frame):
-    #     print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
-    #     image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
-    #     image = resizeAndCrop(image)
-    #     allImages.append(image)
-    #     return image
+    def processFrame(frame):
+        print( "Processing frame " + str(frameNum) + " / " + str(numCells * images_per_cell) + "     (Frame number: " + frame + ")")
+        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
+        image = resizeAndCrop(image)
+        allImages.append(image)
+        return image
 
     #Processing the frames into numpy images
-    for key in cell_frame_dict.keys():
-        print("This is the key", key)
-        for i in cell_frame_dict[key]:
-            print(i)
-        return 0
+    frameNum = 1
+    for cell in cell_frame_dict.keys():
+        notNewImages[cell] = []
+        whichFrame = 0
+        for frame in cell_frame_dict[cell]:
+            notNewImages[cell].append(processFrame(frame))
+            whichFrame += 1
+            frameNum += 1
+
+    for cell in rndUnderRepSubset.keys():
+        newImages[cell]= []
+        whichFrame = 0
+        for frame in rndUnderRepSubset[cell]:
+            img = processFrame(frame)
+            img = randerase_image(img, 1)
+            newImages[cell].append(img)
+            whichFrame += 1
+            frameNum += 1
+
+    #Merging the dictionaries
+    #Managing the Frames
+    for key in rndUnderRepSubset.keys():
+        for frames in rndUnderRepSubset[key]:
+            cell_frame_dict[key].append(frames)
+
+    for key in newImages.keys():
+        for frames in newImages[key]:
+            notNewImages[key].append(frames)
+
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -168,7 +236,7 @@ if __name__ == '__main__':
     # cell_heading_counts = getHeadingRep(cell_counts)
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    cell_frame_dict= np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
+    cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
     rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
     add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
