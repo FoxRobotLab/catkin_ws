@@ -158,6 +158,28 @@ def getFrameHeadingDict():
 
     return fhd
 
+def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0.3, ratio_max=1/0.3, val_min=0, val_max=255):
+    """ Randomly erase a rectangular part of the given image in order to augment data
+    https://github.com/yu4u/cutout-random-erasing/blob/master/random_eraser.py"""
+    re_image = image.copy()
+    h, w = re_image.shape
+    er = random.random() # a float [0.0, 1.0)
+    if er > erase_ratio:
+        return None
+
+    while True:
+        size = np.random.uniform(size_min, size_max) * h * w
+        ratio = np.random.uniform(ratio_min, ratio_max)
+        width = int(np.sqrt(size / ratio))
+        height = int(np.sqrt(size * ratio))
+        left = np.random.randint(0, w)
+        top = np.random.randint(0, h)
+        if (left + width <= w and top + height <= h):
+            break
+    color = np.random.uniform(val_min, val_max)
+    re_image[top:top+height, left:left+width] = color
+    return re_image
+
 def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
     notNewImages = OrderedDict()
     newImages = OrderedDict
@@ -170,7 +192,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         allImages.append(image)
         return image
 
-    #Processing the frames into numpy images and also generating their hotlabel heading or cell number
+    #Processing the frames into numpy images
     frameNum = 1
     for cell in cell_frame_dict.keys():
         notNewImages[cell] = []
@@ -184,9 +206,14 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         newImages[cell]= []
         whichFrame = 0
         for frame in rndUnderRepSubset[cell]:
-            newImages[cell].append(processFrame(frame))
+            img = processFrame(frame)
+            img = randerase_image(img, 1)
+            newImages[cell].append(img)
             whichFrame += 1
             frameNum += 1
+
+    #Merging Data
+
 
 
 
