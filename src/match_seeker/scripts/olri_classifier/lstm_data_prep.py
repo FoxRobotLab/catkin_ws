@@ -16,9 +16,9 @@ def getCellCounts():
         for line in lines:
             splitline = line.split()
             if splitline[1] not in cell_counts.keys():
-                cell_frame_dict[splitline[1]] = []
                 if (len(cell_counts) >= numCells): ##DT and len(cell_counts) is not numCells
                     continue #DT
+                cell_frame_dict[splitline[1]] = []
                 cell_counts[splitline[1]] = 1
             else:
                 cell_counts[splitline[1]] += 1
