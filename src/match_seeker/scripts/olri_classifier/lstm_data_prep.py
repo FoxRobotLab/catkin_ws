@@ -1,6 +1,8 @@
 import numpy as np
+import random
 from paths import DATA
 from collections import OrderedDict
+
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 
 numCells = 25
@@ -83,36 +85,22 @@ def cullOverRepped():
     under, overRepList = getUnderOverRep(cell_counts)
     cell_heading_counts = getHeadingRep()
     heading_frame_dict = getHeadingFrameDict()
-    overreppedFrames = []
     i = 1
     for cell in overRepList:
         print('Cell '+ str(i) + " of " + str(len(overRepList)))
         i+=1
-
-        # for frame in cell_frame_dict[cell]:
-        #     overreppedFrames.append(frame)
         while cell_counts[cell] > images_per_cell:
             headingList = sorted(cell_heading_counts[cell],key= lambda x: x[1])
             largestHeading = headingList[-1][0]
-            print(headingList)
-            return 0
-            headingList[-1][1] = headingList[-1][1] -1
+            headingList[-1][1] = headingList[-1][1] -1 #making sure that the biggest head count goes down by one
             potentialCulls = []
             for frame in heading_frame_dict[largestHeading]:
                 if frame in cell_frame_dict[cell]:
                     potentialCulls.append(frame)
             toBeRemoved = potentialCulls[random.randint(0,len(potentialCulls)-1)]
-            overreppedFrames.remove(toBeRemoved)
-
             cell_frame_dict[cell].remove(toBeRemoved)
             cell_counts[cell] -= 1
-
-    return overreppedFrames
+    print(cell_counts)
 
 if __name__ == '__main__':
-    cell_counts, cell_frame_dict = getCellCounts()
-    underRep, overRep = getUnderOverRep(cell_counts)
-    print("This is the underRep", underRep)
-    print("This is the overRep", overRep)
-    print(getHeadingRep())
     cullOverRepped()
