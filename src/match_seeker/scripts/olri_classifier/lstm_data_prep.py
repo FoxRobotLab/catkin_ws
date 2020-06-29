@@ -24,8 +24,8 @@ def getCellCounts():
                 cell_counts[splitline[1]] += 1
             cell_frame_dict[splitline[1]].append('%04d'%int(splitline[0]))
 
-    print(cell_frame_dict)
     print("This is the length of the dictionary", len(cell_frame_dict))
+    print(cell_counts)
     return cell_counts, cell_frame_dict
 
 if __name__ == '__main__':
