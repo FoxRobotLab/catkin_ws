@@ -99,46 +99,38 @@ def cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts):
             toBeRemoved = potentialCulls[random.randint(0,len(potentialCulls)-1)]
             cell_frame_dict[cell].remove(toBeRemoved)
             cell_counts[cell] -= 1
-            print(cell_counts[cell])
-            if len(cell_frame_dict[cell]) == 500:
-                return 0
+
 
 def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     #Takes all cells that have below or the same amount of images_per_cell and keeps adding labels until it has the same
     #number of labels as images_per_cell
     underRepList, over = getUnderOverRep(cell_counts)
     heading_frame_dict = getHeadingFrameDict()
-    underreppedFrames = []
-    rndUnderRepSubset = []
+    rndUnderRepSubset = OrderedDict()
     i = 1
-    for key in cell_frame_dict.keys():
-        print(key, len(cell_frame_dict[key]))
-    return 0
     for cell in underRepList:
         print('Cell '+ str(i) + " of " + str(len(underRepList)),cell)
         i+=1
-
-        for frame in cell_frame_dict[cell]:
-            underreppedFrames.append(frame)
+        rndUnderRepSubset[cell] = []
         while cell_counts[cell] < images_per_cell:
             headingList = sorted(cell_heading_counts[cell],key= lambda x: x[1])
-            h = 0 #PC
-            while(headingList[h][1] == 0):#PC
-                h+=1 #PC
-            smallestHeading = headingList[h][0] #BORIG smallestHeading = headingList[0][0]
-            headingList[h][1] = headingList[h][1] + 1 #ORIG headingList[0][1] = headingList[0][1] + 1
+            h = 0
+            while(headingList[h][1] == 0):
+                h+=1
+            smallestHeading = headingList[h][0]
+            headingList[h][1] = headingList[h][1] + 1
             potentialAdditions = []
             for frame in heading_frame_dict[smallestHeading]:
                 if frame in cell_frame_dict[cell]:
                     potentialAdditions.append(frame)
-            if len(potentialAdditions) == 0:#UNNECESSARY?
+            if len(potentialAdditions) == 0:
                 print(cell, 'has very little data')
                 continue
             toBeAdded = random.choice(potentialAdditions)
-            rndUnderRepSubset.append(toBeAdded)
-            cell_frame_dict[cell].append(toBeAdded)
+            rndUnderRepSubset[cell].append(toBeAdded)
+            print(rndUnderRepSubset)
             cell_counts[cell] += 1
-    return underreppedFrames, rndUnderRepSubset
+    return rndUnderRepSubset
 
 
 if __name__ == '__main__':
