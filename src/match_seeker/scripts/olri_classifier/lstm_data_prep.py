@@ -1,6 +1,6 @@
 import numpy as np
 from paths import DATA
-
+from collections import OrderedDict
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 
 numCells = 25
@@ -12,16 +12,16 @@ def getCellCounts():
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
         cell_counts = dict()
-        cell_frame_dict = dict()
+        cell_frame_dict = OrderedDict()
         for line in lines:
             splitline = line.split()
             if splitline[1] not in cell_counts.keys():
+                cell_frame_dict[splitline[1]] = []
                 if (len(cell_counts) >= numCells): ##DT and len(cell_counts) is not numCells
                     continue #DT
                 cell_counts[splitline[1]] = 1
             else:
                 cell_counts[splitline[1]] += 1
-            cell_frame_dict[splitline[1]] = []
             cell_frame_dict[splitline[1]].append('%04d'%int(splitline[0]))
 
     print(cell_frame_dict)
