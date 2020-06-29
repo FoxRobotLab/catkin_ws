@@ -78,12 +78,10 @@ def getHeadingFrameDict():
 
     return heading_frame_dict
 
-def cullOverRepped():
+def cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     #Takes all cells that have more than images_per_cell and randomly erases labels until the cell has exactly the same
     #number as images_per_cell
-    cell_counts, cell_frame_dict = getCellCounts()
     under, overRepList = getUnderOverRep(cell_counts)
-    cell_heading_counts = getHeadingRep(cell_counts)
     heading_frame_dict = getHeadingFrameDict()
     i = 1
     for cell in overRepList:
@@ -102,6 +100,43 @@ def cullOverRepped():
             cell_counts[cell] -= 1
             print(cell_counts[cell])
 
+def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
+    #Takes all cells that have below or the same amount of images_per_cell and keeps adding labels until it has the same
+    #number of labels as images_per_cell
+    underRepList, over = getUnderOverRep(cell_counts)
+    heading_frame_dict = getHeadingFrameDict()
+    underreppedFrames = []
+    rndUnderRepSubset = []
+    i = 1
+    for cell in underRepList:
+        print('Cell '+ str(i) + " of " + str(len(underRepList)),cell)
+        i+=1
+
+        for frame in cell_frame_dict[cell]:
+            underreppedFrames.append(frame)
+        while cell_counts[cell] < images_per_cell:
+            headingList = sorted(cell_heading_counts[cell],key= lambda x: x[1])
+            h = 0 #PC
+            while(headingList[h][1] == 0):#PC
+                h+=1 #PC
+            smallestHeading = headingList[h][0] #BORIG smallestHeading = headingList[0][0]
+            headingList[h][1] = headingList[h][1] + 1 #ORIG headingList[0][1] = headingList[0][1] + 1
+            potentialAdditions = []
+            for frame in heading_frame_dict[smallestHeading]:
+                if frame in cell_frame_dict[cell]:
+                    potentialAdditions.append(frame)
+            if len(potentialAdditions) == 0:#UNNECESSARY?
+                print(cell, 'has very little data')
+                continue
+            toBeAdded = random.choice(potentialAdditions)
+            rndUnderRepSubset.append(toBeAdded)
+            cell_frame_dict[cell].append(toBeAdded)
+            cell_counts[cell] += 1
+    return underreppedFrames, rndUnderRepSubset
+
 
 if __name__ == '__main__':
-    cullOverRepped()
+    cell_counts, cell_frame_dict = getCellCounts()
+    cell_heading_counts = getHeadingRep(cell_counts)
+    cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
+    addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
