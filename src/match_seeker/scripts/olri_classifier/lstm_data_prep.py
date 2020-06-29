@@ -87,6 +87,7 @@ def cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     for cell in overRepList:
         print('Cell '+ str(i) + " of " + str(len(overRepList)))
         i+=1
+        print("This is the cell being modified", cell)
         while cell_counts[cell] > images_per_cell:
             headingList = sorted(cell_heading_counts[cell],key= lambda x: x[1])
             largestHeading = headingList[-1][0]
@@ -110,7 +111,7 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     underreppedFrames = []
     rndUnderRepSubset = []
     i = 1
-    print(len(cell_frame_dict['37']))
+    print("This is the length", len(cell_frame_dict['37']))
     return 0
     for cell in underRepList:
         print('Cell '+ str(i) + " of " + str(len(underRepList)),cell)
