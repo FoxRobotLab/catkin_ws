@@ -132,7 +132,35 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
             cell_counts[cell] += 1
     np.save(DATA+ 'cell_origframes_500orL', cell_frame_dict)
     np.save(DATA + 'cell_newframes_dict', rndUnderRepSubset)
+    return cell_frame_dict, rndUnderRepSubset
 
+def getFrameHeadingDict():
+    fhd = {}
+    with open(master_cell_loc_frame_id,'r') as masterlist:
+        lines = masterlist.readlines()
+        for line in lines:
+            split = line.split()
+            fhd['%04d'%int(split[0])] = split[-1]
+
+    return fhd
+
+def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
+    notNewImages = OrderedDict()
+    newImages = OrderedDict
+
+    # def processFrame(frame):
+    #     print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
+    #     image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
+    #     image = resizeAndCrop(image)
+    #     allImages.append(image)
+    #     return image
+
+    #Processing the frames into numpy images
+    for key in cell_frame_dict.keys():
+        print("This is the key", key)
+        for i in key:
+            print(i)
+        return 0
 
 
 if __name__ == '__main__':
@@ -141,9 +169,8 @@ if __name__ == '__main__':
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     cell_frame_dict= np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-    for key in cell_frame_dict.keys():
-        print(key, len(cell_frame_dict[key]))
-    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict', allow_pickle='TRUE').item()
-    for key in rndUnderRepSubset.keys():
-        print(key, len(rndUnderRepSubset[key]))
+    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
+    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+
+
 
