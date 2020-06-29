@@ -143,17 +143,34 @@ def resizeAndCrop(image):
         cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
         return cropped_image
 
+def getOneHotLabel(number,size):
+    onehot = [0] * size
+    onehot[number] = 1
+    return onehot
+
+def getFrameHeadingDict():
+    fhd = {}
+    with open(master_cell_loc_frame_id,'r') as masterlist:
+        lines = masterlist.readlines()
+        for line in lines:
+            split = line.split()
+            fhd['%04d'%int(split[0])] = split[-1]
+
+    return fhd
+
 def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
     notNewImages = OrderedDict()
     newImages = OrderedDict
+    allImages = []
 
     def processFrame(frame):
         print( "Processing frame " + str(frameNum) + " / " + str(len(cell_frame_dict)) + "     (Frame number: " + frame + ")")
         image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
+        allImages.append(image)
         return image
 
-    #Processing the frames into numpy images
+    #Processing the frames into numpy images and also generating their hotlabel heading or cell number
     frameNum = 1
     for cell in cell_frame_dict.keys():
         notNewImages[cell] = []
@@ -162,9 +179,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             notNewImages[cell].append(processFrame(frame))
             whichFrame += 1
             frameNum += 1
-        print("This is the length", len(notNewImages[cell]))
-        print("This is the images generated", notNewImages)
-        break
+
 
 
 
