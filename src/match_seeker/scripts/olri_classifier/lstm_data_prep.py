@@ -136,5 +136,5 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
 if __name__ == '__main__':
     cell_counts, cell_frame_dict = getCellCounts()
     cell_heading_counts = getHeadingRep(cell_counts)
-    over = cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
+    #cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
