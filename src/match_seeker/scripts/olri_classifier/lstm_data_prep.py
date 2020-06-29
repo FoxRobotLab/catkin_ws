@@ -16,17 +16,30 @@ def getCellCounts():
         for line in lines:
             splitline = line.split()
             if splitline[1] not in cell_counts.keys():
-                if (len(cell_counts) >= numCells): ##DT and len(cell_counts) is not numCells
+                if (len(cell_counts) >= numCells):
                     continue #DT
                 cell_frame_dict[splitline[1]] = []
                 cell_counts[splitline[1]] = 1
             else:
                 cell_counts[splitline[1]] += 1
             cell_frame_dict[splitline[1]].append('%04d'%int(splitline[0]))
-
-    print("This is the length of the dictionary", len(cell_frame_dict))
-    print(cell_counts)
     return cell_counts, cell_frame_dict
 
+def getUnderOverRep(cell_counts):
+    #Returns two arrays, one with cells that have or are below 'images_per_cell' and the other with cells that have more
+    #labels than 'images_per_cell'
+    underRep = []
+    overRep = []
+    for key in cell_counts.keys():
+        if int(cell_counts[key]) <= images_per_cell:
+            underRep.append(key)
+        else:
+            overRep.append(key)
+
+    return underRep, overRep
+
 if __name__ == '__main__':
-    getCellCounts()
+    cell_counts, cell_frame_dict = getCellCounts()
+    underRep, overRep = getUnderOverRep(cell_counts)
+    print("This is the underRep", underRep)
+    print("This is the overRep", overRep)
