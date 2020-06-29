@@ -113,7 +113,7 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     i = 1
     print("This is the length", len(cell_frame_dict['72']))
     for i in over:
-        print("cell", i, len(over[i]))
+        print("cell", i, len(cell_frame_dict[i]))
     return 0
     for cell in underRepList:
         print('Cell '+ str(i) + " of " + str(len(underRepList)),cell)
