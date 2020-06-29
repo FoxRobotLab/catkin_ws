@@ -3,26 +3,38 @@ from paths import DATA
 def linear(start, stop):
     for cellNum in range(start, stop):
         matrix[cellNum][cellNum+1] = 1
+        matrix[cellNum+1][cellNum] = 1
 
 def lShape(start, stop,cell, rate):
     change = 0
     for cellNum in range(start,stop):
         matrix[cellNum][cellNum+1] =1
         matrix[cellNum][cell - change] = 1
+
+
+        matrix[cellNum+1][cellNum] =1
+        matrix[cell - change][cellNum]= 1
+
+
         change+=rate
 
 def evenOdd(start, stop):
     for cellNum in range(start, stop):
         if cellNum%2 == 0:
             matrix[cellNum][cellNum+1]=1
+            matrix[cellNum+1][cellNum]=1
+
         matrix[cellNum][cellNum+2] =1
+        matrix[cellNum+2][cellNum]=1
 
 def multInputs(cell, neighbors):
     for neighbor in neighbors:
         matrix[cell][neighbor]= 1
+        matrix[neighbor][cell]= 1
 
 def singInput(cell, neighbor):
     matrix[cell][neighbor] = 1
+    matrix[neighbor][cell]= 1
 
 
 
