@@ -164,7 +164,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     allImages = []
 
     def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(len(cell_frame_dict)) + "     (Frame number: " + frame + ")")
+        print( "Processing frame " + str(frameNum) + " / " + str(numCells * images_per_cell) + "     (Frame number: " + frame + ")")
         image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
@@ -180,6 +180,16 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichFrame += 1
             frameNum += 1
 
+    for cell in rndUnderRepSubset.keys():
+        newImages[cell]= []
+        whichFrame = 0
+        for frame in rndUnderRepSubset[cell]:
+            newImages[cell].append(processFrame(frame))
+            whichFrame += 1
+            frameNum += 1
+
+
+
 
 
 
@@ -191,7 +201,7 @@ if __name__ == '__main__':
     # cell_heading_counts = getHeadingRep(cell_counts)
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    cell_frame_dict= np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
+    cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
     rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
     add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
