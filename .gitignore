@@ -24,3 +24,4 @@ src/match_seeker/res/QRCodes
 src/match_seeker/scripts/olri_classifier/paths.py
 devel/
 build/
+src/match_seeker/scripts/olri_classifier/creatingMapBackUp.py
