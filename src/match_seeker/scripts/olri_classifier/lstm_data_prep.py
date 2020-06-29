@@ -140,10 +140,11 @@ if __name__ == '__main__':
     # cell_heading_counts = getHeadingRep(cell_counts)
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    cell_frame_dict= np.load(DATA+ 'cell_origframes_500orL')
-    for key in cell_frame_dict.keys():
-        print(key, len(cell_frame_dict[key]))
-    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict')
-    for key in rndUnderRepSubset.keys():
-        print(key, len(rndUnderRepSubset[key]))
+    cell_frame_dict= open(DATA+ 'cell_origframes_500orL')
+    print(cell_frame_dict)
+    # for key in cell_frame_dict.keys():
+    #     print(key, len(cell_frame_dict[key]))
+    # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict')
+    # for key in rndUnderRepSubset.keys():
+    #     print(key, len(rndUnderRepSubset[key]))
 
