@@ -160,7 +160,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         for frame in cell_frame_dict[cell]:
             notNewImages[cell] = processFrame(frame)
             frameNum += 1
-        return 0
+        break
     print("This is the images generated", notNewImages)
 
 
