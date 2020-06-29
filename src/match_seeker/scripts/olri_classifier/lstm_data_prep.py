@@ -132,11 +132,11 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
             cell_counts[cell] += 1
     np.save(DATA+ 'cell_origframes_500orL', cell_frame_dict)
     np.save(DATA + 'cell_newframes_dict', rndUnderRepSubset)
-    
+
 
 
 if __name__ == '__main__':
     cell_counts, cell_frame_dict = getCellCounts()
     cell_heading_counts = getHeadingRep(cell_counts)
-    #cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
+    cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
