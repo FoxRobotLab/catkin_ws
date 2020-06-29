@@ -65,6 +65,49 @@ def getHeadingRep():
 
     return cellHeadingCounts
 
+def getHeadingFrameDict():
+    heading_frame_dict = {'0':[],'45':[],'90':[],'135':[],'180':[],'225':[],'270':[],'315':[]}
+
+    with open(master_cell_loc_frame_id,'r') as masterlist:
+        lines = masterlist.readlines()
+        for line in lines:
+            split = line.split()
+            heading_frame_dict[split[-1]].append('%04d'%int(split[0]))
+
+    return heading_frame_dict
+
+def cullOverRepped():
+    #Takes all cells that have more than images_per_cell and randomly erases labels until the cell has exactly the same
+    #number as images_per_cell
+    cell_counts, cell_frame_dict = getCellCounts()
+    under, overRepList = getUnderOverRep(cell_counts)
+    cell_heading_counts = getHeadingRep()
+    heading_frame_dict = getHeadingFrameDict()
+    overreppedFrames = []
+    i = 1
+    for cell in overRepList:
+        print('Cell '+ str(i) + " of " + str(len(overRepList)))
+        i+=1
+
+        # for frame in cell_frame_dict[cell]:
+        #     overreppedFrames.append(frame)
+        while cell_counts[cell] > images_per_cell:
+            headingList = sorted(cell_heading_counts[cell],key= lambda x: x[1])
+            largestHeading = headingList[-1][0]
+            print(headingList)
+            headingList[-1][1] = headingList[-1][1] -1
+            potentialCulls = []
+            for frame in heading_frame_dict[largestHeading]:
+                if frame in cell_frame_dict[cell]:
+                    potentialCulls.append(frame)
+            toBeRemoved = potentialCulls[random.randint(0,len(potentialCulls)-1)]
+            overreppedFrames.remove(toBeRemoved)
+
+            cell_frame_dict[cell].remove(toBeRemoved)
+            cell_counts[cell] -= 1
+
+    return overreppedFrames
+
 if __name__ == '__main__':
     cell_counts, cell_frame_dict = getCellCounts()
     underRep, overRep = getUnderOverRep(cell_counts)
