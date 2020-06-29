@@ -212,7 +212,15 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichFrame += 1
             frameNum += 1
 
-    #Merging Data
+    #Merging the dictionaries
+    #Managing the Frames
+    for key in rndUnderRepSubset.keys():
+        for frames in rndUnderRepSubset[key]:
+            cell_frame_dict[key].append(frames)
+
+    for key in newImages.keys():
+        for frames in newImages[key]:
+            notNewImages[key].append(frames)
 
 
 
