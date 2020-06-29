@@ -156,7 +156,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     #Processing the frames into numpy images
     frameNum = 1
     for cell in cell_frame_dict.keys():
-        notNewImages[cell] = cell_frame_dict
+        notNewImages[cell] = []
         whichFrame = 0
         for frame in cell_frame_dict[cell]:
             notNewImages[cell][whichFrame] = processFrame(frame)
