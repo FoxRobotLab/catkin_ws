@@ -49,7 +49,7 @@ def getFrameCellDict():
             frame_cell_dict['%04d'%int(split[0])] = split[1]
     return frame_cell_dict
 
-def getHeadingRep():
+def getHeadingRep(cell_counts):
     # Returns dict with cell --> counts of num frames taken at each heading in that cell
     cellHeadingCounts = dict()
     for key in cell_counts.keys(): #ORIG range(numCells)
@@ -83,7 +83,7 @@ def cullOverRepped():
     #number as images_per_cell
     cell_counts, cell_frame_dict = getCellCounts()
     under, overRepList = getUnderOverRep(cell_counts)
-    cell_heading_counts = getHeadingRep()
+    cell_heading_counts = getHeadingRep(cell_counts)
     heading_frame_dict = getHeadingFrameDict()
     i = 1
     for cell in overRepList:
@@ -103,5 +103,4 @@ def cullOverRepped():
     print(cell_counts)
 
 if __name__ == '__main__':
-    getCellCounts()
     cullOverRepped()
