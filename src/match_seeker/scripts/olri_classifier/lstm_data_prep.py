@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import cv2
 from paths import DATA
 from collections import OrderedDict
 
@@ -134,33 +135,35 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     np.save(DATA + 'cell_newframes_dict', rndUnderRepSubset)
     return cell_frame_dict, rndUnderRepSubset
 
-def getFrameHeadingDict():
-    fhd = {}
-    with open(master_cell_loc_frame_id,'r') as masterlist:
-        lines = masterlist.readlines()
-        for line in lines:
-            split = line.split()
-            fhd['%04d'%int(split[0])] = split[-1]
-
-    return fhd
+def resizeAndCrop(image):
+    if image is None:
+        print("No Image")
+    else:
+        cropped_image = cv2.resize(image, (image_size,image_size))
+        cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        return cropped_image
 
 def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
     notNewImages = OrderedDict()
     newImages = OrderedDict
 
-    # def processFrame(frame):
-    #     print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
-    #     image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
-    #     image = resizeAndCrop(image)
-    #     allImages.append(image)
-    #     return image
+    def processFrame(frame):
+        print( "Processing frame " + str(frameNum) + " / " + str(len(cell_frame_dict)) + "     (Frame number: " + frame + ")")
+        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
+        image = resizeAndCrop(image)
+        return image
 
     #Processing the frames into numpy images
-    for key in cell_frame_dict.keys():
-        print("This is the key", key)
-        for i in cell_frame_dict[key]:
-            print(i)
+    frameNum = 1
+    for cell in cell_frame_dict.keys():
+        notNewImages[cell] = cell_frame_dict
+        for frame in cell_frame_dict[cell]:
+            notNewImages[cell] = processFrame(frame)
+            frameNum += 1
         return 0
+    print("This is the images generated", notNewImages)
+
+
 
 
 if __name__ == '__main__':
