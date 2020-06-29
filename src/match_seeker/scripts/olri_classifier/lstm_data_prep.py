@@ -99,6 +99,7 @@ def cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts):
             cell_frame_dict[cell].remove(toBeRemoved)
             cell_counts[cell] -= 1
             print(cell_counts[cell])
+            print(len(cell_frame_dict[cell]))
 
 def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     #Takes all cells that have below or the same amount of images_per_cell and keeps adding labels until it has the same
