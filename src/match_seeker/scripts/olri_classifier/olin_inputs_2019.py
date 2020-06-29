@@ -14,7 +14,7 @@ from datetime import datetime
 
 from paths import DATA
 
-numCells = 271
+numCells = 25
 image_size = 100
 images_per_cell = 500
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -203,7 +203,8 @@ def getLabels():
     underLabels, randLabels = addUnderRepped()
     allLabels = overLabels + underLabels + randLabels
     randStart = len(overLabels)+len(underLabels)
-    np.save(DATA +'newdata_allFramesToBeProcessed135k.npy', allLabels) #!!!!THIS HAS TO BE RUN AGAIN!!!!!
+    np.save(DATA+ 'cell_frame_dict', cell_frame_dict)
+    #np.save(DATA +'newdata_allFramesToBeProcessed135k.npy', allLabels) #!!!!THIS HAS TO BE RUN AGAIN!!!!!
     print("This is the randStart", randStart)
 
     return allLabels, randStart
