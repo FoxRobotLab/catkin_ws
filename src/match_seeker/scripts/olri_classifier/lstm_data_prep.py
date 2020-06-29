@@ -95,6 +95,7 @@ def cullOverRepped():
             headingList = sorted(cell_heading_counts[cell],key= lambda x: x[1])
             largestHeading = headingList[-1][0]
             print(headingList)
+            return 0
             headingList[-1][1] = headingList[-1][1] -1
             potentialCulls = []
             for frame in heading_frame_dict[largestHeading]:
@@ -114,3 +115,4 @@ if __name__ == '__main__':
     print("This is the underRep", underRep)
     print("This is the overRep", overRep)
     print(getHeadingRep())
+    cullOverRepped()
