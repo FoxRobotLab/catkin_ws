@@ -103,4 +103,5 @@ def cullOverRepped():
     print(cell_counts)
 
 if __name__ == '__main__':
+    getCellCounts()
     cullOverRepped()
