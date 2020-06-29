@@ -111,11 +111,8 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     underreppedFrames = []
     rndUnderRepSubset = []
     i = 1
-    for i in over:
-        print("cell", i, len(cell_frame_dict[i]))
-
-    for i in over:
-        print("cell over", i, len(cell_frame_dict[i]))
+    for key in cell_frame_dict.keys():
+        print(key, len(cell_frame_dict[key]))
     return 0
     for cell in underRepList:
         print('Cell '+ str(i) + " of " + str(len(underRepList)),cell)
