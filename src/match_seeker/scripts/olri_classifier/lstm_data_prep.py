@@ -158,7 +158,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     #Processing the frames into numpy images
     for key in cell_frame_dict.keys():
         print("This is the key", key)
-        for i in key:
+        for i in cell_frame_dict[key]:
             print(i)
         return 0
 
