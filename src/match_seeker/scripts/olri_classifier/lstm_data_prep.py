@@ -159,7 +159,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         notNewImages[cell] = []
         whichFrame = 0
         for frame in cell_frame_dict[cell]:
-            notNewImages[cell][whichFrame] = processFrame(frame)
+            notNewImages[cell].append(processFrame(frame))
             whichFrame += 1
             frameNum += 1
         print("This is the length", len(notNewImages[cell]))
