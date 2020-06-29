@@ -71,5 +71,5 @@ if __name__ == "__main__":
     for i in multNeigh:
         multInputs(i, multNeigh[i])
 
-    np.save(DATA + 'newMatrix', matrix)
+    np.save(DATA + 'testNewMatrix', matrix)
 
