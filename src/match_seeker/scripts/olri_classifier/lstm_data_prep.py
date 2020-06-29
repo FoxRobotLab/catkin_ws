@@ -128,9 +128,11 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
                 continue
             toBeAdded = random.choice(potentialAdditions)
             rndUnderRepSubset[cell].append(toBeAdded)
-            print(rndUnderRepSubset)
+
             cell_counts[cell] += 1
-    return rndUnderRepSubset
+    np.save(DATA+ 'cell_origframes_500orL', cell_frame_dict)
+    np.save(DATA + 'cell_newframes_dict', rndUnderRepSubset)
+    
 
 
 if __name__ == '__main__':
