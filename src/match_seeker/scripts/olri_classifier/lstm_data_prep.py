@@ -100,7 +100,8 @@ def cullOverRepped():
             toBeRemoved = potentialCulls[random.randint(0,len(potentialCulls)-1)]
             cell_frame_dict[cell].remove(toBeRemoved)
             cell_counts[cell] -= 1
-    print(cell_counts)
+            print(cell_counts[cell])
+
 
 if __name__ == '__main__':
     cullOverRepped()
