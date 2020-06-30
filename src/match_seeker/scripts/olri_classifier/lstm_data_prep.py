@@ -180,11 +180,13 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
     re_image[top:top+height, left:left+width] = color
     return re_image
 
+
 def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
     notNewImages = OrderedDict()
     newImages = OrderedDict()
     allImages = []
-    hotLabelHeading = []
+    frame_heading_dict = getFrameHeadingDict()
+    hotLabelHeadOutput = []
 
     def processFrame(frame):
         print( "Processing frame " + str(frameNum) + " / " + str(numCells * images_per_cell) + "     (Frame number: " + frame + ")")
@@ -249,12 +251,16 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         for tuple in cell_frame_dict[str(cell)]:
             if (cellInput == True):
                 train_IMG_cellInput.append(tuple[1])
-                hotLabelHeading.append(getOneHotLabel(tuple[0] // 45, 8))
+                frame = '%04d'% tuple[0]
+                hotLabelHeadOutput.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
+
+
 
     print("image", len(train_IMG_cellInput))
-    print("hotlabel", len(hotLabelHeading))
+    print("heading", len(hotLabelHeadOutput))
 
-            
+
+
 
 
 
