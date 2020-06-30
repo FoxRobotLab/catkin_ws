@@ -184,6 +184,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     notNewImages = OrderedDict()
     newImages = OrderedDict()
     allImages = []
+    hotLabelHeading = []
 
     def processFrame(frame):
         print( "Processing frame " + str(frameNum) + " / " + str(numCells * images_per_cell) + "     (Frame number: " + frame + ")")
@@ -243,9 +244,20 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
     #Creating the images
 
+    train_IMG_cellInput = []
     for cell in cells:
-        print(cell, len(cell_frame_dict[str(cell)]))
-        #for image in cell_frame_dict[str(cell)]:
+        for tuple in cell_frame_dict[str(cell)]:
+            if (cellInput == True):
+                train_IMG_cellInput.append(tuple[1])
+                hotLabelHeading.append(getOneHotLabel(tuple[0] // 45, 8))
+
+    print("image", len(train_IMG_cellInput))
+    print("hotlabel", len(hotLabelHeading))
+
+            
+
+
+
 
 
 
