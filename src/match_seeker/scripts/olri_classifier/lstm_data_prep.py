@@ -249,8 +249,9 @@ if __name__ == '__main__':
     olinMap = np.load(DATA + 'testNewMatrix.npy')
     cells = []
     for key in cell_frame_dict.keys():
-        cells = cells.append(int(key))
-    print(cells)
+        cells.append(int(key))
+
+    cells = sorted(cells)
     whichCell = 0
     consecCells = []
     for cell in cells:
