@@ -232,7 +232,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         for frame in cell_frame_dict[key]:
             cell_frame_dict[key][whichFrame] = (int(frame), notNewImages[key][whichFrame])
             whichFrame += 1
-        cell_frame_dict[key] = sorted(cell_frame_dict[key])
+        cell_frame_dict[key] = sorted(cell_frame_dict[key],key=lambda x: x[0])
 
     #Organizing cells (Specific for sample)
     cells = []
