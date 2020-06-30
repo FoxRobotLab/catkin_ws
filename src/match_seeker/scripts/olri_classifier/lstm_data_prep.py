@@ -251,16 +251,16 @@ if __name__ == '__main__':
     cells = cell_frame_dict.keys()
 
     whichCell = 0
-    arr = []
+    consecCells = []
     for cell in cells:
-        arr = arr.append(cell)
+        consecCells.append(cell)
         if whichCell == 0:
             prevCell = cell
         else:
             currCell = cell
             if olinMap[int(prevCell)][int(currCell)] == 0:
-                print(arr)
-                arr = []
+                print(consecCells)
+                consecCells = []
                 print(prevCell + " is not neighbors with " + currCell)
             prevCell = currCell
         whichCell +=1
