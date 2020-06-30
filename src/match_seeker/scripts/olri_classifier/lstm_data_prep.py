@@ -251,35 +251,21 @@ if __name__ == '__main__':
     for key in cell_frame_dict.keys():
         cells.append(int(key))
 
-    print("Before", cells)
-    cells = sorted(cells)
-    print("This is after being sorted", cells)
-
-
-
-
-
-
-
-
-    # cells = sorted(cells)
-    # print(cells)
-
-    # whichCell = 0
-    # consecCells = []
-    # for cell in cells:
-    #     consecCells.append(cell)
-    #     if whichCell == 0:
-    #         prevCell = cell
-    #     else:
-    #         currCell = cell
-    #         if olinMap[int(prevCell)][int(currCell)] == 0:
-    #             print(consecCells)
-    #             consecCells = []
-    #             print(prevCell + " is not neighbors with " + currCell)
-    #         prevCell = currCell
-    #     whichCell +=1
-    # print(cells)
+    whichCell = 0
+    consecCells = []
+    for cell in cells:
+        consecCells.append(cell)
+        if whichCell == 0:
+            prevCell = cell
+        else:
+            currCell = cell
+            if olinMap[int(prevCell)][int(currCell)] == 0:
+                print(consecCells)
+                consecCells = []
+                print(prevCell + " is not neighbors with " + currCell)
+            prevCell = currCell
+        whichCell +=1
+    print(cells)
 
 
 
