@@ -291,7 +291,6 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     for cell in cells:
         for tuple in cell_frame_dict[str(cell)]:
             image = train_IMG_cellInput[whichImage]
-            print(image.shape)
             image = image - mean
             image /= 255
             image = np.squeeze(image)
@@ -303,24 +302,8 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichImage += 1
 
     print("Image", train_IMG_cellInput )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    np.save(DATA+ "lstm_img_cell_Inpute", train_IMG_cellInput)
+    np.save(DATA+ "lstm_heading_hotLabel", hotLabelHeadOutput)
 
 
 
