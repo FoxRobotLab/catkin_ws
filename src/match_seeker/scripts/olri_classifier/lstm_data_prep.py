@@ -249,6 +249,8 @@ if __name__ == '__main__':
     olinMap = np.load(DATA + 'testNewMatrix.npy')
     print(type(cell_frame_dict))
     cells = cell_frame_dict.keys()
+    for i in cells:
+        print(i)
 
 
 
