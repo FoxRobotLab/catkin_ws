@@ -259,10 +259,10 @@ if __name__ == '__main__':
             prevCell = cell
         else:
             currCell = cell
-            if olinMap[int(prevCell)][int(currCell)] == 0:
+            if olinMap[prevCell][currCell] == 0:
                 print(consecCells)
                 consecCells = []
-                print(prevCell + " is not neighbors with " + currCell)
+                print(str(prevCell) + " is not neighbors with " + str(currCell))
             prevCell = currCell
         whichCell +=1
     print(cells)
