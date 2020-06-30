@@ -180,6 +180,35 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
     re_image[top:top+height, left:left+width] = color
     return re_image
 
+def calculate_mean(images):
+    # If adding additional channel with heading/cell identification, following lines can be problematic, watch out!
+    depth = images[0].shape[-1]
+    if (depth == image_size): #for grayscale images, .shape() only returns width and height
+        N = 0
+        mean = np.zeros((image_size,image_size))
+        for img in images:
+            mean[:, :] += img[:, :]
+            N += 1
+        mean /= N
+
+    elif (depth == 3):
+        N = 0
+        mean = np.zeros((images[0].size[0], images[0].size[0], 3))
+        for img in images:
+            mean[:, :, 0] += img[:, :, 0]
+            mean[:, :, 1] += img[:, :, 1]
+            mean[:, :, 2] += img[:, :, 2]
+            N += 1
+        mean /= N
+    else:
+        # print(images.shape)
+        # print("*** Check image shape")
+        return None
+    np.save(DATA + 'lstm_mean12k.npy', mean)
+
+    print("*** Done. Returning mean.")
+    return mean
+
 
 def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
     notNewImages = OrderedDict()
@@ -187,6 +216,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     allImages = []
     frame_heading_dict = getFrameHeadingDict()
     hotLabelHeadOutput = []
+    frame_cell_dict = getFrameCellDict()
 
     def processFrame(frame):
         print( "Processing frame " + str(frameNum) + " / " + str(numCells * images_per_cell) + "     (Frame number: " + frame + ")")
@@ -244,7 +274,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     cells = sorted(cells)
     cells.pop()
 
-    #Creating the images
+    #Creating the array of images and the hot label
 
     train_IMG_cellInput = []
     for cell in cells:
@@ -254,10 +284,33 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
                 frame = '%04d'% tuple[0]
                 hotLabelHeadOutput.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
 
+    #Calculating the mean
+    mean = calculate_mean(train_IMG_cellInput)
+
+    whichImage= 0
+    for cell in cells:
+        for tuple in cell_frame_dict[str(cell)]:
+            image = train_IMG_cellInput[whichImage]
+            image = image - mean
+            image /= 255
+            image = np.squeeze(image)
+            whichImage += 1
+            if (cellInput == True):
+                frame = '%04d' % tuple[0]
+                cell = int(frame_cell_dict[frame])
+                cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
+                train_IMG_cellInput[whichImage] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
+
+    print("Image", train_IMG_cellInput )
+  
 
 
-    print("image", len(train_IMG_cellInput))
-    print("heading", len(hotLabelHeadOutput))
+
+
+
+
+
+
 
 
 
