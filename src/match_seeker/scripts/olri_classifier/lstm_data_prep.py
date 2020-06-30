@@ -182,7 +182,7 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
 
 def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
     notNewImages = OrderedDict()
-    newImages = OrderedDict
+    newImages = OrderedDict()
     allImages = []
 
     def processFrame(frame):
@@ -192,7 +192,8 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         allImages.append(image)
         return image
 
-    #Processing the frames into numpy images
+    #Processing the frames into numpy images. One that is just getting the images according to the frame and the other
+    #That is getting the image plus a grey rectangle
     frameNum = 1
     for cell in cell_frame_dict.keys():
         notNewImages[cell] = []
@@ -212,15 +213,26 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichFrame += 1
             frameNum += 1
 
-    #Merging the dictionaries
-    #Managing the Frames
-    for key in rndUnderRepSubset.keys():
-        for frames in rndUnderRepSubset[key]:
-            cell_frame_dict[key].append(frames)
-    # Managing the images
-    for key in newImages.keys():
+    #Merging the dictionaries so cell_frame_dict with rndUnderRepSubset, which only contain cell: ["frame", ...] format and
+    #notNewImages with newImages, which contain cell" [image, ...] format
+
+    for key in rndUnderRepSubset.keys(): #DATA in rndUnderRepSubset ----> cell_frame_dict
+        for frame in rndUnderRepSubset[key]:
+            cell_frame_dict[key].append(frame)
+
+    for key in newImages.keys(): #DATA in newImages ----> notNewImages
         for imgs in newImages[key]:
             notNewImages[key].append(imgs)
+
+    #Creating a tuple of frame with its corresponding image within each cell, so {cell: [("frame", image), ...]}
+    #And sorting it according to the frame number
+    for key in cell_frame_dict.keys(): #DATA in notNewImages ----> cell_frame_dict
+        whichFrame = 0
+        for frame in cell_frame_dict[key]:
+            cell_frame_dict[key][whichFrame] = (frame, notNewImages[key][whichFrame])
+            whichFrame += 1
+            cell_frame_dict[key] = sorted(cell_frame_dict[key])
+
 
 
 
