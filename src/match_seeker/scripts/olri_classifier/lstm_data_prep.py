@@ -230,9 +230,18 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     for key in cell_frame_dict.keys(): #DATA in notNewImages ----> cell_frame_dict
         whichFrame = 0
         for frame in cell_frame_dict[key]:
-            cell_frame_dict[key][whichFrame] = (frame, notNewImages[key][whichFrame])
+            cell_frame_dict[key][whichFrame] = (int(frame), notNewImages[key][whichFrame])
             whichFrame += 1
         cell_frame_dict[key] = sorted(cell_frame_dict[key])
+
+    #Organizing cells
+    cells = []
+    for key in cell_frame_dict.keys():
+        cells.append(int(key))
+    cells = sorted(cells)
+    cells.pop()
+
+    #Creating the images
 
 
 
@@ -244,31 +253,7 @@ if __name__ == '__main__':
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-    # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
-    # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
-    olinMap = np.load(DATA + 'testNewMatrix.npy')
-    cells = []
-    for key in cell_frame_dict.keys():
-        cells.append(int(key))
-
-    cells = sorted(cells)
-    whichCell = 0
-    consecCells = []
-    for cell in cells:
-        consecCells.append(cell)
-        if whichCell == 0:
-            prevCell = cell
-        else:
-            currCell = cell
-            if olinMap[prevCell][currCell] == 0:
-                print(consecCells)
-                consecCells = []
-                print(str(prevCell) + " is not neighbors with " + str(currCell))
-            prevCell = currCell
-        whichCell +=1
-    print(cells)
-
-
-
+    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
+    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
 
