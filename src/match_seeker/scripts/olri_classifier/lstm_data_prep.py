@@ -234,20 +234,6 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichFrame += 1
         cell_frame_dict[key] = sorted(cell_frame_dict[key])
 
-    print("This is the dictionar with tuples", cell_frame_dict)
-    print(" ")
-    print("This is the lenght of the dictioary", len(cell_frame_dict))
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -258,8 +244,12 @@ if __name__ == '__main__':
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
-    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+    # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
+    # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+    olinMap = np.load(DATA + 'testNewMatrix.npy')
+    print(type(cell_frame_dict))
+    cells = cell_frame_dict.keys()
+
 
 
 
