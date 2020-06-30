@@ -248,8 +248,10 @@ if __name__ == '__main__':
     # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
     olinMap = np.load(DATA + 'testNewMatrix.npy')
     cells = cell_frame_dict.keys()
+    print(cells)
     cells = sorted(cells)
     print(cells)
+
     # whichCell = 0
     # consecCells = []
     # for cell in cells:
