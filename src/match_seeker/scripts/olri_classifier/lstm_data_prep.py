@@ -233,6 +233,11 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichFrame += 1
             cell_frame_dict[key] = sorted(cell_frame_dict[key])
 
+    print("This is the dictionar with tuples", cell_frame_dict)
+    print(" ")
+    print("This is the lenght of the dictioary", len(cell_frame_dict))
+
+
 
 
 
