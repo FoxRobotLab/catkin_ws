@@ -300,8 +300,6 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
                 cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
                 train_IMG_cellInput[whichImage] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
             whichImage += 1
-
-    print("Image", train_IMG_cellInput )
     np.save(DATA+ "lstm_img_cell_Inpute", train_IMG_cellInput)
     np.save(DATA+ "lstm_heading_hotLabel", hotLabelHeadOutput)
 
@@ -312,8 +310,17 @@ if __name__ == '__main__':
     # cell_heading_counts = getHeadingRep(cell_counts)
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
-    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+    # cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
+    # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
+    # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+
+    images = np.load(DATA+ "lstm_img_cell_Inpute.npy")
+    images = images[:,:, :, 0]
+    images = images.reshape(12500, 100, 100, 1)
+    for i in images:
+        cv2.imshow("window", i)
+        cv2.waitKey(50)
+    cv2.destroyAllWindows()
+
 
 
