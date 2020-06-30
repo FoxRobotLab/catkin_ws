@@ -247,8 +247,20 @@ if __name__ == '__main__':
     # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
     # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
     olinMap = np.load(DATA + 'testNewMatrix.npy')
-    cells = np.asarray(cell_frame_dict.keys())
-    print(cells[0])
+
+    cells = cell_frame_dict.keys()
+
+    whichCell = 0
+    for cell in cells:
+        if whichCell == 0:
+            prevCell = cell
+        else:
+            currCell = cell
+            if olinMap[prevCell][currCell] == 0:
+                print(str(prevCell) + " is not neighbors with " + str(currCell))
+            prevCell = currCell
+        whichCell +=1
+
 
 
 
