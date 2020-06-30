@@ -232,7 +232,6 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         for frame in cell_frame_dict[key]:
             cell_frame_dict[key][whichFrame] = (frame, notNewImages[key][whichFrame])
             whichFrame += 1
-            print(cell_frame_dict[key])
         cell_frame_dict[key] = sorted(cell_frame_dict[key])
 
     print("This is the dictionar with tuples", cell_frame_dict)
