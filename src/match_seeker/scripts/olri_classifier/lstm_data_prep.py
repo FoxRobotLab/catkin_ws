@@ -291,6 +291,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     for cell in cells:
         for tuple in cell_frame_dict[str(cell)]:
             image = train_IMG_cellInput[whichImage]
+            print(image.shape)
             image = image - mean
             image /= 255
             image = np.squeeze(image)
@@ -302,7 +303,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
                 train_IMG_cellInput[whichImage] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
 
     print("Image", train_IMG_cellInput )
-  
+
 
 
 
