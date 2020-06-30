@@ -247,10 +247,13 @@ if __name__ == '__main__':
     # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
     # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
     olinMap = np.load(DATA + 'testNewMatrix.npy')
-    cells = cell_frame_dict.keys()
-    for cell in cells:
-        cells[cell] = int(cell)
-    print(cells)
+    cells = []
+    for key in cell_frame_dict.keys():
+        cells.append(int(key))
+
+    print("Before", cells)
+    cells = sorted(cells)
+    print("This is after being sorted", cells)
 
 
 
