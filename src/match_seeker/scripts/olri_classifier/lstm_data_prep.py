@@ -247,8 +247,8 @@ if __name__ == '__main__':
     # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
     # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
     olinMap = np.load(DATA + 'testNewMatrix.npy')
-
     cells = cell_frame_dict.keys()
+    cells = sorted(cells)
 
     whichCell = 0
     consecCells = []
