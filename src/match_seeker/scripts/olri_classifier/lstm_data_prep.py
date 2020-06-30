@@ -249,22 +249,22 @@ if __name__ == '__main__':
     olinMap = np.load(DATA + 'testNewMatrix.npy')
     cells = cell_frame_dict.keys()
     cells = sorted(cells)
-
-    whichCell = 0
-    consecCells = []
-    for cell in cells:
-        consecCells.append(cell)
-        if whichCell == 0:
-            prevCell = cell
-        else:
-            currCell = cell
-            if olinMap[int(prevCell)][int(currCell)] == 0:
-                print(consecCells)
-                consecCells = []
-                print(prevCell + " is not neighbors with " + currCell)
-            prevCell = currCell
-        whichCell +=1
     print(cells)
+    # whichCell = 0
+    # consecCells = []
+    # for cell in cells:
+    #     consecCells.append(cell)
+    #     if whichCell == 0:
+    #         prevCell = cell
+    #     else:
+    #         currCell = cell
+    #         if olinMap[int(prevCell)][int(currCell)] == 0:
+    #             print(consecCells)
+    #             consecCells = []
+    #             print(prevCell + " is not neighbors with " + currCell)
+    #         prevCell = currCell
+    #     whichCell +=1
+    # print(cells)
 
 
 
