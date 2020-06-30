@@ -256,8 +256,8 @@ if __name__ == '__main__':
             prevCell = cell
         else:
             currCell = cell
-            if olinMap[prevCell][currCell] == 0:
-                print(str(prevCell) + " is not neighbors with " + str(currCell))
+            if olinMap[int(prevCell)][int(currCell)] == 0:
+                print(prevCell + " is not neighbors with " + currCell)
             prevCell = currCell
         whichCell +=1
 
