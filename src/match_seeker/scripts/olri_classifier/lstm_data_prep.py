@@ -234,7 +234,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichFrame += 1
         cell_frame_dict[key] = sorted(cell_frame_dict[key])
 
-    #Organizing cells
+    #Organizing cells (Specific for sample)
     cells = []
     for key in cell_frame_dict.keys():
         cells.append(int(key))
@@ -242,6 +242,11 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     cells.pop()
 
     #Creating the images
+
+    for cell in cells:
+        print(cell, len(cell_frame_dict[str(cell)]))
+        #for image in cell_frame_dict[str(cell)]:
+
 
 
 
