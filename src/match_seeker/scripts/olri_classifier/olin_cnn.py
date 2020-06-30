@@ -620,7 +620,7 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg = DATA + 'IMG_CellInput_12K.npy',
+        dataImg = DATA + 'lstm_img_cell_Inpute.npy',
         dataLabel = DATA + 'Heading_CellInput12k.npy',
         data_name = "cellInputReference",
         outputSize= 8,
