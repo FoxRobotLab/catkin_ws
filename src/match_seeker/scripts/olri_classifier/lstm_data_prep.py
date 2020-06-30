@@ -226,13 +226,14 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
     #Creating a tuple of frame with its corresponding image within each cell, so {cell: [("frame", image), ...]}
     #And sorting it according to the frame number
+
     for key in cell_frame_dict.keys(): #DATA in notNewImages ----> cell_frame_dict
         whichFrame = 0
         for frame in cell_frame_dict[key]:
             cell_frame_dict[key][whichFrame] = (frame, notNewImages[key][whichFrame])
             whichFrame += 1
             print(cell_frame_dict[key])
-            cell_frame_dict[key] = sorted(cell_frame_dict[key], key = cell_frame_dict[key][0])
+        cell_frame_dict[key] = sorted(cell_frame_dict[key])
 
     print("This is the dictionar with tuples", cell_frame_dict)
     print(" ")
