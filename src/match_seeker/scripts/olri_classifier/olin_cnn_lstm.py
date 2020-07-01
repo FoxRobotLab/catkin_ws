@@ -63,10 +63,7 @@ def creatingSequence(data, timeStep, overlap):
         if len(sequence) == timeStep:
             newData.append(sequence)
             sequence = sequence[timeStep-overlap:]
-    print("this is the length of newData", len(newData))
-    print("This is what we are trying to access", newData[len(newData)-1][timeStep-1] )
-    print("this is from the original data", data[-1] )
-    
+
     if (newData[len(newData)-1][timeStep-1] == data[-1]).all():
         newData = np.asarray(newData)
     else:
