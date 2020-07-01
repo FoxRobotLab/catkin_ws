@@ -181,9 +181,15 @@ class OlinClassifier(object):
 
 
         self.train_images = creatingSequence(self.train_images, 1500, 500)
-        self.train_images = np.reshape(self.train_images,(len(self.train_images), 15000, 100, 100, 1))
+        timeSteps = len(self.train_images)
+        timeStepsEach = 1500
+        subSequences = timeSteps/timeStepsEach
+        self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
         self.eval_images = creatingSequence(self.eval_images,1500, 500)
-        self.eval_images = np.reshape(self.train_images, len(self.eval_images), 15000, 100, 100, 1)
+        timeSteps = len(self.eval_images)
+        timeStepsEach = 1500
+        subSequences = timeSteps / timeStepsEach
+        self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
 
