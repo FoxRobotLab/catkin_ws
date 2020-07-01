@@ -14,10 +14,104 @@ from datetime import datetime
 
 from paths import DATA
 
+
 numCells = 271 #ORIG 271
 image_size = 100
 images_per_cell = 500
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+
+
+def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headingInput=None ):
+    """
+    This builds something, no idea really
+    :param allLabels:
+    :param randStart:
+    :param cellInput:
+    :param headingInput:
+    :return:
+    """
+    frame_cell_dict = getFrameCellDict()
+    frame_heading_dict = getFrameHeadingDict()
+    train_imgWCell = []
+    hotLabelHeading = []
+    train_imgWHeading =[]
+    hotLabelCell= []
+    allImages = []
+
+
+    if allLabels is None:
+        allLabels, randStart = getLabels()
+
+    def processFrame(frame):
+        print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
+        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
+        image = resizeAndCrop(image)
+        allImages.append(image)
+        return image
+
+    frameNum = 1
+    for frame in allLabels:
+        img = processFrame(frame)
+
+        if (frameNum -1) >= randStart:
+            img = randerase_image(img, 1)
+        if(cellInput == True):
+            train_imgWCell.append(img)
+            hotLabelHeading.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
+
+        if(headingInput == True):
+            train_imgWHeading.append(img)
+            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
+
+        frameNum += 1
+
+    mean = calculate_mean(allImages)
+    #loading_bar(frameNum, len(overRepped) + len(underRepped) + len(randomUnderRepSubset), 150)
+
+    def whichTrainImg():
+        if len(train_imgWCell) > len(train_imgWHeading):
+            return train_imgWCell
+        else:
+            return train_imgWHeading
+
+    train_img = whichTrainImg()
+    print("expecting a one", len(train_img))
+
+    for i in range(len(train_img)):
+        frame = allLabels[i]
+        image = train_img[i]
+        image = image - mean
+        image /= 255
+        image = np.squeeze(image)
+        if cellInput == True:
+            cell = int(frame_cell_dict[frame])
+            cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
+            train_imgWCell[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
+
+        if headingInput == True:
+            heading = (int(frame_heading_dict[frame])) // 45
+            heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
+            train_imgWHeading[i]= np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
+
+
+
+    if cellInput == True:
+        train_imgWCell = np.asarray(train_imgWCell)
+        hotLabelHeading = np.asarray(hotLabelHeading)
+        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
+        np.save(DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
+    if headingInput == True:
+        train_imgWHeading = np.asarray(train_imgWHeading)
+        hotLabelCell = np.asarray(hotLabelCell)
+        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy', train_imgWHeading)
+        np.save(DATA + 'SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy', hotLabelCell)
+
+
+    print('Done!')
+    return train_imgWCell, hotLabelHeading, train_imgWHeading, hotLabelCell
+
+
+
 
 def getCellCounts():
     # Counts number of frames per cell, also returns dictionary with list of all frames associated with each cell
@@ -41,6 +135,7 @@ def getCellCounts():
 
 
     return cell_counts, cell_frame_dict
+
 
 def getFrameCellDict():
     # Returns dict with cell corresponding to each frame
@@ -82,7 +177,7 @@ def getUnderOverRep(cell_counts):
 
     return underRep, overRep
 
-def getHeadingFrameDict():
+def buildHeadingDicts():
     heading_frame_dict = {'0':[],'45':[],'90':[],'135':[],'180':[],'225':[],'270':[],'315':[]}
 
     with open(master_cell_loc_frame_id,'r') as masterlist:
@@ -208,86 +303,6 @@ def getLabels():
     return allLabels, randStart
 
 
-def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headingInput=None ):
-    frame_cell_dict = getFrameCellDict()
-    frame_heading_dict = getFrameHeadingDict()
-    train_imgWCell = []
-    hotLabelHeading = []
-    train_imgWHeading =[]
-    hotLabelCell= []
-    allImages = []
-
-
-    if allLabels is None:
-        allLabels, randStart = getLabels()
-
-    def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
-        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
-        image = resizeAndCrop(image)
-        allImages.append(image)
-        return image
-
-    frameNum = 1
-    for frame in allLabels:
-        img = processFrame(frame)
-
-        if (frameNum -1) >= randStart:
-            img = randerase_image(img, 1)
-        if(cellInput == True):
-            train_imgWCell.append(img)
-            hotLabelHeading.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-
-        if(headingInput == True):
-            train_imgWHeading.append(img)
-            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
-
-        frameNum += 1
-
-    mean = calculate_mean(allImages)
-    #loading_bar(frameNum, len(overRepped) + len(underRepped) + len(randomUnderRepSubset), 150)
-
-    def whichTrainImg():
-        if len(train_imgWCell) > len(train_imgWHeading):
-            return train_imgWCell
-        else:
-            return train_imgWHeading
-
-    train_img = whichTrainImg()
-    print("expecting a one", len(train_img))
-
-    for i in range(len(train_img)):
-        frame = allLabels[i]
-        image = train_img[i]
-        image = image - mean
-        image /= 255
-        image = np.squeeze(image)
-        if cellInput == True:
-            cell = int(frame_cell_dict[frame])
-            cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWCell[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
-
-        if headingInput == True:
-            heading = (int(frame_heading_dict[frame])) // 45
-            heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWHeading[i]= np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
-
-
-
-    if cellInput == True:
-        train_imgWCell = np.asarray(train_imgWCell)
-        hotLabelHeading = np.asarray(hotLabelHeading)
-        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
-        np.save(DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
-    if headingInput == True:
-        train_imgWHeading = np.asarray(train_imgWHeading)
-        hotLabelCell = np.asarray(hotLabelCell)
-        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy', train_imgWHeading)
-        np.save(DATA + 'SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy', hotLabelCell)
-
-
-    print('Done!')
-    return train_imgWCell, hotLabelHeading, train_imgWHeading, hotLabelCell
 
 def calculate_mean(images):
     # If adding additional channel with heading/cell identification, following lines can be problematic, watch out!
