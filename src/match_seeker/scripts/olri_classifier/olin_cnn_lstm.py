@@ -53,3 +53,23 @@ def cnn_cells(self):
     cnn.summary()
     return cnn
 
+def creatingSequence(data, overlap, timeStep):
+    newData = []
+    sequence = []
+
+    for i in data:
+        sequence.append(i)
+        if len(sequence) == timeStep:
+            newData.append(sequence)
+            sequence = sequence[timeStep-overlap:]
+    if newData[len(newData)-1][timeStep-1] == data[-1]:
+        newData = np.asarray(newData)
+    else:
+        if len(sequence) > timeStep//3:
+            needExtra = timeStep - len(sequence)
+            sequence = data[-(len(sequence) + needExtra):]
+            newData.append(sequence)
+            newData = np.asarray(newData)
+
+    return newData
+
