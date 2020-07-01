@@ -300,6 +300,9 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
                 cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
                 train_IMG_cellInput[whichImage] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
             whichImage += 1
+
+    train_IMG_cellInput = np.asarray(train_IMG_cellInput)
+    hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
     np.save(DATA+ "lstm_img_cell_Inpute", train_IMG_cellInput)
     np.save(DATA+ "lstm_heading_hotLabel", hotLabelHeadOutput)
 
