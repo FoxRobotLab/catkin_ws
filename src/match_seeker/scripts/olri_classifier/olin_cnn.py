@@ -182,10 +182,13 @@ class OlinClassifier(object):
         print("THIS IS THE SIZE OF timeSTEPS!", timeSteps)
         subSequences = timeSteps/timeStepsEach
         self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
+
+
         self.eval_images = creatingSequence(self.eval_images,400, 100)
         timeSteps = len(self.eval_images)
         subSequences = timeSteps / timeStepsEach
         self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
+        print("THIS IS THE SIZE OF timeSTEPS eval!", timeSteps)
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
 
