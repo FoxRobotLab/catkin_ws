@@ -62,7 +62,7 @@ def creatingSequence(data, timeStep, overlap):
         if len(sequence) == timeStep:
             newData.append(sequence)
             sequence = sequence[timeStep-overlap:]
-    if newData[len(newData)-1][timeStep-1] == data[-1]:
+    if (newData[len(newData)-1][timeStep-1] == data[-1]).all():
         newData = np.asarray(newData)
     else:
         if len(sequence) > timeStep//3:
