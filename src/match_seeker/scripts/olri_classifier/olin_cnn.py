@@ -179,7 +179,7 @@ class OlinClassifier(object):
         #     )
 
 
-
+        print("this is before the sequence", len(self.train_images))
         self.train_images = creatingSequence(self.train_images, 1500, 500)
         timeSteps = len(self.train_images)
         print("This is the training images", len(self.train_images))
