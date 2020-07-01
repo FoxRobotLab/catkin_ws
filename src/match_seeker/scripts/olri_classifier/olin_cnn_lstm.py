@@ -53,7 +53,7 @@ def cnn_cells(self):
     cnn.summary()
     return cnn
 
-def creatingSequence(data, overlap, timeStep):
+def creatingSequence(data, timeStep, overlap):
     newData = []
     sequence = []
 

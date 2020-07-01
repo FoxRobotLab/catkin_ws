@@ -47,7 +47,8 @@ from paths import pathToMatchSeeker
 from paths import DATA
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells
+from olin_cnn_lstm import cnn_cells, creatingSequence
+
 
 
 
@@ -178,9 +179,11 @@ class OlinClassifier(object):
         #     )
 
 
-        self.train_images = self.train_images.reshape(12084, 1, 100, 100, 1)
-        self.eval_images = self.eval_images.reshape(416, 1, 100, 100, 1)
 
+        self.train_images = creatingSequence(self.train_images, 1500, 500)
+        self.train_images = self.train_images.reshape(len(self.train_images), 15000, 100, 100, 1)
+        self.eval_images = creatingSequence(self.eval_images,1500, 500)
+        self.eval_images = self.eval_images.reshape(len(self.eval_images), 15000, 100, 100, 1)
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
 
