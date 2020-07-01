@@ -74,6 +74,6 @@ def creatingSequence(data, timeStep, overlap):
     for seq in newData:
         for image in seq:
             organizedData.append(image)
-
+    organizedData = np.asarray(organizedData)
     return organizedData
 
