@@ -182,7 +182,7 @@ class OlinClassifier(object):
 
         self.train_images = creatingSequence(self.train_images, 1500, 500)
         timeSteps = len(self.train_images)
-        print(len(self.train_images))
+        print("This is the training images", len(self.train_images))
         timeStepsEach = 1500
         subSequences = timeSteps/timeStepsEach
         self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
