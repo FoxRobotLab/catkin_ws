@@ -122,10 +122,7 @@ class OlinClassifier(object):
         self.image = self.image[:,:,:,0] #This takes out the color channel
         self.image = self.image.reshape(len(self.image), 100, 100, 1)
 
-
-        print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
-        print(len(self.label), "THIS IS THE SIZE")
         self.image_totalImgs = self.image.shape[0]
 
         try:
@@ -179,10 +176,7 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
-        print("This is the length of the train images", len(self.train_images))
-        print("This is the length of the train labels", len(self.train_labels))
-        print("eval images", len(self.eval_images))
-        print("eval labels", len(self.eval_labels))
+
         timeStepsEach = 400
         self.train_images = creatingSequence(self.train_images, 400, 100)
         timeSteps = len(self.train_images)
@@ -192,6 +186,10 @@ class OlinClassifier(object):
         timeSteps = len(self.eval_images)
         subSequences = timeSteps / timeStepsEach
         self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
+        print("TRAIN IMGS", len(self.train_images))
+        print("TRAIN LABELS", len(self.train_labels))
+        print("EVAL IMGS", len(self.eval_images))
+        print("EVAL Labels", len(self.eval_labels))
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
 
