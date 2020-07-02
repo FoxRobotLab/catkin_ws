@@ -179,7 +179,7 @@ class OlinClassifier(object):
         print("This is the length of the train images", len(self.train_images))
         print("This is the length of the train labels", len(self.train_labels))
         print("eval images", len(self.eval_images))
-        print("eval labels", self.eval_labels)
+        print("eval labels", len(self.eval_labels))
         timeStepsEach = 400
         self.train_images = creatingSequence(self.train_images, 400, 100)
         timeSteps = len(self.train_images)
