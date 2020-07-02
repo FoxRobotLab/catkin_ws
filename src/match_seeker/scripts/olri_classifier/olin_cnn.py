@@ -125,6 +125,7 @@ class OlinClassifier(object):
 
         print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
+        print(len(self.label), "THIS IS THE SIZE")
         self.image_totalImgs = self.image.shape[0]
 
         try:
