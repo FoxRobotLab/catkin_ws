@@ -1,4 +1,3 @@
-
 # This program divides the image data into two parts, overrepped, with images corresponding to cells that have too much
 # and underrepped, with images corresponding to cells that have too little. To cull the overrepped data, for each
 # overrepped cell we iteratively removed a random image with the most represented heading until we had the desired
@@ -10,14 +9,12 @@ import numpy as np
 import os
 import random
 from datetime import datetime
-#from olin_cnn import loading_bar
+from olin_cnn import loading_bar
 
-from paths import DATA
-
-numCells = 25
+numCells = 271
 image_size = 100
 images_per_cell = 500
-master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt' #'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+master_cell_loc_frame_id = 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 
 def getCellCounts():
     # Counts number of frames per cell, also returns dictionary with list of all frames associated with each cell
@@ -25,20 +22,17 @@ def getCellCounts():
         lines = masterlist.readlines()
         cell_counts = dict()
         cell_frame_dict = dict()
-        for i in range(271): #ORIG range(numCells) ALSO COULD BE WASTING SPACE
+        for i in range(numCells):
             cell_frame_dict[str(i)] = []
 
         for line in lines:
             splitline = line.split()
             if splitline[1] not in cell_counts.keys():
-                if (len(cell_counts) >= numCells): ##DT and len(cell_counts) is not numCells
-                    continue #DT
                 cell_counts[splitline[1]] = 1
             else:
                 cell_counts[splitline[1]] += 1
 
             cell_frame_dict[splitline[1]].append('%04d'%int(splitline[0]))
-
 
     return cell_counts, cell_frame_dict
 
@@ -55,7 +49,7 @@ def getFrameCellDict():
 def getHeadingRep():
     # Returns dict with cell --> counts of num frames taken at each heading in that cell
     cellHeadingCounts = dict()
-    for i in range(271): #ORIG range(numCells)
+    for i in range(numCells):
         cellHeadingCounts[str(i)] = [['0',0],['45',0],['90',0],['135',0],['180',0],['225',0],['270',0],['315',0]]
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -69,8 +63,6 @@ def getHeadingRep():
     return cellHeadingCounts
 
 def getUnderOverRep(cell_counts):
-    #Returns two arrays, one with cells that have or are below 'images_per_cell' and the other with cells that have more
-    #labels than 'images_per_cell'
     underRep = []
     overRep = []
 
@@ -109,13 +101,12 @@ def getOneHotLabel(number,size):
     return onehot
 
 def cullOverRepped():
-    #Takes all cells that have more than images_per_cell and randomly erases labels until the cell has exactly the same
-    #number as images_per_cell
     cell_counts, cell_frame_dict = getCellCounts()
     cell_heading_counts = getHeadingRep()
     under, overRepList = getUnderOverRep(cell_counts)
     heading_frame_dict = getHeadingFrameDict()
     frame_to_heading = getFrameHeadingDict()
+    remove = []
     overreppedFrames = []
     i = 1
     for cell in overRepList:
@@ -139,17 +130,23 @@ def cullOverRepped():
             cell_frame_dict[cell].remove(toBeRemoved)
             cell_counts[cell] -= 1
 
+    print(len(overreppedFrames))
+    # for frame in remove:
+    #     try:
+    #         overreppedFrames.remove(frame)
+    #     except ValueError:
+    #         print(frame)
+
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames95k.npy',overreppedFrames)
     return overreppedFrames
 
 def addUnderRepped():
-    #Takes all cells that have below or the same amount of images_per_cell and keeps adding labels until it has the same
-    #number of labels as images_per_cell
     cell_counts, cell_frame_dict = getCellCounts()
     cell_heading_counts = getHeadingRep()
     underRepList, over = getUnderOverRep(cell_counts)
     heading_frame_dict = getHeadingFrameDict()
+    remove = []
     underreppedFrames = []
-    rndUnderRepSubset = []
     i = 1
     for cell in underRepList:
         print('Cell '+ str(i) + " of " + str(len(underRepList)),cell)
@@ -159,141 +156,123 @@ def addUnderRepped():
             underreppedFrames.append(frame)
         while cell_counts[cell] < images_per_cell:
             headingList = sorted(cell_heading_counts[cell],key= lambda x: x[1])
-            h = 0 #PC
-            while(headingList[h][1] == 0):#PC
-                h+=1 #PC
-            smallestHeading = headingList[h][0] #BORIG smallestHeading = headingList[0][0]
-            headingList[h][1] = headingList[h][1] + 1 #ORIG headingList[0][1] = headingList[0][1] + 1
+            smallestHeading = headingList[0][0]
+            headingList[0][1] = headingList[0][1] + 1
             potentialAdditions = []
             for frame in heading_frame_dict[smallestHeading]:
                 if frame in cell_frame_dict[cell]:
                     potentialAdditions.append(frame)
-            if len(potentialAdditions) == 0:#UNNECESSARY?
+            if len(potentialAdditions) == 0:
                 print(cell, 'has very little data')
                 continue
             toBeAdded = random.choice(potentialAdditions)
-            rndUnderRepSubset.append(toBeAdded)
+            underreppedFrames.append(toBeAdded)
             cell_frame_dict[cell].append(toBeAdded)
             cell_counts[cell] += 1
-    return underreppedFrames, rndUnderRepSubset
+
+    print(len(underreppedFrames))
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames95k.npy',underreppedFrames)
+    return underreppedFrames
 
 def resizeAndCrop(image):
     # 341x256 cropped to 224x224  -OR-
     # Smaller size 170x128 cropped to 100x100
-    if image is None:
-        print("No Image")
-    else:
-        cropped_image = cv2.resize(image, (image_size,image_size))
-        cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-        return cropped_image
+
+    cropped_image = cv2.resize(image, (image_size,image_size))
+
     ### Uncomment to crop square and preserve aspect ratio ###
     # image = cv2.resize(image,(170,128))
     # x = random.randrange(0,70)
     # y = random.randrange(0,28)
     #
-    # cropped_image = image[y:y+100, x:x+100]f
+    # cropped_image = image[y:y+100, x:x+100]
+    cropped_image = cv2.cvtColor(cropped_image,cv2.COLOR_BGR2GRAY)
 
+    return cropped_image
 
-
-strtRand = None
-def getLabels():
-    #Places all labels of cells (that now have the correct images_per_cell) in one array. The random frames are placed
-    #last in the array
-    overLabels = cullOverRepped()
-    underLabels, randLabels = addUnderRepped()
-    allLabels = overLabels + underLabels + randLabels
-    randStart = len(overLabels)+len(underLabels)
-    np.save(DATA+ 'cell_frame_dict', cell_frame_dict)
-    #np.save(DATA +'newdata_allFramesToBeProcessed135k.npy', allLabels) #!!!!THIS HAS TO BE RUN AGAIN!!!!!
-    print("This is the randStart", randStart)
-
-    return allLabels, randStart
-
-
-def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headingInput=None ):
+def add_cell_channel(overRepped=None, underRepped=None):
     frame_cell_dict = getFrameCellDict()
     frame_heading_dict = getFrameHeadingDict()
-    train_imgWCell = []
-    hotLabelHeading = []
-    train_imgWHeading =[]
-    hotLabelCell= []
+    training_data = []
     allImages = []
 
+    if underRepped is None:
+        underRepped = addUnderRepped()
+    if overRepped is None:
+        overRepped = cullOverRepped()
 
-    if allLabels is None:
-        allLabels, randStart = getLabels()
+
 
     def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
-        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
+        print "Processing frame " + str(frameNum) + " / " + str(
+            len(overRepped) + len(underRepped)) + "     (Frame number: " + frame + ")"
+        print("frame",frame)
+        image = cv2.imread('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
-        # training_data.append([image, getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8)])
 
-        return image
+        # training_data.append([image, getOneHotLabel(int(frame_cell_dict[frame]), numCells)])
+
+        training_data.append([image, getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8)])
 
     frameNum = 1
-    for frame in allLabels:
-        img = processFrame(frame)
-
-        if (frameNum -1) >= randStart:
-            img = randerase_image(img, 1)
-        if(cellInput == True):
-            train_imgWCell.append(img)
-            hotLabelHeading.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-
-        if(headingInput == True):
-            train_imgWHeading.append(img)
-            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
-
+    for frame in underRepped:
+        processFrame(frame)
+        frameNum += 1
+    for frame in overRepped:
+        processFrame(frame)
         frameNum += 1
 
+    # if underRepped is not None:
+    #     for frame in underRepped:
+    #         processFrame(frame)
+    #         frameNum += 1
+    # else:
+    #     underRepped = addUnderRepped()
+    #     for frame in underRepped:
+    #         processFrame(frame)
+    #         frameNum += 1
+
+    # if overRepped is not None:
+    #     for frame in overRepped:
+    #         processFrame(frame)
+    #         frameNum += 1
+    # else:
+    #     overRepped = cullOverRepped()
+    #     for frame in overRepped:
+    #         processFrame(frame)
+    #         frameNum += 1
+
     mean = calculate_mean(allImages)
-    #loading_bar(frameNum, len(overRepped) + len(underRepped) + len(randomUnderRepSubset), 150)
+    loading_bar(frameNum, len(overRepped) + len(underRepped), 150)
 
-    def whichTrainImg():
-        if len(train_imgWCell) > len(train_imgWHeading):
-            return train_imgWCell
+    for i in range(len(training_data)):
+        if i > len(underRepped)-1:
+            frame = overRepped[i-len(underRepped)]
         else:
-            return train_imgWHeading
-
-    train_img = whichTrainImg()
-    print("expecting a one", len(train_img))
-
-    for i in range(len(train_img)):
-        frame = allLabels[i]
-        image = train_img[i]
+            frame = underRepped[i]
+        loading_bar(i,len(training_data))
+        image = training_data[i][0]
         image = image - mean
-        image /= 255
         image = np.squeeze(image)
-        if cellInput == True:
-            cell = int(frame_cell_dict[frame])
-            cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWCell[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
+        re_image = randerase_image(image, 1)
+        if re_image is None:
+            re_image = image
 
-        if headingInput == True:
-            heading = (int(frame_heading_dict[frame])) // 45
-            heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWHeading[i]= np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
+        cell = int(frame_cell_dict[frame])
+        cell_arr = cell*np.ones((image.shape[0], image.shape[1], 1))
+        training_data[i][0] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
 
+        # heading = (int(frame_heading_dict[frame])) // 45
+        # heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
+        # training_data[i][0] = np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
 
-
-    if cellInput == True:
-        train_imgWCell = np.asarray(train_imgWCell)
-        hotLabelHeading = np.asarray(hotLabelHeading)
-        #np.save(DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
-        #np.save(DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
-        np.save(DATA + 'IMG_CellInput_12K.npy', train_imgWCell)
-        np.save(DATA + 'Heading_CellInput12k.npy', hotLabelHeading)
-    if headingInput == True:
-        train_imgWHeading = np.asarray(train_imgWHeading)
-        hotLabelCell = np.asarray(hotLabelCell)
-        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy', train_imgWHeading)
-        np.save(DATA + 'SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy', hotLabelCell)
-
+    np.save(
+        '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_' + str(
+            image_size) + '_' + str(images_per_cell) + 'withCellInput95k.npy', training_data)
 
     print('Done!')
-    return train_imgWCell, hotLabelHeading, train_imgWHeading, hotLabelCell
+    return training_data
 
 def calculate_mean(images):
     # If adding additional channel with heading/cell identification, following lines can be problematic, watch out!
@@ -321,9 +300,6 @@ def calculate_mean(images):
         return None
     ### IF USING NEW IMAGE SET, BE SURE TO SAVE MEAN!!
     #np.save('TRAININGDATA_100_500_mean95k.npy',mean)
-    #np.save(DATA + 'SAMPLETRAINING_100_500_mean135k.npy', mean)
-    np.save(DATA + '100_500_mean12k.npy', mean)
-
     print("*** Done. Returning mean.")
     return mean
 
@@ -349,7 +325,47 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
     re_image[top:top+height, left:left+width] = color
     return re_image
 
+def getTrainingData(overRepped=None,underRepped=None):
+    frame_cell_dict = getFrameCellDict()
+    frame_heading_dict = getFrameHeadingDict()
+    training_data = []
+    allImages = []
 
+    def processFrame(frame):
+        print "Processing frame " + str(frameNum) + " / " + str(len(overRepped) + len(underRepped))+ "     (Frame number: " + frame + ")"
+
+
+        image = cv2.imread('frames/moreframes/frame' + frame + '.jpg')
+        image = resizeAndCrop(image)
+        allImages.append(image)
+
+        training_data.append([np.array(image), getOneHotLabel(int(frame_cell_dict[frame]), numCells),
+                              getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8)])
+
+
+    frameNum = 1
+    if underRepped is not None:
+        for frame in underRepped:
+            processFrame(frame)
+            frameNum += 1
+    else:
+        underRepped = addUnderRepped()
+        for frame in underRepped:
+            processFrame(frame)
+            frameNum += 1
+
+    if overRepped is not None:
+        for frame in overRepped:
+            processFrame(frame)
+            frameNum += 1
+    else:
+        overRepped = cullOverRepped()
+        for frame in overRepped:
+            processFrame(frame)
+            frameNum += 1
+
+    mean = calculate_mean(allImages)
+    loading_bar(frameNum, len(overRepped) + len(underRepped), 150)
 
     ##############################################################################################
     ### Uncomment to preprocess data with randerasing and normalization (thru mean subtraction)###
@@ -368,28 +384,15 @@ def randerase_image(image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0
     #
     #     training_data[i][0] = re_image
 
+    np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/NEWTRAININGDATA_'+str(image_size)+'_'+str(images_per_cell)+'95k.npy',training_data)
 
-
-
+    print('Done!')
+    return training_data
 
 if __name__ == '__main__':
-    # add_cell_channel(allLabels= np.load(DATA +'newdata_allFramesToBeProcessed135k.npy'), headingInput = True, randStart = 86648)
-    # add_cell_channel(cellInput= True)
-
-    # useless, dict = getCellCounts()
-    # print(dict['37'])
-    # print(len(dict['37']))
-
-    file1 = open(DATA + "newData.txt", "r")
-
-    Lines = file1.readlines()
-
-    count = 0
-    # Strips the newline character
-    for line in Lines:
-        print(line)
-        count += 1
-        if count == 2:
-            break
-
-    file1.close()
+    # getTrainingData(underRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames.npy'),
+    # overRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames.npy'))
+    # getTrainingData()
+    # add_cell_channel()
+    add_cell_channel(underRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_underreppedFrames95k.npy'),
+                      overRepped=np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames95k.npy'))

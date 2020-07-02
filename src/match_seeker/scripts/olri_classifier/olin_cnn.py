@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.5
+ #!/usr/bin/env python3.5
 
 """--------------------------------------------------------------------------------
 olin_cnn.py
@@ -48,6 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
+from olin_cnn_lstm import cnn_cells
 
 
 
@@ -92,8 +93,11 @@ class OlinClassifier(object):
                 DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            self.model = self.cnn_cells()
+            #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
+            self.model = cnn_cells(self)
             self.loss = keras.losses.categorical_crossentropy
+
+
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
             self.model = None
@@ -117,6 +121,11 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
+        self.image = self.image[:,:,:,0] #This takes out the color channel
+        self.image = self.image.reshape(1200, 100, 100, 1)
+
+
+        print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
 
@@ -128,13 +137,13 @@ class OlinClassifier(object):
         self.num_eval = int((self.eval_ratio * self.image_totalImgs / 3))
         np.random.seed(2845) #45600
 
-        if (len(self.image) == len(self.label)):
-            p = np.random.permutation(len(self.image))
-            self.image = self.image[p]
-            self.label = self.label[p]
-        else:
-            print("Image data and heading data are  not the same size")
-            return 0
+        #if (len(self.image) == len(self.label)):
+            #p = np.random.permutation(len(self.image))
+            #self.image = self.image[p]
+            #self.label = self.label[p]
+        #else:
+            #print("Image data and heading data are  not the same size")
+            #return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         self.eval_images = self.image[-self.num_eval:, :]
@@ -157,9 +166,10 @@ class OlinClassifier(object):
     def train(self):
         """Sets up the loss function and optimizer, an d then trains the model on the current training data. Quits if no
         training data is set up yet."""
+        print("This is the shape of the train images!!", self.train_images.shape)
         if self.train_images is None:
             print("No training data loaded yet.")
-            return
+            return 0
 
         # if (self.checkpoint_name is None):
         #     self.model.compile(
@@ -168,12 +178,19 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
-        self.model.summary()
+
+        self.train_images = self.train_images.reshape(12084, 1, 100, 100, 1)
+        self.eval_images = self.eval_images.reshape(416, 1, 100, 100, 1)
+
+
+        #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
+
+
 
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=50,
-            epochs=3,
+            epochs=6,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -243,6 +260,7 @@ class OlinClassifier(object):
         else:
             activation = "softmax"
         model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+        model.summary()
         return model
 
     def cnn_cells(self):
@@ -569,14 +587,16 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        dataImg= DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
-        dataLabel = DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
-        data_name = "headingInput",
+        # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
+        dataImg = DATA + 'lstm_img_cell_Inpute.npy',
+        dataLabel = DATA + 'Heading_CellInput12k.npy',
+        data_name = "cellInputReference",
         outputSize= 8,
         eval_ratio=0.1,
         image_size=100,
-        headingInput= True,
-        image_depth= 2
+        cellInput= True,
+        image_depth= 1
     )
     print("Classifier built")
     olin_classifier.loadData()

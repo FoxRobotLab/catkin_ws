@@ -23,13 +23,18 @@ from imageFileUtils import makeFilename
 class DataPreprocess(object):
 
 
-    def __init__(self, imageSize=100, imagesPerCell=500, numOutputs=271, imageDir="", dataFile=""):
+    def __init__(self, imageSize=100, imagesPerCell=500, numCells=271, numHeadings=8, imageDir="", dataFile=""):
         self.imageSize = imageSize
         self.imagesPerCell = imagesPerCell
-        self.numOutputs = numOutputs
+        self.numCells = numCells
+        self.numHeadings = numHeadings
         self.imageDir = imageDir
         self.dataFile = dataFile
 
+        self.dataMean = None
+        self.allImages = []
+        self.allCellOutput = []
+        self.allHeadingOutput = []
         self.cellsTooFewImages = []
         self.cellsEnoughImages = []
         self.frameData = {}
@@ -68,6 +73,84 @@ class DataPreprocess(object):
             else:
                 headingList = self.headingData[headingNum]
                 headingList.append(frameNum)
+
+
+    def generateTrainingData(self):
+        """
+        Fills in three instance variables with lists: self.allImages, which contains actual image files for the data,
+        self.allCellOutput, which contains one-hot arrays corresponding to each image,
+        self.allHeadingOutput, which contains one-hot arrays corresponding to each image
+        :return: Nothing is returned, just setting instance variables
+        """
+        if len(self.frameData) == 0:
+            print("Must read in data first")
+            return
+
+        # Create lists of frame numbers so that there are the right number frames per cell
+        self.splitCellsByThreshold()
+        enoughFrames = self.selectEnoughFrames()
+        shortFrames, extraFrames = self.createMoreFrames()
+
+        totalLen = len(enoughFrames) + len(shortFrames) + len(extraFrames)
+        frameCount = 0
+        for frame in (enoughFrames + shortFrames):
+            print("Processing frame ", frameCount, "of", totalLen, "     (Frame number: ", frame,  ")")
+            frameCount += 1
+            image = self.processFrame(frame)
+            if image is None:
+                print("    Image not found")
+                continue
+            cellOneHot = self.makeOneHotList(self.frameData[frame]['cell'], self.numCells)
+            headingIndex = self.frameData[frame]['heading'] // (360 // self.numHeadings)
+            headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
+            self.allImages.append(image)
+            self.allCellOutput.append(cellOneHot)
+            self.allHeadingOutput.append(headOneHot)
+
+
+        for frame in extraFrames:
+            print("Processing frame ", frameCount, "of", totalLen, "     (Frame number: ", frame, ")")
+            image = self.processFrame(frame, doRandErase=True)
+            frameCount += 1
+            if image is None:
+                print("    Image not found")
+                continue
+            cellOneHot = self.makeOneHotList(self.frameData[frame]['cell'], self.numCells)
+            headingIndex = self.frameData[frame]['heading'] // (360 // self.numHeadings)
+            headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
+            self.allImages.append(image)
+            self.allCellOutput.append(cellOneHot)
+            self.allHeadingOutput.append(headOneHot)
+
+            # training_data.append([np.array(image), self.makeOneHotList(int(frame_cell_dict[frame]), numCells),
+            #                       self.makeOneHotList(int(frame_heading_dict[frame]) // 45, 8)])
+
+
+        self.dataMean = self.calculateMean(self.allImages)
+
+        # Note: removed some code here compared to the old olin_inputs_2019.py
+        print('Done!')
+
+
+    def processFrame(self, frameNum, doRandErase=False):
+        """
+        Given an image frame number, this does the actual preprocessing. It (1) resizes the image to be square,
+        with the dimensions stored in this object, (2) converts the image to grayscale, and if doRandErase is True
+        then it also performs a random erase on a rectangle of the image. It also
+        :param frameNum: The number of the frame to be read in
+        :param doRandErase: Boolean, if True then an extra preprocessing step is performed: randErase
+        :return: new image created by these steps
+        """
+        origImage = self.readImage(frameNum)
+        if origImage is None:
+            return None
+        resizedImage = cv2.resize(origImage, (self.imageSize, self.imageSize))
+        grayResizedImage = cv2.cvtColor(resizedImage, cv2.COLOR_BGR2GRAY)
+        if doRandErase:
+            RREImage = self.randEraseImage(grayResizedImage)
+            return RREImage
+        else:
+            return grayResizedImage
 
 
     def splitCellsByThreshold(self):
@@ -124,6 +207,7 @@ class DataPreprocess(object):
             chosenFrames += framesForCell
         return chosenFrames
 
+
     def createMoreFrames(self):
         """
         Looks at each cell that has enough frames, and chooses frames for each heading, choosing from each heading in
@@ -135,7 +219,6 @@ class DataPreprocess(object):
         newFrames = []
 
         for cell in self.cellsTooFewImages:
-            print("====================== Cell =", cell, " ==========================")
             oldFramesForCell = []
             newFramesForCell = []
             framesEachHeading = {}
@@ -153,10 +236,7 @@ class DataPreprocess(object):
 
             # loops through each heading index, and randomly selects a frame from that heading list, skipping []
             while len(oldFramesForCell) + len(newFramesForCell) < self.imagesPerCell:
-                print(len(oldFramesForCell), len(newFramesForCell))
-                print("lengths:", fListLens)
                 minInd = np.argmin(fListLens)
-                print("index=", minInd)
                 if len(frameLists[minInd]) > 0:
                     pickedFrame = random.choice(frameLists[minInd])
                     fListLens[minInd] += 1
@@ -206,6 +286,19 @@ class DataPreprocess(object):
             return 0.0
 
 
+    def saveDataset(self, datasetFilename):
+        """
+        Saves the current allImages, allCellOutput, allHeadingOutput to a single file
+        :param datasetFilename: Name of the file to save to
+        :return:
+        """
+        if self.allImages == []:
+            print("Must create dataset arrays first")
+        else:
+            np.savez(datasetFilename, images=self.allImages, cellOut=self.allCellOutput, headingOut=self.allHeadingOutput, mean=self.dataMean)
+
+
+
     def readImage(self, frameNum):
         """
         Takes in a frame number, and reads in and returns the image with that frame number.
@@ -215,20 +308,6 @@ class DataPreprocess(object):
         fName = makeFilename(self.imageDir, frameNum)
         image = cv2.imread(fName)
         return image
-
-
-    def resizeAndGray(self, image, imSize=None):
-        """
-        Takes in an image, and resizes it to be square, and the size for this object. Then it converts it to grayscale
-        :param image: Image to be modified
-        :return: A new image, scaled to be square and turned to grayscale
-        """
-        if imSize is None:
-            imSize = self.imageSize
-        resizedImage = cv2.resize(image, (imSize, imSize))
-        grayResizedImage = cv2.cvtColor(resizedImage, cv2.COLOR_BGR2GRAY)
-        return grayResizedImage
-
 
 
     def randEraseImage(self, image, minSize=0.02, maxSize=0.4, minRatio=0.3, maxRatio=1 / 0.3, minVal=0, maxVal=255):
@@ -268,169 +347,22 @@ class DataPreprocess(object):
             br += 1
         if (leftCol + width) >= w:
             rc += 1
-        print(tr, br, lc, rc)
         return reImage
 
 
 
-
-if __name__ == "__main__":
+def main():
+    """
+    Main program. Creates the preprocessor, from that generates the dataset, and then saves it to a file.
+    :return: Nothing
+    """
     preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
                              dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
-    # for frame in preProc.frameData:
-    #     print("frame:", frame, preProc.frameData[frame])
-    preProc.splitCellsByThreshold()
-
-    enoughFrames = preProc.selectEnoughFrames()
-    shortFrames, extraFrames = preProc.createMoreFrames()
-    lc = 0
-    tr = 0
-    rc = 0
-    br = 0
-
-    # for frame in enoughFrames:
-    #     nextIm = preProc.readImage(frame)
-    #     if nextIm is None:
-    #         continue
-    #     sizeGray = preProc.resizeAndGray(nextIm)
-    #     gray2 = preProc.resizeAndGray(nextIm, imSize=500)
-    #     randErIm = preProc.randEraseImage(gray2)
-    #     cv2.imshow("Original", nextIm)
-    #     cv2.imshow("Rand erase", randErIm)
-    #     cv2.imshow("Smaller", sizeGray)
-    #     x = cv2.waitKey(250)
-    #     if chr(x & 0xFF) == 'q':
-    #         break
+    preProc.generateTrainingData()
+    preProc.saveDataset(DATA + "susantestdataset.npyz")
 
 
+if __name__ == "__main__":
+    main()
 
-
-def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headingInput=None ):
-    """
-    This builds something, no idea really
-    :param allLabels:
-    :param randStart:
-    :param cellInput:
-    :param headingInput:
-    :return:
-    """
-    frame_cell_dict = getFrameCellDict()
-    frame_heading_dict = getFrameHeadingDict()
-    train_imgWCell = []
-    hotLabelHeading = []
-    train_imgWHeading =[]
-    hotLabelCell= []
-    allImages = []
-
-
-    if allLabels is None:
-        allLabels, randStart = getLabels()
-
-    def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
-        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
-        image = resizeAndCrop(image)
-        allImages.append(image)
-        return image
-
-    frameNum = 1
-    for frame in allLabels:
-        img = processFrame(frame)
-
-        if (frameNum -1) >= randStart:
-            img = randerase_image(img, 1)
-        if(cellInput == True):
-            train_imgWCell.append(img)
-            hotLabelHeading.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-
-        if(headingInput == True):
-            train_imgWHeading.append(img)
-            hotLabelCell.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
-
-        frameNum += 1
-
-    mean = calculate_mean(allImages)
-    #loading_bar(frameNum, len(overRepped) + len(underRepped) + len(randomUnderRepSubset), 150)
-
-    def whichTrainImg():
-        if len(train_imgWCell) > len(train_imgWHeading):
-            return train_imgWCell
-        else:
-            return train_imgWHeading
-
-    train_img = whichTrainImg()
-    print("expecting a one", len(train_img))
-
-    for i in range(len(train_img)):
-        frame = allLabels[i]
-        image = train_img[i]
-        image = image - mean
-        image /= 255
-        image = np.squeeze(image)
-        if cellInput == True:
-            cell = int(frame_cell_dict[frame])
-            cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWCell[i] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
-
-        if headingInput == True:
-            heading = (int(frame_heading_dict[frame])) // 45
-            heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
-            train_imgWHeading[i]= np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
-
-
-
-    if cellInput == True:
-        train_imgWCell = np.asarray(train_imgWCell)
-        hotLabelHeading = np.asarray(hotLabelHeading)
-        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy', train_imgWCell)
-        np.save(DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy', hotLabelHeading)
-    if headingInput == True:
-        train_imgWHeading = np.asarray(train_imgWHeading)
-        hotLabelCell = np.asarray(hotLabelCell)
-        np.save(DATA + 'SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy', train_imgWHeading)
-        np.save(DATA + 'SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy', hotLabelCell)
-
-
-    print('Done!')
-    return train_imgWCell, hotLabelHeading, train_imgWHeading, hotLabelCell
-
-
-
-
-
-
-
-
-
-def getLabels():
-    #Places all labels of cells (that now have the correct images_per_cell) in one array. The random frames are placed
-    #last in the array
-    overLabels = cullOverRepped()
-    underLabels, randLabels = addUnderRepped()
-    allLabels = overLabels + underLabels + randLabels
-    randStart = len(overLabels)+len(underLabels)
-    np.save(DATA +'newdata_allFramesToBeProcessed135k.npy', allLabels)
-
-    return allLabels, randStart
-
-
-
-
-
-    ##############################################################################################
-    ### Uncomment to preprocess data with randerasing and normalization (thru mean subtraction)###
-    ### Don't forget to change resizeAndCrop() to convert to gray/alter the resizing method    ###
-    ### (e.g. preserve aspect ratio vs squish  image)                                          ###
-    ##############################################################################################
-
-    # for i in range(len(training_data)):
-    #     loading_bar(i,len(training_data))
-    #     image = training_data[i][0]
-    #     image = image - mean
-    #     image = np.squeeze(image)
-    #     re_image = randerase_image(image, 1)
-    #     if re_image is None:
-    #         re_image = image
-    #
-    #     training_data[i][0] = re_image
 
