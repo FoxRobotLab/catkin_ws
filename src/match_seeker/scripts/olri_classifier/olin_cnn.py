@@ -150,7 +150,7 @@ class OlinClassifier(object):
         if self.neitherAsInput:
             print("There is no cell or heading as input!")
         elif self.cellInput:
-            print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", len(self.train_labels))
+            print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", self.train_labels.shape)
             self.train_labels = self.label[:-self.num_eval, :]
             print("This is cutting the labels!!!!!", len(self.train_labels))
             self.eval_labels = self.label[-self.num_eval:, :]
