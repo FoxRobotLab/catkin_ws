@@ -32,6 +32,7 @@ class DataPreprocess(object):
         self.dataFile = dataFile
 
         self.dataMean = None
+        self.allFrames = []
         self.allImages = []
         self.allCellOutput = []
         self.allHeadingOutput = []
@@ -96,31 +97,13 @@ class DataPreprocess(object):
         for frame in (enoughFrames + shortFrames):
             print("Processing frame ", frameCount, "of", totalLen, "     (Frame number: ", frame,  ")")
             frameCount += 1
-            image = self.processFrame(frame)
-            if image is None:
-                print("    Image not found")
-                continue
-            cellOneHot = self.makeOneHotList(self.frameData[frame]['cell'], self.numCells)
-            headingIndex = self.frameData[frame]['heading'] // (360 // self.numHeadings)
-            headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
-            self.allImages.append(image)
-            self.allCellOutput.append(cellOneHot)
-            self.allHeadingOutput.append(headOneHot)
+            self.processFrame(frame)
 
 
         for frame in extraFrames:
             print("Processing frame ", frameCount, "of", totalLen, "     (Frame number: ", frame, ")")
-            image = self.processFrame(frame, doRandErase=True)
             frameCount += 1
-            if image is None:
-                print("    Image not found")
-                continue
-            cellOneHot = self.makeOneHotList(self.frameData[frame]['cell'], self.numCells)
-            headingIndex = self.frameData[frame]['heading'] // (360 // self.numHeadings)
-            headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
-            self.allImages.append(image)
-            self.allCellOutput.append(cellOneHot)
-            self.allHeadingOutput.append(headOneHot)
+            image = self.processFrame(frame, doRandErase=True)
 
             # training_data.append([np.array(image), self.makeOneHotList(int(frame_cell_dict[frame]), numCells),
             #                       self.makeOneHotList(int(frame_heading_dict[frame]) // 45, 8)])
@@ -136,21 +119,28 @@ class DataPreprocess(object):
         """
         Given an image frame number, this does the actual preprocessing. It (1) resizes the image to be square,
         with the dimensions stored in this object, (2) converts the image to grayscale, and if doRandErase is True
-        then it also performs a random erase on a rectangle of the image. It also
+        then it also performs a random erase on a rectangle of the image. It also builds one-hot arrays for
+        both cell and heading, and then adds all the relevant data to the instance variable lists
         :param frameNum: The number of the frame to be read in
         :param doRandErase: Boolean, if True then an extra preprocessing step is performed: randErase
-        :return: new image created by these steps
+        :return: nothing
         """
         origImage = self.readImage(frameNum)
         if origImage is None:
-            return None
+            return
         resizedImage = cv2.resize(origImage, (self.imageSize, self.imageSize))
         grayResizedImage = cv2.cvtColor(resizedImage, cv2.COLOR_BGR2GRAY)
         if doRandErase:
-            RREImage = self.randEraseImage(grayResizedImage)
-            return RREImage
+            finalImage = self.randEraseImage(grayResizedImage)
         else:
-            return grayResizedImage
+            finalImage = grayResizedImage
+        cellOneHot = self.makeOneHotList(self.frameData[frameNum]['cell'], self.numCells)
+        headingIndex = self.frameData[frameNum]['heading'] // (360 // self.numHeadings)
+        headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
+        self.allFrames.append(frameNum)
+        self.allImages.append(finalImage)
+        self.allCellOutput.append(cellOneHot)
+        self.allHeadingOutput.append(headOneHot)
 
 
     def splitCellsByThreshold(self):
@@ -295,7 +285,7 @@ class DataPreprocess(object):
         if self.allImages == []:
             print("Must create dataset arrays first")
         else:
-            np.savez(datasetFilename, images=self.allImages, cellOut=self.allCellOutput, headingOut=self.allHeadingOutput, mean=self.dataMean)
+            np.savez(datasetFilename, images=self.allImages, frameNums=self.allFrames, cellOut=self.allCellOutput, headingOut=self.allHeadingOutput, mean=self.dataMean)
 
 
 
@@ -359,7 +349,7 @@ def main():
     preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
                              dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
     preProc.generateTrainingData()
-    preProc.saveDataset(DATA + "susantestdataset.npyz")
+    preProc.saveDataset(DATA + "susantestdataset")
 
 
 if __name__ == "__main__":
