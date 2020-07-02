@@ -272,7 +272,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     for key in cell_frame_dict.keys():
         cells.append(int(key))
     cells = sorted(cells)
-    cells.pop()
+    cells.pop() #THIS IS DELETING THE LAST CELL
 
     #Creating the array of images and the hot label
 
@@ -313,17 +313,25 @@ if __name__ == '__main__':
     # cell_heading_counts = getHeadingRep(cell_counts)
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    # cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-    # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
-    # add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+    cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
+    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
+    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
-    images = np.load(DATA+ "lstm_img_cell_Inpute.npy")
-    images = images[:,:, :, 0]
-    images = images.reshape(12000, 100, 100, 1)
-    for i in images:
-        cv2.imshow("window", i)
-        cv2.waitKey(50)
-    cv2.destroyAllWindows()
+
+
+
+
+
+
+
+
+    # images = np.load(DATA+ "lstm_img_cell_Inpute.npy")
+    # images = images[:,:, :, 0]
+    # images = images.reshape(12000, 100, 100, 1)
+    # for i in images:
+    #     cv2.imshow("window", i)
+    #     cv2.waitKey(50)
+    # cv2.destroyAllWindows()
 
 
 

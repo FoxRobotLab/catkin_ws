@@ -48,14 +48,15 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells
+from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
+
 
 
 
 
 
 ### Uncomment next line to use CPU instead of GPU: ###
-# os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
     def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
@@ -96,8 +97,6 @@ class OlinClassifier(object):
             #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
             self.model = cnn_cells(self)
             self.loss = keras.losses.categorical_crossentropy
-
-
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
             self.model = None
@@ -122,10 +121,8 @@ class OlinClassifier(object):
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         self.image = self.image[:,:,:,0] #This takes out the color channel
-        self.image = self.image.reshape(1200, 100, 100, 1)
+        self.image = self.image.reshape(len(self.image), 100, 100, 1)
 
-
-        print("This is the shape", self.image.shape)
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
 
@@ -152,7 +149,9 @@ class OlinClassifier(object):
         if self.neitherAsInput:
             print("There is no cell or heading as input!")
         elif self.cellInput:
+            print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", len(self.label))
             self.train_labels = self.label[:-self.num_eval, :]
+            print("This is cutting the labels!!!!!", len(self.train_labels))
             self.eval_labels = self.label[-self.num_eval:, :]
         elif self.headingInput:
             self.train_labels = self.label[:-self.num_eval, :]
@@ -179,8 +178,26 @@ class OlinClassifier(object):
         #     )
 
 
-        self.train_images = self.train_images.reshape(12084, 1, 100, 100, 1)
-        self.eval_images = self.eval_images.reshape(416, 1, 100, 100, 1)
+        timeStepsEach = 400
+        self.train_images, self.train_labels = creatingSequence(self.train_images, self.train_labels, 400, 100)
+        timeSteps = len(self.train_images)
+        subSequences = int(timeSteps/timeStepsEach)
+        self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, timeStepsEach)
+        print("The shape", self.train_labels.shape)
+
+
+
+        self.eval_images, self.eval_labels = creatingSequence(self.eval_images, self.eval_labels, 400, 100)
+        timeSteps = len(self.eval_images)
+        subSequences = int(timeSteps / timeStepsEach)
+        self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, timeStepsEach)
+        print("The shape", self.eval_labels.shape)
+
+
+
+
 
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
@@ -189,7 +206,7 @@ class OlinClassifier(object):
 
         self.model.fit(
             self.train_images, self.train_labels,
-            batch_size=50,
+            batch_size=2,
             epochs=6,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
@@ -202,7 +219,7 @@ class OlinClassifier(object):
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
-                    batch_size=100,
+                    batch_size=2,
                     write_images=False,
                     write_grads=True,
                     histogram_freq=1,
@@ -590,7 +607,7 @@ if __name__ == "__main__":
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         dataImg = DATA + 'lstm_img_cell_Inpute.npy',
-        dataLabel = DATA + 'Heading_CellInput12k.npy',
+        dataLabel = DATA + 'lstm_heading_hotLabel.npy',
         data_name = "cellInputReference",
         outputSize= 8,
         eval_ratio=0.1,
