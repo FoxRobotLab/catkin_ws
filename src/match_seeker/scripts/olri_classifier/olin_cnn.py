@@ -205,7 +205,7 @@ class OlinClassifier(object):
 
         self.model.fit(
             self.train_images, self.train_labels,
-            batch_size=2,
+            batch_size=5,
             epochs=6,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
@@ -218,7 +218,7 @@ class OlinClassifier(object):
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
-                    batch_size=2,
+                    batch_size=5,
                     write_images=False,
                     write_grads=True,
                     histogram_freq=1,
