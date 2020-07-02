@@ -228,6 +228,8 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
+        # training_data.append([image, getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8)])
+
         return image
 
     frameNum = 1

@@ -140,15 +140,15 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 
 
 if __name__ == "__main__":
-    cellOutputData = "SAMPLETRAININGDATA_CELL_withHeadingInput135K.npy"
-    cellOutputImg = "SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy"
+    cellOutputData = "susantestdataset.npz"
+    # cellOutputImg = "SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy"
 
     cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
-    headingOutputData = "SAMPLETRAININGDATA_HEADING_withCellInput135K.npy"
-    headingOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
+    # headingOutputData = "SAMPLETRAININGDATA_HEADING_withCellInput135K.npy"
+    # headingOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
 
-    dataPath = pathToMatchSeeker + 'res/classifier2019data/DATA/'
-    mean = np.load(dataPath + 'SAMPLETRAINING_100_500_mean135k.npy')
+    dataPath = pathToMatchSeeker + 'res/classifier2019data/'
+    # mean = np.load(dataPath + 'SAMPLETRAINING_100_500_mean135k.npy')
 
     checkPts = dataPath + "CHECKPOINTS/"
     olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
@@ -160,19 +160,34 @@ if __name__ == "__main__":
                                      image_depth=2)
 
 
-    imageData = np.load(dataPath +  cellOutputImg, allow_pickle=True, encoding='latin1')
-    cellData = np.load(dataPath +  cellOutputData, allow_pickle=True, encoding='latin1')
+    npzfile = np.load(dataPath + cellOutputData)
+    imageData = npzfile['images']
+    cellData = npzfile['cellOut']
+    headData = npzfile['headingOut']
+    mean = npzfile['mean']
+    frameData = npzfile['frameNums']
+    # imageData = np.load(dataPath +  cellOutputImg, allow_pickle=True, encoding='latin1')
+    # cellData = np.load(dataPath +  cellOutputData, allow_pickle=True, encoding='latin1')
 
     imDims = imageData.shape
     cellDims = cellData.shape
     numExamples = imDims[0]
+    imageShape = imDims[1:]
     count = 0
     for i in range(1000):
         randRow = random.randrange(numExamples)
-        img = imageData[randRow]
+        image = imageData[randRow]
+        frameNum = frameData[randRow]
         output = cellData[randRow]
+        currHeading = np.argmax(headData[randRow])
         expectedResult = np.argmax(output)
-        predImg = np.array([img])
+        print(frameNum, "heading =", currHeading, "cell =", expectedResult)
+        headArr = currHeading * np.ones(imageShape, np.float64)
+        print(currHeading)
+        image = np.dstack((image, headArr))
+
+        print()
+        predImg = np.array([image])
         networkResult = olin_classifier.predictSingleImage(predImg)
         print("Expected result:", expectedResult, "Actual result:", networkResult)
         if expectedResult == networkResult:
