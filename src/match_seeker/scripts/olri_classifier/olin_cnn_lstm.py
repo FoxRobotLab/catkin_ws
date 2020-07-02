@@ -100,3 +100,15 @@ def creatingSequence(data, hotlabel, timeStep, overlap):
 
     return organizedData, organizeHotLabel
 
+def getCorrectLabels(label, timeStemp):
+    newLabel = []
+    dataLen = len(label)
+    totalLabels = int(dataLen / timeStemp)
+    for i in range(totalLabels):
+        newLabel.append(label[timeStemp * i - 1])
+    newLabel = np.asarray(newLabel)
+    return newLabel
+
+
+
+
