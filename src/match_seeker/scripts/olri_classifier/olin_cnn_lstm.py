@@ -53,28 +53,50 @@ def cnn_cells(self):
     cnn.summary()
     return cnn
 
-def creatingSequence(data, timeStep, overlap):
+
+def creatingSequence(data, hotlabel, timeStep, overlap):
     newData = []
     sequence = []
     organizedData = []
+    labelSeq = []
+    newHotLabel = []
+    organizeHotLabel = []
 
+    whichLabel = 0
     for i in data:
         sequence.append(i)
+        labelSeq.append(hotlabel[whichLabel])
         if len(sequence) == timeStep:
             newData.append(sequence)
+            newHotLabel.append(labelSeq)
             sequence = sequence[timeStep-overlap:]
-
+            labelSeq = labelSeq[timeStep-overlap:]
+        whichLabel += 1
     if (newData[len(newData)-1][timeStep-1] == data[-1]).all():
         newData = np.asarray(newData)
+        newHotLabel = np.asarray(newHotLabel)
     else:
         if len(sequence) > timeStep//3:
             needExtra = timeStep - len(sequence)
             sequence = data[-(len(sequence) + needExtra):]
+            labelSeq = hotlabel[-(len(labelSeq) + needExtra):]
             newData.append(sequence)
+            newHotLabel.append(labelSeq)
             newData = np.asarray(newData)
+            newHotLabel = np.asarray(newHotLabel)
+
+
+    whichSeq = 0
     for seq in newData:
+        whichLabel = 0
         for image in seq:
             organizedData.append(image)
+            organizeHotLabel.append(newHotLabel[whichSeq][whichLabel])
+            whichLabel +=1
+        whichSeq +=1
+        
+    organizeHotLabel = np.asarray(organizeHotLabel)
     organizedData = np.asarray(organizedData)
-    return organizedData
+
+    return organizedData, organizeHotLabel
 
