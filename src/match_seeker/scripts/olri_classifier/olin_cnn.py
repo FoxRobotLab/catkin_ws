@@ -47,7 +47,7 @@ from paths import pathToMatchSeeker
 from paths import DATA
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells, creatingSequence
+from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 
 
 
@@ -182,21 +182,22 @@ class OlinClassifier(object):
         timeSteps = len(self.train_images)
         subSequences = int(timeSteps/timeStepsEach)
         self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        self.train_labels = self.train_labels.reshape(subSequences,timeStepsEach,8)
+        self.train_labels = getCorrectLabels(self.train_labels, timeStepsEach)
+        print("The shape", self.train_labels.shape)
+
 
 
         self.eval_images, self.eval_labels = creatingSequence(self.eval_images, self.eval_labels, 400, 100)
         timeSteps = len(self.eval_images)
         subSequences = int(timeSteps / timeStepsEach)
         self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        self.eval_labels = self.eval_labels.reshape(subSequences, timeStepsEach, 8)
+        self.eval_labels = getCorrectLabels(self.eval_labels, timeStepsEach)
+        print("The shape", self.eval_labels.shape)
 
 
 
-        print("TRAIN IMGS", len(self.train_images), self.train_images.shape)
-        print("TRAIN LABELS", len(self.train_labels), self.train_labels.shape)
-        print("EVAL IMGS", len(self.eval_images), self.eval_images.shape)
-        print("EVAL Labels", len(self.eval_labels), self.eval_labels.shape)
+
+
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
 
