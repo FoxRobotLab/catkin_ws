@@ -186,10 +186,10 @@ class OlinClassifier(object):
         timeSteps = len(self.eval_images)
         subSequences = timeSteps / timeStepsEach
         self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        print("TRAIN IMGS", len(self.train_images))
-        print("TRAIN LABELS", len(self.train_labels))
-        print("EVAL IMGS", len(self.eval_images))
-        print("EVAL Labels", len(self.eval_labels))
+        print("TRAIN IMGS", len(self.train_images), self.train_images.shape)
+        print("TRAIN LABELS", len(self.train_labels), self.train_labels.shape)
+        print("EVAL IMGS", len(self.eval_images), self.eval_images.shape)
+        print("EVAL Labels", len(self.eval_labels), self.eval_labels.shape)
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
 
