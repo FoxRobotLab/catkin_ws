@@ -632,7 +632,7 @@ if __name__ == "__main__":
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         dataImg = DATA + 'lstm_img_cell_Inpute.npy',
-        dataLabel = DATA + 'Heading_CellInput12k.npy',
+        dataLabel = DATA + 'lstm_heading_hotLabel.npy',
         data_name = "cellInputReference",
         outputSize= 8,
         eval_ratio=0.1,

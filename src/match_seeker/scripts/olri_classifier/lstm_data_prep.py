@@ -272,7 +272,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     for key in cell_frame_dict.keys():
         cells.append(int(key))
     cells = sorted(cells)
-    cells.pop()
+    cells.pop() #THIS IS DELETING THE LAST CELL
 
     #Creating the array of images and the hot label
 
