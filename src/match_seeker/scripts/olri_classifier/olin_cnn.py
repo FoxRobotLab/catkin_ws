@@ -178,14 +178,19 @@ class OlinClassifier(object):
 
 
         timeStepsEach = 400
-        self.train_images = creatingSequence(self.train_images, 400, 100)
+        self.train_images, self.train_labels = creatingSequence(self.train_images, self.train_labels, 400, 100)
         timeSteps = len(self.train_images)
         subSequences = timeSteps/timeStepsEach
         self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        self.eval_images = creatingSequence(self.eval_images,400, 100)
+
+
+        self.eval_images, self.eval_labels = creatingSequence(self.eval_images, self.eval_labels, 400, 100)
         timeSteps = len(self.eval_images)
         subSequences = timeSteps / timeStepsEach
         self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
+
+
+
         print("TRAIN IMGS", len(self.train_images), self.train_images.shape)
         print("TRAIN LABELS", len(self.train_labels), self.train_labels.shape)
         print("EVAL IMGS", len(self.eval_images), self.eval_images.shape)

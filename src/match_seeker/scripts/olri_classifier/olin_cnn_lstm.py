@@ -94,7 +94,7 @@ def creatingSequence(data, hotlabel, timeStep, overlap):
             organizeHotLabel.append(newHotLabel[whichSeq][whichLabel])
             whichLabel +=1
         whichSeq +=1
-        
+
     organizeHotLabel = np.asarray(organizeHotLabel)
     organizedData = np.asarray(organizedData)
 
