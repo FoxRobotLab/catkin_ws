@@ -303,8 +303,10 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
     train_IMG_cellInput = np.asarray(train_IMG_cellInput)
     hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
-    np.save(DATA+ "lstm_img_cell_Inpute", train_IMG_cellInput)
-    np.save(DATA+ "lstm_heading_hotLabel", hotLabelHeadOutput)
+
+    #UNCOMMENT THIS TO SAVE DATA
+    # np.save(DATA+ "lstm_img_cell_Inpute", train_IMG_cellInput)
+    # np.save(DATA+ "lstm_heading_hotLabel", hotLabelHeadOutput)
 
 
 
@@ -315,7 +317,8 @@ if __name__ == '__main__':
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
     rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
-    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+
+    #add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
 
 
