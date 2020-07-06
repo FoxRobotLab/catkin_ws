@@ -14,10 +14,11 @@ while (cnt != 12001):
     font = cv2.FONT_HERSHEY_SIMPLEX
     #img_text = cv2.putText(img, str(cnt), (10,10), font, 50, (0, 255, 0), 1, 1)
     cv2.imshow("Window", img)
-    x = cv2.waitKey(0)
-    userChar = chr(x & 0xFF)
-    if userChar == 'r':
-        cnt -=1
-        img = image[cnt]
-    cnt +=1
+    while(True):
+        x = cv2.waitKey(0)
+        userChar = chr(x & 0xFF)
+        if userChar == 'r':
+            cnt -=1
+            img = image[cnt]
+        cnt +=1
 cv2.destroyAllWindows()
