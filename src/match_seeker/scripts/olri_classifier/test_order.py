@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 
 image = np.load(DATA + 'lstm_img_cell_Inpute.npy')
+image = image[:,:,:,0]
 label = np.load(DATA + 'lstm_heading_hotLabel.npy')
 
 print("This is the length of image", len(image))
