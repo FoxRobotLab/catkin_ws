@@ -12,7 +12,7 @@ cnt = 0
 while (cnt != 12001):
     img = image[cnt]
     font = cv2.FONT_HERSHEY_SIMPLEX
-    img= cv2.putText(np.float32(img), str(cnt), (10,10), font, 10, (0, 255, 0), 1)
+    img = cv2.putText(np.float32(img), str(cnt), (10,50), font, 1, (0, 255, 0), 5, cv2.LINE_AA)
     cv2.imshow("Window", img)
     cv2.waitKey(0)
     cnt +=1
