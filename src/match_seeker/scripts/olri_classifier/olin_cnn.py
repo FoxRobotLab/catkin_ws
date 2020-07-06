@@ -55,6 +55,7 @@ from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 
 
 
+
 ### Uncomment next line to use CPU instead of GPU: ###
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
