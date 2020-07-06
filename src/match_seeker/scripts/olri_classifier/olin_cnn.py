@@ -199,6 +199,19 @@ class OlinClassifier(object):
 
 
 
+        cnt = 0
+        for img in self.train_images:
+            cv2.imshow("window", img)
+            cv2.waitKey(10)
+            if cnt == 400:
+                break
+            cnt +=1
+        cv2.destroyAllWindows()
+        return 0
+
+
+
+
 
 
         #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
