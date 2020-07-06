@@ -203,7 +203,7 @@ class OlinClassifier(object):
 
         for img in self.train_images[0]:
             cv2.imshow("window", img)
-            cv2.waitKey(10)
+            cv2.waitKey(20)
         cv2.destroyAllWindows()
         return 0
 
