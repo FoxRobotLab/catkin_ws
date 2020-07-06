@@ -198,7 +198,7 @@ class OlinClassifier(object):
 
 
 
-        print("This is the first sequence", self.train_images[0])
+        print("This is the first sequence", len(self.train_images[0]))
 
         # cnt = 0
         # for img in self.train_images:
@@ -208,7 +208,7 @@ class OlinClassifier(object):
         #         break
         #     cnt +=1
         # cv2.destroyAllWindows()
-        # return 0
+        return 0
 
 
 
