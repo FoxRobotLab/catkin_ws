@@ -204,8 +204,8 @@ def add_cell_channel(overRepped=None, underRepped=None):
 
 
     def processFrame(frame):
-        print "Processing frame " + str(frameNum) + " / " + str(
-            len(overRepped) + len(underRepped)) + "     (Frame number: " + frame + ")"
+        print("Processing frame " + str(frameNum) + " / " + str(
+            len(overRepped) + len(underRepped)) + "     (Frame number: " + frame + ")")
         print("frame",frame)
         image = cv2.imread('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
@@ -332,7 +332,7 @@ def getTrainingData(overRepped=None,underRepped=None):
     allImages = []
 
     def processFrame(frame):
-        print "Processing frame " + str(frameNum) + " / " + str(len(overRepped) + len(underRepped))+ "     (Frame number: " + frame + ")"
+        print("Processing frame " + str(frameNum) + " / " + str(len(overRepped) + len(underRepped))+ "     (Frame number: " + frame + ")")
 
 
         image = cv2.imread('frames/moreframes/frame' + frame + '.jpg')
