@@ -89,6 +89,8 @@ def getCorrectLabels(label, timeStemp, overlap):
             newLabel.append(label[-1])
         else:
             newLabel.append(label[index + 1])
+
+    newLabel = np.asarray(newLabel)
     return newLabel
 
 

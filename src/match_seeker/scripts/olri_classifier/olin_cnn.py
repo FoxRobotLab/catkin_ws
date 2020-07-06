@@ -185,6 +185,7 @@ class OlinClassifier(object):
         subSequences = int(timeSteps/timeStepsEach)
         self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
         self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
+        print(self.train_labels)
         print("train image shape", self.train_images.shape)
         print("Train Labels shape", self.train_labels.shape)
 
