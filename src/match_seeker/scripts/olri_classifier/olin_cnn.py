@@ -179,23 +179,21 @@ class OlinClassifier(object):
 
 
         timeStepsEach = 400
-        self.train_images, self.train_labels = creatingSequence(self.train_images, self.train_labels, 400, 100)
+        self.train_images= creatingSequence(self.train_images, 400, 100)
         timeSteps = len(self.train_images)
         subSequences = int(timeSteps/timeStepsEach)
         self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, timeStepsEach)
-        print(self.train_labels)
-        return
-        print("The shape", self.train_labels.shape)
+        self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
+        print("train image shape", self.train_images.shape)
+        print("Train Labels shape", self.train_labels.shape)
 
-
-
-        self.eval_images, self.eval_labels = creatingSequence(self.eval_images, self.eval_labels, 400, 100)
+        self.eval_images = creatingSequence(self.eval_images, 400, 100)
         timeSteps = len(self.eval_images)
         subSequences = int(timeSteps / timeStepsEach)
         self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, timeStepsEach)
-        print("The shape", self.eval_labels.shape)
+        self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
+        print("self.eval_images", self.train_images.shape)
+        print("self.eval_labels", self.train_labels.shape)
 
 
 
