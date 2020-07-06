@@ -198,30 +198,6 @@ class OlinClassifier(object):
 
 
 
-        print("This is the first sequence", self.train_images[34][1])
-        cv2.imshow("window", self.train_images[34][370])
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        return 0
-
-
-
-
-        # for img in self.train_images[34]:
-        #     cv2.imshow("window", img)
-        #     cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        # return 0
-
-
-
-
-
-
-        #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
-
-
-
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size= 5,
