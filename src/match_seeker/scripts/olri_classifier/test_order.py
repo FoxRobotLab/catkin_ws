@@ -8,7 +8,7 @@ label = np.load(DATA + 'lstm_heading_hotLabel.npy')
 
 print("This is the length of image", len(image))
 
-cnt = 0
+cnt = 480
 while (cnt != 12001):
     img = image[cnt]
     font = cv2.FONT_HERSHEY_SIMPLEX
