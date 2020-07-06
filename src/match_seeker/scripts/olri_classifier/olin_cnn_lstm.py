@@ -54,59 +54,41 @@ def cnn_cells(self):
     return cnn
 
 
-def creatingSequence(data, hotlabel, timeStep, overlap):
+def creatingSequence(data, timeStep, overlap):
     newData = []
     sequence = []
-    organizedData = []
-    labelSeq = []
-    newHotLabel = []
-    organizeHotLabel = []
 
     whichLabel = 0
     for i in data:
         sequence.append(i)
-        labelSeq.append(hotlabel[whichLabel])
         if len(sequence) == timeStep:
-            newData.append(sequence)
-            newHotLabel.append(labelSeq)
-            sequence = sequence[timeStep-overlap:]
-            labelSeq = labelSeq[timeStep-overlap:]
+            newData.extend(sequence)
+            sequence = sequence[timeStep - overlap:]
         whichLabel += 1
-    if (newData[len(newData)-1][timeStep-1] == data[-1]).all():
+    if (newData[len(newData) - 1] == data[-1]).all():
         newData = np.asarray(newData)
-        newHotLabel = np.asarray(newHotLabel)
+
     else:
-        if len(sequence) > timeStep//3:
+        if len(sequence) > timeStep // 3:
             needExtra = timeStep - len(sequence)
             sequence = data[-(len(sequence) + needExtra):]
-            labelSeq = hotlabel[-(len(labelSeq) + needExtra):]
-            newData.append(sequence)
-            newHotLabel.append(labelSeq)
+            newData.extend(sequence)
             newData = np.asarray(newData)
-            newHotLabel = np.asarray(newHotLabel)
+    return newData
 
-
-    whichSeq = 0
-    for seq in newData:
-        whichLabel = 0
-        for image in seq:
-            organizedData.append(image)
-            organizeHotLabel.append(newHotLabel[whichSeq][whichLabel])
-            whichLabel +=1
-        whichSeq +=1
-
-    organizeHotLabel = np.asarray(organizeHotLabel)
-    organizedData = np.asarray(organizedData)
-
-    return organizedData, organizeHotLabel
-
-def getCorrectLabels(label, timeStemp):
+def getCorrectLabels(label, timeStemp, overlap):
     newLabel = []
-    dataLen = len(label)
-    totalLabels = int(dataLen / timeStemp)
-    for i in range(totalLabels):
-        newLabel.append(label[timeStemp * i - 1])
-    newLabel = np.asarray(newLabel)
+    change = timeStemp - overlap
+    dataLen = len(label) -1
+
+    index = timeStemp-1
+    newLabel.append(label[index +1])
+    while(index < dataLen):
+        index = index+change
+        if index +1 > dataLen:
+            newLabel.append(label[-1])
+        else:
+            newLabel.append(label[index + 1])
     return newLabel
 
 
