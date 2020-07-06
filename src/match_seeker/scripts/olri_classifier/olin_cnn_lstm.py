@@ -80,9 +80,11 @@ def getCorrectLabels(label, timeStemp, overlap):
     newLabel = []
     change = timeStemp - overlap
     dataLen = len(label) -1
-
     index = timeStemp-1
-    newLabel.append(label[index +1])
+    if index +1 >= dataLen:
+        newLabel.append(label[-1])
+    else:
+        newLabel.append(label[index +1])
     while(index < dataLen):
         index = index+change
         if index +1 > dataLen:
