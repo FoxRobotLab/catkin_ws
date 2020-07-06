@@ -201,7 +201,7 @@ class OlinClassifier(object):
         print("This is the first sequence", len(self.train_images[0]))
 
 
-        for img in self.train_images[15]:
+        for img in self.train_images[34]:
             cv2.imshow("window", img)
             cv2.waitKey(0)
         cv2.destroyAllWindows()
