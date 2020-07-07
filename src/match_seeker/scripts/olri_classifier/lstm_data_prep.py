@@ -315,8 +315,9 @@ if __name__ == '__main__':
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
 
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
+    cell_frame_dict = OrderedDict(sorted(cell_frame_dict.items())
     rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
-    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+    #add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
 
 
