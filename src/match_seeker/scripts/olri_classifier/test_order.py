@@ -47,7 +47,7 @@ if __name__ == '__main__':
         onehot = [0] * 8
         onehot[int(head)//45] = 1
         print(onehot)
-        print(hotLabel)
+        print(hotLabel[which])
         if onehot != hotLabel[which]:
             print(frame)
         which +=1
