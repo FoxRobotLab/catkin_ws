@@ -6,8 +6,10 @@ import collections
 labels= np.load(DATA+ 'lstm_Heading_Output.npy')
 print("This is the length", len(labels))
 
+which = 0
 for i in range(2000, 2500, 1):
-    print(i, labels[i])
+    print(which, labels[i])
+    which+=1
 
 
 #image = image[:,:,:,0]
