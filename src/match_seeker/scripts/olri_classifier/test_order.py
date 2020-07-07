@@ -3,32 +3,9 @@ import numpy as np
 import cv2
 import collections
 
-<<<<<<< HEAD
-image = np.load(DATA + 'lstm_img_cell_Inpute.npy')
-image = image[:, :, :, 0]
-label = np.load(DATA + 'lstm_heading_hotLabel.npy')
-cell_frame = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-print("This is the cell frame", cell_frame)
-cell_frame = collections.OrderedDict(sorted(cell_frame.items()))
-cell_frame.pop('152')
-print(cell_frame.keys())
-
-fHframes = []
-underFrames = []
-for key in cell_frame.keys():
-    if len(cell_frame[key])== 500:
-        fHframes.append(key)
-    else:
-        underFrames.append(key)
-
-print(fHframes)
-
-
-
-
-
-
-
+labels= np.load(DATA+ 'lstm_Heading_Output.npy',allow_pickle='TRUE').item()
+print("This is the length", len(labels))
+print(labels)
 
 #image = image[:,:,:,0]
 #
