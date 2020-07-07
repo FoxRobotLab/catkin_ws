@@ -7,7 +7,7 @@ from collections import OrderedDict
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 
 numCells = 271
-image_size = 100
+image_size = 150
 images_per_cell = 500
 
 def getCellCounts():
