@@ -196,9 +196,9 @@ class OlinClassifier(object):
         print("self.eval_images", self.eval_images.shape)
         print("self.eval_labels", self.eval_labels.shape)
 
-        for img in self.train_images[3]:
+        for img in self.train_images[22]:
             cv2.imshow("window", img)
-            cv2.waitKey(10)
+            cv2.waitKey(30)
         cv2.destroyAllWindows()
         return 0
 
