@@ -330,7 +330,11 @@ if __name__ == '__main__':
     # add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
     ################################################################
 
-    print(frame_dict['18'])
+    # print(frame_dict['18'])
+
+    for key in frame_dict.keys():
+        if len(frame_dict[key]) == 500:
+            print(key)
 
 
 
