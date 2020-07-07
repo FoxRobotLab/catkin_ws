@@ -314,36 +314,32 @@ if __name__ == '__main__':
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
 
-    cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
-    rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
-
-    #Selecting the SAMPLE
-    wantedCells = ['17', '16', '15', '14', '13', '12', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2', '18', '1',
-                   '19','0', '20', '21', '22', '23', '24']
-    frame_dict = OrderedDict()
-    newFrames = OrderedDict()
-    for cell in wantedCells:
-        frame_dict[cell] = cell_frame_dict[cell]
-        if(len(rndUnderRepSubset[cell]) > 0):
-            newFrames[cell]= rndUnderRepSubset[cell]
-
-    add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
-
-
-
+    # cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
+    # rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+    ################################################################
+    # #Selecting the SAMPLE
+    # wantedCells = ['17', '16', '15', '14', '13', '12', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2', '18', '1',
+    #                '19','0', '20', '21', '22', '23', '24']
+    # frame_dict = OrderedDict()
+    # newFrames = OrderedDict()
+    # for cell in wantedCells:
+    #     frame_dict[cell] = cell_frame_dict[cell]
+    #     if(len(rndUnderRepSubset[cell]) > 0):
+    #         newFrames[cell]= rndUnderRepSubset[cell]
+    #
+    # add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
+    ################################################################
 
 
 
 
-
-
-    # images = np.load(DATA+ "lstm_img_cell_Inpute.npy")
-    # images = images[:,:, :, 0]
-    # images = images.reshape(12000, 100, 100, 1)
-    # for i in images:
-    #     cv2.imshow("window", i)
-    #     cv2.waitKey(50)
-    # cv2.destroyAllWindows()
+    images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
+    images = images[:,:, :, 0]
+    images = images.reshape(12500, 100, 100, 1)
+    for i in images:
+        cv2.imshow("window", i)
+        cv2.waitKey(30)
+    cv2.destroyAllWindows()
 
 
 
