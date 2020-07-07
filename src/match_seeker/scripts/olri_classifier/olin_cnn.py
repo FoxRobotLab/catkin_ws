@@ -122,7 +122,7 @@ class OlinClassifier(object):
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         self.image = self.image[:,:,:,0] #This takes out the color channel
-        self.image = self.image.reshape(len(self.image), 150, 150, 1)
+        self.image = self.image.reshape(len(self.image), 100, 100, 1)
 
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -188,20 +188,20 @@ class OlinClassifier(object):
         # self.train_images= creatingSequence(self.train_images, 400, 100)
         # timeSteps = len(self.train_images)
         # subSequences = int(timeSteps/timeStepsEach)
-        # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 150, 150, 1)
+        # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
         # self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
 
         #
         # self.eval_images = creatingSequence(self.eval_images, 400, 100)
         # timeSteps = len(self.eval_images)
         # subSequences = int(timeSteps / timeStepsEach)
-        # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,150, 150, 1)
+        # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        self.train_images = self.train_images.reshape(120, 100, 150, 150, 1)
+        self.train_images = self.train_images.reshape(120, 100, 100, 100, 1)
         self.train_labels = getCorrectLabels(self.train_labels, 100)
-        self.eval_images = self.eval_images.reshape(5, 100, 150, 150, 1)
+        self.eval_images = self.eval_images.reshape(5, 100, 100, 100, 1)
         self.eval_labels = getCorrectLabels(self.eval_labels, 100)
 
 

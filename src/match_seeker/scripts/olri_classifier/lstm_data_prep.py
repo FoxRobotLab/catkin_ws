@@ -7,7 +7,7 @@ from collections import OrderedDict
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 
 numCells = 271
-image_size = 150
+image_size = 100
 images_per_cell = 500
 
 def getCellCounts():
@@ -314,49 +314,49 @@ if __name__ == '__main__':
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
 
-    # cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
-    # rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+    cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
+    rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
     ################################################################
-    # #Selecting the SAMPLE
-    # wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
-    #                '35', '36', '37', '38', '39', '40', '41', '42']
-    # frame_dict = OrderedDict()
-    # newFrames = OrderedDict()
-    # for cell in wantedCells:
-    #     frame_dict[cell] = cell_frame_dict[cell]
-    #     if(len(rndUnderRepSubset[cell]) > 0):
-    #         newFrames[cell]= rndUnderRepSubset[cell]
-    #
-    # add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
+    #Selecting the SAMPLE
+    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
+                   '35', '36', '37', '38', '39', '40', '41', '42']
+    frame_dict = OrderedDict()
+    newFrames = OrderedDict()
+    for cell in wantedCells:
+        frame_dict[cell] = cell_frame_dict[cell]
+        if(len(rndUnderRepSubset[cell]) > 0):
+            newFrames[cell]= rndUnderRepSubset[cell]
+
+    add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
     ################################################################
 
 
 
 
-    images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
-    images = images[:,:, :, 0]
-    #images = images.reshape(25, 500, 150, 150, 1)
-    images = images.reshape(12500, 150, 150, 1)
-    cell = 4
-    #for i in range(0, 500, 20):
-    for i in range(100, 12501, 100):
-        frame = i -20
-        print("start",str(frame), "end", str(frame+19))
-        # tenImgs = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
-        #                   images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]), axis=1)
-        # anotherTEN = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
-        #                   images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
-        tenImgs = np.concatenate((images[frame], images[frame + 1], images[frame + 2], images[frame + 3], images[frame + 4],
-             images[frame + 5], images[frame + 6], images[frame + 7], images[frame + 8], images[frame + 9]),
-            axis=1)
-        anotherTEN = np.concatenate((images[frame + 10], images[frame + 11], images[frame + 12],
-                                     images[frame + 13], images[frame + 14],
-                                     images[frame + 15], images[frame + 16], images[frame + 17],
-                                     images[frame + 18], images[frame + 19]), axis=1)
-        img = np.concatenate((tenImgs, anotherTEN), axis=0)
-        cv2.imshow('Window',img)
-        cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
+    # images = images[:,:, :, 0]
+    # #images = images.reshape(25, 500, 100, 100, 1)
+    # images = images.reshape(12500, 100, 100, 1)
+    # cell = 4
+    # #for i in range(0, 500, 20):
+    # for i in range(100, 12501, 100):
+    #     frame = i -20
+    #     print("start",str(frame), "end", str(frame+19))
+    #     # tenImgs = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
+    #     #                   images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]), axis=1)
+    #     # anotherTEN = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
+    #     #                   images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
+    #     tenImgs = np.concatenate((images[frame], images[frame + 1], images[frame + 2], images[frame + 3], images[frame + 4],
+    #          images[frame + 5], images[frame + 6], images[frame + 7], images[frame + 8], images[frame + 9]),
+    #         axis=1)
+    #     anotherTEN = np.concatenate((images[frame + 10], images[frame + 11], images[frame + 12],
+    #                                  images[frame + 13], images[frame + 14],
+    #                                  images[frame + 15], images[frame + 16], images[frame + 17],
+    #                                  images[frame + 18], images[frame + 19]), axis=1)
+    #     img = np.concatenate((tenImgs, anotherTEN), axis=0)
+    #     cv2.imshow('Window',img)
+    #     cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 
 
