@@ -133,7 +133,6 @@ class OlinClassifier(object):
             self.image_depth = 1
 
         self.num_eval = int((self.eval_ratio * self.image_totalImgs))
-        print("num_eval", self.num_eval)
 
 
         np.random.seed(2845) #45600
@@ -147,7 +146,6 @@ class OlinClassifier(object):
             #return 0
 
         self.train_images = self.image[:-self.num_eval, :]
-        print("len(images)", len(self.train_images ))
         self.eval_images = self.image[-self.num_eval:, :]
 
         # input could include cell data, heading data, or neither (no method right now for doing both as input)
@@ -192,22 +190,23 @@ class OlinClassifier(object):
         # subSequences = int(timeSteps/timeStepsEach)
         # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 150, 150, 1)
         # self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
-        # print("train image shape", self.train_images.shape)
-        # print("Train Labels shape", self.train_labels.shape)
+
         #
         # self.eval_images = creatingSequence(self.eval_images, 400, 100)
         # timeSteps = len(self.eval_images)
         # subSequences = int(timeSteps / timeStepsEach)
         # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,150, 150, 1)
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
-        # print("self.eval_images", self.eval_images.shape)
-        # print("self.eval_labels", self.eval_labels.shape)
-        ####################################################################
-        print(len(self.train_images))
-        return 0
-        # self.train_images = self.train_images(125, 100, 150, 150, 1)
-        # self.eval_images = self.train_images
 
+        ####################################################################
+        self.train_images = self.train_images(120, 100, 150, 150, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, 100)
+        self.eval_images = self.train_images(5, 100, 150, 150, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, 100)
+        print("train image shape", self.train_images.shape)
+        print("Train Labels shape", self.train_labels.shape)
+        print("self.eval_images", self.eval_images.shape)
+        print("self.eval_labels", self.eval_labels.shape)
 
 
         self.model.fit(
