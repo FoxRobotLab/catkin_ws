@@ -268,17 +268,15 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         cell_frame_dict[key] = sorted(cell_frame_dict[key],key=lambda x: x[0])
 
     #Organizing cells (Specific for sample)
-    cells = []
-    for key in cell_frame_dict.keys():
-        cells.append(int(key))
-    cells = sorted(cells)
-    cells.pop() #THIS IS DELETING THE LAST CELL
+    wantedCells = ['17', '16', '15', '14', '13', '12', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2','18', '1','19',
+                  '0', '20', '21', '22', '23', '24']
+
 
     #Creating the array of images and the hot label
 
     train_IMG_cellInput = []
-    for cell in cells:
-        for tuple in cell_frame_dict[str(cell)]:
+    for cell in wantedCells:
+        for tuple in cell_frame_dict[cell]:
             if (cellInput == True):
                 train_IMG_cellInput.append(tuple[1])
                 frame = '%04d'% tuple[0]
@@ -288,8 +286,8 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     mean = calculate_mean(train_IMG_cellInput)
 
     whichImage= 0
-    for cell in cells:
-        for tuple in cell_frame_dict[str(cell)]:
+    for cell in wantedCells:
+        for tuple in cell_frame_dict[cell]:
             image = train_IMG_cellInput[whichImage]
             image = image - mean
             image /= 255
@@ -311,15 +309,14 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
 
 if __name__ == '__main__':
-    cell_counts, cell_frame_dict = getCellCounts()
-    cell_heading_counts = getHeadingRep(cell_counts)
-    cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
+    # cell_counts, cell_frame_dict = getCellCounts()
+    # cell_heading_counts = getHeadingRep(cell_counts)
+    # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
+    # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
 
-    # cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-    # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
-
-    #add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+    cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
+    rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+    add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
 
 
