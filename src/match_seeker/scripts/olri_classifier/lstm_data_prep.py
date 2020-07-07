@@ -336,7 +336,7 @@ if __name__ == '__main__':
     images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
     images = images[:,:, :, 0]
     images = images.reshape(25, 500, 150, 150, 1)
-    cell = 2
+    cell = 3
     for i in range(0, 500, 20):
         print("start",str(i), "end", str(i+19))
         tenImgs = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
