@@ -335,10 +335,13 @@ if __name__ == '__main__':
 
     images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
     images = images[:,:, :, 0]
-    images = images.reshape(12500, 150, 150, 1)
-    for i in images:
-        cv2.imshow("window", i)
-        cv2.waitKey(10)
+    images = images.reshape(25, 500, 150, 150, 1)
+    for i in range(0, 500, 10):
+        tenImgs = np.concatenate((images[0][i],images[0][i+1], images[0][i+2], images[0][i+3], images[0][i+4],
+                                  images[0][i+5], images[0][i+6], images[0][i+7], images[0][i+8], images[0][i+9]), axis=1)
+        cv2.imshow('Window',tenImgs)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     cv2.destroyAllWindows()
 
 
