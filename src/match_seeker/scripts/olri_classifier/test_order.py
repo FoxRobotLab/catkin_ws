@@ -8,7 +8,7 @@ print("This is the length", len(labels))
 
 for i in range(500):
     print(i, labels[i])
-    
+
 
 #image = image[:,:,:,0]
 #
