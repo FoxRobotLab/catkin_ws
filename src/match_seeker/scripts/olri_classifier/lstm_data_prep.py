@@ -268,8 +268,8 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
         cell_frame_dict[key] = sorted(cell_frame_dict[key],key=lambda x: x[0])
 
     #Organizing cells (Specific for sample)
-    wantedCells = ['17', '16', '15', '14', '13', '12', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2','18', '1','19',
-                  '0', '20', '21', '22', '23', '24']
+    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
+                   '35', '36', '37', '38', '39', '40', '41', '42']
 
 
     #Creating the array of images and the hot label
@@ -326,7 +326,7 @@ if __name__ == '__main__':
         frame_dict[cell] = cell_frame_dict[cell]
         if(len(rndUnderRepSubset[cell]) > 0):
             newFrames[cell]= rndUnderRepSubset[cell]
-    
+
     add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
     ################################################################
 
