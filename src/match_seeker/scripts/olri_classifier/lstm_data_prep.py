@@ -327,7 +327,7 @@ if __name__ == '__main__':
 
     for i in frame_dict.keys():
         print(i, len(frame_dict[i]))
-    print(newFrames.keys)
+    print(newFrames.keys())
     # print(newFrames)
 
 
