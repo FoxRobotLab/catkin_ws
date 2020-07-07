@@ -335,14 +335,24 @@ if __name__ == '__main__':
 
     images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
     images = images[:,:, :, 0]
-    images = images.reshape(25, 500, 150, 150, 1)
+    #images = images.reshape(25, 500, 150, 150, 1)
+    images = images.reshape(12500, 150, 150, 1)
     cell = 4
-    for i in range(0, 500, 20):
-        print("start",str(i), "end", str(i+19))
-        tenImgs = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
-                          images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]), axis=1)
-        anotherTEN = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
-                          images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
+    #for i in range(0, 500, 20):
+    for i in range(0, 12501, 100):
+        frame = i -19
+        print("start",str(frame), "end", str(frame+19))
+        # tenImgs = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
+        #                   images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]), axis=1)
+        # anotherTEN = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
+        #                   images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
+        tenImgs = np.concatenate((images[frame], images[frame + 1], images[frame + 2], images[frame + 3], images[frame + 4],
+             images[frame + 5], images[frame + 6], images[frame + 7], images[frame + 8], images[frame + 9]),
+            axis=1)
+        anotherTEN = np.concatenate((images[frame + 10], images[frame + 11], images[frame + 12],
+                                     images[frame + 13], images[frame + 14],
+                                     images[frame + 15], images[frame + 16], images[frame + 17],
+                                     images[frame + 18], images[frame + 19]), axis=1)
         img = np.concatenate((tenImgs, anotherTEN), axis=0)
         cv2.imshow('Window',img)
         cv2.waitKey(0)
