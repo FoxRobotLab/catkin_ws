@@ -336,20 +336,14 @@ if __name__ == '__main__':
     images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
     images = images[:,:, :, 0]
     images = images.reshape(25, 500, 150, 150, 1)
-    for i in range(0, 500, 10):
-        print("start",str(i), "end", str(i+9))
-        if i > 0:
-            before = np.concatenate((images[0][(i-10)], images[0][(i-10) + 1], images[0][(i-10) + 2], images[0][(i-10) + 3],
-                                  images[0][(i-10) + 4],images[0][(i-10) + 5], images[0][(i-10) + 6], images[0][(i-10) + 7], images[0][(i-10) + 8],
-                                  images[0][i + 9]), axis=1)
-
-
+    for i in range(0, 500, 20):
+        print("start",str(i), "end", str(i+19))
         tenImgs = np.concatenate((images[0][i],images[0][i+1], images[0][i+2], images[0][i+3], images[0][i+4],
                           images[0][i+5], images[0][i+6], images[0][i+7], images[0][i+8], images[0][i+9]), axis=1)
-
-        if i>0:
-            cv2.imshow("before", before)
-        cv2.imshow('Window',tenImgs)
+        anotherTEN = np.concatenate((images[0][i +10],images[0][i+11], images[0][i+12], images[0][i+13], images[0][i+14],
+                          images[0][i+15], images[0][i+16], images[0][i+17], images[0][i+18], images[0][i+19]), axis=1)
+        img = np.concatenate(tenImgs, anotherTEN, axis=0)
+        cv2.imshow('Window',img)
         cv2.waitKey(0)
     cv2.destroyAllWindows()
 
