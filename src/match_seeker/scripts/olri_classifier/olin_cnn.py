@@ -616,7 +616,7 @@ if __name__ == "__main__":
         dataLabel = DATA + 'lstm_Heading_Output.npy',
         data_name = "cellInputReference",
         outputSize= 8,
-        eval_ratio=0.1,
+        eval_ratio=0.04,
         image_size=100,
         cellInput= True,
         image_depth= 1
