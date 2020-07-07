@@ -1,6 +1,5 @@
 from paths import DATA
 import numpy as np
-import cv2
 from collections import OrderedDict
 
 
