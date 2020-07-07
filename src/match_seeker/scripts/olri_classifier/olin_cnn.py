@@ -201,13 +201,9 @@ class OlinClassifier(object):
         ####################################################################
         self.train_images = self.train_images.reshape(120, 100, 150, 150, 1)
         self.train_labels = getCorrectLabels(self.train_labels, 100)
-        print("This is eval images shape", self.eval_images.shape)
         self.eval_images = self.eval_images.reshape(5, 100, 150, 150, 1)
         self.eval_labels = getCorrectLabels(self.eval_labels, 100)
-        print("train image shape", self.train_images.shape)
-        print("Train Labels shape", self.train_labels.shape)
-        print("self.eval_images", self.eval_images.shape)
-        print("self.eval_labels", self.eval_labels.shape)
+
 
 
         self.model.fit(
