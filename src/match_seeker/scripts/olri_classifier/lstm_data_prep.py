@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
 
-numCells = 25
+numCells = 271
 image_size = 100
 images_per_cell = 500
 
@@ -131,8 +131,8 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
             rndUnderRepSubset[cell].append(toBeAdded)
 
             cell_counts[cell] += 1
-    np.save(DATA+ 'cell_origframes_500orL', cell_frame_dict)
-    np.save(DATA + 'cell_newframes_dict', rndUnderRepSubset)
+    np.save(DATA+ 'cell_origFrames', cell_frame_dict)
+    np.save(DATA + 'cell_newFrames', rndUnderRepSubset)
     return cell_frame_dict, rndUnderRepSubset
 
 def resizeAndCrop(image):
@@ -204,7 +204,7 @@ def calculate_mean(images):
         # print(images.shape)
         # print("*** Check image shape")
         return None
-    np.save(DATA + 'lstm_mean12k.npy', mean)
+    np.save(DATA + 'lstm_mean135k.npy', mean)
 
     print("*** Done. Returning mean.")
     return mean
@@ -305,18 +305,19 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
 
     #UNCOMMENT THIS TO SAVE DATA
-    # np.save(DATA+ "lstm_img_cell_Inpute", train_IMG_cellInput)
-    # np.save(DATA+ "lstm_heading_hotLabel", hotLabelHeadOutput)
+    np.save(DATA+ "lstm_Img_Cell_Input", train_IMG_cellInput)
+    np.save(DATA+ "lstm_Heading_Output", hotLabelHeadOutput)
 
 
 
 if __name__ == '__main__':
-    # cell_counts, cell_frame_dict = getCellCounts()
-    # cell_heading_counts = getHeadingRep(cell_counts)
-    # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
-    cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-    rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
+    cell_counts, cell_frame_dict = getCellCounts()
+    cell_heading_counts = getHeadingRep(cell_counts)
+    cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
+    addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
+
+    # cell_frame_dict = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
+    # rndUnderRepSubset = np.load(DATA + 'cell_newframes_dict.npy', allow_pickle='TRUE').item()
 
     #add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
