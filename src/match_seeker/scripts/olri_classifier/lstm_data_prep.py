@@ -324,9 +324,12 @@ if __name__ == '__main__':
         frame_dict[cell] = cell_frame_dict[cell]
         if(rndUnderRepSubset[cell] is not None):
             newFrames[cell]= rndUnderRepSubset[cell]
-    print(newFrames.keys)
-    print(newFrames)
-        
+
+    for i in frame_dict.keys():
+        print(i, len(frame_dict[i]))
+    # print(newFrames.keys)
+    # print(newFrames)
+
 
 
 
