@@ -6,7 +6,7 @@ import collections
 labels= np.load(DATA+ 'lstm_Heading_Output.npy')
 print("This is the length", len(labels))
 
-for i in range(500):
+for i in range(2000, 2500, 1):
     print(i, labels[i])
 
 
