@@ -339,8 +339,8 @@ if __name__ == '__main__':
     images = images.reshape(12500, 150, 150, 1)
     cell = 4
     #for i in range(0, 500, 20):
-    for i in range(0, 12501, 100):
-        frame = i -19
+    for i in range(100, 12501, 100):
+        frame = i -20
         print("start",str(frame), "end", str(frame+19))
         # tenImgs = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
         #                   images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]), axis=1)
