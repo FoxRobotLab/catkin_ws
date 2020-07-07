@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import collections
 
-labels= np.load(DATA+ 'lstm_Heading_Output.npy',allow_pickle='TRUE').item()
+labels= np.load(DATA+ 'lstm_Heading_Output.npy')
 print("This is the length", len(labels))
 print(labels)
 
