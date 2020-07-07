@@ -316,6 +316,8 @@ if __name__ == '__main__':
 
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
     rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+
+    #Selecting the SAMPLE
     wantedCells = ['17', '16', '15', '14', '13', '12', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2', '18', '1',
                    '19','0', '20', '21', '22', '23', '24']
     frame_dict = OrderedDict()
@@ -325,17 +327,7 @@ if __name__ == '__main__':
         if(len(rndUnderRepSubset[cell]) > 0):
             newFrames[cell]= rndUnderRepSubset[cell]
 
-    for i in frame_dict.keys():
-        print(i, len(frame_dict[i]))
-    print(newFrames.keys())
-    # print(newFrames)
-
-
-
-
-
-
-    #add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
+    add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
 
 
 
