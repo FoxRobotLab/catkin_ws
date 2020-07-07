@@ -337,10 +337,10 @@ if __name__ == '__main__':
     images = images[:,:, :, 0]
     images = images.reshape(25, 500, 150, 150, 1)
     for i in range(0, 500, 10):
+        print("start",str(i), "end", str(i+9))
         tenImgs = np.concatenate((images[0][i],images[0][i+1], images[0][i+2], images[0][i+3], images[0][i+4],
                                   images[0][i+5], images[0][i+6], images[0][i+7], images[0][i+8], images[0][i+9]), axis=1)
         cv2.imshow('Window',tenImgs)
-        print("hello")
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     cv2.destroyAllWindows()
