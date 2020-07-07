@@ -122,7 +122,7 @@ class OlinClassifier(object):
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         self.image = self.image[:,:,:,0] #This takes out the color channel
-        self.image = self.image.reshape(len(self.image), 100, 100, 1)
+        self.image = self.image.reshape(len(self.image), 150, 150, 1)
 
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -179,28 +179,31 @@ class OlinClassifier(object):
         #     )
 
 
-        timeStepsEach = 400
-        self.train_images= creatingSequence(self.train_images, 400, 100)
-        timeSteps = len(self.train_images)
-        subSequences = int(timeSteps/timeStepsEach)
-        self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
-        print("train image shape", self.train_images.shape)
-        print("Train Labels shape", self.train_labels.shape)
 
-        self.eval_images = creatingSequence(self.eval_images, 400, 100)
-        timeSteps = len(self.eval_images)
-        subSequences = int(timeSteps / timeStepsEach)
-        self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
-        print("self.eval_images", self.eval_images.shape)
-        print("self.eval_labels", self.eval_labels.shape)
+        #UNCOMMENT FOR OVERLAPING
+        ####################################################################
+        # timeStepsEach = 400
+        # self.train_images= creatingSequence(self.train_images, 400, 100)
+        # timeSteps = len(self.train_images)
+        # subSequences = int(timeSteps/timeStepsEach)
+        # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 150, 150, 1)
+        # self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
+        # print("train image shape", self.train_images.shape)
+        # print("Train Labels shape", self.train_labels.shape)
+        #
+        # self.eval_images = creatingSequence(self.eval_images, 400, 100)
+        # timeSteps = len(self.eval_images)
+        # subSequences = int(timeSteps / timeStepsEach)
+        # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,150, 150, 1)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
+        # print("self.eval_images", self.eval_images.shape)
+        # print("self.eval_labels", self.eval_labels.shape)
+        ####################################################################
+        print(len(self.train_images))
+        return 0 
+        # self.train_images = self.train_images(125, 100, 150, 150, 1)
+        # self.eval_images = self.train_images
 
-        for img in self.train_images[3]:
-            cv2.imshow("window", img)
-            cv2.waitKey(10)
-        cv2.destroyAllWindows()
-        return 0
 
 
 
@@ -606,8 +609,8 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg = DATA + 'lstm_img_cell_Inpute.npy',
-        dataLabel = DATA + 'lstm_heading_hotLabel.npy',
+        dataImg = DATA + 'lstm_Img_Cell_Input.npy',
+        dataLabel = DATA + 'lstm_Heading_Output.npy',
         data_name = "cellInputReference",
         outputSize= 8,
         eval_ratio=0.1,
