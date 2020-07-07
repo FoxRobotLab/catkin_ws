@@ -3,9 +3,11 @@ import numpy as np
 import cv2
 
 
-cell_frame = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-print(cell_frame)
-print(cell_frame.keys())
+labels= np.load(DATA+ 'lstm_Heading_Output.npy',allow_pickle='TRUE').item()
+print("This is the length", len(labels))
+print(labels)
+#print(cell_frame)
+#print(cell_frame.keys())
 # image = np.load(DATA + 'lstm_img_cell_Inpute.npy')
 # image = image[:,:,:,0]
 # label = np.load(DATA + 'lstm_heading_hotLabel.npy')

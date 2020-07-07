@@ -315,28 +315,36 @@ if __name__ == '__main__':
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
 
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
-    rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+    # rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
     ################################################################
-    #Selecting the SAMPLE
+    # #Selecting the SAMPLE
     wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
                    '35', '36', '37', '38', '39', '40', '41', '42']
     frame_dict = OrderedDict()
-    newFrames = OrderedDict()
+    # newFrames = OrderedDict()
     for cell in wantedCells:
         frame_dict[cell] = cell_frame_dict[cell]
-        if(len(rndUnderRepSubset[cell]) > 0):
-            newFrames[cell]= rndUnderRepSubset[cell]
-
-    add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
+    #     if(len(rndUnderRepSubset[cell]) > 0):
+    #         newFrames[cell]= rndUnderRepSubset[cell]
+    #
+    # add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
     ################################################################
+
+
+
 
 
 
 
     # images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
     # images = images[:,:, :, 0]
-    # #images = images.reshape(25, 500, 100, 100, 1)
     # images = images.reshape(12500, 100, 100, 1)
+
+
+    # images = np.load(DATA + "lstm_Img_Cell_Input.npy")
+    # images = images[:, :, :, 0]
+    # images = images.reshape(12500, 100, 100, 1)
+    # #images = images.reshape(25, 500, 100, 100, 1)
     # cell = 4
     # #for i in range(0, 500, 20):
     # for i in range(100, 12501, 100):
