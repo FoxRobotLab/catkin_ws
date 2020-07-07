@@ -322,7 +322,7 @@ if __name__ == '__main__':
     newFrames = OrderedDict()
     for cell in wantedCells:
         frame_dict[cell] = cell_frame_dict[cell]
-        if(rndUnderRepSubset[cell] is not None):
+        if(len(rndUnderRepSubset[cell]) > 0):
             newFrames[cell]= rndUnderRepSubset[cell]
 
     for i in frame_dict.keys():
