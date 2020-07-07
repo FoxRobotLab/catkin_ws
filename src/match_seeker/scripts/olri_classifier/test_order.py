@@ -24,7 +24,7 @@ if __name__ == '__main__':
     frame_label = getFrameHeadingDict()
 
     ######################The actual hot labels!!!!!!!!!
-    cel = '22'
+    cel = '29'
     start = (int(cel)-18)*500
     hotLabel = []
     for i in range(start, start+500, 1):
