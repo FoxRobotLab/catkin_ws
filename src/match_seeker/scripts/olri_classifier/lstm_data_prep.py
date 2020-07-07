@@ -219,7 +219,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     frame_cell_dict = getFrameCellDict()
 
     def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(numCells * images_per_cell) + "     (Frame number: " + frame + ")")
+        print( "Processing frame " + str(frameNum) + " / " + str(len(cell_frame_dict) * images_per_cell) + "     (Frame number: " + frame + ")")
         image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
