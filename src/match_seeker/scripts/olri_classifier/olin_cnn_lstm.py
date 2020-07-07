@@ -99,6 +99,7 @@ def getCorrectLabels(label, timeStep):
     newLabel = []
     for i in range(timeStep, len(label)+1, timeStep):
         newLabel.append(label[i-1])
+    newLabel = np.asarray(newLabel)
     return newLabel
 
 
