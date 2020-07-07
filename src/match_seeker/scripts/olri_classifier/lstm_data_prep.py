@@ -342,7 +342,7 @@ if __name__ == '__main__':
                           images[0][i+5], images[0][i+6], images[0][i+7], images[0][i+8], images[0][i+9]), axis=1)
         anotherTEN = np.concatenate((images[0][i +10],images[0][i+11], images[0][i+12], images[0][i+13], images[0][i+14],
                           images[0][i+15], images[0][i+16], images[0][i+17], images[0][i+18], images[0][i+19]), axis=1)
-        img = np.concatenate(tenImgs, anotherTEN, axis=0)
+        img = np.concatenate((tenImgs, anotherTEN), axis=0)
         cv2.imshow('Window',img)
         cv2.waitKey(0)
     cv2.destroyAllWindows()
