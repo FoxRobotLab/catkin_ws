@@ -315,8 +315,17 @@ if __name__ == '__main__':
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
 
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
-    cell_frame_dict = OrderedDict(sorted(cell_frame_dict.items())
-    rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+    wantedCells = ['17', '16', '15', '14', '13', '12', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2', '18', '1',
+                   '19','0', '20', '21', '22', '23', '24']
+    frame_dict = OrderedDict()
+    for cell in wantedCells:
+        frame_dict[cell] = cell_frame_dict[cell]
+    print("keys", frame_dict.keys())
+    print("dict", frame_dict)
+
+
+
+    #rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
     #add_cell_channel(cell_frame_dict , rndUnderRepSubset, cellInput= True, headingInput=None)
 
 
