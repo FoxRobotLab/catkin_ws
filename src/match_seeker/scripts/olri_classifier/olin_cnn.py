@@ -60,7 +60,7 @@ from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=0.04, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
@@ -132,7 +132,9 @@ class OlinClassifier(object):
         except IndexError:
             self.image_depth = 1
 
-        self.num_eval = int((self.eval_ratio * self.image_totalImgs / 3))
+        self.num_eval = int((self.eval_ratio * self.image_totalImgs))
+
+
         np.random.seed(2845) #45600
 
         #if (len(self.image) == len(self.label)):
