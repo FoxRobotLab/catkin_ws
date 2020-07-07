@@ -1,15 +1,63 @@
 from paths import DATA
 import numpy as np
 import cv2
-import collections
+from collections import OrderedDict
 
-labels= np.load(DATA+ 'lstm_Heading_Output.npy')
-print("This is the length", len(labels))
 
-which = 0
-for i in range(2000, 2500, 1):
-    print(which, labels[i])
-    which+=1
+
+
+
+master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+
+def getFrameHeadingDict():
+    fhd = {}
+    with open(master_cell_loc_frame_id,'r') as masterlist:
+        lines = masterlist.readlines()
+        for line in lines:
+            split = line.split()
+            fhd['%04d'%int(split[0])] = split[-1]
+
+    return fhd
+
+if __name__ == '__main__':
+    labels= np.load(DATA+ 'lstm_Heading_Output.npy')
+    cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
+    frame_label = getFrameHeadingDict()
+
+    ######################The actual hot labels!!!!!!!!!
+    cel = '22'
+    start = (int(cel)-18)*500
+    hotLabel = []
+    for i in range(start, start+500, 1):
+        hotLabel.append(labels[i])
+    ##########################
+
+    #########################The frames
+    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
+                   '35', '36', '37', '38', '39', '40', '41', '42']
+    frame_dict = OrderedDict()
+    for cell in wantedCells:
+        frame_dict[cell] = cell_frame_dict[cell]
+    #####################
+
+
+    ############checking that they are the same
+    which = 0
+    for frame in frame_dict[cel]:
+        head = frame_label[frame]
+        onehot = [0] * 8
+        onehot[head//45] = 1
+        if onehot != hotLabel[which]:
+            print(frame)
+        which +=1
+
+
+
+
+
+
+
+
 
 
 #image = image[:,:,:,0]
