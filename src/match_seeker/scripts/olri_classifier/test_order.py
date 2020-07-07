@@ -46,6 +46,7 @@ if __name__ == '__main__':
         head = frame_label[frame]
         onehot = [0] * 8
         onehot[int(head)//45] = 1
+        onehot = np.asarray(onehot)
         print(onehot)
         print(hotLabel[which])
         if onehot != hotLabel[which]:
