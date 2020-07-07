@@ -1,14 +1,36 @@
 from paths import DATA
 import numpy as np
 import cv2
+import collections
 
-
+image = np.load(DATA + 'lstm_img_cell_Inpute.npy')
+image = image[:, :, :, 0]
+label = np.load(DATA + 'lstm_heading_hotLabel.npy')
 cell_frame = np.load(DATA+ 'cell_origframes_500orL.npy',allow_pickle='TRUE').item()
-print(cell_frame)
+print("This is the cell frame", cell_frame)
+cell_frame = collections.OrderedDict(sorted(cell_frame.items()))
+cell_frame.pop('152')
 print(cell_frame.keys())
-# image = np.load(DATA + 'lstm_img_cell_Inpute.npy')
-# image = image[:,:,:,0]
-# label = np.load(DATA + 'lstm_heading_hotLabel.npy')
+
+fHframes = []
+underFrames = []
+for key in cell_frame.keys():
+    if len(cell_frame[key])== 500:
+        fHframes.append(key)
+    else:
+        underFrames.append(key)
+
+print(fHframes)
+
+
+
+
+
+
+
+
+#image = image[:,:,:,0]
+label = np.load(DATA + 'lstm_heading_hotLabel.npy')
 #
 # print("This is the length of image", len(image))
 #
