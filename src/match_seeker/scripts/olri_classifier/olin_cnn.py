@@ -200,7 +200,7 @@ class OlinClassifier(object):
         # print("self.eval_labels", self.eval_labels.shape)
         ####################################################################
         print(len(self.train_images))
-        return 0 
+        return 0
         # self.train_images = self.train_images(125, 100, 150, 150, 1)
         # self.eval_images = self.train_images
 
