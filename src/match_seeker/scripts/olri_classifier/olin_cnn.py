@@ -202,7 +202,7 @@ class OlinClassifier(object):
         self.train_images = self.train_images.reshape(240, 50, 100, 100, 1)
         self.train_labels = getCorrectLabels(self.train_labels, 50)
         self.eval_images = self.eval_images.reshape(10, 50, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 20)
+        self.eval_labels = getCorrectLabels(self.eval_labels, 50)
 
 
 
