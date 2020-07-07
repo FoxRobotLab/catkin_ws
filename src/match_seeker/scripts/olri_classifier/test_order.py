@@ -45,7 +45,7 @@ if __name__ == '__main__':
     for frame in frame_dict[cel]:
         head = frame_label[frame]
         onehot = [0] * 8
-        onehot[head//45] = 1
+        onehot[int(head)//45] = 1
         if onehot != hotLabel[which]:
             print(frame)
         which +=1
