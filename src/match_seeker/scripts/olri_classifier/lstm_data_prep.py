@@ -335,7 +335,7 @@ if __name__ == '__main__':
 
     images = np.load(DATA+ "lstm_Img_Cell_Input.npy")
     images = images[:,:, :, 0]
-    images = images.reshape(12500, 100, 100, 1)
+    images = images.reshape(12500, 150, 150, 1)
     for i in images:
         cv2.imshow("window", i)
         cv2.waitKey(10)
