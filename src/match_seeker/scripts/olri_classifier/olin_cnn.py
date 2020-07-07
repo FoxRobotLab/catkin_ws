@@ -208,7 +208,7 @@ class OlinClassifier(object):
 
         self.model.fit(
             self.train_images, self.train_labels,
-            batch_size= 3,
+            batch_size= 4,
             epochs=6,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),

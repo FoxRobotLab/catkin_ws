@@ -6,7 +6,7 @@ def cnn_cells(self):
     cnn = keras.models.Sequential()
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
         filters= 32,
-        kernel_size=(3, 3),
+        kernel_size=(5, 5),
         strides=(1, 1),
         activation="relu",
         padding="same",
@@ -21,7 +21,7 @@ def cnn_cells(self):
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
             filters=64,
-            kernel_size=(3, 3),
+            kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
             padding="same"
@@ -34,7 +34,7 @@ def cnn_cells(self):
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
             filters=32,
-            kernel_size=(3, 3),
+            kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
             padding="same",
