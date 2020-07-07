@@ -338,6 +338,12 @@ if __name__ == '__main__':
     images = images.reshape(25, 500, 150, 150, 1)
     for i in range(0, 500, 10):
         print("start",str(i), "end", str(i+9))
+        if i > 0:
+            before = np.concatenate((images[0][(i-10)], images[0][(i-10) + 1], images[0][(i-10) + 2], images[0][(i-10) + 3],
+                                  images[0][(i-10) + 4],images[0][(i-10) + 5], images[0][(i-10) + 6], images[0][(i-10) + 7], images[0][(i-10) + 8],
+                                  images[0][i + 9]), axis=1)
+            cv2.imshow("before", before)
+            
         tenImgs = np.concatenate((images[0][i],images[0][i+1], images[0][i+2], images[0][i+3], images[0][i+4],
                                   images[0][i+5], images[0][i+6], images[0][i+7], images[0][i+8], images[0][i+9]), axis=1)
         cv2.imshow('Window',tenImgs)
