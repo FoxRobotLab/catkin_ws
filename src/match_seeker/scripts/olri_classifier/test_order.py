@@ -10,6 +10,9 @@ from collections import OrderedDict
 if __name__ == '__main__':
     image_cell = np.load(DATA+ 'lstm_Img_Cell_Input13k.npy')
     print(image_cell.shape)
+    for unit in image_cell:
+        print(unit)
+        break
     # cells = []
     # for cell in image_cell:
     #     print(cell[1])
