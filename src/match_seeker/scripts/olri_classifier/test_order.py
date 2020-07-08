@@ -9,12 +9,13 @@ from collections import OrderedDict
 
 if __name__ == '__main__':
     image_cell = np.load(DATA+ 'lstm_Img_Cell_Input13k.npy')
-    cells = []
-    for cell in image_cell:
-        print(cell[1])
-        cells.append(cell[1])
-    print(cells)
-    print("this is how many cells there are", len(cells))
+    print(image_cell.shape)
+    # cells = []
+    # for cell in image_cell:
+    #     print(cell[1])
+    #     cells.append(cell[1])
+    # print(cells)
+    # print("this is how many cells there are", len(cells))
 
 
 
