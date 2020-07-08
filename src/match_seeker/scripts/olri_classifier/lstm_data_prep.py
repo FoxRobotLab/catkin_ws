@@ -344,12 +344,19 @@ if __name__ == '__main__':
         cv2.waitKey(30)
     cv2.destroyAllWindows()
 
-    for i in range(0, 500, 20):
-        print("start",str(i), "end", str(i+499))
-        tenImgs = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
-                          images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]), axis=1)
-        anotherTEN = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
+    for i in range(0, 500, 40):
+        print("start",str(i), "end", str(i))
+        ten = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
+                          images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]),
+                             axis=1)
+        twen = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
                           images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
+        thrt = np.concatenate((images[cell][i +20],images[cell][i+21], images[cell][i+22], images[cell][i+23], images[cell][i+24],
+                          images[cell][i+25], images[cell][i+26], images[cell][i+27], images[cell][i+28], images[cell][i+29]), axis=1)
+        frty = np.concatenate((images[cell][i +30],images[cell][i+31], images[cell][i+32], images[cell][i+33], images[cell][i+34],
+                          images[cell][i+35], images[cell][i+36], images[cell][i+37], images[cell][i+38], images[cell][i+39]),
+                             axis=1)
+
 
 
         # tenImgs = np.concatenate((images[frame], images[frame + 1], images[frame + 2], images[frame + 3], images[frame + 4],
@@ -359,7 +366,7 @@ if __name__ == '__main__':
         #                              images[frame + 13], images[frame + 14],
         #                              images[frame + 15], images[frame + 16], images[frame + 17],
         #                              images[frame + 18], images[frame + 19]), axis=1)
-        img = np.concatenate((tenImgs, anotherTEN), axis=0)
+        img = np.concatenate((ten, twen, thrt, frty), axis=0)
         cv2.imshow('Window',img)
         cv2.waitKey(0)
     cv2.destroyAllWindows()
