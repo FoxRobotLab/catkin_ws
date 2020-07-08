@@ -60,7 +60,7 @@ from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.04, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=1.0/13.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
@@ -199,10 +199,10 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        self.train_images = self.train_images.reshape(24, 500, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, 500)
-        self.eval_images = self.eval_images.reshape(1, 500, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 500)
+        self.train_images = self.train_images.reshape(12, 1000, 100, 100, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, 1000)
+        self.eval_images = self.eval_images.reshape(1, 1000, 100, 100, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, 1000)
 
 
 
@@ -608,11 +608,11 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg = DATA + 'lstm_Img_Cell_Input.npy',
-        dataLabel = DATA + 'lstm_Heading_Output.npy',
+        dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
+        dataLabel = DATA + 'lstm_Heading_Output13k.npy',
         data_name = "cellInputReference",
         outputSize= 8,
-        eval_ratio=0.04,
+        eval_ratio= 1.0/13.0,
         image_size=100,
         cellInput= True,
         image_depth= 1
