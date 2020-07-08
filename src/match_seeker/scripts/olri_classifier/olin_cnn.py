@@ -133,6 +133,8 @@ class OlinClassifier(object):
             self.image_depth = 1
 
         self.num_eval = int((self.eval_ratio * self.image_totalImgs))
+        print("This is the toal images", self.image_totalImgs)
+        print("This is the ratio", self.num_eval)
 
 
         np.random.seed(2845) #45600
@@ -146,6 +148,7 @@ class OlinClassifier(object):
             #return 0
 
         self.train_images = self.image[:-self.num_eval, :]
+        print("This is the len of train images after it has been divided", len(self.train_images))
         self.eval_images = self.image[-self.num_eval:, :]
 
         # input could include cell data, heading data, or neither (no method right now for doing both as input)
