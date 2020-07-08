@@ -45,7 +45,7 @@ if __name__ == '__main__':
     for frame in frame_dict[cel]:
         x, y = frame_label[frame]
         head = x+y
-        onehot = [0] * 500
+        onehot = [0] * 50000
         onehot[int(head)//45] = 1
         onehot = np.asarray(onehot)
         if (onehot != hotLabel[which]).all():
