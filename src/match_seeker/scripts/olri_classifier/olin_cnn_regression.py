@@ -163,7 +163,7 @@ class OlinClassifier(object):
     def sepPos(self, array):
         a = []
         for i in range(len(array)):
-            a.append((array[2][i], array[3][i]))
+            a.append((array[1][i], array[2][i]))
         return a
 
 
