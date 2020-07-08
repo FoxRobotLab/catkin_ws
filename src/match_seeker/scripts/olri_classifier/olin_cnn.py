@@ -60,7 +60,7 @@ from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.05, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=0.04, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
@@ -199,10 +199,10 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        self.train_images = self.train_images.reshape(19, 625, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, 625)
-        self.eval_images = self.eval_images.reshape(1, 625, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 625)
+        self.train_images = self.train_images.reshape(24, 500, 100, 100, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, 500)
+        self.eval_images = self.eval_images.reshape(1, 500, 100, 100, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, 500)
 
 
 
@@ -612,7 +612,7 @@ if __name__ == "__main__":
         dataLabel = DATA + 'lstm_Heading_Output.npy',
         data_name = "cellInputReference",
         outputSize= 8,
-        eval_ratio=0.05,
+        eval_ratio=0.04,
         image_size=100,
         cellInput= True,
         image_depth= 1
