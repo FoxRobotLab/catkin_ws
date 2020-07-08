@@ -40,7 +40,7 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 import os
 import numpy as np
 from tensorflow import keras
-import cv2
+# import cv2
 import time
 from paths import pathToMatchSeeker
 from paths import DATA
