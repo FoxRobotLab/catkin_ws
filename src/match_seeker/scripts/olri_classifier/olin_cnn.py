@@ -57,7 +57,7 @@ from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 
 
 ### Uncomment next line to use CPU instead of GPU: ###
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+#os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
     def __init__(self, eval_ratio=0.04, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
