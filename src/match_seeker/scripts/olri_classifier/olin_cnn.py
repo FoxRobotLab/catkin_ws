@@ -41,7 +41,7 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 import os
 import numpy as np
 from tensorflow import keras
-import cv2
+#import cv2
 import time
 from paths import pathToMatchSeeker
 from paths import DATA
@@ -60,7 +60,7 @@ from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=0.1, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=1.0/13.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
@@ -132,7 +132,11 @@ class OlinClassifier(object):
         except IndexError:
             self.image_depth = 1
 
-        self.num_eval = int((self.eval_ratio * self.image_totalImgs / 3))
+        self.num_eval = int((self.eval_ratio * self.image_totalImgs))
+        print("This is the toal images", self.image_totalImgs)
+        print("This is the ratio", self.num_eval)
+
+
         np.random.seed(2845) #45600
 
         #if (len(self.image) == len(self.label)):
@@ -144,6 +148,7 @@ class OlinClassifier(object):
             #return 0
 
         self.train_images = self.image[:-self.num_eval, :]
+        print("This is the len of train images after it has been divided", len(self.train_images))
         self.eval_images = self.image[-self.num_eval:, :]
 
         # input could include cell data, heading data, or neither (no method right now for doing both as input)
@@ -179,49 +184,34 @@ class OlinClassifier(object):
         #     )
 
 
-        timeStepsEach = 400
-        self.train_images= creatingSequence(self.train_images, 400, 100)
-        timeSteps = len(self.train_images)
-        subSequences = int(timeSteps/timeStepsEach)
-        self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
-        print("train image shape", self.train_images.shape)
-        print("Train Labels shape", self.train_labels.shape)
 
-        self.eval_images = creatingSequence(self.eval_images, 400, 100)
-        timeSteps = len(self.eval_images)
-        subSequences = int(timeSteps / timeStepsEach)
-        self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
-        print("self.eval_images", self.eval_images.shape)
-        print("self.eval_labels", self.eval_labels.shape)
+        #UNCOMMENT FOR OVERLAPING
+        ####################################################################
+        # timeStepsEach = 400
+        # self.train_images= creatingSequence(self.train_images, 400, 100)
+        # timeSteps = len(self.train_images)
+        # subSequences = int(timeSteps/timeStepsEach)
+        # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
+        # self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
 
+        #
+        # self.eval_images = creatingSequence(self.eval_images, 400, 100)
+        # timeSteps = len(self.eval_images)
+        # subSequences = int(timeSteps / timeStepsEach)
+        # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
-
-        print("This is the first sequence", self.train_images[0])
-
-        # cnt = 0
-        # for img in self.train_images:
-        #     cv2.imshow("window", img)
-        #     cv2.waitKey(10)
-        #     if cnt == 400:
-        #         break
-        #     cnt +=1
-        # cv2.destroyAllWindows()
-        # return 0
-
-
-
-
-
-
-        #self.eval_labels = np.expand_dims(self.eval_labels, axis = -1)
+        ####################################################################
+        self.train_images = self.train_images.reshape(12, 1000, 100, 100, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, 1000)
+        self.eval_images = self.eval_images.reshape(1, 1000, 100, 100, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, 1000)
 
 
 
         self.model.fit(
             self.train_images, self.train_labels,
-            batch_size= 5,
+            batch_size= 1,
             epochs=6,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
@@ -234,7 +224,7 @@ class OlinClassifier(object):
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
-                    batch_size=5,
+                    batch_size=1,
                     write_images=False,
                     write_grads=True,
                     histogram_freq=1,
@@ -621,11 +611,11 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg = DATA + 'lstm_img_cell_Inpute.npy',
-        dataLabel = DATA + 'lstm_heading_hotLabel.npy',
+        dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
+        dataLabel = DATA + 'lstm_Heading_Output13k.npy',
         data_name = "cellInputReference",
         outputSize= 8,
-        eval_ratio=0.1,
+        eval_ratio= 1.0/13.0,
         image_size=100,
         cellInput= True,
         image_depth= 1

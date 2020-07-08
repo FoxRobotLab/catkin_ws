@@ -20,7 +20,7 @@ def cnn_cells(self):
     )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=16,
+            filters=64,
             kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
@@ -33,7 +33,7 @@ def cnn_cells(self):
         )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=16,
+            filters=32,
             kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
@@ -76,25 +76,13 @@ def creatingSequence(data, timeStep, overlap):
             newData = np.asarray(newData)
     return newData
 
-def getCorrectLabels(label, timeStemp, overlap):
-    newLabel = []
-    change = timeStemp - overlap
-    dataLen = len(label) -1
-    index = timeStemp-1
-    if index +1 >= dataLen:
-        newLabel.append(label[-1])
-    else:
-        newLabel.append(label[index +1])
-    while(index < dataLen):
-        index = index+change
-        if index +1 > dataLen:
-            newLabel.append(label[-1])
-        else:
-            newLabel.append(label[index + 1])
 
+
+def getCorrectLabels(label, timeStep):
+    newLabel = []
+    for i in range(timeStep, len(label)+1, timeStep):
+        newLabel.append(label[i-1])
     newLabel = np.asarray(newLabel)
     return newLabel
-
-
 
 
