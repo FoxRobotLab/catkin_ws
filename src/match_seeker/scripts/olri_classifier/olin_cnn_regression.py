@@ -126,7 +126,7 @@ class OlinClassifier(object):
             self.image_depth = 1
 
         self.num_eval = int((self.eval_ratio * self.image_totalImgs))
-        print("This is the toal images", self.image_totalImgs)
+        print("This is the total images", self.image_totalImgs)
         print("This is the ratio", self.num_eval)
 
         np.random.seed(2845)  # 45600
@@ -157,6 +157,15 @@ class OlinClassifier(object):
         else:
             print("Cannot have both cell and heading data in input")
             return
+
+
+
+    def sepPos(self, array):
+        a = []
+        for i in range(len(array)):
+            a.append((array[2][i], array[3][i]))
+        return a
+
 
     def train(self):
         """Sets up the loss function and optimizer, an d then trains the model on the current training data. Quits if no
@@ -326,7 +335,7 @@ class OlinClassifier(object):
 
 
         model.add(keras.layers.Dense(1,kernel_initializer='normal', activation='linear'))
-        
+
         model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
 
         model.summary()

@@ -14,48 +14,49 @@ def getFrameHeadingDict():
         lines = masterlist.readlines()
         for line in lines:
             split = line.split()
-            fhd['%04d'%int(split[0])] = split[-1]
+            print(split)
+            break
 
-    return fhd
+    return
 
 if __name__ == '__main__':
-    labels= np.load(DATA+ 'lstm_Heading_Output.npy')
-    cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
-    frame_label = getFrameHeadingDict()
-
-    ######################The actual hot labels!!!!!!!!!
-    cel = '29'
-    start = (int(cel)-18)*500
-    hotLabel = []
-    for i in range(start, start+500, 1):
-        hotLabel.append(labels[i])
-    ##########################
-
-    #########################The frames
-    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
-                   '35', '36', '37', '38', '39', '40', '41', '42']
-    frame_dict = OrderedDict()
-    for cell in wantedCells:
-        frame_dict[cell] = cell_frame_dict[cell]
-    #####################
-
-
-    ############checking that they are the same
-    which = 0
-    for frame in frame_dict[cel]:
-        head = frame_label[frame]
-        onehot = [0] * 8
-        onehot[int(head)//45] = 1
-        onehot = np.asarray(onehot)
-        if (onehot != hotLabel[which]).all():
-            print(frame)
-        which +=1
-
-
-
-
+    # labels= np.load(DATA+ 'lstm_Heading_Output.npy')
+    # cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
+    # frame_label = getFrameHeadingDict()
+    #
+    # ######################The actual hot labels!!!!!!!!!
+    # cel = '29'
+    # start = (int(cel)-18)*500
+    # hotLabel = []
+    # for i in range(start, start+500, 1):
+    #     hotLabel.append(labels[i])
+    # ##########################
+    #
+    # #########################The frames
+    # wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
+    #                '35', '36', '37', '38', '39', '40', '41', '42']
+    # frame_dict = OrderedDict()
+    # for cell in wantedCells:
+    #     frame_dict[cell] = cell_frame_dict[cell]
+    # #####################
+    #
+    #
+    # ############checking that they are the same
+    # which = 0
+    # for frame in frame_dict[cel]:
+    #     head = frame_label[frame]
+    #     onehot = [0] * 8
+    #     onehot[int(head)//45] = 1
+    #     onehot = np.asarray(onehot)
+    #     if (onehot != hotLabel[which]).all():
+    #         print(frame)
+    #     which +=1
+    #
+    #
 
 
+
+    getFrameHeadingDict()
 
 
 
