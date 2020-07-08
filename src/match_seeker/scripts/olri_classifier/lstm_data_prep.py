@@ -345,7 +345,7 @@ if __name__ == '__main__':
     cv2.destroyAllWindows()
 
     for i in range(0, 500, 40):
-        print("start",str(i), "end", str(i))
+        print("start",str(i), "end", str(i+39))
         ten = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
                           images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]),
                              axis=1)
