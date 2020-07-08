@@ -212,7 +212,7 @@ class OlinClassifier(object):
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size= 1,
-            epochs=6,
+            epochs=16,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
