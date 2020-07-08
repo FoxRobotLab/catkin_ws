@@ -43,8 +43,9 @@ if __name__ == '__main__':
     ############checking that they are the same
     which = 0
     for frame in frame_dict[cel]:
-        head = frame_label[frame]
-        onehot = [0] * 8
+        x, y = frame_label[frame]
+        head = x+y
+        onehot = [0] * 500
         onehot[int(head)//45] = 1
         onehot = np.asarray(onehot)
         if (onehot != hotLabel[which]).all():
