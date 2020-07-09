@@ -38,6 +38,7 @@ class DataPreprocess(object):
         self.allHeadingOutput = []
         self.cellsTooFewImages = []
         self.cellsEnoughImages = []
+        self.allxyh = []
         self.frameData = {}
         self.cellData = {}
         self.headingData = {}
@@ -151,6 +152,8 @@ class DataPreprocess(object):
         self.allImages.append(finalImage)
         self.allCellOutput.append(cellOneHot)
         self.allHeadingOutput.append(headOneHot)
+
+        print(self.frameData[frameNum])
 
 
     def splitCellsByThreshold(self):
@@ -358,8 +361,10 @@ def main():
     """
     preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
                              dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
-    preProc.generateTrainingData()
-    preProc.saveDataset(DATA + "susantestdataset")
+    # preProc.generateTrainingData()
+    # preProc.saveDataset(DATA + "susantestdataset")
+
+    preProc.processFrame(0)
 
 
 if __name__ == "__main__":
