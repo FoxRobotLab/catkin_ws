@@ -48,6 +48,7 @@ def cnn_cells(self):
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
     cnn.add(keras.layers.LSTM(10, return_sequences=True))
+    cnn.add(keras.layers.Flatten())
     cnn.add(keras.layers.Dense(271, activation='sigmoid'))
     cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     cnn.summary()
