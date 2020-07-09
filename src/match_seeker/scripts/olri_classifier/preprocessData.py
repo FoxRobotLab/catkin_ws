@@ -45,6 +45,8 @@ class DataPreprocess(object):
         self.headingData = {}
         self.buildDataDicts()
 
+        self.dumbNum = 0
+
 
     def buildDataDicts(self, locBool=True, cell=True, heading=True):
         """
@@ -343,6 +345,15 @@ class DataPreprocess(object):
         """
         global lc, tr, rc, br
         assert len(image.shape) == 2
+
+        if self.dumbNum == 0:
+            lc = 0
+            tr = 0
+            rc = 0
+            br = 0
+            self.dumbNum = 1
+            
+
         reImage = image.copy()
         brightness = np.random.uniform(minVal, maxVal)
         h, w = reImage.shape
