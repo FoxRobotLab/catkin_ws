@@ -16,4 +16,4 @@ data = np.load(DATA + 'regressionTestSet.npz')
 # np.save(DATA + "regressionOutput", images)
 
 images = np.load(DATA + 'regressionImages.npy')
-print(len(data['frames']))
+print(len(data['frameNums']))
