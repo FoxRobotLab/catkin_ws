@@ -58,7 +58,7 @@ def cnn_cells(self):
     print("Building a model that takes cell number as input")
     cnn = keras.models.Sequential()
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-        filters= 64,
+        filters= 32,
         kernel_size=(5, 5),
         strides=(1, 1),
         activation="relu",
@@ -86,7 +86,7 @@ def cnn_cells(self):
         )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=32,
+            filters=64,
             kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
