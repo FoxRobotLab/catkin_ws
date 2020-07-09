@@ -8,7 +8,7 @@ from collections import OrderedDict
 
 data = np.load(DATA + 'regressionTestSet.npz')
 
-xyhOut = np.load(data['xyhOut'])
+xyhOut = data['xyhOut']
 
 print(xyhOut)
 
