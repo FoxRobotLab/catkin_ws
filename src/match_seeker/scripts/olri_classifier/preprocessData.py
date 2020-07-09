@@ -364,7 +364,7 @@ def main():
     # preProc.generateTrainingData()
     # preProc.saveDataset(DATA + "susantestdataset")
 
-    preProc.processFrame(0)
+    preProc.processFrame('0000')
 
 
 if __name__ == "__main__":
