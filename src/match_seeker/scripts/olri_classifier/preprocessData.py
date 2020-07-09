@@ -137,6 +137,8 @@ class DataPreprocess(object):
         :return: nothing
         """
         origImage = self.readImage(frameNum)
+
+        print(self.frameData[35])
         if origImage is None:
             return
         resizedImage = cv2.resize(origImage, (self.imageSize, self.imageSize))
@@ -153,7 +155,6 @@ class DataPreprocess(object):
         self.allCellOutput.append(cellOneHot)
         self.allHeadingOutput.append(headOneHot)
 
-        print(self.frameData[35])
 
 
     def splitCellsByThreshold(self):
