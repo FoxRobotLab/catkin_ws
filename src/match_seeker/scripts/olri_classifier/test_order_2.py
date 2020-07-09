@@ -8,12 +8,12 @@ from collections import OrderedDict
 
 data = np.load(DATA + 'regressionTestSet.npz')
 
-# xyhOut = data['xyhOut']
-# images = data['images']
+xyhOut = data['xyhOut']
+images = data['images']
 
 
-# np.save(DATA + "regressionImages", xyhOut)
-# np.save(DATA + "regressionOutput", images)
+np.save(DATA + "regressionImages", images)
+np.save(DATA + "regressionOutput", xyhOut)
 
-images = np.load(DATA + 'regressionImages.npy')
-print(np.shape(data['images']))
+# images = np.load(DATA + 'regressionImages.npy')
+# print(np.shape(data['images']))
