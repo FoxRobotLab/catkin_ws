@@ -274,7 +274,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     #Creating the array of images and the hot label
 
     hotLabelHeadOutput = []
-    hotCellLabelOutput = []
+    # hotCellLabelOutput = []
     train_IMG_cellInput = []
     for cell in wantedCells:
         for tuple in cell_frame_dict[cell]:
@@ -282,11 +282,10 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
                 train_IMG_cellInput.append(tuple[1])
                 frame = '%04d'% tuple[0]
                 hotLabelHeadOutput.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-                hotCellLabelOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
+                # hotCellLabelOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
 
     #Calculating the mean
     mean = calculate_mean(train_IMG_cellInput)
-    cell_ouput= []
     whichImage= 0
     for cell in wantedCells:
         for tuple in cell_frame_dict[cell]:
@@ -303,7 +302,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
     train_IMG_cellInput = np.asarray(train_IMG_cellInput)
     hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
-    hotCellLabelOutput= np.asarray(hotCellLabelOutput)
+    # hotCellLabelOutput= np.asarray(hotCellLabelOutput)
 
     #UNCOMMENT THIS TO SAVE DATA
     # np.save(DATA+ "lstm_Img_Cell_Input", train_IMG_cellInput)
@@ -311,7 +310,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
     np.save(DATA + "lstm_Img_Cell_Input13k", train_IMG_cellInput)
     np.save(DATA + "lstm_Heading_Output13k", hotLabelHeadOutput)
-    np.save(DATA + "cell_ouput13k",hotCellLabelOutput)
+    # np.save(DATA + "cell_ouput13k",hotCellLabelOutput)
 
 
 
