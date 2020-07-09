@@ -73,7 +73,7 @@ def cnn_cells(self):
     )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=32,
+            filters=64,
             kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
@@ -86,7 +86,7 @@ def cnn_cells(self):
         )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=64,
+            filters=32,
             kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
@@ -100,7 +100,7 @@ def cnn_cells(self):
         )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
-    cnn.add(keras.layers.LSTM(10))
+    cnn.add(keras.layers.LSTM(32))
     cnn.add(keras.layers.Dense(271, activation='sigmoid'))
     cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     cnn.summary()
