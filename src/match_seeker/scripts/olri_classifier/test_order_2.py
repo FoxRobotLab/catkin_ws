@@ -16,4 +16,4 @@ data = np.load(DATA + 'regressionTestSet.npz')
 # np.save(DATA + "regressionOutput", images)
 
 images = np.load(DATA + 'regressionImages.npy')
-cv2.imshow("Name", images[0])
+print(images[0])
