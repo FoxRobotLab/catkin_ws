@@ -315,7 +315,7 @@ class DataPreprocess(object):
         if self.allImages == []:
             print("Must create dataset arrays first")
         else:
-            np.savez(datasetFilename, images=self.allImages, frameNums=self.allFrames, cellOut=self.allCellOutput, headingOut=self.allHeadingOutput, mean=self.dataMean)
+            np.savez(datasetFilename, images=self.allImages, frameNums=self.allFrames, xyhOut=self.allxyh, cellOut=self.allCellOutput, headingOut=self.allHeadingOutput, mean=self.dataMean)
 
 
 
@@ -352,7 +352,7 @@ class DataPreprocess(object):
             rc = 0
             br = 0
             self.dumbNum = 1
-            
+
 
         reImage = image.copy()
         brightness = np.random.uniform(minVal, maxVal)
