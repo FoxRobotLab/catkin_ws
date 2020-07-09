@@ -153,7 +153,7 @@ class DataPreprocess(object):
         self.allCellOutput.append(cellOneHot)
         self.allHeadingOutput.append(headOneHot)
 
-        print(self.frameData[frameNum])
+        print(self.frameData[35])
 
 
     def splitCellsByThreshold(self):
