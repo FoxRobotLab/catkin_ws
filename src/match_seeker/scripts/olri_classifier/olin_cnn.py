@@ -613,7 +613,7 @@ if __name__ == "__main__":
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
-        dataLabel = DATA + 'cell_ouput13k.npy.npy',
+        dataLabel = DATA + 'cell_ouput13k.npy',
         data_name = "cell.npy",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
