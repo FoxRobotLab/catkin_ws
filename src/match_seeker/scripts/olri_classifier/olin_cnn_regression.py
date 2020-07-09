@@ -114,7 +114,7 @@ class OlinClassifier(object):
 
         # ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        self.image = self.image[:, :, :]  # This takes out the color channel
+        self.image = self.image[:, :, :, 0]  # This takes out the color channel
         self.image = self.image.reshape(len(self.image), 100, 100, 1)
 
         self.label = np.load(self.dataLabel)
