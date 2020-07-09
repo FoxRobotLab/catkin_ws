@@ -598,10 +598,10 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg=DATA + 'lstm_Img_Cell_Input13k.npy',
-        dataLabel=DATA + 'lstm_Heading_Output13k.npy',
+        dataImg=DATA + 'regressionImages.npy',
+        dataLabel=DATA + 'regressionOutput.npy',
         data_name="cellInputReference",
-        outputSize=8,
+        outputSize=3,
         eval_ratio=1.0 / 13.0,
         image_size=100,
         cellInput=True,
