@@ -6,14 +6,14 @@ from collections import OrderedDict
 
 
 
-data = np.load(DATA + 'regressionTestSet.npz')
+# data = np.load(DATA + 'regressionTestSet.npz')
+#
+# xyhOut = data['xyhOut']
+# images = data['images']
+#
+#
+# np.save(DATA + "regressionImages", images)
+# np.save(DATA + "regressionOutput", xyhOut)
 
-xyhOut = data['xyhOut']
-images = data['images']
-
-
-np.save(DATA + "regressionImages", images)
-np.save(DATA + "regressionOutput", xyhOut)
-
-# images = np.load(DATA + 'regressionImages.npy')
-# print(np.shape(data['images']))
+images = np.load(DATA + 'regressionImages.npy')
+print(np.shape(images))
