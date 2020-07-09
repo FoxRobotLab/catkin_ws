@@ -41,6 +41,7 @@ class DataPreprocess(object):
         self.allxyh = []
         self.frameData = {}
         self.cellData = {}
+        self.locData = {}
         self.headingData = {}
         self.buildDataDicts()
 
@@ -85,6 +86,12 @@ class DataPreprocess(object):
             else:
                 headingList = self.headingData[headingNum]
                 headingList.append(frameNum)
+
+            if loc not in self.locData:
+                self.locData[loc] = [frameNum]
+            else:
+                locList = self.locData[loc]
+                locList.append(frameNum)
 
 
     def generateTrainingData(self):
@@ -138,7 +145,6 @@ class DataPreprocess(object):
         """
         origImage = self.readImage(frameNum)
 
-        print(self.frameData[35])
         if origImage is None:
             return
         resizedImage = cv2.resize(origImage, (self.imageSize, self.imageSize))
@@ -150,10 +156,18 @@ class DataPreprocess(object):
         cellOneHot = self.makeOneHotList(self.frameData[frameNum]['cell'], self.numCells)
         headingIndex = self.frameData[frameNum]['heading'] // (360 // self.numHeadings)
         headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
+
+        x,y = self.frameData[frameNum]['loc']
+        xyh = []
+        xyh.append(x)
+        xyh.append(y)
+        xyh.append(self.frameData[frameNum]['heading'])
+
         self.allFrames.append(frameNum)
         self.allImages.append(finalImage)
         self.allCellOutput.append(cellOneHot)
         self.allHeadingOutput.append(headOneHot)
+        self.allxyh.append(xyh)
 
 
 
@@ -361,11 +375,11 @@ def main():
     :return: Nothing
     """
     preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
-    # preProc.generateTrainingData()
-    # preProc.saveDataset(DATA + "susantestdataset")
+                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+                             imagesPerCell=100)
+    preProc.generateTrainingData()
+    preProc.saveDataset(DATA + "regressionTestSet")
 
-    preProc.processFrame(35372)
 
 
 if __name__ == "__main__":
