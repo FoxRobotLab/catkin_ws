@@ -202,17 +202,18 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        self.train_images = self.train_images.reshape(11, 1000, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, 1000)
-        self.eval_images = self.eval_images.reshape(2, 1000, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 1000)
+        sampleSize = 1000
+        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size= 1,
-            epochs=16,
+            epochs=6,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -612,9 +613,9 @@ if __name__ == "__main__":
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
-        dataLabel = DATA + 'lstm_Heading_Output13k.npy',
-        data_name = "cellInputReference",
-        outputSize= 8,
+        dataLabel = DATA + 'cell_ouput13k.npy',
+        data_name = "cell_ouput.npy",
+        outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
         cellInput= True,
