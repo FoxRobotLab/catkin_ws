@@ -11,8 +11,7 @@ data = np.load(DATA + 'regressionTestSet.npz')
 xyhOut = data['xyhOut']
 images = data['images']
 
-print(images)
 
-# np.save(DATA + "regressionImages", xyhOut)
-# np.save(DATA + "regressionOutput", images)
+np.save(DATA + "regressionImages", xyhOut)
+np.save(DATA + "regressionOutput", images)
 
