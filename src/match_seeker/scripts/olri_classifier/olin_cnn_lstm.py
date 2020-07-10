@@ -63,6 +63,7 @@ def predictingCells(self, input):
     new_model = keras.models.Sequential()
     new_model.add(model(include_top=False,
                         input_shape=(self.image_size, self.image_size, self.image_depth),
+                        input = np.load(DATA + 'lstm_Img_Cell_Input13k.npy'),
                         pooling='avg'))
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
     new_model.layers[0].trainable = False
