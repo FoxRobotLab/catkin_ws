@@ -265,8 +265,7 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
-        # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
-        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
 
         model.summary()
         return model
@@ -330,8 +329,7 @@ class OlinClassifier(object):
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
 
-        # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
-        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
 
         model.summary()
 
