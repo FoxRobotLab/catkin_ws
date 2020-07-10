@@ -170,8 +170,9 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
-        print("val imgs ", np.shape(self.eval_images))
-        print("val labs ", np.shape(self.eval_labels))
+
+        # print("val imgs ", np.shape(self.eval_images))
+        # print("val labs ", np.shape(self.eval_labels))
 
 
 
@@ -264,7 +265,7 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
-        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
+        # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
 
         model.summary()
         return model
@@ -328,7 +329,7 @@ class OlinClassifier(object):
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
 
-        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
+        # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
 
         model.summary()
 
