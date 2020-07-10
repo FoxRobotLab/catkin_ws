@@ -62,7 +62,7 @@ def predictingCells(self):
     model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
     new_model = keras.models.Sequential()
     new_model.add(model(self,
-                        include_top=False,
+                        # include_top=False,
                         #require_flatten= include_top,
                         #weights = model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5"),
                         pooling='avg'
