@@ -91,7 +91,7 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             # self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
-            self.model = cnn_cells(self)
+            self.model = self.cnn_cells()
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -201,10 +201,10 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        self.train_images = self.train_images.reshape(12, 1000, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, 1000)
-        self.eval_images = self.eval_images.reshape(1, 1000, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 1000)
+        # self.train_images = self.train_images.reshape(12, 1000, 100, 100, 1)
+        # self.train_labels = getCorrectLabels(self.train_labels, 1000)
+        # self.eval_images = self.eval_images.reshape(1, 1000, 100, 100, 1)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, 1000)
 
         self.model.fit(
             self.train_images, self.train_labels,
