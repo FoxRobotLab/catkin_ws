@@ -99,10 +99,10 @@ class OlinClassifier(object):
             self.loss = None
             return
 
-        self.model.compile(
-            loss=self.loss,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-            metrics=["accuracy"])
+        # self.model.compile(
+        #     loss=self.loss,
+        #     optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+        #     metrics=["accuracy"])
 
         # self.checkpoint_name = checkpoint_name
         # if self.checkpoint_name is not None:
@@ -266,6 +266,7 @@ class OlinClassifier(object):
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
         # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         model.summary()
         return model
@@ -330,6 +331,7 @@ class OlinClassifier(object):
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
 
         # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         model.summary()
 
