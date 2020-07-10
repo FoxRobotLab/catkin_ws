@@ -61,8 +61,9 @@ def predictingCells(self):
     num_classes = 271
     model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
     new_model = keras.models.Sequential()
+    outputs = keras.layers.Dense(num_classes, activation='sigmoid')
     new_model.add(model(inputs=model.inputs,
-                        outputs=model.layers[-1].output
+                        outputs=outputs
                          ))
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
     new_model.layers[0].trainable = False
