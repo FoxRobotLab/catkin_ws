@@ -170,6 +170,10 @@ class OlinClassifier(object):
         #         metrics=["accuracy"]
         #     )
 
+        print("val imgs ", np.shape(self.eval_images))
+        print("val labs ", np.shape(self.eval_labels))
+
+
 
 
         # UNCOMMENT FOR OVERLAPING
