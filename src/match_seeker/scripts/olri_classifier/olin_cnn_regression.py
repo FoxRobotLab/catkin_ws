@@ -131,32 +131,20 @@ class OlinClassifier(object):
 
         np.random.seed(2845)  # 45600
 
-        # if (len(self.image) == len(self.label)):
-        # p = np.random.permutation(len(self.image))
-        # self.image = self.image[p]
-        # self.label = self.label[p]
-        # else:
-        # print("Image data and heading data are  not the same size")
-        # return 0
+        if (len(self.image) == len(self.label)):
+            p = np.random.permutation(len(self.image))
+            self.image = self.image[p]
+            self.label = self.label[p]
+        else:
+            print("Image data and heading data are  not the same size")
+            return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
         self.eval_images = self.image[-self.num_eval:, :]
 
-        # input could include cell data, heading data, or neither (no method right now for doing both as input)
-        if self.neitherAsInput:
-            print("There is no cell or heading as input!")
-        elif self.cellInput:
-            print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", len(self.label))
-            self.train_labels = self.label[:-self.num_eval, :]
-            print("This is cutting the labels!!!!!", len(self.train_labels))
-            self.eval_labels = self.label[-self.num_eval:, :]
-        elif self.headingInput:
-            self.train_labels = self.label[:-self.num_eval, :]
-            self.eval_labels = self.label[-self.num_eval:, :]
-        else:
-            print("Cannot have both cell and heading data in input")
-            return
+        self.train_labels = self.label[:-self.num_eval, :]
+        self.eval_labels = self.label[-self.num_eval:, :]
 
 
 
@@ -272,7 +260,7 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
-        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
+        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
 
         model.summary()
         return model
