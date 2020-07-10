@@ -61,10 +61,10 @@ def predictingCells(self):
     num_classes = 271
     model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
     new_model = keras.models.Sequential()
-    new_model.add(model(self,
+    new_model.add(model(
                         # include_top=False,
-                        #require_flatten= include_top,
-                        #weights = model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5"),
+                        require_flatten= False,
+                        weights = model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5"),
                         pooling='avg'
                          ))
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
