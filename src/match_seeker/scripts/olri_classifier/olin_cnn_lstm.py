@@ -56,14 +56,13 @@ def cnn_cells(self):
     cnn.summary()
     return cnn
 
-def predictingCells(self, input):
+def predictingCells(self):
     print("Tinkering with transferLearning")
     num_classes = 271
     model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
     new_model = keras.models.Sequential()
-    new_model.add(model(include_top=False,
+    new_model.add(model(self, include_top=False,
                         weights = keras.models.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5"),
-                        input = np.load(DATA + 'lstm_Img_Cell_Input13k.npy'),
                         pooling='avg'))
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
     new_model.layers[0].trainable = False
