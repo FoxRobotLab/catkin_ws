@@ -48,7 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
+from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels, predictingCells
 
 
 
@@ -96,7 +96,8 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
-            self.model = cnn_cells(self)
+            #self.model = cnn_cells(self)
+            self.model = predictingCells(self)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -614,7 +615,7 @@ if __name__ == "__main__":
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
         dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "cell.npy",
+        data_name = "transferLearning",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
