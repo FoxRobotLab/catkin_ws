@@ -65,7 +65,8 @@ def predictingCells(self):
                         include_top=False,
                         require_flatten=True,
                         #weights = model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5"),
-                        pooling='avg'))
+                        #pooling='avg'
+                         ))
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
     new_model.layers[0].trainable = False
     # for i in range(1, 12):
