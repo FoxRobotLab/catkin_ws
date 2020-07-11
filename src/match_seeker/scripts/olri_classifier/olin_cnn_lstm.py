@@ -60,15 +60,19 @@ def predictingCells(self):
     print("Tinkering with transferLearning")
     num_classes = 271
     new_model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
+    print("These are the layers", new_model.layers)
+    print("This is the number of layes", len(new_model.layers))
     new_model.layers.pop()
     new_model = keras.Model(inputs =new_model.inputs,
                             outputs=new_model.layers[-1].output)
-    for i in range(1, 11):
-        new_model.layers[i].trainable = True
-    new_model.add(keras.layers.Dense(271, activation = 'sigmoid'))
-    new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    new_model.summary()
-    return new_model
+    print("These are the layers", new_model.layers)
+    print("This is the number of layes", len(new_model.layers))
+    # for i in range(1, 11):
+    #     new_model.layers[i].trainable = True
+    # new_model.add(keras.layers.Dense(num_classes, activation = 'sigmoid'))
+    # new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    # new_model.summary()
+    # return new_model
 
 
 
