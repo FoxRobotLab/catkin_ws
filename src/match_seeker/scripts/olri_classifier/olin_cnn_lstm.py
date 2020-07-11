@@ -63,7 +63,7 @@ def predictingCells(self):
     print("This is the number of layes", len(new_model.layers))
     #new_model.layers.pop()
     #print("This is the number of layes after pop", len(new_model.layers))
-    new_model = keras.Model(inputs =new_model.inputs)
+    #new_model = keras.Model(inputs =new_model.inputs)
     #print("This is the number of layes after input and and output", len(new_model.layers))
     # for i in range(1, 11):
     #     new_model.layers[i].trainable = True
