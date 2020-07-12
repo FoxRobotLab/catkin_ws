@@ -11,6 +11,8 @@ def getOneHotLabel(number,size):
 
 
 if __name__ == '__main__':
+
+    #This is testing that the labels are correctly labeled!
     cell_num = np.load(DATA + 'cell_ouput13k.npy')
     whichCell = 0
     for i in range(18, 44, 1):
