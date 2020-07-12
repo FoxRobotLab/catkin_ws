@@ -62,11 +62,12 @@ def predictingCells(self):
     new_model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
     new_model.pop()
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
-    new_model.layers[0].trainable = False
+    for layer in new_model.layers:
+        new_model.layer.trainable = False
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
 
-    return new_model
+    return 0
 
 
 
