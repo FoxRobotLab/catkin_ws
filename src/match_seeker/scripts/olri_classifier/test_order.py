@@ -16,7 +16,7 @@ if __name__ == '__main__':
     for i in range(18, 44, 1):
         targetLabel = getOneHotLabel(i, 271)
         for j in range(500):
-            if targetLabel != cell_num[whichCell]:
+            if (targetLabel != cell_num[whichCell]).all():
                 print("This is the target label", targetLabel)
                 print("This is in the data", cell_num[whichCell])
                 whichCell += 1
