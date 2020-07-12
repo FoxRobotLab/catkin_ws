@@ -63,7 +63,7 @@ def predictingCells(self):
     new_model.pop()
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
     for layer in new_model.layers:
-        new_model.layer.trainable = False
+        layer.trainable = False
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
 
