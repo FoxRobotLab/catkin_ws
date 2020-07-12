@@ -21,3 +21,5 @@ if __name__ == '__main__':
                 print("This is in the data", cell_num[whichCell])
                 whichCell += 1
 
+    print("The cells are correct!")
+
