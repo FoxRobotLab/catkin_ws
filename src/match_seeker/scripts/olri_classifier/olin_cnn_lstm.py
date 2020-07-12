@@ -62,25 +62,13 @@ def predictingCells(self):
     new_model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
     new_model.pop()
     new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
-    for layer in range(5):
+    for layer in range(4):
         new_model.layers[layer] = False
 
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
 
     return new_model
-
-
-
-
-    # for i in range(1, 12):
-    #     new_model.layers[i].trainable = True
-    #new_model.add(keras.layers.Dense(271, activation='sigmoid')(new_model.layers[-2].output).new_model.layers[-1].output)
-    #new_model.compile(optimizer='sgd', loss='categorical_cassentropy', metrics=['accuracy'])
-
-
-
-
 
 
 def creatingSequence(data, timeStep, overlap):
