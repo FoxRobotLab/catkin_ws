@@ -67,7 +67,7 @@ def predictingCells(self):
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
 
-    return 0
+    return new_model
 
 
 
