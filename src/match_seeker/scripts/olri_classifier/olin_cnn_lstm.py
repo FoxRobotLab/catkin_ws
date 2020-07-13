@@ -120,8 +120,12 @@ def image_cell_lstm(self):
 
     for layer in range(9):
         new_model.layers[layer] = False
-    print("The new data went through?")
-    return 0
+    new_model.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
+    new_model.add(keras.layers.LSTM(5))
+    new_model.add(keras.layers.Dense(271, activation='sigmoid'))
+    new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    new_model.summary()
+    return new_model
 
 
 def predictingCells(self):
