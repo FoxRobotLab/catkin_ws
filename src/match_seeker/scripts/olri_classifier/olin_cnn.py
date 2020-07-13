@@ -240,7 +240,7 @@ class OlinClassifier(object):
 
     def cnn_headings(self):
         """Builds the model for the network that takes heading as input along with image and produces the cell numbeer."""
-
+        print("Hello")
         model = keras.models.Sequential()
 
         model.add(keras.layers.Conv2D(
@@ -618,7 +618,7 @@ if __name__ == "__main__":
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
         dataImg= DATA +"Img_w_head_13k.npy",
         dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "lstm_2features_image_heading_in",
+        data_name = "CNN",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
