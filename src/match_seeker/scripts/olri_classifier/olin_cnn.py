@@ -48,7 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels, predictingCells
+from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels, predictingCells, image_head_predCell
 
 
 
@@ -97,7 +97,7 @@ class OlinClassifier(object):
         elif self.cellInput:
             #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
             #self.model = cnn_cells(self)
-            self.model = predictingCells(self)
+            self.model = image_head_predCell(self)
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -122,9 +122,7 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        #self.image = self.image[:,:,:,0] #Keeping the heading
-        print(self.image.shape)
-        return 0
+        #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
         #self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
 
         self.label = np.load(self.dataLabel)
@@ -206,9 +204,9 @@ class OlinClassifier(object):
 
         ####################################################################
         sampleSize = 1000
-        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
+        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 2)
         self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
+        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 2)
         self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 

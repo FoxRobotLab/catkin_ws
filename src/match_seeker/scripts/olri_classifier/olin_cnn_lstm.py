@@ -56,6 +56,58 @@ def cnn_cells(self):
     cnn.summary()
     return cnn
 
+def image_head_predCell(self):
+    print("Building a model that takes images and head as input")
+    cnn = keras.models.Sequential()
+    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+        filters= 32,
+        kernel_size=(5, 5),
+        strides=(1, 1),
+        activation="relu",
+        padding="same",
+        data_format="channels_last",
+
+    ), input_shape= [None, 100, 100, 2]))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+        pool_size=(2, 2),
+        strides=(2, 2),
+        padding="same"
+    )))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+            filters=64,
+            kernel_size=(5, 5),
+            strides=(1, 1),
+            activation="relu",
+            padding="same"
+        )))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+            pool_size=(2, 2),
+            strides=(2, 2),
+            padding="same"
+        )))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+            filters=32,
+            kernel_size=(5, 5),
+            strides=(1, 1),
+            activation="relu",
+            padding="same",
+            data_format="channels_last"
+        )))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+            pool_size=(2, 2),
+            strides=(2, 2),
+            padding="same",
+        )))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+    cnn.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
+    cnn.add(keras.layers.LSTM(10))
+    cnn.add(keras.layers.Dense(8, activation='sigmoid'))
+    cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    cnn.summary()
+    return cnn
+
 def predictingCells(self):
     print("Tinkering with transferLearning")
     num_classes = 271
