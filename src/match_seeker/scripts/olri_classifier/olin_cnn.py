@@ -206,11 +206,11 @@ class OlinClassifier(object):
 
         ####################################################################
         #ONLY FOR LSTM
-        # sampleSize = 1000
-        # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 2)
-        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        # self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 2)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
+        sampleSize = 1000
+        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 2)
+        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 2)
+        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
@@ -618,7 +618,7 @@ if __name__ == "__main__":
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
         dataImg= DATA +"Img_w_head_13k.npy",
         dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_w_Shuffle",
+        data_name = "transfer_lstm",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
