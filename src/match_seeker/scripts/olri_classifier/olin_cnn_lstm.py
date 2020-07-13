@@ -115,7 +115,12 @@ def image_cell_lstm(self):
     print("adding the lstm")
     num_classes = 271
     new_model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
-    print("This is the number of layers" , len(new_model.layers))
+    for i in range(5):
+        new_model.pop()
+
+    for layer in range(9):
+        new_model.layers[layer] = False
+    print("The new data went through?")
     return 0
 
 
