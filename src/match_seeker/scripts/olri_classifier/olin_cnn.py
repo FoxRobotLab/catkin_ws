@@ -95,9 +95,10 @@ class OlinClassifier(object):
                 DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
-            #self.model = cnn_cells(self)
-            self.model = image_head_predCell(self)
+            self.model = self.cnn_cells()  #CNN
+            #self.model = cnn_cells(self) #CNN + LSTM
+            #self.model = predictingCells(self) #Transfer Learning
+            #self.model = image_head_predCell(self) #2 feature CNN + LSTM
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -203,11 +204,12 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        sampleSize = 1000
-        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 2)
-        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 2)
-        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
+        #ONLY FOR LSTM
+        # sampleSize = 1000
+        # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 2)
+        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        # self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 2)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
@@ -611,7 +613,7 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+        # dat aImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
         dataImg= DATA +"Img_w_head_13k.npy",
