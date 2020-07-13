@@ -207,9 +207,9 @@ class OlinClassifier(object):
         ####################################################################
         #ONLY FOR LSTM
         sampleSize = 1000
-        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 2)
+        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
         self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 2)
+        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
         self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
