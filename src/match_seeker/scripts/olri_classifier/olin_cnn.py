@@ -122,8 +122,10 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        self.image = self.image[:,:,:,0] #This takes out the color channel
-        self.image = self.image.reshape(len(self.image), 100, 100, 1)
+        #self.image = self.image[:,:,:,0] #Keeping the heading
+        print(self.image.shape)
+        return 0
+        #self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
 
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -613,9 +615,10 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
+        #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
+        dataImg= DATA +"Img_w_head_13k.npy",
         dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "transfer_learning_frst4_layers_frozen",
+        data_name = "lstm_2features_image_heading_in",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
