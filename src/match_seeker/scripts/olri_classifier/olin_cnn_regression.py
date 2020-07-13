@@ -202,7 +202,7 @@ class OlinClassifier(object):
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size=1,
-            epochs=6,
+            epochs=20,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -265,7 +265,7 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
-        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
+        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['accuracy'], )
 
         model.summary()
         return model
@@ -329,7 +329,7 @@ class OlinClassifier(object):
 
         model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
 
-        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
+        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['accuracy'])
 
         model.summary()
 
