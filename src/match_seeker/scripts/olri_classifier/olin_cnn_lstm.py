@@ -60,7 +60,7 @@ def image_head_predCell(self):
     print("Building a model that takes images and head as input")
     cnn = keras.models.Sequential()
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-        filters= 16,
+        filters= 32,
         kernel_size=(5, 5),
         strides=(1, 1),
         activation="relu",
