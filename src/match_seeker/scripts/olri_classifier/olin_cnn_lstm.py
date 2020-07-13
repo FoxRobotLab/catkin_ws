@@ -88,7 +88,7 @@ def image_head_predCell(self):
         )))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=16,
+            filters=32,
             kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
