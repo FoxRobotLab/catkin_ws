@@ -48,7 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels, predictingCells, image_head_predCell
+from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels, predictingCells, image_head_predCell, image_cell_lstm
 
 
 
@@ -95,8 +95,9 @@ class OlinClassifier(object):
                 DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            self.model = self.cnn_cells()  #CNN
+            #self.model = self.cnn_cells()  #CNN
             #self.model = cnn_cells(self) #CNN + LSTM
+            self.model = image_cell_lstm(self) #CNN + LSTM with transer learning
             #self.model = predictingCells(self) #Transfer Learning
             #self.model = image_head_predCell(self) #2 feature CNN + LSTM
             self.loss = keras.losses.categorical_crossentropy

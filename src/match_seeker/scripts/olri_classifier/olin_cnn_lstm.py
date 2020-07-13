@@ -56,6 +56,8 @@ def cnn_cells(self):
     cnn.summary()
     return cnn
 
+
+
 def image_head_predCell(self):
     print("Building a model that takes images and head as input")
     cnn = keras.models.Sequential()
@@ -107,6 +109,15 @@ def image_head_predCell(self):
     cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     cnn.summary()
     return cnn
+
+
+def image_cell_lstm(self):
+    print("adding the lstm")
+    num_classes = 271
+    new_model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
+    print("This is the number of layers" , len(new_model.layers))
+    return 0
+
 
 def predictingCells(self):
     print("Tinkering with transferLearning")
