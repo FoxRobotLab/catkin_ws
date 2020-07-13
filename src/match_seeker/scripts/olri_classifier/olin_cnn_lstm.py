@@ -114,15 +114,16 @@ def image_head_predCell(self):
 def image_cell_lstm(self):
     print("adding the lstm")
     num_classes = 271
-    new_model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
+    new_model = keras.models.Sequential()
+    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
     for i in range(5):
-        new_model.pop()
-    new_model.layers[0] = keras.layers.TimeDistributed(new_model.layers[0], input_shape=[None, 100, 100, 1])
+        model.pop()
     for layer in range(9):
-        new_model.layers[layer] = False
+        model.layers[layer] = False
+    new_model.add(keras.layers.TimeDistributed(model.layers))
     new_model.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
     new_model.add(keras.layers.LSTM(5))
-    new_model.add(keras.layers.Dense(271, activation='sigmoid'))
+    new_model.add(keras.layers.Dense(num_classes, activation='sigmoid'))
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
     return new_model
