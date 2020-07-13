@@ -123,8 +123,8 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
-        #self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
+        self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
+        self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
 
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
