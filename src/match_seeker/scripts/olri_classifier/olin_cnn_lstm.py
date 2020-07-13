@@ -122,7 +122,7 @@ def image_cell_lstm(self):
         model.layers[layer] = False
     new_model.add(keras.layers.TimeDistributed(model.layers[0], input_shape= [None, 100, 100, 1]))
     for i in range(1, len(model.layers), 1):
-        new_model.add(keras.layers[i])
+        new_model.add(keras.layers.TimeDistributed(model.layers[i]))
     new_model.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
     new_model.add(keras.layers.LSTM(5))
     new_model.add(keras.layers.Dense(num_classes, activation='sigmoid'))
