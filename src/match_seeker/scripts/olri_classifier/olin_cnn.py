@@ -350,7 +350,7 @@ class OlinClassifier(object):
         else:
             activation = "softmax"
         model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
-
+        model.summary()
         return model
 
 
