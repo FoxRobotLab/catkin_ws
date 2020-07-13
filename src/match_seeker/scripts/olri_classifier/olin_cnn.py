@@ -140,15 +140,15 @@ class OlinClassifier(object):
         print("This is the ratio", self.num_eval)
 
 
-        np.random.seed(2845) #45600
-
-        if (len(self.image) == len(self.label)):
-            p = np.random.permutation(len(self.image))
-            self.image = self.image[p]
-            self.label = self.label[p]
-        else:
-            print("Image data and heading data are  not the same size")
-            return 0
+        # np.random.seed(2845) #45600
+        #
+        # if (len(self.image) == len(self.label)):
+        #     p = np.random.permutation(len(self.image))
+        #     self.image = self.image[p]
+        #     self.label = self.label[p]
+        # else:
+        #     print("Image data and heading data are  not the same size")
+        #     return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
