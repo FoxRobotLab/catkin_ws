@@ -18,6 +18,7 @@ if __name__ == '__main__':
             print("ooops")
             print(headData[i])
             print(oldHeadData[i])
+    print("no differences!")
 
 
 
