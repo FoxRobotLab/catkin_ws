@@ -56,6 +56,65 @@ def CNN_LSTM_headPred(self):
     cnn.summary()
     return cnn
 
+def cnn_cellPred(self):
+    """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
+    print("Building a model that takes cell number as input")
+    model = keras.models.Sequential()
+
+    model.add(keras.layers.Conv2D(
+        filters=32,
+        kernel_size=(5, 5),
+        strides=(1, 1),
+        activation="relu",
+        padding="same",
+        data_format="channels_last",
+        input_shape=[self.image_size, self.image_size, self.image_depth]
+    ))
+    model.add(keras.layers.MaxPooling2D(
+        pool_size=(2, 2),
+        strides=(2, 2),
+        padding="same"
+    ))
+    model.add(keras.layers.Dropout(0.4))
+
+    model.add(keras.layers.Conv2D(
+        filters=64,
+        kernel_size=(5, 5),
+        strides=(1, 1),
+        activation="relu",
+        padding="same"
+    ))
+    model.add(keras.layers.MaxPooling2D(
+        pool_size=(2, 2),
+        strides=(2, 2),
+        padding="same"
+    ))
+    model.add(keras.layers.Dropout(0.4))
+
+    model.add(keras.layers.Conv2D(
+        filters=32,
+        kernel_size=(5, 5),
+        strides=(1, 1),
+        activation="relu",
+        padding="same",
+        data_format="channels_last"
+    ))
+    model.add(keras.layers.MaxPooling2D(
+        pool_size=(2, 2),
+        strides=(2, 2),
+        padding="same",
+    ))
+    model.add(keras.layers.Dropout(0.4))
+
+    model.add(keras.layers.Flatten())
+    model.add(keras.layers.Dense(units=256, activation="relu"))
+    model.add(keras.layers.Dense(units=256, activation="relu"))
+
+    model.add(keras.layers.Dropout(0.2))
+    model.add(keras.layers.Dense(units=self.outputSize, activation= "softmax"))
+    model.summary()
+    return model
+
 
 
 def CNN_LSTM_cellPred(self):
