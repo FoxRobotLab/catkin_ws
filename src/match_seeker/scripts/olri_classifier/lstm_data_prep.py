@@ -341,7 +341,7 @@ if __name__ == '__main__':
         if(len(rndUnderRepSubset[cell]) > 0):
             newFrames[cell]= rndUnderRepSubset[cell]
 
-    add_cell_channel(frame_dict ,newFrames , cellOutput= None, headOupt=True)
+    add_cell_channel(frame_dict ,newFrames , cellOutput= None, headOuput=True)
     ################################################################
 
 
