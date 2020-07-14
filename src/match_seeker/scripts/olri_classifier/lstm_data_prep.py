@@ -353,7 +353,7 @@ if __name__ == '__main__':
     oldimages = oldimages[:,:,:,0]
     oldimages = oldimages.reshape(26, 500, 100, 100, 1)
     images = images.reshape(26, 500, 100, 100, 1)
-    cell = 16
+    cell = 0
     #for i in range(100, 12501, 100):
 
     # for frame in  images[cell]:
