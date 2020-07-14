@@ -42,7 +42,7 @@ def getUnderOverRep(cell_counts):
     return underRep, overRep
 
 def getFrameCellDict():
-    # Returns dict with cell corresponding to each frame
+    # Returns dict of frame as key and cell as value
     frame_cell_dict = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -273,55 +273,58 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
             cell_frame_dict[key][whichFrame] = (int(frame), notNewImages[key][whichFrame])
             whichFrame += 1
         cell_frame_dict[key] = sorted(cell_frame_dict[key],key=lambda x: x[0])
+    np.save(DATA + "badDict", cell_frame_dict)
 
     #Creating an array of images called train_IMG and an array of hot label either for cellOuput or cellInput
-    train_IMG = []
-    hotLabelcellOutput = []
-    hotLabelHeadOutput = []
-
-    print("This is the cell_frame_dict", cell_frame_dict)
-
-    for cell in cell_frame_dict.keys():
-        train_IMG = cell_frame_dict[cell][1]
-        print("This is the frame", cell_frame_dict[cell][0])
-        frame = '%04d'% cell_frame_dict[cell][0]
-        if cellOutput == True:
-            hotLabelcellOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
-        if headOuput == True:
-            hotLabelHeadOutput.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-
-
-    #Calculating the mean
-    mean = calculate_mean(train_IMG)
-
-    #Suntracting the mean of images and normalizing each image
-    for i in train_IMG:
-        image = train_IMG[i]
-        image = image - mean
-        image /= 255
-        image = np.squeeze(image)
-        train_IMG[i] = image
-
-    #ONLY USED FOR DOUBLE FEATURE IN LSTM or cellinput/headInput
-    # whichImage = 0
+    # train_IMG = []
+    # hotLabelcellOutput = []
+    # hotLabelHeadOutput = []
+    #
+    # print("This is the cell_frame_dict", cell_frame_dict)
+    #
     # for cell in cell_frame_dict.keys():
-    #     frame = cell_frame_dict[cell][0]
-    #     if headInput == True:
-    #         head = int(frame_heading_dict[frame])
-    #         head_arr = head * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
-    #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), head_arr), axis=-1)
-    #     if cellInput == True:
-    #         cell = int(frame_cell_dict[frame])
-    #         cell_arr = cell * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
-    #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), cell_arr), axis=-1)
-    #     whichImage +=1
-
-
-
-    train_IMG = np.asarray(train_IMG)
-    hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
-    np.save(DATA + "lstm_Img_13k", train_IMG)
-    np.save(DATA + "lstm_head_13k", hotLabelHeadOutput)
+    #     train_IMG = cell_frame_dict[cell][1]
+    #     print("this is the cell", cell)
+    #     print("This is the value of the dict", cell_frame_dict[cell])
+    #     print("This is the frame", cell_frame_dict[cell][0])
+    #     frame = '%04d'% (cell_frame_dict[cell][0])
+    #     if cellOutput == True:
+    #         hotLabelcellOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
+    #     if headOuput == True:
+    #         hotLabelHeadOutput.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
+    #
+    #
+    # #Calculating the mean
+    # mean = calculate_mean(train_IMG)
+    #
+    # #Suntracting the mean of images and normalizing each image
+    # for i in train_IMG:
+    #     image = train_IMG[i]
+    #     image = image - mean
+    #     image /= 255
+    #     image = np.squeeze(image)
+    #     train_IMG[i] = image
+    #
+    # #ONLY USED FOR DOUBLE FEATURE IN LSTM or cellinput/headInput
+    # # whichImage = 0
+    # # for cell in cell_frame_dict.keys():
+    # #     frame = cell_frame_dict[cell][0]
+    # #     if headInput == True:
+    # #         head = int(frame_heading_dict[frame])
+    # #         head_arr = head * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
+    # #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), head_arr), axis=-1)
+    # #     if cellInput == True:
+    # #         cell = int(frame_cell_dict[frame])
+    # #         cell_arr = cell * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
+    # #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), cell_arr), axis=-1)
+    # #     whichImage +=1
+    #
+    #
+    #
+    # train_IMG = np.asarray(train_IMG)
+    # hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
+    # np.save(DATA + "lstm_Img_13k", train_IMG)
+    # np.save(DATA + "lstm_head_13k", hotLabelHeadOutput)
 
 
 
