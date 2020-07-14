@@ -353,7 +353,6 @@ if __name__ == '__main__':
     oldimages = oldimages[:,:,:,0]
     oldimages = oldimages.reshape(26, 500, 100, 100, 1)
     images = images.reshape(26, 500, 100, 100, 1)
-    cell = 5
     #for i in range(100, 12501, 100):
 
     # for frame in  images[cell]:
@@ -361,25 +360,28 @@ if __name__ == '__main__':
     #     cv2.waitKey(30)
     # cv2.destroyAllWindows()
 
-    for i in range(0, 500, 40):
-        print("start",str(i), "end", str(i+39))
-        ten = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
-                          images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]),
-                             axis=1)
-        twen = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
-                          images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
+    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
+                    '35', '36', '37', '38', '39', '40', '41', '42', '43']
+    for cell in wantedCells:
+        for i in range(0, 500, 40):
+            print("start",str(i), "end", str(i+39))
+            ten = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
+                              images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]),
+                                 axis=1)
+            twen = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
+                              images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
 
-        oldten = np.concatenate(
-            (oldimages[cell][i], oldimages[cell][i + 1], oldimages[cell][i + 2], oldimages[cell][i + 3],
-             oldimages[cell][i + 4],
-             oldimages[cell][i + 5], oldimages[cell][i + 6], oldimages[cell][i + 7], oldimages[cell][i + 8],
-             oldimages[cell][i + 9]),
-            axis=1)
-        oldtwen = np.concatenate(
-            (oldimages[cell][i + 10], oldimages[cell][i + 11], oldimages[cell][i + 12], oldimages[cell][i + 13],
-             oldimages[cell][i + 14],
-             oldimages[cell][i + 15], oldimages[cell][i + 16], oldimages[cell][i + 17], oldimages[cell][i + 18],
-             oldimages[cell][i + 19]), axis=1)
+            oldten = np.concatenate(
+                (oldimages[cell][i], oldimages[cell][i + 1], oldimages[cell][i + 2], oldimages[cell][i + 3],
+                 oldimages[cell][i + 4],
+                 oldimages[cell][i + 5], oldimages[cell][i + 6], oldimages[cell][i + 7], oldimages[cell][i + 8],
+                 oldimages[cell][i + 9]),
+                axis=1)
+            oldtwen = np.concatenate(
+                (oldimages[cell][i + 10], oldimages[cell][i + 11], oldimages[cell][i + 12], oldimages[cell][i + 13],
+                 oldimages[cell][i + 14],
+                 oldimages[cell][i + 15], oldimages[cell][i + 16], oldimages[cell][i + 17], oldimages[cell][i + 18],
+                 oldimages[cell][i + 19]), axis=1)
 
 
 
