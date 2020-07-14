@@ -213,7 +213,7 @@ def calculate_mean(images):
         # print("*** Check image shape")
         return None
 
-    np.save(DATA + 'lstm_mean135k.npy', mean)
+    np.save(DATA + 'lstm_mean_13.npy', mean)
     print("*** Done. Returning mean.")
     return mean
 
@@ -317,8 +317,8 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
 
     train_IMG = np.asarray(train_IMG)
     hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
-    np.save(DATA + "Img", train_IMG)
-    np.save(DATA + "head", hotLabelHeadOutput)
+    np.save(DATA + "lstm_Img_13k", train_IMG)
+    np.save(DATA + "lstm_head_13k", hotLabelHeadOutput)
 
 
 
