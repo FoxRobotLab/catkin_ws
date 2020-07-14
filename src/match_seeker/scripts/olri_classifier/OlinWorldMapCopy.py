@@ -220,7 +220,7 @@ class WorldMap(object):
             (n1x, n1y) = node[0:2]    # the slicing allows for poses as well as locations, ignores the angle
             return n1x, n1y
         else:  # bad data for node
-            print "ERROR in WorldMap: Data cannot be converted to (x, y) location:", node, type(node)
+            print ("ERROR in WorldMap: Data cannot be converted to (x, y) location:", node, type(node))
             return None
 
 
