@@ -697,10 +697,8 @@ if __name__ == '__main__':
         cell = frameData[frame]['cell']
         x,y = loc
         pose = [x, y]
-        estCell = mapper.convertLocToCell(pose)
-        print(estCell)
-        # if mapper.convertLocToCell(pose) != cell:
-        #     count += 1
+        if mapper.convertLocToCell(pose) != cell:
+            count += 1
         break
 
     print(count)
