@@ -4,7 +4,7 @@ import cv2
 from paths import DATA
 
 ############## HEADING OUTPUT ####################
-def cnn_cells(self):
+def lstm_cell_pred(self):
     print("Building a model that takes images as input")
     cnn = keras.models.Sequential()
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
