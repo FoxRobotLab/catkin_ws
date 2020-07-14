@@ -13,12 +13,8 @@ def getOneHotLabel(number,size):
 if __name__ == '__main__':
     dict = np.load(DATA + "badDict.npy",allow_pickle='TRUE').item()
     for cell in dict.keys():
-        which = 0
-        for tuple in cell:
-            print("This is the tuple", tuple)
-            print("The ", which, " is done")
-            which+=1
-
+        for tuple in dict[cell]:
+            print(tuple)
 
 
 
