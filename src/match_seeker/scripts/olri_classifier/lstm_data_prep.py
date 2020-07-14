@@ -362,7 +362,7 @@ if __name__ == '__main__':
 
     wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
                     '35', '36', '37', '38', '39', '40', '41', '42', '43']
-    for cell in wantedCells:
+    for cell in range(len(wantedCells)):
         for i in range(0, 500, 40):
             print("start",str(i), "end", str(i+39))
             ten = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
