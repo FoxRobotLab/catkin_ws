@@ -613,11 +613,14 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
+
         # dat aImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
-        dataImg= DATA +"Img_w_head_13k.npy",
-        dataLabel = DATA + 'cell_ouput13k.npy',
+        # dataImg= DATA +"Img_w_head_13k.npy",
+        # dataLabel = DATA + 'cell_ouput13k.npy',
+        dataImg=DATA + "Img_w_head_13k.npy",
+        dataLabel=DATA + 'cell_ouput13k.npy',
         data_name = "transfer_lstm",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
