@@ -14,8 +14,8 @@ if __name__ == '__main__':
     dict = np.load(DATA + "badDict.npy",allow_pickle='TRUE').item()
     for cell in dict.keys():
         for tuple in cell:
-            print("frame", tuple[0])
-            print("image", tuple[1])
+            print(tuple)
+            
         break
 
 
