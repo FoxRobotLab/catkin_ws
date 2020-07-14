@@ -281,7 +281,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
     hotLabelHeadOutput = []
 
     for cell in cell_frame_dict.keys():
-        for tuple in cell:
+        for tuple in cell_frame_dict[cell]:
             train_IMG = tuple[1]
             frame = '%04d'% (tuple[0])
             if cellOutput == True:
