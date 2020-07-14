@@ -650,7 +650,7 @@ class WorldMap(object):
 
 
 
-    def _convertPixelsToWorld(self, (mapX, mapY)):
+    def _convertPixelsToWorld(self, mapX, mapY):
         """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
         meters. Note that this also has to adjust for the rotation and flipping of the map."""
         # First flip x and y values around...
@@ -662,7 +662,7 @@ class WorldMap(object):
         return (mapXMeters, mapYMeters)
 
 
-    def _convertWorldToPixels(self, (worldX, worldY)):
+    def _convertWorldToPixels(self, worldX, worldY):
         """Converts coordinates in meters in the world to integer coordinates on the map
         Note that this also has to adjust for the rotation and flipping of the map."""
         # First convert from meters to pixels, assuming 20 pixels per meter
