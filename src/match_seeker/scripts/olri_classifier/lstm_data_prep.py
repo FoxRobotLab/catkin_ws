@@ -279,8 +279,11 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
     hotLabelcellOutput = []
     hotLabelHeadOutput = []
 
+    print("This is the cell_frame_dict", cell_frame_dict)
+
     for cell in cell_frame_dict.keys():
         train_IMG = cell_frame_dict[cell][1]
+        print("This is the frame", cell_frame_dict[cell][0])
         frame = '%04d'% cell_frame_dict[cell][0]
         if cellOutput == True:
             hotLabelcellOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
