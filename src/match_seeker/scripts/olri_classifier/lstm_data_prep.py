@@ -294,7 +294,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
     mean = calculate_mean(train_IMG)
 
     #Suntracting the mean of images and normalizing each image
-    for i in train_IMG:
+    for i in range(len(train_IMG)):
         image = train_IMG[i]
         image = image - mean
         image /= 255
