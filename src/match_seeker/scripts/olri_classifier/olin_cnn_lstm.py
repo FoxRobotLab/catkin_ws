@@ -4,7 +4,7 @@ import cv2
 from paths import DATA
 
 ############## HEADING OUTPUT ####################
-def lstm_cell_pred(self):
+def CNN_LSTM_headPred(self):
     print("Building a model that takes images as input")
     cnn = keras.models.Sequential()
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
@@ -58,7 +58,7 @@ def lstm_cell_pred(self):
 
 
 
-def image_head_predCell(self):
+def CNN_LSTM_cellPred(self):
     print("Building a model that takes images and head as input")
     cnn = keras.models.Sequential()
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
@@ -111,11 +111,12 @@ def image_head_predCell(self):
     return cnn
 
 
-def image_cell_lstm(self):
+def transfer_lstm_cellPred(self):
     print("adding the lstm")
     num_classes = 271
     new_model = keras.models.Sequential()
     model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
+    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
     for i in range(3):
         model.pop()
     for layer in range(11):
