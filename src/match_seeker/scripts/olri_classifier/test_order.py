@@ -14,7 +14,7 @@ if __name__ == '__main__':
     headData = np.load(DATA + "lstm_head_13k.npy")
     oldHeadData  = np.load(DATA + "lstm_head_13k.npy")
     for i in range(len(headData)):
-        if headData[i] !=  oldHeadData[i]:
+        if (headData[i] !=  oldHeadData[i]).all():
             print("ooops")
             print(headData[i])
             print(oldHeadData[i])
