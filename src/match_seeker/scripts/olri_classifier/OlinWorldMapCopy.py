@@ -686,7 +686,7 @@ if __name__ == '__main__':
     mapper = WorldMap()
 
 
-    data.buildDicts()
+    data.buildDataDicts()
 
     frameData = data.frameData
 
