@@ -96,8 +96,8 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             #self.model = self.cnn_cells()  #CNN
-            #self.model = lstm_cell_pred(self) #CNN + LSTM
-            self.model = image_cell_lstm(self) #CNN + LSTM with transer learning
+            self.model = lstm_cell_pred(self) #CNN + LSTM
+            #self.model = image_cell_lstm(self) #CNN + LSTM with transer learning
             #self.model = predictingCells(self) #Transfer Learning
             #self.model = image_head_predCell(self) #2 feature CNN + LSTM
             self.loss = keras.losses.categorical_crossentropy
@@ -617,11 +617,11 @@ if __name__ == "__main__":
         # dat aImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
-        dataImg= DATA +"Img_w_head_13k.npy",
-        dataLabel = DATA + 'cell_ouput13k.npy',
-        # dataImg=DATA + "lstm_Img_13k.npy",
-        # dataLabel=DATA + 'lstm_head_13k.npy',
-        data_name = "cnn_lstm_transfer",
+        # dataImg= DATA +"Img_w_head_13k.npy",
+        # dataLabel = DATA + 'cell_ouput13k.npy',
+        dataImg=DATA + "lstm_Img_13k.npy",
+        dataLabel=DATA + 'lstm_head_13k.npy',
+        data_name = "img_head",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
