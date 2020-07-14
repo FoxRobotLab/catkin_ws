@@ -67,7 +67,7 @@ class WorldMap(object):
         if self.isValidNode(graphNode):
             loc = self.olinGraph.getData(graphNode)
             return loc
-        print "ERROR in WorldMap: bad node to getLocation:", graphNode
+        print ("ERROR in WorldMap: bad node to getLocation:", graphNode)
         return None
 
 
@@ -80,7 +80,7 @@ class WorldMap(object):
         """Asks if these two nodes are neighbors. A pass-through method."""
         if self.isValidNode(node1) and self.isValidNode(node2):
             return self.olinGraph.areNeighbors(node1, node2)
-        print "ERROR in WorldMap: invalid node one of:", node1, node2
+        print ("ERROR in WorldMap: invalid node one of:", node1, node2)
         return False
 
 
@@ -294,7 +294,7 @@ class WorldMap(object):
             elif startVert == goalVert:
                 return []
             else:
-                print "rerunning dijkstra's"
+                print ("rerunning dijkstra's")
                 self.goalNode = goalVert
                 q = PriorityQueue()
                 visited = set()
@@ -419,11 +419,11 @@ class WorldMap(object):
                     else:
                         [nodeNumStr, locStr, descr] = line.split("   ")
                 except ValueError:
-                    print "OlinWorldMap: ERROR IN FILE AT LINE: ", line, "ABORTING"
+                    print ("OlinWorldMap: ERROR IN FILE AT LINE: ", line, "ABORTING")
                     return
                 nodeNum = int(nodeNumStr)
                 if nodeNum != row:
-                    print "OlinWorldMap: ROW DOESN'T MATCH, SKIPPING"
+                    print ("OlinWorldMap: ROW DOESN'T MATCH, SKIPPING")
                 else:
                     dataList = locStr.split()
                     nodeData = [part.strip("(),") for part in dataList]
@@ -458,7 +458,7 @@ class WorldMap(object):
                 [fromNode, toNode] = [int(x) for x in line.split()]
                 graph.addEdge(fromNode, toNode)
             else:
-                print "Shouldn't get here", line
+                print ("Shouldn't get here", line)
         self.olinGraph = graph
         self.graphSize = graph.getSize()
 
