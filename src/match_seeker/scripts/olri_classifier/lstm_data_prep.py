@@ -11,7 +11,8 @@ image_size = 100
 images_per_cell = 500
 
 def getCellCounts():
-    # Counts number of frames per cell, also returns dictionary with list of all frames associated with each cell
+    # Returns two dictionaries: cell_counts and cell_frame_dict. cell_counts has cells as keys and the number of total
+    #frames as value. cell_frame_dict is an ordered dictionary with cells as keys and an array of associated frames as values
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
         cell_counts = dict()
@@ -41,7 +42,7 @@ def getUnderOverRep(cell_counts):
     return underRep, overRep
 
 def getFrameCellDict():
-    # Returns dict with cell corresponding to each frame
+    # Returns dict of frame as key and cell as value
     frame_cell_dict = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -51,9 +52,10 @@ def getFrameCellDict():
     return frame_cell_dict
 
 def getHeadingRep(cell_counts):
-    # Returns dict with cell --> counts of num frames taken at each heading in that cell
+    # Returns dict with cell as key and a matrix as value. There are 8 rows and 2 columns. The first column gives the heading
+    #and the second column gives the total frames (within the corresponding cell/key) to have that heading
     cellHeadingCounts = dict()
-    for key in cell_counts.keys(): #ORIG range(numCells)
+    for key in cell_counts.keys():
         cellHeadingCounts[key] = [['0',0],['45',0],['90',0],['135',0],['180',0],['225',0],['270',0],['315',0]]
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -69,6 +71,7 @@ def getHeadingRep(cell_counts):
     return cellHeadingCounts
 
 def getHeadingFrameDict():
+    #Creating a dictionary with heading as key and an array of all frames with that heading as value
     heading_frame_dict = {'0':[],'45':[],'90':[],'135':[],'180':[],'225':[],'270':[],'315':[]}
 
     with open(master_cell_loc_frame_id,'r') as masterlist:
@@ -131,11 +134,15 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
             rndUnderRepSubset[cell].append(toBeAdded)
 
             cell_counts[cell] += 1
+    #cullOverRepped must be run first. cell_frame_dict is updated in cullOverRepped and here as well. cell_frame_dict
+    #has all cells, but not all cells have 500 frames. The ones that do not are also placed in rndUnderRepSubset where
+    #random frames are chosen to complete the 500 frames.
     np.save(DATA+ 'cell_origFrames', cell_frame_dict)
     np.save(DATA + 'cell_newFrames', rndUnderRepSubset)
     return cell_frame_dict, rndUnderRepSubset
 
 def resizeAndCrop(image):
+    #Processing the frame into an image that is of 'image_size' and
     if image is None:
         print("No Image")
     else:
@@ -149,6 +156,7 @@ def getOneHotLabel(number,size):
     return onehot
 
 def getFrameHeadingDict():
+    #Dictionary of frame as key and heading as value
     fhd = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -204,13 +212,13 @@ def calculate_mean(images):
         # print(images.shape)
         # print("*** Check image shape")
         return None
-    np.save(DATA + 'lstm_mean135k.npy', mean)
 
+    np.save(DATA + 'lstm_mean_13.npy', mean)
     print("*** Done. Returning mean.")
     return mean
 
 
-def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInput = None, headingInput=None ):
+def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutput = None, headOuput=None ):
     notNewImages = OrderedDict()
     newImages = OrderedDict()
     allImages = []
@@ -246,7 +254,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             frameNum += 1
 
     #Merging the dictionaries so cell_frame_dict with rndUnderRepSubset, which only contain cell: ["frame", ...] format and
-    #notNewImages with newImages, which contain cell" [image, ...] format
+    #notNewImages with newImages, which contain cell: [image, ...] format
 
     for key in rndUnderRepSubset.keys(): #DATA in rndUnderRepSubset ----> cell_frame_dict
         for frame in rndUnderRepSubset[key]:
@@ -266,51 +274,53 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             whichFrame += 1
         cell_frame_dict[key] = sorted(cell_frame_dict[key],key=lambda x: x[0])
 
-    #Organizing cells (Specific for sample)
-    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
-                   '35', '36', '37', '38', '39', '40', '41', '42', '43']
 
-
-    #Creating the array of images and the hot label
-
+    #Creating an array of images called train_IMG and an array of hot label either for cellOuput or cellInput
+    train_IMG = []
+    hotLabelcellOutput = []
     hotLabelHeadOutput = []
-    # hotCellLabelOutput = []
-    train_IMG_cellInput = []
-    for cell in wantedCells:
+
+    for cell in cell_frame_dict.keys():
         for tuple in cell_frame_dict[cell]:
-            if (cellInput == True):
-                train_IMG_cellInput.append(tuple[1])
-                frame = '%04d'% tuple[0]
+            train_IMG.append(tuple[1])
+            frame = '%04d'% (tuple[0])
+            if cellOutput == True:
+                hotLabelcellOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
+            if headOuput == True:
                 hotLabelHeadOutput.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
-                # hotCellLabelOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
+
 
     #Calculating the mean
-    mean = calculate_mean(train_IMG_cellInput)
-    whichImage= 0
-    for cell in wantedCells:
-        for tuple in cell_frame_dict[cell]:
-            image = train_IMG_cellInput[whichImage]
-            image = image - mean
-            image /= 255
-            image = np.squeeze(image)
-            if (cellInput == True): ####################ANYTHING BETWEEN THESE LINES MAY BE UNNECESARY!!!!!!!!!###########
-                frame = '%04d' % tuple[0]
-                cell = int(frame_cell_dict[frame])
-                cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
-                train_IMG_cellInput[whichImage] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)#####
-            whichImage += 1
+    mean = calculate_mean(train_IMG)
 
-    train_IMG_cellInput = np.asarray(train_IMG_cellInput)
+    #Suntracting the mean of images and normalizing each image
+    for i in range(len(train_IMG)):
+        image = train_IMG[i]
+        image = image - mean
+        image /= 255
+        image = np.squeeze(image)
+        train_IMG[i] = image
+
+    #ONLY USED FOR DOUBLE FEATURE IN LSTM or cellinput/headInput
+    # whichImage = 0
+    # for cell in cell_frame_dict.keys():
+    #     frame = cell_frame_dict[cell][0]
+    #     if headInput == True:
+    #         head = int(frame_heading_dict[frame])
+    #         head_arr = head * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
+    #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), head_arr), axis=-1)
+    #     if cellInput == True:
+    #         cell = int(frame_cell_dict[frame])
+    #         cell_arr = cell * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
+    #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), cell_arr), axis=-1)
+    #     whichImage +=1
+
+
+
+    train_IMG = np.asarray(train_IMG)
     hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
-    # hotCellLabelOutput= np.asarray(hotCellLabelOutput)
-
-    #UNCOMMENT THIS TO SAVE DATA
-    # np.save(DATA+ "lstm_Img_Cell_Input", train_IMG_cellInput)
-    # np.save(DATA+ "lstm_Heading_Output", hotLabelHeadOutput)
-
-    np.save(DATA + "lstm_Img_Cell_Input13k", train_IMG_cellInput)
-    np.save(DATA + "lstm_Heading_Output13k", hotLabelHeadOutput)
-    # np.save(DATA + "cell_ouput13k",hotCellLabelOutput)
+    np.save(DATA + "lstm_Img_13k", train_IMG)
+    np.save(DATA + "lstm_head_13k", hotLabelHeadOutput)
 
 
 
@@ -320,62 +330,86 @@ if __name__ == '__main__':
     # cullOverRepped(cell_counts, cell_frame_dict, cell_heading_counts)
     # addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts)
 
-    cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
-    rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
-    ################################################################
-    #Selecting the SAMPLE
-    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
-                   '35', '36', '37', '38', '39', '40', '41', '42', '43']
-    frame_dict = OrderedDict()
-    newFrames = OrderedDict()
-    for cell in wantedCells:
-        frame_dict[cell] = cell_frame_dict[cell]
-        if(len(rndUnderRepSubset[cell]) > 0):
-            newFrames[cell]= rndUnderRepSubset[cell]
-
-    add_cell_channel(frame_dict ,newFrames , cellInput= True, headingInput=None)
-    ################################################################
-
-
-
-    # images = np.load(DATA + "lstm_Img_Cell_Input.npy")
-    # images = images[:, :, :, 0]
-    # # images = images.reshape(12500, 100, 100, 1)
-    # images = images.reshape(25, 500, 100, 100, 1)
-    # cell = 4
-    # #for i in range(100, 12501, 100):
+    # cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
+    # rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+    # ################################################################
+    # #Selecting the SAMPLE
+    # wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
+    #                '35', '36', '37', '38', '39', '40', '41', '42', '43']
+    # frame_dict = OrderedDict()
+    # newFrames = OrderedDict()
+    # for cell in wantedCells:
+    #     frame_dict[cell] = cell_frame_dict[cell]
+    #     if(len(rndUnderRepSubset[cell]) > 0):
+    #         newFrames[cell]= rndUnderRepSubset[cell]
     #
+    # add_cell_channel(frame_dict ,newFrames , cellOutput= None, headOuput=True)
+    # ################################################################
+
+
+
+    images = np.load(DATA + "lstm_Img_13k.npy")
+    oldimages = np.load(DATA + "lstm_Img_Cell_Input13k.npy")
+    oldimages = oldimages[:,:,:,0]
+    oldimages = oldimages.reshape(26, 500, 100, 100, 1)
+    images = images.reshape(26, 500, 100, 100, 1)
+    #for i in range(100, 12501, 100):
+
     # for frame in  images[cell]:
     #     cv2.imshow("window", frame)
     #     cv2.waitKey(30)
     # cv2.destroyAllWindows()
-    #
-    # for i in range(0, 500, 40):
-    #     print("start",str(i), "end", str(i+39))
-    #     ten = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
-    #                       images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]),
-    #                          axis=1)
-    #     twen = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
-    #                       images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
-    #     thrt = np.concatenate((images[cell][i +20],images[cell][i+21], images[cell][i+22], images[cell][i+23], images[cell][i+24],
-    #                       images[cell][i+25], images[cell][i+26], images[cell][i+27], images[cell][i+28], images[cell][i+29]), axis=1)
-    #     frty = np.concatenate((images[cell][i +30],images[cell][i+31], images[cell][i+32], images[cell][i+33], images[cell][i+34],
-    #                       images[cell][i+35], images[cell][i+36], images[cell][i+37], images[cell][i+38], images[cell][i+39]),
-    #                          axis=1)
-    #
-    #
-    #
-    #     # tenImgs = np.concatenate((images[frame], images[frame + 1], images[frame + 2], images[frame + 3], images[frame + 4],
-    #     #      images[frame + 5], images[frame + 6], images[frame + 7], images[frame + 8], images[frame + 9]),
-    #     #     axis=1)
-    #     # anotherTEN = np.concatenate((images[frame + 10], images[frame + 11], images[frame + 12],
-    #     #                              images[frame + 13], images[frame + 14],
-    #     #                              images[frame + 15], images[frame + 16], images[frame + 17],
-    #     #                              images[frame + 18], images[frame + 19]), axis=1)
-    #     img = np.concatenate((ten, twen, thrt, frty), axis=0)
-    #     cv2.imshow('Window',img)
-    #     cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+
+    wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
+                    '35', '36', '37', '38', '39', '40', '41', '42', '43']
+    for cell in range(len(wantedCells)):
+        for i in range(0, 500, 40):
+            print("start",str(i), "end", str(i+39))
+            ten = np.concatenate((images[cell][i],images[cell][i+1], images[cell][i+2], images[cell][i+3], images[cell][i+4],
+                              images[cell][i+5], images[cell][i+6], images[cell][i+7], images[cell][i+8], images[cell][i+9]),
+                                 axis=1)
+            twen = np.concatenate((images[cell][i +10],images[cell][i+11], images[cell][i+12], images[cell][i+13], images[cell][i+14],
+                              images[cell][i+15], images[cell][i+16], images[cell][i+17], images[cell][i+18], images[cell][i+19]), axis=1)
+
+            oldten = np.concatenate(
+                (oldimages[cell][i], oldimages[cell][i + 1], oldimages[cell][i + 2], oldimages[cell][i + 3],
+                 oldimages[cell][i + 4],
+                 oldimages[cell][i + 5], oldimages[cell][i + 6], oldimages[cell][i + 7], oldimages[cell][i + 8],
+                 oldimages[cell][i + 9]),
+                axis=1)
+            oldtwen = np.concatenate(
+                (oldimages[cell][i + 10], oldimages[cell][i + 11], oldimages[cell][i + 12], oldimages[cell][i + 13],
+                 oldimages[cell][i + 14],
+                 oldimages[cell][i + 15], oldimages[cell][i + 16], oldimages[cell][i + 17], oldimages[cell][i + 18],
+                 oldimages[cell][i + 19]), axis=1)
+
+
+
+
+
+
+
+
+
+        # thrt = np.concatenate((images[cell][i +20],images[cell][i+21], images[cell][i+22], images[cell][i+23], images[cell][i+24],
+        #                   images[cell][i+25], images[cell][i+26], images[cell][i+27], images[cell][i+28], images[cell][i+29]), axis=1)
+        # frty = np.concatenate((images[cell][i +30],images[cell][i+31], images[cell][i+32], images[cell][i+33], images[cell][i+34],
+        #                   images[cell][i+35], images[cell][i+36], images[cell][i+37], images[cell][i+38], images[cell][i+39]),
+        #                      axis=1)
+
+
+
+        # tenImgs = np.concatenate((images[frame], images[frame + 1], images[frame + 2], images[frame + 3], images[frame + 4],
+        #      images[frame + 5], images[frame + 6], images[frame + 7], images[frame + 8], images[frame + 9]),
+        #     axis=1)
+        # anotherTEN = np.concatenate((images[frame + 10], images[frame + 11], images[frame + 12],
+        #                              images[frame + 13], images[frame + 14],
+        #                              images[frame + 15], images[frame + 16], images[frame + 17],
+        #                              images[frame + 18], images[frame + 19]), axis=1)
+            img = np.concatenate((ten, twen, oldten,oldtwen ), axis=0)
+            cv2.imshow('Window',img)
+            cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 

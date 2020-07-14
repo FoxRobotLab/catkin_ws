@@ -48,7 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels, predictingCells
+from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, cnn_cellPred
 
 
 
@@ -95,9 +95,12 @@ class OlinClassifier(object):
                 DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            #self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
-            #self.model = cnn_cells(self)
-            self.model = predictingCells(self)
+            #self.model = self.cnn_cells()  #CNN
+            self.model = cnn_cellPred(self) #CNN
+            #self.model = lstm_cell_pred(self) #CNN + LSTM
+            #self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
+            #self.model = predictingCells(self) #Transfer Learning
+            #self.model = image_head_predCell(self) #2 feature CNN + LSTM
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -122,8 +125,8 @@ class OlinClassifier(object):
 
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        self.image = self.image[:,:,:,0] #This takes out the color channel
-        self.image = self.image.reshape(len(self.image), 100, 100, 1)
+        #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
+        self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
 
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -140,13 +143,13 @@ class OlinClassifier(object):
 
         np.random.seed(2845) #45600
 
-        #if (len(self.image) == len(self.label)):
-            #p = np.random.permutation(len(self.image))
-            #self.image = self.image[p]
-            #self.label = self.label[p]
-        #else:
-            #print("Image data and heading data are  not the same size")
-            #return 0
+        if (len(self.image) == len(self.label)):
+            p = np.random.permutation(len(self.image))
+            self.image = self.image[p]
+            self.label = self.label[p]
+        else:
+            print("Image data and heading data are  not the same size")
+            return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
@@ -203,18 +206,19 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        sampleSize = 1000
-        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
+        #ONLY FOR LSTM
+        # sampleSize = 1000
+        # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
+        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        # self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size= 1,
-            epochs=6,
+            epochs=15,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -238,7 +242,6 @@ class OlinClassifier(object):
 
     def cnn_headings(self):
         """Builds the model for the network that takes heading as input along with image and produces the cell numbeer."""
-
         model = keras.models.Sequential()
 
         model.add(keras.layers.Conv2D(
@@ -349,7 +352,7 @@ class OlinClassifier(object):
         else:
             activation = "softmax"
         model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
-
+        model.summary()
         return model
 
 
@@ -611,11 +614,15 @@ def clean_image(image, data = 'old', cell = None, heading = None):
 if __name__ == "__main__":
     # check_data()
     olin_classifier = OlinClassifier(
-        # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
+
+        # dat aImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
+        #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
+        # dataImg= DATA +"Img_w_head_13k.npy",
+        dataImg=DATA + "lstm_Img_13k.npy",
+        # dataLabel=DATA + 'lstm_head_13k.npy',
         dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "transferLearning",
+        data_name = "CNN_32_64_32_cellPred",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
