@@ -621,7 +621,7 @@ if __name__ == "__main__":
         # dataLabel = DATA + 'cell_ouput13k.npy',
         dataImg=DATA + "lstm_Img_13k.npy",
         dataLabel=DATA + 'lstm_head_13k.npy',
-        data_name = "transfer_lstm",
+        data_name = "cnn_lstm_13kImg_alone_cell_pred",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
