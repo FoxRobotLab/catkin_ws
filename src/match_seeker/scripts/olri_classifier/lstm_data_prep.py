@@ -406,10 +406,10 @@ if __name__ == '__main__':
         #                              images[frame + 13], images[frame + 14],
         #                              images[frame + 15], images[frame + 16], images[frame + 17],
         #                              images[frame + 18], images[frame + 19]), axis=1)
-        img = np.concatenate((ten, twen, oldten,oldtwen ), axis=0)
-        cv2.imshow('Window',img)
-        cv2.waitKey(0)
-    cv2.destroyAllWindows()
+            img = np.concatenate((ten, twen, oldten,oldtwen ), axis=0)
+            cv2.imshow('Window',img)
+            cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 
