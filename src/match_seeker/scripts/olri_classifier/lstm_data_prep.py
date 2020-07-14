@@ -280,8 +280,6 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
     hotLabelcellOutput = []
     hotLabelHeadOutput = []
 
-    print("This is the cell_frame_dict", cell_frame_dict)
-
     for cell in cell_frame_dict.keys():
         for tuple in cell:
             train_IMG = tuple[1]

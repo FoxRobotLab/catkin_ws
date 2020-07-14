@@ -12,10 +12,11 @@ def getOneHotLabel(number,size):
 
 if __name__ == '__main__':
     dict = np.load(DATA + "badDict.npy",allow_pickle='TRUE').item()
-    print(type(dict['18']))
-    print("The first tuple", dict['18'][0])
-    print("The frame", dict['18'][0][0])
-
+    for cell in dict.keys():
+        for tuple in cell:
+            print("frame", tuple[0])
+            print("image", tuple[1])
+        break
 
 
 
