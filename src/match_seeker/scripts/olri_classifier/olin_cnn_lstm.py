@@ -1,8 +1,11 @@
 from tensorflow import keras
 import numpy as np
+import cv2
+from paths import DATA
 
+############## HEADING OUTPUT ####################
 def cnn_cells(self):
-    print("Building a model that takes cell number as input")
+    print("Building a model that takes images as input")
     cnn = keras.models.Sequential()
     cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
         filters= 32,
@@ -52,6 +55,30 @@ def cnn_cells(self):
     cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     cnn.summary()
     return cnn
+
+def predictingCells(self):
+    print("Tinkering with transferLearning")
+    num_classes = 271
+    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5")
+    new_model = keras.models.Sequential()
+    new_model.add(model(self,
+                        include_top=False,
+                        #require_flatten= include_top,
+                        #weights = model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0708201430/cellInputReference-02-2.00.hdf5"),
+                        pooling='avg'
+                         ))
+    new_model.add(keras.layers.Dense(num_classes, activation='softmax'))
+    new_model.layers[0].trainable = False
+    # for i in range(1, 12):
+    #     new_model.layers[i].trainable = True
+    #new_model.add(keras.layers.Dense(271, activation='sigmoid')(new_model.layers[-2].output).new_model.layers[-1].output)
+    #new_model.compile(optimizer='sgd', loss='categorical_cassentropy', metrics=['accuracy'])
+    new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    new_model.summary()
+    return new_model
+
+
+
 
 
 def creatingSequence(data, timeStep, overlap):

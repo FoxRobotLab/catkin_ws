@@ -41,7 +41,7 @@ import numpy as np
 import cv2
 # import time
 from paths import pathToMatchSeeker
-# from paths import DATA
+from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
 
@@ -50,39 +50,39 @@ from olinClassifiers import OlinClassifier
 ### Uncomment next line to use CPU instead of GPU: ###
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-
-def makeFilename(path, fileNum):
-    """Makes a filename for reading or writing image files"""
-    formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
-    name = formStr.format(path, 'frame', fileNum, "jpg")
-    return name
-
-
-def getImageFilenames(path):
-    """Read filenames in folder, and keep those that end with jpg or png  (from copyMarkedFiles.py)"""
-    filenames = os.listdir(path)
-    keepers = []
-    for name in filenames:
-        if name.endswith("jpg") or name.endswith("png"):
-            keepers.append(name)
-    return keepers
-
-
-def extractNum(fileString):
-    """Finds sequence of digits"""
-    numStr = ""
-    foundDigits = False
-    for c in fileString:
-        if c in '0123456789':
-            foundDigits = True
-            numStr += c
-        elif foundDigits:
-            break
-    if numStr != "":
-        return int(numStr)
-    else:
-        return -1
-
+#
+# def makeFilename(path, fileNum):
+#     """Makes a filename for reading or writing image files"""
+#     formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
+#     name = formStr.format(path, 'frame', fileNum, "jpg")
+#     return name
+#
+#
+# def getImageFilenames(path):
+#     """Read filenames in folder, and keep those that end with jpg or png  (from copyMarkedFiles.py)"""
+#     filenames = os.listdir(path)
+#     keepers = []
+#     for name in filenames:
+#         if name.endswith("jpg") or name.endswith("png"):
+#             keepers.append(name)
+#     return keepers
+#
+#
+# def extractNum(fileString):
+#     """Finds sequence of digits"""
+#     numStr = ""
+#     foundDigits = False
+#     for c in fileString:
+#         if c in '0123456789':
+#             foundDigits = True
+#             numStr += c
+#         elif foundDigits:
+#             break
+#     if numStr != "":
+#         return int(numStr)
+#     else:
+#         return -1
+#
 
 def loading_bar(start,end, size = 20):
     # Useful when running a method that takes a long time
@@ -92,54 +92,65 @@ def loading_bar(start,end, size = 20):
 
 
 
-def clean_image(image, data = 'old', cell = None, heading = None):
-    #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
-    image_size = 100
-    if data == 'old': #compatible with olin_cnn 2018
-        resized_image = cv2.resize(image, (image_size, image_size))
-        gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-        image = np.subtract(gray_image, mean)
-        depth = 1
-    elif data == 'vgg16': #compatible with vgg16 network for headings
-        image = cv2.resize(image, (170, 128))
-        x = random.randrange(0, 70)
-        y = random.randrange(0, 28)
-        image = image[y:y + 100, x:x + 100]
-        depth = 3
-    elif data == 'cell_channel':
-        if cell != None:
-            resized_image = cv2.resize(image, (image_size, image_size))
-            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-            image = np.subtract(gray_image, mean)
-            cell_arr = cell * np.ones((image_size, image_size, 1))
-            image = np.concatenate((np.expand_dims(image,axis=-1),cell_arr),axis=-1)
-            depth = 2
-        else:
-            print("No value for cell found")
-    elif data == 'heading_channel':
-        if heading != None:
-            resized_image = cv2.resize(image, (image_size, image_size))
-            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-            image = np.subtract(gray_image, mean)
-            cell_arr = heading * np.ones((image_size, image_size, 1))
-            image = np.concatenate((np.expand_dims(image,axis=-1), cell_arr),axis=-1)
-            depth = 2
-        else:
-            print("No value for heading found")
-    else: #compatible with olin_cnn 2019
-        image = cv2.resize(image, (170, 128))
-        x = random.randrange(0, 70)
-        y = random.randrange(0, 28)
-        cropped_image = image[y:y + 100, x:x + 100]
-        gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-        image = np.subtract(gray_image, mean)
-        depth = 1
-    cleaned_image = np.array([image], dtype="float") \
-        .reshape(1, image_size, image_size, depth)
-    return cleaned_image
+def cleanImage(image, mean=None, imageSize = 100):
+    """Converts the image to the form used when saving the data."""
+    cropped = cv2.resize(image, (imageSize, imageSize))
+    grayed = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+    meaned = np.subtract(grayed, mean)
+    return meaned
 
 
-if __name__ == "__main__":
+
+# def clean_image_old(image, data = 'old', cell = None, heading = None):
+#     #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
+#     image_size = 100
+#     if data == 'old': #compatible with olin_cnn 2018
+#         resized_image = cv2.resize(image, (image_size, image_size))
+#         gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+#         image = np.subtract(gray_image, mean)
+#         depth = 1
+#     elif data == 'vgg16': #compatible with vgg16 network for headings
+#         image = cv2.resize(image, (170, 128))
+#         x = random.randrange(0, 70)
+#         y = random.randrange(0, 28)
+#         image = image[y:y + 100, x:x + 100]
+#         depth = 3
+#     elif data == 'cell_channel':
+#         if cell != None:
+#             resized_image = cv2.resize(image, (image_size, image_size))
+#             gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+#             image = np.subtract(gray_image, mean)
+#             cell_arr = cell * np.ones((image_size, image_size, 1))
+#             image = np.concatenate((np.expand_dims(image,axis=-1),cell_arr),axis=-1)
+#             depth = 2
+#         else:
+#             print("No value for cell found")
+#     elif data == 'heading_channel':
+#         if heading != None:
+#             resized_image = cv2.resize(image, (image_size, image_size))
+#             gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+#             image = np.subtract(gray_image, mean)
+#             cell_arr = heading * np.ones((image_size, image_size, 1))
+#             image = np.concatenate((np.expand_dims(image,axis=-1), cell_arr),axis=-1)
+#             depth = 2
+#         else:
+#             print("No value for heading found")
+#     else: #compatible with olin_cnn 2019
+#         image = cv2.resize(image, (170, 128))
+#         x = random.randrange(0, 70)
+#         y = random.randrange(0, 28)
+#         cropped_image = image[y:y + 100, x:x + 100]
+#         gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+#         image = np.subtract(gray_image, mean)
+#         depth = 1
+#     cleaned_image = np.array([image], dtype="float") \
+#         .reshape(1, image_size, image_size, depth)
+#     return cleaned_image
+#
+
+
+
+def testingSusanData():
     cellOutputData = "susantestdataset.npz"
     # cellOutputImg = "SAMPLETRAININGDATA_IMG_withHeadingInput135K.npy"
 
@@ -196,21 +207,46 @@ if __name__ == "__main__":
 
 
 
-    # olin_classifier = OlinClassifier(
-    #     dataImg= DATA + 'TRAININGDATA_IMG_withHeadingInput135K.npy',
-    #     dataLabel = DATA + 'TRAININGDATA_CELL_withHeadingInput135K.npy',
-    #     data_name = "headingInput",
-    #     outputSize= 8,
-    #     eval_ratio=0.1,
-    #     image_size=100,
-    #     headingInput= True,
-    #     image_depth= 2
-    # )
-    # print("Classifier built")
-    # olin_classifier.loadData()
-    # print("Data loaded")
-    # olin_classifier.train()
+def testingOrigData():
+    cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
+    # cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
+    meanFile = "TRAININGDATA_100_500_mean.npy"
+    dataPath = pathToMatchSeeker + 'res/classifier2019data/'
+
+    print("Loading mean...")
+
+    mean = np.load(dataPath + meanFile)
+
+    # checkPts = dataPath + "CHECKPOINTS/"
+    # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
+    #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
+    #                                  data_name="cellInput",
+    #                                  headingInput=True,
+    #                                  outputSize=271,
+    #                                  image_size=100,
+    #                                  image_depth=2)
+    #
+    print("Loading data...")
+    dataPackage = np.load(dataPath + cellOutputFile, allow_pickle=True, encoding='latin1')
+    print("Data read")
+    print(dataPackage.shape)
+    imageData = dataPackage[:, 0]
+    cellData = dataPackage[:, 1]
+    numIms = imageData.shape[0]
+    for i in range(100):
+        print("===========", i)
+        imFile = makeFilename(dataPath + 'frames/moreFrames/', i)
+        imageB = cv2.imread(imFile)
+        processedB = cleanImage(imageB, mean)
+        for j in range(numIms):
+            print("    ", j)
+            
+            
+            imageA = imageData[j][:, :, 0]
+            if (imageA==processedB).all():
+                cv2.imshow("Image A", imageA)
+                cv2.imshow("Image B", imageB)
+                cv2.waitKey(0)
 
 
-
-
+testingOrigData()

@@ -38,10 +38,14 @@ class DataPreprocess(object):
         self.allHeadingOutput = []
         self.cellsTooFewImages = []
         self.cellsEnoughImages = []
+        self.allxyh = []
         self.frameData = {}
         self.cellData = {}
+        self.locData = {}
         self.headingData = {}
         self.buildDataDicts()
+
+        self.dumbNum = 0
 
 
     def buildDataDicts(self, locBool=True, cell=True, heading=True):
@@ -84,6 +88,12 @@ class DataPreprocess(object):
             else:
                 headingList = self.headingData[headingNum]
                 headingList.append(frameNum)
+
+            if loc not in self.locData:
+                self.locData[loc] = [frameNum]
+            else:
+                locList = self.locData[loc]
+                locList.append(frameNum)
 
 
     def generateTrainingData(self):
@@ -136,6 +146,7 @@ class DataPreprocess(object):
         :return: nothing
         """
         origImage = self.readImage(frameNum)
+
         if origImage is None:
             return
         resizedImage = cv2.resize(origImage, (self.imageSize, self.imageSize))
@@ -147,10 +158,19 @@ class DataPreprocess(object):
         cellOneHot = self.makeOneHotList(self.frameData[frameNum]['cell'], self.numCells)
         headingIndex = self.frameData[frameNum]['heading'] // (360 // self.numHeadings)
         headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
+
+        x,y = self.frameData[frameNum]['loc']
+        xyh = []
+        xyh.append(x)
+        xyh.append(y)
+        xyh.append(self.frameData[frameNum]['heading'])
+
         self.allFrames.append(frameNum)
         self.allImages.append(finalImage)
         self.allCellOutput.append(cellOneHot)
         self.allHeadingOutput.append(headOneHot)
+        self.allxyh.append(xyh)
+
 
 
     def splitCellsByThreshold(self):
@@ -295,7 +315,7 @@ class DataPreprocess(object):
         if self.allImages == []:
             print("Must create dataset arrays first")
         else:
-            np.savez(datasetFilename, images=self.allImages, frameNums=self.allFrames, cellOut=self.allCellOutput, headingOut=self.allHeadingOutput, mean=self.dataMean)
+            np.savez(datasetFilename, images=self.allImages, frameNums=self.allFrames, xyhOut=self.allxyh, cellOut=self.allCellOutput, headingOut=self.allHeadingOutput, mean=self.dataMean)
 
 
 
@@ -325,6 +345,15 @@ class DataPreprocess(object):
         """
         global lc, tr, rc, br
         assert len(image.shape) == 2
+
+        if self.dumbNum == 0:
+            lc = 0
+            tr = 0
+            rc = 0
+            br = 0
+            self.dumbNum = 1
+
+
         reImage = image.copy()
         brightness = np.random.uniform(minVal, maxVal)
         h, w = reImage.shape
@@ -357,9 +386,11 @@ def main():
     :return: Nothing
     """
     preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+                             imagesPerCell=100)
     preProc.generateTrainingData()
-    preProc.saveDataset(DATA + "susantestdataset")
+    preProc.saveDataset(DATA + "regressionTestSet")
+
 
 
 if __name__ == "__main__":

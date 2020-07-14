@@ -215,7 +215,6 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
     newImages = OrderedDict()
     allImages = []
     frame_heading_dict = getFrameHeadingDict()
-    hotLabelHeadOutput = []
     frame_cell_dict = getFrameCellDict()
 
     def processFrame(frame):
@@ -274,6 +273,8 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
     #Creating the array of images and the hot label
 
+    hotLabelHeadOutput = []
+    # hotCellLabelOutput = []
     train_IMG_cellInput = []
     for cell in wantedCells:
         for tuple in cell_frame_dict[cell]:
@@ -281,10 +282,10 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
                 train_IMG_cellInput.append(tuple[1])
                 frame = '%04d'% tuple[0]
                 hotLabelHeadOutput.append(getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8))
+                # hotCellLabelOutput.append(getOneHotLabel(int(frame_cell_dict[frame]), numCells))
 
     #Calculating the mean
     mean = calculate_mean(train_IMG_cellInput)
-    cell_ouput= []
     whichImage= 0
     for cell in wantedCells:
         for tuple in cell_frame_dict[cell]:
@@ -292,17 +293,16 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
             image = image - mean
             image /= 255
             image = np.squeeze(image)
-            if (cellInput == True):
+            if (cellInput == True): ####################ANYTHING BETWEEN THESE LINES MAY BE UNNECESARY!!!!!!!!!###########
                 frame = '%04d' % tuple[0]
                 cell = int(frame_cell_dict[frame])
                 cell_arr = cell * np.ones((image.shape[0], image.shape[1], 1))
-                cell_ouput.append(cell_ouput)
-                train_IMG_cellInput[whichImage] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
+                train_IMG_cellInput[whichImage] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)#####
             whichImage += 1
 
     train_IMG_cellInput = np.asarray(train_IMG_cellInput)
     hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
-    cell_ouput= np.asarray(cell_ouput)
+    # hotCellLabelOutput= np.asarray(hotCellLabelOutput)
 
     #UNCOMMENT THIS TO SAVE DATA
     # np.save(DATA+ "lstm_Img_Cell_Input", train_IMG_cellInput)
@@ -310,7 +310,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellInpu
 
     np.save(DATA + "lstm_Img_Cell_Input13k", train_IMG_cellInput)
     np.save(DATA + "lstm_Heading_Output13k", hotLabelHeadOutput)
-    np.save(DATA + "cell_ouput13k",cell_ouput)
+    # np.save(DATA + "cell_ouput13k",hotCellLabelOutput)
 
 
 

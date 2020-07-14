@@ -91,7 +91,7 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             # self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
-            self.model = cnn_cells(self)
+            self.model = self.cnn_cells()
             self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
@@ -99,10 +99,10 @@ class OlinClassifier(object):
             self.loss = None
             return
 
-        self.model.compile(
-            loss=self.loss,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-            metrics=["accuracy"])
+        # self.model.compile(
+        #     loss=self.loss,
+        #     optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+        #     metrics=["accuracy"])
 
         # self.checkpoint_name = checkpoint_name
         # if self.checkpoint_name is not None:
@@ -114,7 +114,7 @@ class OlinClassifier(object):
 
         # ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        self.image = self.image[:, :, :, 0]  # This takes out the color channel
+        # self.image = self.image[:, :, :,0]  # This takes out the color channel
         self.image = self.image.reshape(len(self.image), 100, 100, 1)
 
         self.label = np.load(self.dataLabel)
@@ -131,32 +131,20 @@ class OlinClassifier(object):
 
         np.random.seed(2845)  # 45600
 
-        # if (len(self.image) == len(self.label)):
-        # p = np.random.permutation(len(self.image))
-        # self.image = self.image[p]
-        # self.label = self.label[p]
-        # else:
-        # print("Image data and heading data are  not the same size")
-        # return 0
+        if (len(self.image) == len(self.label)):
+            p = np.random.permutation(len(self.image))
+            self.image = self.image[p]
+            self.label = self.label[p]
+        else:
+            print("Image data and heading data are  not the same size")
+            return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
         self.eval_images = self.image[-self.num_eval:, :]
 
-        # input could include cell data, heading data, or neither (no method right now for doing both as input)
-        if self.neitherAsInput:
-            print("There is no cell or heading as input!")
-        elif self.cellInput:
-            print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", len(self.label))
-            self.train_labels = self.label[:-self.num_eval, :]
-            print("This is cutting the labels!!!!!", len(self.train_labels))
-            self.eval_labels = self.label[-self.num_eval:, :]
-        elif self.headingInput:
-            self.train_labels = self.label[:-self.num_eval, :]
-            self.eval_labels = self.label[-self.num_eval:, :]
-        else:
-            print("Cannot have both cell and heading data in input")
-            return
+        self.train_labels = self.label[:-self.num_eval, :]
+        self.eval_labels = self.label[-self.num_eval:, :]
 
 
 
@@ -183,6 +171,11 @@ class OlinClassifier(object):
         #     )
 
 
+        # print("val imgs ", np.shape(self.eval_images))
+        # print("val labs ", np.shape(self.eval_labels))
+
+
+
 
         # UNCOMMENT FOR OVERLAPING
         ####################################################################
@@ -201,10 +194,10 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        self.train_images = self.train_images.reshape(12, 1000, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, 1000)
-        self.eval_images = self.eval_images.reshape(1, 1000, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, 1000)
+        # self.train_images = self.train_images.reshape(12, 1000, 100, 100, 1)
+        # self.train_labels = getCorrectLabels(self.train_labels, 1000)
+        # self.eval_images = self.eval_images.reshape(1, 1000, 100, 100, 1)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, 1000)
 
         self.model.fit(
             self.train_images, self.train_labels,
@@ -271,9 +264,9 @@ class OlinClassifier(object):
 
         model.add(keras.layers.Dropout(0.2))
 
-        model.add(keras.layers.Dense(1,kernel_initializer='normal', activation='linear'))
-
-        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
+        model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
+        # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'], )
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         model.summary()
         return model
@@ -335,9 +328,10 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
 
-        model.add(keras.layers.Dense(1,kernel_initializer='normal', activation='linear'))
+        model.add(keras.layers.Dense(3,kernel_initializer='normal', activation='linear'))
 
-        model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
+        # model.compile(loss='mean_absolute_error', optimizer='adam', metrics=['mean_absolute_error'])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         model.summary()
 
@@ -599,10 +593,10 @@ if __name__ == "__main__":
     olin_classifier = OlinClassifier(
         # dataImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        dataImg=DATA + 'lstm_Img_Cell_Input13k.npy',
-        dataLabel=DATA + 'lstm_Heading_Output13k.npy',
+        dataImg=DATA + 'regressionImages.npy',
+        dataLabel=DATA + 'regressionOutput.npy',
         data_name="cellInputReference",
-        outputSize=8,
+        outputSize=3,
         eval_ratio=1.0 / 13.0,
         image_size=100,
         cellInput=True,
