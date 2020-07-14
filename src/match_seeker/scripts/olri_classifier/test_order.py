@@ -13,7 +13,7 @@ def getOneHotLabel(number,size):
 if __name__ == '__main__':
     dict = np.load(DATA + "badDict.npy")
 
-    print(dict.keys)
+    print(dict.keys())
 
     #This is testing that the labels are correctly labeled!
     # cell_num = np.load(DATA + 'cell_ouput13k.npy')
