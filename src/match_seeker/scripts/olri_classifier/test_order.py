@@ -11,14 +11,14 @@ def getOneHotLabel(number,size):
 
 
 if __name__ == '__main__':
-    headData = np.load(DATA + "lstm_head_13k,npy")
+    headData = np.load(DATA + "lstm_head_13k.npy")
     oldHeadData  = np.load(DATA + "lstm_head_13k.npy")
     for i in range(len(headData)):
         if headData[i] !=  oldHeadData[i]:
             print("ooops")
             print(headData[i])
             print(oldHeadData[i])
-    
+
 
 
 
