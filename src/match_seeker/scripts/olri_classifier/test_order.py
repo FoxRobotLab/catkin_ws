@@ -11,7 +11,7 @@ def getOneHotLabel(number,size):
 
 
 if __name__ == '__main__':
-    dict = np.load(DATA + "badDict.npy")
+    dict = np.load(DATA + "badDict.npy",allow_pickle='TRUE').item()
 
     print(dict.keys())
 
