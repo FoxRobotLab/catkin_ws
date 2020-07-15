@@ -56,7 +56,7 @@ def CNN_LSTM_headPred(self):
     cnn.summary()
     return cnn
 
-def cnn_cellPred(self):
+def CNN(self):
     """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
     print("Building a model that takes cell number as input")
     model = keras.models.Sequential()

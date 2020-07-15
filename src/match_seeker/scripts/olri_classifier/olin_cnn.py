@@ -48,7 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, cnn_cellPred
+from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN
 
 
 
@@ -60,7 +60,7 @@ from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cell
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=2.0/13.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=2.0/13.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=8, cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
@@ -96,7 +96,7 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             #self.model = self.cnn_cells()  #CNN
-            self.model = cnn_cellPred(self) #CNN
+            self.model = CNN(self) #CNN
             #self.model = lstm_cell_pred(self) #CNN + LSTM
             #self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
             #self.model = predictingCells(self) #Transfer Learning
@@ -218,7 +218,7 @@ class OlinClassifier(object):
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size= 1,
-            epochs=25,
+            epochs=15,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -620,10 +620,10 @@ if __name__ == "__main__":
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
         # dataImg= DATA +"Img_w_head_13k.npy",
         dataImg=DATA + "lstm_Img_13k.npy",
-        # dataLabel=DATA + 'lstm_head_13k.npy',
-        dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_32_64_32_cellPred_20epoch",
-        outputSize= 271,
+        dataLabel=DATA + 'lstm_head_13k.npy',
+        #dataLabel = DATA + 'cell_ouput13k.npy',
+        data_name = "CNN_32_64_32_headPred_15epoch",
+        outputSize= 8,
         eval_ratio= 2.0/13.0,
         image_size=100,
         cellInput= True,
