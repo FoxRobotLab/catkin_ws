@@ -701,7 +701,7 @@ if __name__ == '__main__':
         if mapper.convertLocToCell(pose) != cell:
             count += 1
         frames += 1
-        print("x = ", x, " and y = ", y, " and cell = ", cell)
+        print("x = ", x, " and y = ", y, " and cell = ", cell, " and loc converted = ",  mapper.convertLocToCell(pose))
         if count > 100:
             break
 
