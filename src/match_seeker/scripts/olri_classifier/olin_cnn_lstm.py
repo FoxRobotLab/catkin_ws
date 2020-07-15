@@ -184,8 +184,7 @@ def transfer_lstm_cellPred(self):
     for i in range(1, len(model.layers), 1):
         new_model.add(keras.layers.TimeDistributed(model.layers[i]))
     new_model.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
-    new_model.add(keras.layers.LSTM(16, activation="relu", return_sequences=True))
-    new_model.add(keras.layers.LSTM(4, activation="relu"))
+    new_model.add(keras.layers.LSTM(16))
     new_model.add(keras.layers.Dense(num_classes, activation='sigmoid'))
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
