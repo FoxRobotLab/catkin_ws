@@ -194,7 +194,7 @@ def transfer_lstm_cellPred(self):
 
 def transfer_lstm_headPred(self):
     print("adding the lstm")
-    num_classes = 271
+    num_classes = 8
     new_model = keras.models.Sequential()
     model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0715201230/CNN_headingOut_20-20-0.38.hdf5")
     model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0715201230/CNN_headingOut_20-20-0.38.hdf5")
