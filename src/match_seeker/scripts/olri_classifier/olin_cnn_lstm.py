@@ -196,8 +196,8 @@ def transfer_lstm_headPred(self):
     print("adding the lstm")
     num_classes = 271
     new_model = keras.models.Sequential()
-    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0714201819/CNN_headingOut_20-20-0.38.hdf5")
-    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0714201819/CNN_headingOut_20-20-0.38.hdf5")
+    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0715201230/CNN_headingOut_20-20-0.38.hdf5")
+    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0715201230/CNN_headingOut_20-20-0.38.hdf5")
     for i in range(1):
         model.pop()
     for layer in range(13):
