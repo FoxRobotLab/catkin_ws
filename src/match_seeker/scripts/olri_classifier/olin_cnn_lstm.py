@@ -174,8 +174,8 @@ def transfer_lstm_cellPred(self):
     print("adding the lstm")
     num_classes = 271
     new_model = keras.models.Sequential()
-    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
-    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0713201142/CNN_w_Shuffle-06-0.84.hdf5")
+    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0714201819/CNN_32_64_32_cellPred_20epoch-22-0.29.hdf5")
+    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0714201819/CNN_32_64_32_cellPred_20epoch-22-0.29.hdf5")
     for i in range(3):
         model.pop()
     for layer in range(11):
