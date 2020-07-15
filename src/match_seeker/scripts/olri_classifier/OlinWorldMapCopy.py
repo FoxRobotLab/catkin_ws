@@ -698,7 +698,7 @@ if __name__ == '__main__':
         cell = frameData[frame]['cell']
         x, y = loc
         pose = [x, y]
-        if mapper.convertLocToCell(pose) == cell:
+        if int(mapper.convertLocToCell(pose)) == int(cell):
             print("hello")
             count -= 1
         frames += 1
