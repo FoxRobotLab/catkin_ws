@@ -622,7 +622,7 @@ if __name__ == "__main__":
         dataImg=DATA + "lstm_Img_13k.npy",
         #dataLabel=DATA + 'lstm_head_13k.npy',
         dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "transfer_LSTM_32_16_94percCellPred",
+        data_name = "transfer_LSTM_16_4_94percCellPred",
         outputSize= 271,
         eval_ratio= 2.0/13.0,
         image_size=100,
