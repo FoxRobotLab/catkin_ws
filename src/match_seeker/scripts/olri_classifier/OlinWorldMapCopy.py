@@ -696,7 +696,7 @@ if __name__ == '__main__':
     for frame in frameData.keys():
         loc = frameData[frame]['loc']
         cell = frameData[frame]['cell']
-        x,y = loc
+        y,x = loc
         pose = [x, y]
         if mapper.convertLocToCell(pose) != cell:
             count += 1
