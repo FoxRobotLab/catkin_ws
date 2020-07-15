@@ -178,7 +178,7 @@ def transfer_lstm_cellPred(self):
     model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0714201819/CNN_32_64_32_cellPred_20epoch-22-0.29.hdf5")
     for i in range(1):
         model.pop()
-    for layer in range(14):
+    for layer in range(13):
         model.layers[layer] = False
     new_model.add(keras.layers.TimeDistributed(model.layers[0], input_shape= [None, 100, 100, 1]))
     for i in range(1, len(model.layers), 1):
@@ -189,7 +189,7 @@ def transfer_lstm_cellPred(self):
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
     return new_model
-    
+
 
 
 def predictingCells(self):
