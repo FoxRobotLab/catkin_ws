@@ -702,7 +702,7 @@ if __name__ == '__main__':
             count += 1
         frames += 1
         print("x = ", x, " and y = ", y, " and cell = ", cell)
-        if count > 10:
+        if count > 100:
             break
 
     print("count = ", count, " and frames = ", frames)
