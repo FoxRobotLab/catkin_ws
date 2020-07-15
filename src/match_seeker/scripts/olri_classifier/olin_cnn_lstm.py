@@ -192,6 +192,27 @@ def transfer_lstm_cellPred(self):
     return new_model
 
 
+def transfer_lstm_headPred(self):
+    print("adding the lstm")
+    num_classes = 271
+    new_model = keras.models.Sequential()
+    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0714201819/CNN_headingOut_20-20-0.38.hdf5")
+    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0714201819/CNN_headingOut_20-20-0.38.hdf5")
+    for i in range(1):
+        model.pop()
+    for layer in range(13):
+        model.layers[layer] = False
+    new_model.add(keras.layers.TimeDistributed(model.layers[0], input_shape= [None, 100, 100, 1]))
+    for i in range(1, len(model.layers), 1):
+        new_model.add(keras.layers.TimeDistributed(model.layers[i]))
+    new_model.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
+    new_model.add(keras.layers.LSTM(16))
+    new_model.add(keras.layers.Dense(num_classes, activation='sigmoid'))
+    new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    new_model.summary()
+    return new_model
+
+
 
 def predictingCells(self):
     print("Tinkering with transferLearning")

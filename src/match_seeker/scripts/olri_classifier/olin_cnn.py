@@ -48,7 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN
+from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN, transfer_lstm_headPred
 
 
 
@@ -96,9 +96,10 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             #self.model = self.cnn_cells()  #CNN
-            self.model = CNN(self) #CNN
+            #self.model = CNN(self) #CNN
             #self.model = lstm_cell_pred(self) #CNN + LSTM
             #self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
+            self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
             #self.model = predictingCells(self) #Transfer Learning
             #self.model = image_head_predCell(self) #2 feature CNN + LSTM
             self.loss = keras.losses.categorical_crossentropy
@@ -141,15 +142,15 @@ class OlinClassifier(object):
         print("This is the ratio", self.num_eval)
 
 
-        np.random.seed(2845) #45600
-
-        if (len(self.image) == len(self.label)):
-            p = np.random.permutation(len(self.image))
-            self.image = self.image[p]
-            self.label = self.label[p]
-        else:
-            print("Image data and heading data are  not the same size")
-            return 0
+        # np.random.seed(2845) #45600
+        #
+        # if (len(self.image) == len(self.label)):
+        #     p = np.random.permutation(len(self.image))
+        #     self.image = self.image[p]
+        #     self.label = self.label[p]
+        # else:
+        #     print("Image data and heading data are  not the same size")
+        #     return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
@@ -207,11 +208,11 @@ class OlinClassifier(object):
 
         ####################################################################
         #ONLY FOR LSTM
-        # sampleSize = 1000
-        # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
-        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        # self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
+        sampleSize = 1000
+        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
@@ -622,7 +623,7 @@ if __name__ == "__main__":
         dataImg=DATA + "lstm_Img_13k.npy",
         dataLabel=DATA + 'lstm_head_13k.npy',
         #dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_headingOut_20",
+        data_name = "lstm_16_headOuputPred",
         outputSize= 8,
         eval_ratio= 2.0/13.0,
         image_size=100,
