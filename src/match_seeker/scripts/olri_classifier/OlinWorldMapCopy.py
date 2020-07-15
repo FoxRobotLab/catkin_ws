@@ -696,12 +696,12 @@ if __name__ == '__main__':
     for frame in frameData.keys():
         loc = frameData[frame]['loc']
         cell = frameData[frame]['cell']
-        y,x = loc
+        x, y = loc
         pose = [x, y]
         if mapper.convertLocToCell(pose) != cell:
             count += 1
         frames += 1
-        print("x = ", x, " and y = ", y)
+        print("x = ", x, " and y = ", y, " and cell = ", cell)
         if count > 10:
             break
 
