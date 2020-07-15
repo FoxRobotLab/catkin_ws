@@ -699,6 +699,7 @@ if __name__ == '__main__':
         x, y = loc
         pose = [x, y]
         if mapper.convertLocToCell(pose) == cell:
+            print("hello")
             count -= 1
         frames += 1
         count += 1
