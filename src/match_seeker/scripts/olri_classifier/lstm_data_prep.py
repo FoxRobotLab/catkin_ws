@@ -369,7 +369,7 @@ if __name__ == '__main__':
         lines = masterlist.readlines()
         for line in lines:
             split = line.split()
-            if split[1] == cellsNotFound[0]:
+            if split[1] == cellsNotFound[1]:
                 print("HELLLLOOOOOO", split[0])
         print("NOPE!")
 
