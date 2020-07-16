@@ -60,7 +60,7 @@ from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cell
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=2.0/13.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize= None, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize= None, cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
@@ -142,15 +142,15 @@ class OlinClassifier(object):
         print("This is the ratio", self.num_eval)
 
 
-        # np.random.seed(2845) #45600
-        #
-        # if (len(self.image) == len(self.label)):
-        #     p = np.random.permutation(len(self.image))
-        #     self.image = self.image[p]
-        #     self.label = self.label[p]
-        # else:
-        #     print("Image data and heading data are  not the same size")
-        #     return 0
+        np.random.seed(2845) #45600
+
+        if (len(self.image) == len(self.label)):
+            p = np.random.permutation(len(self.image))
+            self.image = self.image[p]
+            self.label = self.label[p]
+        else:
+            print("Image data and heading data are  not the same size")
+            return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
@@ -207,12 +207,12 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        #ONLY FOR LSTM
-        sampleSize = 1000
-        self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
+        # #ONLY FOR LSTM
+        # sampleSize = 1000
+        # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
+        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        # self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
@@ -620,12 +620,14 @@ if __name__ == "__main__":
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
         # dataImg= DATA +"Img_w_head_13k.npy",
-        dataImg=DATA + "lstm_Img_13k.npy",
+        # dataImg=DATA + "lstm_Img_13k.npy",
+        dataImg= DATA + 'Img_122k_ordered.npy',
+        dataLabel= DATA + 'lstm_cellOutput_122k.npy',
         #dataLabel=DATA + 'lstm_head_13k.npy',
-        dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "lstm_16_cellOuputPred",
+        # dataLabel = DATA + 'cell_ouput13k.npy',
+        data_name = "CNN_cellPred_all244Cell_20epochs",
         outputSize= 271,
-        eval_ratio= 2.0/13.0,
+        eval_ratio= 11.0/61.0,
         image_size=100,
         cellInput= True,
         image_depth= 1
