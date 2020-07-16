@@ -365,8 +365,8 @@ if __name__ == '__main__':
             print(cell)
     print(cellsNotFound)
 
-    for i in cellsNotFound:
-        wantedCells.pop(cell)
+    for cell in cellsNotFound:
+        wantedCells.remove(cell)
     print(wantedCells)
     print(len(wantedCells))
 
