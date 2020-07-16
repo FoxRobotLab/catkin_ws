@@ -366,13 +366,22 @@ if __name__ == '__main__':
     for cell in cellsNotFound:
         wantedCells.remove(cell)
 
+    arry = []
+    for cell in wantedCells:
+        if cell not in rndUnderRepSubset.keys():
+            print(cell)
+            arry.append(cell)
+    print(cellsNotFound)
+    print(arry)
+
+
     frame_dict = OrderedDict()
     newFrames = OrderedDict
-    for cell in wantedCells:
-        frame_dict[cell] = cell_frame_dict[cell]
-        if (len(rndUnderRepSubset[cell]) > 0):
-            newFrames[cell] = rndUnderRepSubset[cell]
-    add_cell_channel(frame_dict, newFrames, cellOutput=True, headOuput=True)
+    # for cell in wantedCells:
+    #     frame_dict[cell] = cell_frame_dict[cell]
+    #     if (len(rndUnderRepSubset[cell]) > 0):
+    #         newFrames[cell] = rndUnderRepSubset[cell]
+    # add_cell_channel(frame_dict, newFrames, cellOutput=True, headOuput=True)
     # ################################################################
 
 
