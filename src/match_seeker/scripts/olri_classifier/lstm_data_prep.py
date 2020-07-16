@@ -370,9 +370,8 @@ if __name__ == '__main__':
         for line in lines:
             split = line.split()
             if split[1] == cellsNotFound[0]:
-                print(split[0])
-            else:
-                print("NOPE!")
+                print("HELLLLOOOOOO", split[0])
+            print("NOPE!")
 
 
     # wantedCells.pop(151)
