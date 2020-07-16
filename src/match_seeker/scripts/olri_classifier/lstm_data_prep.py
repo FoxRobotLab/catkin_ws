@@ -371,8 +371,10 @@ if __name__ == '__main__':
             split = line.split()
             if split[1] == cellsNotFound[0]:
                 print(split[0])
+            else:
+                print("NOPE!")
 
-  
+
     # wantedCells.pop(151)
     # frame_dict = OrderedDict()
     # newFrames = OrderedDict
