@@ -335,10 +335,8 @@ if __name__ == '__main__':
 
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
     rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
-    orig = sorted(cell_frame_dict.keys())
-    new = sorted(rndUnderRepSubset.keys())
-    print("Orig frame dict", orig)
-    print("new frames", new)
+
+
 
     # ################################################################
     # #Selecting the SAMPLE
@@ -356,9 +354,16 @@ if __name__ == '__main__':
 
     # ################################################################
     #ALL DATA EXCEPT CELL 152 BC TOTAL NUM OF CELLS MUST BE EVEN
-    # wantedCells = []
-    # for i in range(271):
-    #     wantedCells.append(str(i))
+    wantedCells = []
+    for i in range(271):
+        wantedCells.append(str(i))
+
+    cellsNotFound = []
+    for cell in wantedCells:
+        if cell_frame_dict[cell] == None:
+            cellsNotFound.append(cell)
+            print(cell)
+    print(cellsNotFound)
     # wantedCells.pop(151)
     # frame_dict = OrderedDict()
     # newFrames = OrderedDict
