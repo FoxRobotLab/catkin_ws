@@ -3,11 +3,10 @@ import numpy as np
 import cv2
 from paths import DATA
 
-############## HEADING OUTPUT ####################
-def CNN_LSTM_headPred(self):
-    print("Building a model that takes images as input")
-    cnn = keras.models.Sequential()
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+def CNN_LSTM(self):
+    print("Building a CNN + LSTM model with image as input")
+    cnnLSTM = keras.models.Sequential()
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
         filters= 32,
         kernel_size=(5, 5),
         strides=(1, 1),
@@ -16,26 +15,26 @@ def CNN_LSTM_headPred(self):
         data_format="channels_last",
 
     ), input_shape= [None, 100, 100, 1]))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
         pool_size=(2, 2),
         strides=(2, 2),
         padding="same"
     )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
             filters=64,
             kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
             padding="same"
         )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
             pool_size=(2, 2),
             strides=(2, 2),
             padding="same"
         )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
             filters=32,
             kernel_size=(5, 5),
             strides=(1, 1),
@@ -43,18 +42,19 @@ def CNN_LSTM_headPred(self):
             padding="same",
             data_format="channels_last"
         )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
             pool_size=(2, 2),
             strides=(2, 2),
             padding="same",
         )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
-    cnn.add(keras.layers.LSTM(10))
-    cnn.add(keras.layers.Dense(8, activation='sigmoid'))
-    cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    cnn.summary()
-    return cnn
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+    cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
+    cnnLSTM.add(keras.layers.LSTM(10))
+    cnnLSTM.add(keras.layers.Dense(units=self.outputSize, activation='sigmoid'))
+    cnnLSTM.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    cnnLSTM.summary()
+    return cnnLSTM
+
 
 def CNN(self):
     """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
@@ -116,61 +116,8 @@ def CNN(self):
     return model
 
 
-
-def CNN_LSTM_cellPred(self):
-    print("Building a model that takes images and head as input")
-    cnn = keras.models.Sequential()
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-        filters= 32,
-        kernel_size=(5, 5),
-        strides=(1, 1),
-        activation="relu",
-        padding="same",
-        data_format="channels_last",
-
-    ), input_shape= [None, 100, 100, 2]))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
-        pool_size=(2, 2),
-        strides=(2, 2),
-        padding="same"
-    )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=64,
-            kernel_size=(5, 5),
-            strides=(1, 1),
-            activation="relu",
-            padding="same"
-        )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same"
-        )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=32,
-            kernel_size=(5, 5),
-            strides=(1, 1),
-            activation="relu",
-            padding="same",
-            data_format="channels_last"
-        )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same",
-        )))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
-    cnn.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
-    cnn.add(keras.layers.LSTM(5))
-    cnn.add(keras.layers.Dense(271, activation='sigmoid'))
-    cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    cnn.summary()
-    return cnn
-
-
 def transfer_lstm_cellPred(self):
+    #This model produces an accuracy of 0
     print("adding the lstm")
     num_classes = 271
     new_model = keras.models.Sequential()
@@ -224,7 +171,6 @@ def predictingCells(self):
 
     new_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     new_model.summary()
-
     return new_model
 
 
