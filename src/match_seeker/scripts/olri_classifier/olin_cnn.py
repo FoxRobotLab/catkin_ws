@@ -96,9 +96,9 @@ class OlinClassifier(object):
                 compile=True)
         elif self.cellInput:
             #self.model = self.cnn_cells()  #CNN
-            #self.model = CNN(self) #CNN
+            self.model = CNN(self) #CNN
             #self.model = lstm_cell_pred(self) #CNN + LSTM
-            self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
+            #self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
             #self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
             #self.model = predictingCells(self) #Transfer Learning
             #self.model = image_head_predCell(self) #2 feature CNN + LSTM
