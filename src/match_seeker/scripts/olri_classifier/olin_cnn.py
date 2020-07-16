@@ -102,7 +102,7 @@ class OlinClassifier(object):
             self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
                 DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201129/CNN_cellPred_all244Cell_20epochs-04-0.65.hdf5")
-            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201129/CNN_cellPred_all244Cell_20epochs-04-0.65.hdf5", compile=True)
+            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201129/CNN_cellPred_all244Cell_20epochs-04-0.65.hdf5")
             #self.model = CNN(self)  # CNN
             # self.model = lstm_cell_pred(self) #CNN + LSTM
             # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
