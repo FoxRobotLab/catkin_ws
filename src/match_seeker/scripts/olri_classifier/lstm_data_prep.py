@@ -369,12 +369,11 @@ if __name__ == '__main__':
     print(len(wantedCells))
 
     frame_dict = OrderedDict()
-    newFrames = OrderedDict
+    newFrames = OrderedDict()
+    
     for cell in wantedCells:
         frame_dict[cell] = cell_frame_dict[cell]
-        print("cell ouside 1 ", cell)
         if (len(rndUnderRepSubset[cell]) > 0):
-            print("cell inside 2", cell)
             newFrames[cell] = rndUnderRepSubset[cell]
     add_cell_channel(frame_dict, newFrames, cellOutput=True, headOuput=True)
     # ################################################################
