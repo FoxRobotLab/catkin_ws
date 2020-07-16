@@ -335,10 +335,11 @@ if __name__ == '__main__':
 
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
     rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
-    print("Orig frame dict", cell_frame_dict.keys())
-    print("size", len(cell_frame_dict.keys()))
-    print("new frames", rndUnderRepSubset.keys())
-    print("size", len(rndUnderRepSubset.keys()))
+    orig = sorted(cell_frame_dict.keys())
+    new = sorted(rndUnderRepSubset.keys())
+    print("Orig frame dict", orig)
+    print("new frames", new)
+
     # ################################################################
     # #Selecting the SAMPLE
     # wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
