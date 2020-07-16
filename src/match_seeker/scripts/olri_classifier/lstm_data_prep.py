@@ -364,6 +364,15 @@ if __name__ == '__main__':
             cellsNotFound.append(cell)
             print(cell)
     print(cellsNotFound)
+
+    with open(master_cell_loc_frame_id, 'r') as masterlist:
+        lines = masterlist.readlines()
+        for line in lines:
+            split = line.split()
+            if split[1] == cellsNotFound[0]:
+                print(split[0])
+
+  
     # wantedCells.pop(151)
     # frame_dict = OrderedDict()
     # newFrames = OrderedDict
