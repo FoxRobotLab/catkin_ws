@@ -365,13 +365,10 @@ if __name__ == '__main__':
             print(cell)
     print(cellsNotFound)
 
-    with open(master_cell_loc_frame_id, 'r') as masterlist:
-        lines = masterlist.readlines()
-        for line in lines:
-            split = line.split()
-            if split[1] == cellsNotFound[1]:
-                print("HELLLLOOOOOO", split[0])
-        print("NOPE!")
+    for i in cellsNotFound:
+        wantedCells.pop(cell)
+    print(wantedCells)
+    print(len(wantedCells))
 
 
     # wantedCells.pop(151)
