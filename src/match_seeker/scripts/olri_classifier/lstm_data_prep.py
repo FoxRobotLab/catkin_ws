@@ -213,7 +213,7 @@ def calculate_mean(images):
         # print("*** Check image shape")
         return None
 
-    np.save(DATA + 'lstm_mean_135k.npy', mean)
+    np.save(DATA + 'lstm_mean_122k.npy', mean)
     print("*** Done. Returning mean.")
     return mean
 
@@ -321,9 +321,9 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
     hotLabelHeadOutput = np.asarray(hotLabelHeadOutput)
     hotLabelcellOutput = np.asarray(hotLabelcellOutput)
 
-    np.save(DATA + "Img_135k_ordered", train_IMG)
-    np.save(DATA + "lstm_headOuput_135k", hotLabelHeadOutput)
-    np.save(DATA + "lstm_headOuput_135k", hotLabelcellOutput)
+    np.save(DATA + "Img_122k_ordered", train_IMG)
+    np.save(DATA + "lstm_headOuput_122k", hotLabelHeadOutput)
+    np.save(DATA + "lstm_headOuput_122k", hotLabelcellOutput)
 
 
 
@@ -362,23 +362,17 @@ if __name__ == '__main__':
     for cell in wantedCells:
         if cell not in cell_frame_dict.keys():
             cellsNotFound.append(cell)
-            print(cell)
-    print(cellsNotFound)
 
     for cell in cellsNotFound:
         wantedCells.remove(cell)
-    print(wantedCells)
-    print(len(wantedCells))
 
-
-    # wantedCells.pop(151)
-    # frame_dict = OrderedDict()
-    # newFrames = OrderedDict
-    # for cell in wantedCells:
-    #     frame_dict[cell] = cell_frame_dict[cell]
-    #     if (len(rndUnderRepSubset[cell]) > 0):
-    #         newFrames[cell] = rndUnderRepSubset[cell]
-    # add_cell_channel(frame_dict, newFrames, cellOutput=True, headOuput=True)
+    frame_dict = OrderedDict()
+    newFrames = OrderedDict
+    for cell in wantedCells:
+        frame_dict[cell] = cell_frame_dict[cell]
+        if (len(rndUnderRepSubset[cell]) > 0):
+            newFrames[cell] = rndUnderRepSubset[cell]
+    add_cell_channel(frame_dict, newFrames, cellOutput=True, headOuput=True)
     # ################################################################
 
 
