@@ -323,7 +323,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
 
     np.save(DATA + "Img_122k_ordered", train_IMG)
     np.save(DATA + "lstm_headOuput_122k", hotLabelHeadOutput)
-    np.save(DATA + "lstm_headOuput_122k", hotLabelcellOutput)
+    np.save(DATA + "lstm_cellOutput_122k", hotLabelcellOutput)
 
 
 
@@ -370,7 +370,7 @@ if __name__ == '__main__':
 
     frame_dict = OrderedDict()
     newFrames = OrderedDict()
-    
+
     for cell in wantedCells:
         frame_dict[cell] = cell_frame_dict[cell]
         if (len(rndUnderRepSubset[cell]) > 0):
