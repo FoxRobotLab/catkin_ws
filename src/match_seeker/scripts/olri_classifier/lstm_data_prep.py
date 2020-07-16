@@ -335,7 +335,10 @@ if __name__ == '__main__':
 
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
     rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
-
+    print("Orig frame dict", cell_frame_dict.keys())
+    print("size", len(cell_frame_dict.keys()))
+    print("new frames", rndUnderRepSubset.keys())
+    print("size", len(rndUnderRepSubset.keys()))
     # ################################################################
     # #Selecting the SAMPLE
     # wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34',
@@ -352,17 +355,17 @@ if __name__ == '__main__':
 
     # ################################################################
     #ALL DATA EXCEPT CELL 152 BC TOTAL NUM OF CELLS MUST BE EVEN
-    wantedCells = []
-    for i in range(271):
-        wantedCells.append(str(i))
-    wantedCells.pop(151)
-    frame_dict = OrderedDict()
-    newFrames = OrderedDict
-    for cell in wantedCells:
-        frame_dict[cell] = cell_frame_dict[cell]
-        if (len(rndUnderRepSubset[cell]) > 0):
-            newFrames[cell] = rndUnderRepSubset[cell]
-    add_cell_channel(frame_dict, newFrames, cellOutput=True, headOuput=True)
+    # wantedCells = []
+    # for i in range(271):
+    #     wantedCells.append(str(i))
+    # wantedCells.pop(151)
+    # frame_dict = OrderedDict()
+    # newFrames = OrderedDict
+    # for cell in wantedCells:
+    #     frame_dict[cell] = cell_frame_dict[cell]
+    #     if (len(rndUnderRepSubset[cell]) > 0):
+    #         newFrames[cell] = rndUnderRepSubset[cell]
+    # add_cell_channel(frame_dict, newFrames, cellOutput=True, headOuput=True)
     # ################################################################
 
 
