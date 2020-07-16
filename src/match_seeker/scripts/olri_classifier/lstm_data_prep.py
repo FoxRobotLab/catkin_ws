@@ -360,7 +360,7 @@ if __name__ == '__main__':
 
     cellsNotFound = []
     for cell in wantedCells:
-        if cell_frame_dict[cell] == None:
+        if cell not in cell_frame_dict.keys():
             cellsNotFound.append(cell)
             print(cell)
     print(cellsNotFound)
