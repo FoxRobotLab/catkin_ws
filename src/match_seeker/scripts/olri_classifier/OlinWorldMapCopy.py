@@ -693,13 +693,14 @@ if __name__ == '__main__':
     count = 0
     frames = 0
 
+    badFrames = []
     for frame in frameData.keys():
-        badFrames = []
         loc = frameData[frame]['loc']
         cell = frameData[frame]['cell']
         x, y = loc
         pose = [x, y]
         if int(mapper.convertLocToCell(pose)) != int(cell):
+            print('hi')
             badFrames.append(frameData[frame]['frameNum'])
 
 
