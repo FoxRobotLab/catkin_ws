@@ -700,7 +700,6 @@ if __name__ == '__main__':
         x, y = loc
         pose = [x, y]
         if int(mapper.convertLocToCell(pose)) != int(cell):
-            print('hi')
             badFrames.append(frameData[frame]['frameNum'])
 
 
