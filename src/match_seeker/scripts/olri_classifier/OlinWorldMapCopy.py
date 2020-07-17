@@ -694,15 +694,16 @@ if __name__ == '__main__':
     frames = 0
 
     for frame in frameData.keys():
+        badFrames = []
         loc = frameData[frame]['loc']
         cell = frameData[frame]['cell']
         x, y = loc
         pose = [x, y]
         if int(mapper.convertLocToCell(pose)) != int(cell):
-            count += 1
-        frames += 1
+            badFrames.append(frameData[frame]['frameNum'])
 
 
-    print("count = ", count, " and frames = ", frames)
+
+    print(dict)
 
 
