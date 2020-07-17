@@ -100,10 +100,10 @@ class OlinClassifier(object):
             self.loss = keras.losses.categorical_crossentropy
         elif self.model2020:
             self.loss = keras.losses.categorical_crossentropy
-            self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
-            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
-            #self.model = CNN(self)  # CNN
+            # self.model = keras.models.load_model(
+            #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
+            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
+            self.model = CNN(self)  # CNN
             # self.model = lstm_cell_pred(self) #CNN + LSTM
             # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
             # self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
@@ -624,11 +624,12 @@ if __name__ == "__main__":
         # dataImg= DATA +"Img_w_head_13k.npy",
         # dataImg=DATA + "lstm_Img_13k.npy",
         dataImg= DATA + 'Img_122k_ordered.npy',
-        dataLabel= DATA + 'lstm_cellOutput_122k.npy',
+        #dataLabel= DATA + 'lstm_cellOutput_122k.npy',
+        dataLabel= DATA + 'lstm_headOuput_122k.npy',
         #dataLabel=DATA + 'lstm_head_13k.npy',
         # dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_cellPred_all244Cell_20epochs",
-        outputSize= 271,
+        data_name = "CNN_headPred_all244Cell",
+        outputSize= 8,
         eval_ratio= 11.0/61.0,
         image_size=100,
         model2020= True,
