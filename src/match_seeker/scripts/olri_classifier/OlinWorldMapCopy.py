@@ -694,16 +694,24 @@ if __name__ == '__main__':
     frames = 0
 
     badFrames = []
+    cellCount = {}
     for frame in frameData.keys():
         loc = frameData[frame]['loc']
         cell = frameData[frame]['cell']
         x, y = loc
         pose = [x, y]
         if int(mapper.convertLocToCell(pose)) != int(cell):
-            badFrames.append(frameData[frame]['frameNum'])
+            badFrames.append(frameData[frame])
+
+            if cell not in cellCount:
+                cellCount[cell] = 1
+            else:
+                cellCount[cell] += 1
+
+    print(cellCount)
 
 
 
-    print(badFrames)
+
 
 
