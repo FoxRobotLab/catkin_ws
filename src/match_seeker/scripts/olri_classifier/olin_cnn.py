@@ -103,7 +103,10 @@ class OlinClassifier(object):
             # self.model = keras.models.load_model(
             #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
             # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
-            self.model = CNN(self)  # CNN
+            self.model = keras.models.load_model(
+                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201019/CNN_headPred_all244Cell-02-0.75.hdf5")
+            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201019/CNN_headPred_all244Cell-02-0.75.hdf5")
+            #self.model = CNN(self)  # CNN
             # self.model = lstm_cell_pred(self) #CNN + LSTM
             # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
             # self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
