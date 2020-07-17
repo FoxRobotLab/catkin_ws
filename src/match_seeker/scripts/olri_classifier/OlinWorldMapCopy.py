@@ -704,6 +704,6 @@ if __name__ == '__main__':
 
 
 
-    print(dict)
+    print(badFrames)
 
 
