@@ -390,7 +390,15 @@ class OlinClassifier(object):
     def predictSingleImage(self, cleanImage):
         """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
         the resulting prediction."""
-        modelPredict = self.model.predict(cleanImage)
+        listed = np.array([cleanImage])
+        modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
         return maxIndex
 
+    def predictSingleImageAllData(self, cleanImage):
+        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
+        the resulting prediction."""
+        listed = np.array([cleanImage])
+        modelPredict = self.model.predict(listed)
+        maxIndex = np.argmax(modelPredict)
+        return maxIndex, modelPredict[0]

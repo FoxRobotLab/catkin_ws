@@ -40,8 +40,9 @@ import numpy as np
 # from tensorflow import keras
 import cv2
 # import time
-from paths import pathToMatchSeeker
+from paths import pathToMatchSeeker, DATA
 from imageFileUtils import makeFilename
+from preprocessData import DataPreprocess
 # ORIG import olin_inputs_2019 as oi2
 import random
 
@@ -94,10 +95,10 @@ def loading_bar(start,end, size = 20):
 
 def cleanImage(image, mean=None, imageSize = 100):
     """Converts the image to the form used when saving the data."""
-    cropped = cv2.resize(image, (imageSize, imageSize))
-    grayed = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+    shrunkenIm = cv2.resize(image, (imageSize, imageSize))
+    grayed = cv2.cvtColor(shrunkenIm, cv2.COLOR_BGR2GRAY)
     meaned = np.subtract(grayed, mean)
-    return meaned
+    return shrunkenIm, grayed, meaned
 
 
 
@@ -206,47 +207,181 @@ def testingSusanData():
     print("Number correct =", count)
 
 
-
-def testingOrigData():
+def testingOnNetwork():
+    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
     cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
-    # cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
-    meanFile = "TRAININGDATA_100_500_mean.npy"
+    cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
+    meanFile = "AngelTRAININGDATA_100_500_mean.npy"
     dataPath = pathToMatchSeeker + 'res/classifier2019data/'
-
+    print("Setting up preprocessor to get frame data...")
+    dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
     print("Loading mean...")
 
     mean = np.load(dataPath + meanFile)
+    checkPts = dataPath + "CHECKPOINTS/"
+    olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
+                                     savedCheckpoint=checkPts + cellOutputCheckpoint,
+                                     data_name="cellInput",
+                                     headingInput=True,
+                                     outputSize=271,
+                                     image_size=100,
+                                     image_depth=2)
 
-    # checkPts = dataPath + "CHECKPOINTS/"
-    # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
-    #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
-    #                                  data_name="cellInput",
-    #                                  headingInput=True,
-    #                                  outputSize=271,
-    #                                  image_size=100,
-    #                                  image_depth=2)
-    #
-    print("Loading data...")
-    dataPackage = np.load(dataPath + cellOutputFile, allow_pickle=True, encoding='latin1')
-    print("Data read")
-    print(dataPackage.shape)
-    imageData = dataPackage[:, 0]
-    cellData = dataPackage[:, 1]
-    numIms = imageData.shape[0]
-    for i in range(100):
+    # print("Loading data...")
+    # dataPackage = np.load(dataPath + cellOutputFile, allow_pickle=True, encoding='latin1')
+    # print("Data read")
+    # print(dataPackage.shape)
+    # imageData = dataPackage[:, 0]
+    # cellData = dataPackage[:, 1]
+    # numIms = imageData.shape[0]
+    # print(imageData[0][:, :, 0])
+    countPerfect = 0
+    countTop3 = 0
+    countTop5 = 0
+
+    for i in range(1000):
         print("===========", i)
         imFile = makeFilename(dataPath + 'frames/moreFrames/', i)
         imageB = cv2.imread(imFile)
-        processedB = cleanImage(imageB, mean)
+        cellB = dPreproc.frameData[i]['cell']
+        headingB = dPreproc.frameData[i]['heading']
+        headingIndex = potentialHeadings.index(headingB)
+        print(" cellB =", cellB)
+        if imageB is None:
+            print(" image not found")
+            continue
+        smallerB, grayB, processedB = cleanImage(imageB, mean)
+
+        headBArr = headingIndex * np.ones((100, 100, 1))
+        print(headingB, headingIndex)
+        procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
+        predB, output = olin_classifier.predictSingleImageAllData(procBPlus)
+        topThreePercs, topThreeCells = findTopX(3, output)
+        topFivePercs, topFiveCells = findTopX(5, output)
+        print("cellB =", cellB, "   predB =", predB)
+        print("Top three:", topThreeCells, topThreePercs)
+        print("Top five:", topFiveCells, topFivePercs)
+        if predB == cellB:
+            print("perfect!")
+            countPerfect += 1
+        if cellB in topThreeCells:
+            print("top 3")
+            countTop3 += 1
+        if cellB in topFiveCells:
+            print("top 5")
+            countTop5 += 1
+        dispProcB = cv2.convertScaleAbs(processedB)
+        cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
+        cv2.moveWindow("Image B", 50, 50)
+        cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
+        cv2.moveWindow("Smaller B", 50, 500)
+        cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
+        cv2.moveWindow("Gray B", 500, 500)
+        cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
+        cv2.moveWindow("Proce B", 500, 50)
+        x = cv2.waitKey(500)
+        if chr(x & 0xFF) == 'q':
+            break
+    print("Count of perfect:", countPerfect)
+    print("Count of top 3:", countTop3)
+    print("Count of top 5:", countTop5)
+
+
+def findTopX(x, cellArray):
+    topVals = [0.0] * x
+    topIndex = [None] * x
+    for i in range(len(cellArray)):
+        val = cellArray[i]
+
+        for j in range(x):
+            if topIndex[j] is None or val > topVals[j]:
+                break
+        if val > topVals[x-1]:
+            topIndex.insert(j, i)
+            topVals.insert(j, val)
+            topIndex.pop(-1)
+            topVals.pop(-1)
+    return topVals, topIndex
+
+
+
+
+
+
+def testingOrigData():
+    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
+    cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
+    meanFile = "AngelTRAININGDATA_100_500_mean.npy"
+    dataPath = pathToMatchSeeker + 'res/classifier2019data/'
+    print("Setting up preprocessor to get frame data...")
+    dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+    print("Loading mean...")
+
+    mean = np.load(dataPath + meanFile)
+    print(mean.max(), mean.min())
+    print(mean)
+    checkPts = dataPath + "CHECKPOINTS/"
+    olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
+                                     savedCheckpoint=checkPts + cellOutputCheckpoint,
+                                     data_name="cellInput",
+                                     headingInput=True,
+                                     outputSize=271,
+                                     image_size=100,
+                                     image_depth=2)
+
+    print("Loading data...")
+    dataPackage = np.load(dataPath + cellOutputFile, allow_pickle=True, encoding='latin1')
+    print("Data read")
+    # print(dataPackage.shape)
+    imageData = dataPackage[:, 0]
+    cellData = dataPackage[:, 1]
+    numIms = imageData.shape[0]
+    # print(imageData[0][:, :, 0])
+    for i in range(1000):
+        print("===========", i)
+        imFile = makeFilename(dataPath + 'frames/moreFrames/', i)
+        imageB = cv2.imread(imFile)
+        cellB = dPreproc.frameData[i]['cell']
+        headingB = dPreproc.frameData[i]['heading']
+        headingIndex = potentialHeadings.index(headingB)
+        print(" cellB =", cellB)
+        if imageB is None:
+            print(" image not found")
+            continue
+        smallerB, grayB, processedB = cleanImage(imageB, mean)
+
+        headBArr = headingIndex * np.ones((100, 100, 1))
+        print(headingB, headingIndex)
+        procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
+        predB = olin_classifier.predictSingleImage(procBPlus)
+        cellCount = 0
         for j in range(numIms):
-            print("    ", j)
-            
-            
+            # if j % 1000 == 0:
+            #     print("    ", j)
+            cellA = np.argmax(cellData[j])
+            if cellA != cellB:
+                continue
+            cellCount += 1
+
             imageA = imageData[j][:, :, 0]
-            if (imageA==processedB).all():
-                cv2.imshow("Image A", imageA)
-                cv2.imshow("Image B", imageB)
-                cv2.waitKey(0)
+            predA = olin_classifier.predictSingleImage(imageData[j])
+            # print(imageA[:10, :10])
+            diff = np.sum(np.abs(imageA - processedB))
+            if diff < 100000:
+                print("cellA =", cellA, "cellB =", cellB, "predB =", predB, "predA =", predA)
+                print("Difference", diff)
+                dispImageA = cv2.convertScaleAbs(imageA)
+                dispProcB = cv2.convertScaleAbs(processedB)
+                cv2.imshow("Image A", cv2.resize(dispImageA, (400, 400)))
+                cv2.moveWindow("ImageA", 50, 500)
+                cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
+                cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
+                cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
+                cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
+                cv2.moveWindow("Proce B", 500, 500)
+                cv2.waitKey(5000)
 
-
-testingOrigData()
+#
+# testingOrigData()
+testingOnNetwork()
