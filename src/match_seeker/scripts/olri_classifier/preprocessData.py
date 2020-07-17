@@ -48,7 +48,7 @@ class DataPreprocess(object):
         self.dumbNum = 0
 
 
-    def buildDataDicts(self, locBool=True, cell=True, heading=True):
+    def buildDataDicts(self, locBool=True, cell=True, heading=True, frameNum=True):
         """
         Reads in the data in the self.dataFile file, and fills in various dictionaries.
         self.frameData uses the frame number as the key and contains a dictionary with keys 'cell', 'heading', 'loc'
@@ -76,6 +76,9 @@ class DataPreprocess(object):
 
             if heading:
                 self.frameData[frameNum]['heading'] = headingNum
+
+            if frameNum:
+                self.frameData[frameNum]['frameNum'] = frameNum
 
 
             if cellNum not in self.cellData:

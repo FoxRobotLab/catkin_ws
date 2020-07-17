@@ -48,7 +48,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, cnn_cellPred
+from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN, transfer_lstm_headPred
 
 
 
@@ -60,7 +60,7 @@ from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cell
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=2.0/13.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize=271, cellInput=False, headingInput=False,
+    def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize= None, model2020 = False,cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
@@ -71,7 +71,8 @@ class OlinClassifier(object):
 
         self.cellInput = cellInput
         self.headingInput = headingInput
-        self.neitherAsInput = (not cellInput) and (not headingInput)
+        self.model2020 = model2020
+        self.neitherAsInput = (not cellInput) and (not headingInput) and (not model2020)
 
         self.dataImg = dataImg
         self.dataLabel = dataLabel
@@ -92,16 +93,24 @@ class OlinClassifier(object):
             # self.model = self.cnn_headings()
             self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201129/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
                 compile=True)
         elif self.cellInput:
-            #self.model = self.cnn_cells()  #CNN
-            self.model = cnn_cellPred(self) #CNN
-            #self.model = lstm_cell_pred(self) #CNN + LSTM
-            #self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
-            #self.model = predictingCells(self) #Transfer Learning
-            #self.model = image_head_predCell(self) #2 feature CNN + LSTM
+            self.model = self.cnn_cells()  #CNN
             self.loss = keras.losses.categorical_crossentropy
+        elif self.model2020:
+            self.loss = keras.losses.categorical_crossentropy
+            # self.model = keras.models.load_model(
+            #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
+            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
+            self.model = CNN(self)  # CNN
+            # self.model = lstm_cell_pred(self) #CNN + LSTM
+            # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
+            # self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
+            # self.model = predictingCells(self) #Transfer Learning
+            # self.model = image_head_predCell(self) #2 feature CNN + LSTM
+
+
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
             self.model = None
@@ -158,17 +167,11 @@ class OlinClassifier(object):
         # input could include cell data, heading data, or neither (no method right now for doing both as input)
         if self.neitherAsInput:
             print("There is no cell or heading as input!")
-        elif self.cellInput:
+        else:
             print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", len(self.label))
             self.train_labels = self.label[:-self.num_eval, :]
             print("This is cutting the labels!!!!!", len(self.train_labels))
             self.eval_labels = self.label[-self.num_eval:, :]
-        elif self.headingInput:
-            self.train_labels = self.label[:-self.num_eval, :]
-            self.eval_labels = self.label[-self.num_eval:, :]
-        else:
-            print("Cannot have both cell and heading data in input")
-            return
 
 
 
@@ -206,7 +209,7 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        #ONLY FOR LSTM
+        # #ONLY FOR LSTM
         # sampleSize = 1000
         # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
         # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
@@ -218,7 +221,7 @@ class OlinClassifier(object):
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size= 1,
-            epochs=15,
+            epochs=20,
             verbose=1,
             validation_data=(self.eval_images, self.eval_labels),
             shuffle=True,
@@ -619,14 +622,17 @@ if __name__ == "__main__":
         # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
         #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
         # dataImg= DATA +"Img_w_head_13k.npy",
-        dataImg=DATA + "lstm_Img_13k.npy",
-        # dataLabel=DATA + 'lstm_head_13k.npy',
-        dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_32_64_32_cellPred",
-        outputSize= 271,
-        eval_ratio= 2.0/13.0,
+        # dataImg=DATA + "lstm_Img_13k.npy",
+        dataImg= DATA + 'Img_122k_ordered.npy',
+        #dataLabel= DATA + 'lstm_cellOutput_122k.npy',
+        dataLabel= DATA + 'lstm_headOuput_122k.npy',
+        #dataLabel=DATA + 'lstm_head_13k.npy',
+        # dataLabel = DATA + 'cell_ouput13k.npy',
+        data_name = "CNN_headPred_all244Cell",
+        outputSize= 8,
+        eval_ratio= 11.0/61.0,
         image_size=100,
-        cellInput= True,
+        model2020= True,
         image_depth= 1
     )
     print("Classifier built")
