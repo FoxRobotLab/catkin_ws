@@ -71,11 +71,11 @@ class DataPreprocess(object):
             loc = (xVal, yVal)
             self.frameData[frameNum] = {}
             if locBool:
+                if int(self.convertLocToCell(loc)) != int(cellNum):
+                    loc = self.badLocDict[cellNum]
                 self.frameData[frameNum]['loc'] = loc
 
             if cell:
-                if int(self.convertLocToCell(loc)) != int(cellNum):
-                    loc = self.badLocDict[cellNum]
                 self.frameData[frameNum]['cell'] = cellNum
 
             if heading:
