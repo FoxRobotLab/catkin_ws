@@ -106,13 +106,12 @@ class DataPreprocess(object):
                 locList.append(frameNum)
 
 
-        for frame in self.frameData:
-            loc = self.frameData[frame]['loc']
-            cell = self.frameData[frame]['cell']
-            if int(self.convertLocToCell(loc)) != int(cell):
-                print(cell)
-                print(self.convertLocToCell(loc))
-                self.frameData[frame]['loc'] = locDict[cell]
+        if locBool:
+            for frame in self.frameData:
+                loc = self.frameData[frame]['loc']
+                cell = self.frameData[frame]['cell']
+                if int(self.convertLocToCell(loc)) != int(cell):
+                    self.frameData[frame]['loc'] = locDict[cell]
 
 
     def generateTrainingData(self):
