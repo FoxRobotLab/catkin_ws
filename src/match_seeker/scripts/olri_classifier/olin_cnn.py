@@ -103,12 +103,12 @@ class OlinClassifier(object):
             # self.model = keras.models.load_model(
             #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
             # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
-            # self.model = keras.models.load_model(
-            #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201247/CNN_headPred_all244Cell-05-0.36.hdf5")
-            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201247/CNN_headPred_all244Cell-05-0.36.hdf5")
             self.model = keras.models.load_model(
-            DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
-            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
+                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202224/CNN_headPred_all244Cell-01-0.33.hdf5")
+            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202224/CNN_headPred_all244Cell-01-0.33.hdf5")
+            # self.model = keras.models.load_model(
+            # DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
+            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
             #self.model = CNN(self)  # CNN
             # self.model = lstm_cell_pred(self) #CNN + LSTM
             # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
@@ -156,15 +156,15 @@ class OlinClassifier(object):
         print("This is the ratio", self.num_eval)
 
 
-        # np.random.seed(2845) #45600
-        #
-        # if (len(self.image) == len(self.label)):
-        #     p = np.random.permutation(len(self.image))
-        #     self.image = self.image[p]
-        #     self.label = self.label[p]
-        # else:
-        #     print("Image data and heading data are  not the same size")
-        #     return 0
+        np.random.seed(2845) #45600
+
+        if (len(self.image) == len(self.label)):
+            p = np.random.permutation(len(self.image))
+            self.image = self.image[p]
+            self.label = self.label[p]
+        else:
+            print("Image data and heading data are  not the same size")
+            return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
@@ -215,12 +215,12 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        #ONLY FOR LSTM
-        sampleSize = 1000
-        self.train_images = self.train_images.reshape(100, sampleSize, 100, 100, 1)
-        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        self.eval_images = self.eval_images.reshape(22, sampleSize, 100, 100, 1)
-        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
+        # #ONLY FOR LSTM
+        # sampleSize = 1000
+        # self.train_images = self.train_images.reshape(100, sampleSize, 100, 100, 1)
+        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        # self.eval_images = self.eval_images.reshape(22, sampleSize, 100, 100, 1)
+        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
@@ -634,7 +634,7 @@ if __name__ == "__main__":
         dataLabel= DATA + 'lstm_headOuput_122k.npy',
         #dataLabel=DATA + 'lstm_head_13k.npy',
         # dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "Transfer_8epochCNN_LSTM_headPred_all244Cell",
+        data_name = "CNN_headPred_all244Cell",
         outputSize= 8,
         eval_ratio= 11.0/61.0,
         image_size=100,
