@@ -19,6 +19,8 @@ from datetime import datetime
 from paths import DATA
 from imageFileUtils import makeFilename
 
+from DataPaths import cellMapData
+
 
 class DataPreprocess(object):
 
@@ -102,6 +104,7 @@ class DataPreprocess(object):
             else:
                 locList = self.locData[loc]
                 locList.append(frameNum)
+
 
         for frame in self.frameData:
             loc = self.frameData[frame]['loc']
@@ -394,18 +397,36 @@ class DataPreprocess(object):
             rc += 1
         return reImage
 
+
+
     def convertLocToCell(self, pose):
         """Takes in a location that has 2 or 3 values and reports the cell, if any, that it is a part
         of."""
         x = pose[0]
         y = pose[1]
 
-        for cell in self.cellData:
+        cellBorders = self._readCells(DATA + cellMapData)
+
+        for cell in cellBorders:
             [x1, y1, x2, y2] = self.cellData[cell]
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
 
         return -1 #TODO: It should not think it is outside the map
+
+    def _readCells(self, cellFile):
+        """Reads in cell data, building a dictionary to hold it."""
+        cellF = open(cellFile, 'r')
+        cellDict = dict()
+        for line in cellF:
+            if line[0] == '#' or line.isspace():
+                continue
+            parts = line.split()
+            cellNum = parts[0]
+            locList = [float(v) for v in parts[1:]]
+            # print("Cell " + cellNum + ": ", locList)
+            cellDict[cellNum] = locList
+        return cellDict
 
 
 
