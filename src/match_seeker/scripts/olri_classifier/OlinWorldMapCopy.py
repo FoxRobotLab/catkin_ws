@@ -260,7 +260,7 @@ class WorldMap(object):
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
         else:
-            return None #TODO: It should not think it is outside the map
+            return -1 #TODO: It should not think it is outside the map
 
 
     def isAllowedLocation(self, pose):
