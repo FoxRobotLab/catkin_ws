@@ -46,6 +46,8 @@ class DataPreprocess(object):
         self.buildDataDicts()
 
         self.dumbNum = 0
+        self.badLocDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83),
+                           189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
 
 
     def buildDataDicts(self, locBool=True, cell=True, heading=True, frameNum=True):
@@ -72,6 +74,8 @@ class DataPreprocess(object):
                 self.frameData[frameNum]['loc'] = loc
 
             if cell:
+                if int(self.convertLocToCell(loc)) != int(cellNum):
+                    loc = self.badLocDict[cellNum]
                 self.frameData[frameNum]['cell'] = cellNum
 
             if heading:
@@ -381,6 +385,19 @@ class DataPreprocess(object):
             rc += 1
         return reImage
 
+    def convertLocToCell(self, pose):
+        """Takes in a location that has 2 or 3 values and reports the cell, if any, that it is a part
+        of."""
+        x = pose[0]
+        y = pose[1]
+
+        for cell in self.cellData:
+            [x1, y1, x2, y2] = self.cellData[cell]
+            if (x1 <= x < x2) and (y1 <= y < y2):
+                return cell
+
+        return None #TODO: It should not think it is outside the map
+
 
 
 def main():
@@ -388,15 +405,19 @@ def main():
     Main program. Creates the preprocessor, from that generates the dataset, and then saves it to a file.
     :return: Nothing
     """
-    preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-                             imagesPerCell=100)
-    preProc.generateTrainingData()
-    preProc.saveDataset(DATA + "regressionTestSet")
+    # preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
+    #                          dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+    #                          imagesPerCell=100)
+    # preProc.generateTrainingData()
+    # preProc.saveDataset(DATA + "regressionTestSet")
 
 
 
 if __name__ == "__main__":
     main()
+
+
+
+
 
 
