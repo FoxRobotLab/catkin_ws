@@ -19,7 +19,7 @@ from datetime import datetime
 from paths import DATA
 from imageFileUtils import makeFilename
 
-from DataPaths import cellMapData
+from DataPaths import cellMapData, basePath
 
 
 class DataPreprocess(object):
@@ -405,7 +405,7 @@ class DataPreprocess(object):
         x = pose[0]
         y = pose[1]
 
-        cellBorders = self._readCells(DATA + cellMapData)
+        cellBorders = self._readCells(basePath + cellMapData)
 
         for cell in cellBorders:
             [x1, y1, x2, y2] = self.cellData[cell]
