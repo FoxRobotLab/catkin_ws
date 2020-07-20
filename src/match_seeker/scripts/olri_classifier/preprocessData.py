@@ -74,7 +74,7 @@ class DataPreprocess(object):
             self.frameData[frameNum] = {}
             if locBool:
                 if int(self.convertLocToCell(loc)) != int(cellNum):
-                    print(cell)
+                    print(cellNum)
                     loc = locDict[cellNum]
                 self.frameData[frameNum]['loc'] = loc
 
