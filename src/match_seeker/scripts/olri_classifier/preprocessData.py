@@ -50,7 +50,7 @@ class DataPreprocess(object):
                            189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
 
 
-    def buildDataDicts(self, locBool=True, cell=True, heading=True, frameNum=True):
+    def buildDataDicts(self, locBool=True, cell=True, heading=True):
         """
         Reads in the data in the self.dataFile file, and fills in various dictionaries.
         self.frameData uses the frame number as the key and contains a dictionary with keys 'cell', 'heading', 'loc'
