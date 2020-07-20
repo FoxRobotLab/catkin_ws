@@ -103,13 +103,13 @@ class OlinClassifier(object):
             # self.model = keras.models.load_model(
             #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
             # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
-            self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201247/CNN_headPred_all244Cell-05-0.36.hdf5")
-            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201247/CNN_headPred_all244Cell-05-0.36.hdf5")
+            # self.model = keras.models.load_model(
+            #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201247/CNN_headPred_all244Cell-05-0.36.hdf5")
+            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717201247/CNN_headPred_all244Cell-05-0.36.hdf5")
             #self.model = CNN(self)  # CNN
             # self.model = lstm_cell_pred(self) #CNN + LSTM
             # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
-            # self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
+            self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
             # self.model = predictingCells(self) #Transfer Learning
             # self.model = image_head_predCell(self) #2 feature CNN + LSTM
 
@@ -631,7 +631,7 @@ if __name__ == "__main__":
         dataLabel= DATA + 'lstm_headOuput_122k.npy',
         #dataLabel=DATA + 'lstm_head_13k.npy',
         # dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_headPred_all244Cell",
+        data_name = "Transfer_8epochCNN_LSTM_headPred_all244Cell",
         outputSize= 8,
         eval_ratio= 11.0/61.0,
         image_size=100,
