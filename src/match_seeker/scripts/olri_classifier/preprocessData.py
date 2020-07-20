@@ -407,7 +407,7 @@ class DataPreprocess(object):
 
         cellBorders = self._readCells(basePath + cellMapData)
 
-        for cell in self.cellData:
+        for cell in cellBorders:
             [x1, y1, x2, y2] = cellBorders[cell]
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
