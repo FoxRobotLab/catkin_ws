@@ -103,11 +103,11 @@ class DataPreprocess(object):
                 locList = self.locData[loc]
                 locList.append(frameNum)
 
-        for frame in frameData:
+        for frame in self.frameData:
             loc = self.frameData[frame]['loc']
             cell = self.frameData[frame]['cell']
             if int(self.convertLocToCell(loc)) != int(cell):
-                print(cellNum)
+                print(cell)
                 print(self.convertLocToCell(loc))
                 self.frameData[frame]['loc'] = locDict[cell]
 
