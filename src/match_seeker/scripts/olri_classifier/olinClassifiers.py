@@ -2,12 +2,6 @@
 import os
 import numpy as np
 from tensorflow import keras
-# import cv2
-# import time
-# from paths import pathToMatchSeeker
-# from paths import DATA
-# # ORIG import olin_inputs_2019 as oi2
-# import random
 
 
 class OlinClassifier(object):
@@ -70,14 +64,33 @@ class OlinClassifier(object):
         if self.savedCheckpoint is not None:
             self.model.load_weights(self.savedCheckpoint)
 
-    def loadData(self):
+    def loadData(self, dataStyle=0):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
-        inputs and outputs, as well as other helpful values."""
+        inputs and outputs, as well as other helpful values.
+        Takes one input, dataStyle, which is 0, 1, or 2. This reflects the saved format
+        of the data:
+        dataStyle = 0 means the data is in a 2019 .npy file
+        dataStyle = 1 means the images and labels are in different files
+        dataStyle = 2 meanbs the images, labels, means, etc. are in one big .npz file"""
 
 
-        #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
-        self.image = np.load(self.dataImg)
-        self.label = np.load(self.dataLabel)
+        if dataStyle == 0:
+            # Not sure this is going to work...
+            self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
+            self.image = self.dataArray[:, 0]
+            self.label = self.dataArray[:, 1]
+        elif dataStyle == 1:
+            self.image = np.load(self.dataImg)
+            self.label = np.load(self.dataLabel)
+        else:
+            # Not sure this is going to work...
+            npzfile = np.load(self.dataFile)
+            self.image = npzfile['images']
+            self.label = npzfile['cellOut']
+            headData = npzfile['headingOut']
+            mean = npzfile['mean']
+            frameData = npzfile['frameNums']
+
         self.image_totalImgs = self.image.shape[0]
 
         try:
@@ -198,12 +211,9 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         # activate with softmax when training one label and sigmoid when training both headings and cells
-        if self.neitherAsInput:
-            activation = "sigmoid"
-        else:
-            activation = "softmax"
-        model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+        model.add(keras.layers.Dense(units=self.outputSize, activation=self.activation))
         return model
+
 
     def cnn_cells(self):
         """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
@@ -262,11 +272,7 @@ class OlinClassifier(object):
         model.add(keras.layers.Dropout(0.2))
 
         # activate with softmax when training one label and sigmoid when training both headings and cells
-        if self.neitherAsInput:
-            activation = "sigmoid"
-        else:
-            activation = "softmax"
-        model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+        model.add(keras.layers.Dense(units=self.outputSize, activation=self.activation))
 
         return model
 
@@ -402,3 +408,4 @@ class OlinClassifier(object):
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
         return maxIndex, modelPredict[0]
+
