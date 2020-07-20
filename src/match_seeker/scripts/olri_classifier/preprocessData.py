@@ -397,7 +397,7 @@ class DataPreprocess(object):
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
 
-        return None #TODO: It should not think it is outside the map
+        return -1 #TODO: It should not think it is outside the map
 
 
 
