@@ -46,8 +46,7 @@ class DataPreprocess(object):
         self.buildDataDicts()
 
         self.dumbNum = 0
-        self.badLocDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83),
-                           189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
+        self.badLocDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83), 189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
 
 
     def buildDataDicts(self, locBool=True, cell=True, heading=True):
@@ -58,6 +57,9 @@ class DataPreprocess(object):
         self.headingData uses the heading number as the key, and the frame number as the value
         :return: nothing
         """
+        locDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83),
+                      189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
+
         with open(self.dataFile) as frameData:
             lines = frameData.readlines()
 
@@ -73,7 +75,7 @@ class DataPreprocess(object):
             if locBool:
                 if int(self.convertLocToCell(loc)) != int(cellNum):
                     print(cell)
-                    loc = self.badLocDict[cellNum]
+                    loc = locDict[cellNum]
                 self.frameData[frameNum]['loc'] = loc
 
             if cell:
