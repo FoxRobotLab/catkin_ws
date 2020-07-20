@@ -145,8 +145,8 @@ def transfer_lstm_headPred(self):
     #THIS IS WITH THE SAMPLE
     # model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0715201230/CNN_headingOut_20-20-0.38.hdf5")
     # model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0715201230/CNN_headingOut_20-20-0.38.hdf5")
-    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202224/CNN_headPred_all244Cell-01-0.33.hdf5")
-    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202224/CNN_headPred_all244Cell-01-0.33.hdf5")
+    model = keras.models.load_model(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
+    model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
     for i in range(1):
         model.pop()
     for layer in range(13):
