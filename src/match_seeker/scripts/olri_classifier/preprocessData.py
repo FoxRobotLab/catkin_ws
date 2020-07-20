@@ -73,10 +73,7 @@ class DataPreprocess(object):
             loc = (xVal, yVal)
             self.frameData[frameNum] = {}
             if locBool:
-                if int(self.convertLocToCell(loc)) != int(cellNum):
-                    print(cellNum)
-                    print(self.convertLocToCell(loc))
-                    loc = locDict[cellNum]
+
                 self.frameData[frameNum]['loc'] = loc
 
             if cell:
@@ -105,6 +102,14 @@ class DataPreprocess(object):
             else:
                 locList = self.locData[loc]
                 locList.append(frameNum)
+
+        for frame in frameData:
+            loc = self.frameData[frame]['loc']
+            cell = self.frameData[frame]['cell']
+            if int(self.convertLocToCell(loc)) != int(cell):
+                print(cellNum)
+                print(self.convertLocToCell(loc))
+                self.frameData[frame]['loc'] = locDict[cell]
 
 
     def generateTrainingData(self):
