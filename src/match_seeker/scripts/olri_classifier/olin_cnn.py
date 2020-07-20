@@ -103,10 +103,16 @@ class OlinClassifier(object):
             # self.model = keras.models.load_model(
             #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
             # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
-            self.model = CNN(self)  # CNN
+            self.model = keras.models.load_model(
+                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202224/CNN_headPred_all244Cell-01-0.33.hdf5")
+            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202224/CNN_headPred_all244Cell-01-0.33.hdf5")
+            # self.model = keras.models.load_model(
+            # DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
+            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
+            #self.model = CNN(self)  # CNN
             # self.model = lstm_cell_pred(self) #CNN + LSTM
             # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
-            # self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
+            #self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
             # self.model = predictingCells(self) #Transfer Learning
             # self.model = image_head_predCell(self) #2 feature CNN + LSTM
 
@@ -211,9 +217,9 @@ class OlinClassifier(object):
         ####################################################################
         # #ONLY FOR LSTM
         # sampleSize = 1000
-        # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
+        # self.train_images = self.train_images.reshape(100, sampleSize, 100, 100, 1)
         # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        # self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
+        # self.eval_images = self.eval_images.reshape(22, sampleSize, 100, 100, 1)
         # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 

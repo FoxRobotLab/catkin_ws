@@ -19,6 +19,8 @@ from datetime import datetime
 from paths import DATA
 from imageFileUtils import makeFilename
 
+from DataPaths import cellMapData, basePath
+
 
 class DataPreprocess(object):
 
@@ -46,9 +48,10 @@ class DataPreprocess(object):
         self.buildDataDicts()
 
         self.dumbNum = 0
+        self.badLocDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83), 189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
 
 
-    def buildDataDicts(self, locBool=True, cell=True, heading=True, frameNum=True):
+    def buildDataDicts(self, locBool=True, cell=True, heading=True):
         """
         Reads in the data in the self.dataFile file, and fills in various dictionaries.
         self.frameData uses the frame number as the key and contains a dictionary with keys 'cell', 'heading', 'loc'
@@ -56,6 +59,9 @@ class DataPreprocess(object):
         self.headingData uses the heading number as the key, and the frame number as the value
         :return: nothing
         """
+        locDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83),
+                      189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
+
         with open(self.dataFile) as frameData:
             lines = frameData.readlines()
 
@@ -69,6 +75,7 @@ class DataPreprocess(object):
             loc = (xVal, yVal)
             self.frameData[frameNum] = {}
             if locBool:
+
                 self.frameData[frameNum]['loc'] = loc
 
             if cell:
@@ -97,6 +104,14 @@ class DataPreprocess(object):
             else:
                 locList = self.locData[loc]
                 locList.append(frameNum)
+
+
+        if locBool:
+            for frame in self.frameData:
+                loc = self.frameData[frame]['loc']
+                cell = self.frameData[frame]['cell']
+                if int(self.convertLocToCell(loc)) != int(cell):
+                    self.frameData[frame]['loc'] = locDict[cell]
 
 
     def generateTrainingData(self):
@@ -383,20 +398,55 @@ class DataPreprocess(object):
 
 
 
+    def convertLocToCell(self, pose):
+        """Takes in a location that has 2 or 3 values and reports the cell, if any, that it is a part
+        of."""
+        x = pose[0]
+        y = pose[1]
+
+        cellBorders = self._readCells(basePath + cellMapData)
+
+        for cell in cellBorders:
+            [x1, y1, x2, y2] = cellBorders[cell]
+            if (x1 <= x < x2) and (y1 <= y < y2):
+                return cell
+
+        return -1 #TODO: It should not think it is outside the map
+
+    def _readCells(self, cellFile):
+        """Reads in cell data, building a dictionary to hold it."""
+        cellF = open(cellFile, 'r')
+        cellDict = dict()
+        for line in cellF:
+            if line[0] == '#' or line.isspace():
+                continue
+            parts = line.split()
+            cellNum = parts[0]
+            locList = [float(v) for v in parts[1:]]
+            # print("Cell " + cellNum + ": ", locList)
+            cellDict[cellNum] = locList
+        return cellDict
+
+
+
 def main():
     """
     Main program. Creates the preprocessor, from that generates the dataset, and then saves it to a file.
     :return: Nothing
     """
-    preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-                             imagesPerCell=100)
-    preProc.generateTrainingData()
-    preProc.saveDataset(DATA + "regressionTestSet")
+    # preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
+    #                          dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+    #                          imagesPerCell=100)
+    # preProc.generateTrainingData()
+    # preProc.saveDataset(DATA + "regressionTestSet")
 
 
 
 if __name__ == "__main__":
     main()
+
+
+
+
 
 

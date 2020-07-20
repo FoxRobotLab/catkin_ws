@@ -47,7 +47,6 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import cnn_cells, creatingSequence, getCorrectLabels
 
 ### Uncomment next line to use CPU instead of GPU: ###
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
