@@ -153,15 +153,15 @@ class OlinClassifier(object):
         print("This is the ratio", self.num_eval)
 
 
-        np.random.seed(2845) #45600
-
-        if (len(self.image) == len(self.label)):
-            p = np.random.permutation(len(self.image))
-            self.image = self.image[p]
-            self.label = self.label[p]
-        else:
-            print("Image data and heading data are  not the same size")
-            return 0
+        # np.random.seed(2845) #45600
+        #
+        # if (len(self.image) == len(self.label)):
+        #     p = np.random.permutation(len(self.image))
+        #     self.image = self.image[p]
+        #     self.label = self.label[p]
+        # else:
+        #     print("Image data and heading data are  not the same size")
+        #     return 0
 
         self.train_images = self.image[:-self.num_eval, :]
         print("This is the len of train images after it has been divided", len(self.train_images))
@@ -212,12 +212,12 @@ class OlinClassifier(object):
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         ####################################################################
-        # #ONLY FOR LSTM
-        # sampleSize = 1000
-        # self.train_images = self.train_images.reshape(11, sampleSize, 100, 100, 1)
-        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        # self.eval_images = self.eval_images.reshape(2, sampleSize, 100, 100, 1)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
+        #ONLY FOR LSTM
+        sampleSize = 1000
+        self.train_images = self.train_images.reshape(100, sampleSize, 100, 100, 1)
+        self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
+        self.eval_images = self.eval_images.reshape(22, sampleSize, 100, 100, 1)
+        self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
 
 
 
