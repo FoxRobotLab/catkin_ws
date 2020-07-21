@@ -2,7 +2,7 @@ import numpy as np
 from paths import DATA
 
 from tensorflow import keras
-from data_per_epoch_gen import DataGenerator
+#from data_per_epoch_gen import DataGenerator
 
 """The data is currently not being organized, but this should be 
 done for LSTMs"""
