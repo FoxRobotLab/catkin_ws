@@ -9,7 +9,6 @@ mean = np.load(DATA + "lstm_mean_122k.npy")
 
 def __init__(self, list_IDs, labels, batch_size=20, dim=(100,100,1), n_channels=1, n_classes=10, shuffle=True,
              img_size = 100):
-
  self.img_size = img_size
  self.dim = dim
  self.batch_size = batch_size
