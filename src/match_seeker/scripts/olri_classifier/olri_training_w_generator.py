@@ -95,12 +95,11 @@ class OlriLocator(object):
         self.dataDict = data
         return self.dataDict
 
-    # def loadData(self):
-
-
-
-
-
+    def train(self, training_generator, validation_generator ):
+        self.model.fit_generator(generator=training_generator,
+                            validation_data=validation_generator,
+                            use_multiprocessing=True,
+                            workers=6)
 
 
 
@@ -126,6 +125,10 @@ if __name__ == '__main__':
     # Generators
     training_generator = __data_generation(data_dict['train_frames'], data_dict['train_headingLabel'], **params)
     validation_generator = __data_generation(data_dict['eval_frames'], data_dict['eval_headingLabel'], **params)
+
+    olri_locator.train(training_generator,validation_generator)
+
+
 
 
 
