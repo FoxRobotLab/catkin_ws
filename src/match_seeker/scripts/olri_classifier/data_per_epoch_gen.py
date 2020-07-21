@@ -6,8 +6,9 @@ import cv2
 
 mean = np.load(DATA + "lstm_mean_122k.npy")
 
-def __init__(self, list_IDs, labels, batch_size=32, dim=(100,100,1), n_channels=1, n_classes=10, shuffle=True,
+def __init__(self, list_IDs, labels, batch_size=20, dim=(100,100,1), n_channels=1, n_classes=10, shuffle=True,
              img_size = 100):
+
  self.img_size = img_size
  self.dim = dim
  self.batch_size = batch_size
@@ -21,6 +22,10 @@ def __init__(self, list_IDs, labels, batch_size=32, dim=(100,100,1), n_channels=
 
 def __len__(self):
   'Denotes the number of batches per epoch'
+  #IF THIS WAS TAKING THE WHOLE DATA THEN 122,000/22 ----> 24,400 IS THE BATCH NUMBERS THAT HAVE TO BE DONE???
+
+  #HOWEVER, WE WANT THIS TO TAKE IN THE VAL AND TRAIN DATA WHEN DOING BATCHES, TRUE IN TOTAL WE WILL WANT TO GO THROUGH
+  #24,000
   return int(np.floor(len(self.list_IDs) / self.batch_size))
 
 def __getitem__(self, index):
@@ -41,6 +46,7 @@ def on_epoch_end(self):
     self.indexes = np.arange(len(self.list_IDs))
     if self.shuffle == True:
         np.random.shuffle(self.indexes)
+    #THIS SHOULD ALSO BE WHERE WE SAVE DATA
 
 def __data_generation(self, list_IDs_temp):
     'Generates data containing batch_size images'
@@ -50,7 +56,7 @@ def __data_generation(self, list_IDs_temp):
     # Generate data
     for i, ID in enumerate(list_IDs_temp):
         # Store sample
-        X[i,] = _load_grayscale_image(self.image_path + self.labels[ID]) #Array of images
+        X[i,] = _load_grayscale_image(self.image_path + self.labels[ID]+ '.jpg') #Array of images
 
         # Store class
         y[i] = self.labels[ID]

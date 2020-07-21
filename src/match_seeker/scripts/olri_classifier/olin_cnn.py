@@ -100,12 +100,12 @@ class OlinClassifier(object):
             self.loss = keras.losses.categorical_crossentropy
         elif self.model2020:
             self.loss = keras.losses.categorical_crossentropy
-            # self.model = keras.models.load_model(
-            #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
-            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201547/CNN_cellPred_all244Cell_20epochs-01-0.51.hdf5")
             self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
-            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
+                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
+            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
+            # self.model = keras.models.load_model(
+            #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
+            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
             # self.model = keras.models.load_model(
             # DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
             # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
@@ -634,8 +634,8 @@ if __name__ == "__main__":
         dataLabel= DATA + 'lstm_headOuput_122k.npy',
         #dataLabel=DATA + 'lstm_head_13k.npy',
         # dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_headPred_all244Cell",
-        outputSize= 8,
+        data_name = "CNN_cellPred_all244Cell_20epochs",
+        outputSize= 271,
         eval_ratio= 11.0/61.0,
         image_size=100,
         model2020= True,
