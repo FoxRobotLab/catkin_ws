@@ -19,7 +19,7 @@ def gettingFrames():
         frame_per_cell = frame_per_cell + cell_frame_dict[cell] + rndUnderRepSubset[cell]
         id = np.hstack((id, np.zeros(len(cell_frame_dict[cell]), dtype = int), np.ones(rndUnderRepSubset[cell], dtype = int)))
         break
-    frame = np.vstack(np.asarray(frame_per_cell), id)
+    frame = np.vstack((np.asarray(frame_per_cell), id))
     print(frame.shape)
     print("These are the frames", frame[0])
     print("These are the ids", frame[1])
