@@ -53,20 +53,21 @@ def getLabels(cell = None, head = None, frames = None):
 def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval = 11.0/61.0):
     data = {}
     frames = frames.transpose()
-    data['train_frames'] = frames[:-fractToEval]
-    data['eval_frames'] = frames[-fractToEval:]
-    print("frames", data['train_frames'].shape)
-    print("eval", data['eval_frames'].shape)
-
-    if cellData is not None:
-        data['train_cellLabel'] = cellData[:-fractToEval]
-        data['eval_cellLabel'] = cellData[-fractToEval:]
-    if headingData is not None:
-        data['train_headingLabel'] = headingData[:-fractToEval]
-        data['eval_headingLabel'] = headingData[-fractToEval:]
-    print("label", data['train_headingLabel'].shape)
-    print("label", data['eval_headingLabel'].shape)
-    return data
+    print(len(frames))
+    # data['train_frames'] = frames[:-fractToEval]
+    # data['eval_frames'] = frames[-fractToEval:]
+    # print("frames", data['train_frames'].shape)
+    # print("eval", data['eval_frames'].shape)
+    #
+    # if cellData is not None:
+    #     data['train_cellLabel'] = cellData[:-fractToEval]
+    #     data['eval_cellLabel'] = cellData[-fractToEval:]
+    # if headingData is not None:
+    #     data['train_headingLabel'] = headingData[:-fractToEval]
+    #     data['eval_headingLabel'] = headingData[-fractToEval:]
+    # print("label", data['train_headingLabel'].shape)
+    # print("label", data['eval_headingLabel'].shape)
+    # return data
 
 
 if __name__ == '__main__':
