@@ -50,9 +50,22 @@ def getLabels(cell = None, head = None, frames = None):
             headLabel.append(frame_head_dict[frm])
     return cellLabel, headLabel
 
+def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval = 11.0/61.0):
+    data = {}
+    frames = frames.transpose()
+    data['train_frames'] = frames[:-fractToEval]
+    data['eval_frames'] = frames[-fractToEval:]
+    print(data['train_frames'])
 
+    if cellData is not None:
+        data['train_cellLabel'] = cellData[:-fractToEval]
+        data['eval_cellLabel'] = cellData[-fractToEval:]
+    if headingData is not None:
+        data['train_headingLabel'] = headingData[:-fractToEval]
+        data['eval_headingLabel'] = headingData[-fractToEval:]
 
-
+    return data
+    
 
 if __name__ == '__main__':
     data = getFrames()
