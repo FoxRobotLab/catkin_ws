@@ -15,8 +15,8 @@ def gettingFrames():
 
     frame_per_cell = []
     id = np.empty(0, dtype=int)
-    num = ['28']
-    for cell in num:
+
+    for cell in cell_frame_dict.keys():
         frame_per_cell = frame_per_cell + cell_frame_dict[cell] + rndUnderRepSubset[cell]
         id = np.hstack((id, np.zeros(len(cell_frame_dict[cell]), dtype = int), np.ones(len(rndUnderRepSubset[cell]), dtype = int)))
 
