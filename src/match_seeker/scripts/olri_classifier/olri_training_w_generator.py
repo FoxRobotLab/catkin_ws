@@ -26,6 +26,12 @@ class OlriLocator(object):
         self.cellOuput = cellOutput
         self.headingOutput = headingOuput
         self.dataDict = None
+        self.model = CNN(self)
+        self.loss = keras.losses.categorical_crossentropy
+        self.model.compile(
+            loss=self.loss,
+            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            metrics=["accuracy"])
 
 
 
@@ -87,8 +93,10 @@ class OlriLocator(object):
             data['eval_headingLabel'] = self.headLabel[-cutOff:]
 
         self.dataDict = data
-
         return self.dataDict
+
+    # def loadData(self):
+
 
 
 
