@@ -11,7 +11,8 @@ done for LSTMs"""
 
 #GETTING THE FRAMES AND LABELS READY
 class OlinClassifier(object):
-    def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None,outputSize= None, image_size=224, data_name = None):
+    def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None,outputSize= None, image_size=100, data_name = None,
+                 cellOutput = None, headingOuput = None):
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
@@ -19,6 +20,12 @@ class OlinClassifier(object):
         self.image_size = image_size
         self.num_eval = None
         self.data_name = data_name
+        self.frame = None
+        self.cellLabel = None
+        self.headLabel = None
+        self.cellOuput = cellOutput
+        self.headingOutput = headingOuput
+        self.dataDict = None
 
 
 
@@ -34,11 +41,9 @@ class OlinClassifier(object):
             frame_per_cell = frame_per_cell + cell_frame_dict[cell] + rndUnderRepSubset[cell]
             id = np.hstack((id, np.zeros(len(cell_frame_dict[cell]), dtype = int), np.ones(len(rndUnderRepSubset[cell]), dtype = int)))
 
-        frame = np.vstack((np.asarray(frame_per_cell), id))
-        return frame
+        self.frame = np.vstack((np.asarray(frame_per_cell), id))
 
-
-    def getLabels(self, cell = None, head = None, frames = None):
+    def getLabels(self):
         #Returning labels (cell or heading) for the frames
 
         master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -56,34 +61,45 @@ class OlinClassifier(object):
                 frame_cell_dict[frame] = split[1]
                 frame_head_dict[frame] = split[-1]
 
-        for frm in frames:
-            if cell == True:
+        for frm in self.frame:
+            if self.cellOuput:
                 cellLabel.append(frame_cell_dict[frm])
-            if head == True:
+            if self.headingOutput:
                 headLabel.append(frame_head_dict[frm])
-        return cellLabel, headLabel
 
-    def trainAndEval(self, frames = None, cellData = None, headingData = None, fractToEval = 11.0/61.0):
+        self.cellLabel = cellLabel
+        self.headLabel = headLabel
+
+
+    def trainAndEval(self):
         data = {}
-        frames_transposed = frames.transpose()
-        cutOff = int(len(frames_transposed)* fractToEval)
+        frames_transposed = self.frame.transpose()
+        cutOff = int(len(frames_transposed)* self.eval_ratio)
 
         data['train_frames'] = frames_transposed[:-cutOff]
         data['eval_frames'] = frames_transposed[-cutOff:]
 
-        if cellData is not None:
-            data['train_cellLabel'] = cellData[:-cutOff]
-            data['eval_cellLabel'] = cellData[-cutOff:]
-        if headingData is not None:
-            data['train_headingLabel'] = headingData[:-cutOff]
-            data['eval_headingLabel'] = headingData[-cutOff:]
-        return data
+        if self.cellLabel is not None:
+            data['train_cellLabel'] = self.cellLabel[:-cutOff]
+            data['eval_cellLabel'] = self.cellLabel[-cutOff:]
+        if self.headLabel is not None:
+            data['train_headingLabel'] = self.headLabel[:-cutOff]
+            data['eval_headingLabel'] = self.headLabel[-cutOff:]
+
+        self.dataDict = data
+
+        return self.dataDict
+
+
+
+
+
 
 
 if __name__ == '__main__':
-    frame_id = getFrames()
-    cellLabel, headLabel = getLabels(head=True, frames=frame_id[0])
-    data = trainAndEval(frames = frame_id, headingData=headLabel)
+    OlinClassifier.getFrames()
+    OlinClassifier.getLabels()
+    data_dict = OlinClassifier.trainAndEval()
 
     # Parameters
     params = {'dim': (100, 100, 1),
@@ -91,8 +107,8 @@ if __name__ == '__main__':
               'n_channels': 1,
               'shuffle': True}
     # Generators
-    training_generator = __data_generation(data['train_frames'], data['train_headingLabel'], **params)
-    validation_generator = __data_generation(data['eval_frames'], data['eval_headingLabel'], **params)
+    training_generator = __data_generation(data_dict['train_frames'], data_dict['train_headingLabel'], **params)
+    validation_generator = __data_generation(data_dict['eval_frames'], data_dict['eval_headingLabel'], **params)
 
 
 
