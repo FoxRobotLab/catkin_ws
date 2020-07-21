@@ -64,8 +64,8 @@ def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval
     if headingData is not None:
         data['train_headingLabel'] = headingData[:-cutOff]
         data['eval_headingLabel'] = headingData[-cutOff:]
-    print("label", data['train_headingLabel'].shape)
-    print("label", data['eval_headingLabel'].shape)
+    print("label", len(data['train_headingLabel']))
+    print("label", len(data['eval_headingLabel']))
     return data
 
 
