@@ -51,9 +51,15 @@ def getLabels(cell = None, head = None, frames = None):
     return cellLabel, headLabel
 
 
+
+
+
 if __name__ == '__main__':
     data = getFrames()
-    cellLabel, headLabel = getLabels(head=True, frames=data[0])
+    print(data[0])
+    print(data[:3])
+
+    #cellLabel, headLabel = getLabels(head=True, frames=data[0])
 
 
 
