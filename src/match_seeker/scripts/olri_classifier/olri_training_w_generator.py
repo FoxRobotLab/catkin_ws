@@ -45,13 +45,15 @@ def getLabels(cell = None, head = None, frames = None):
             frame_head_dict[frame] = split[-1]
     print("cell dict", len(frame_cell_dict))
     print("head dict", len(frame_head_dict))
-    
+
     print("frames length", len(frames))
     for frm in frames:
+        print("frame", frm)
         if cell == True:
             cellLabel.append(frame_cell_dict[frm])
         if head == True:
             headLabel.append(frame_head_dict[frm])
+            print("head", frame_head_dict[frm])
         break
 
     return cellLabel, headLabel
