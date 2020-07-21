@@ -53,7 +53,7 @@ def getLabels(cell = None, head = None, frames = None):
 def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval = 11.0/61.0):
     data = {}
     frames_transposed = frames.transpose()
-    print("122000", len(frames))
+    print("122000", len(frames_transposed))
     print("22000", len(frames)* fractToEval)
     cutOff = len(frames)* fractToEval -1
     print(cutOff)
