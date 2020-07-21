@@ -52,19 +52,20 @@ def getLabels(cell = None, head = None, frames = None):
 
 def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval = 11.0/61.0):
     data = {}
+    cutOff = len(frames)* fractToEval
     frames_transposed = frames.transpose()
     print(len(frames_transposed))
-    data['train_frames'] = frames_transposed[:-fractToEval]
-    # data['eval_frames'] = frames[-fractToEval:]
+    data['train_frames'] = frames_transposed[:-cutOff]
+    # data['eval_frames'] = frames[-cutOff:]
     print("frames", data['train_frames'].shape)
     # print("eval", data['eval_frames'].shape)
     #
     # if cellData is not None:
-    #     data['train_cellLabel'] = cellData[:-fractToEval]
-    #     data['eval_cellLabel'] = cellData[-fractToEval:]
+    #     data['train_cellLabel'] = cellData[:-cutOff]
+    #     data['eval_cellLabel'] = cellData[-cutOff:]
     # if headingData is not None:
-    #     data['train_headingLabel'] = headingData[:-fractToEval]
-    #     data['eval_headingLabel'] = headingData[-fractToEval:]
+    #     data['train_headingLabel'] = headingData[:-cutOff]
+    #     data['eval_headingLabel'] = headingData[-cutOff:]
     # print("label", data['train_headingLabel'].shape)
     # print("label", data['eval_headingLabel'].shape)
     # return data
