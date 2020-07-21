@@ -72,7 +72,7 @@ if __name__ == '__main__':
     cellLabel, headLabel = getLabels(head=True, frames=data[0])
     print("This should be an empty array", cellLabel)
     print("This should be filled with numbers", headLabel)
-    print("length od data". len(headLabel))
+    print("length od data", len(headLabel))
 
 
 
