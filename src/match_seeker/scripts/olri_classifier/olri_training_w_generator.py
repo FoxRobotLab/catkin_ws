@@ -55,7 +55,8 @@ def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval
     frames = frames.transpose()
     data['train_frames'] = frames[:-fractToEval]
     data['eval_frames'] = frames[-fractToEval:]
-    print(data['train_frames'])
+    print("frames", data['train_frames'].shape)
+    print("eval", data['eval_frames'].shape)
 
     if cellData is not None:
         data['train_cellLabel'] = cellData[:-fractToEval]
@@ -63,16 +64,15 @@ def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval
     if headingData is not None:
         data['train_headingLabel'] = headingData[:-fractToEval]
         data['eval_headingLabel'] = headingData[-fractToEval:]
-
+    print("label", data['train_headingLabel'].shape)
+    print("label", data['eval_headingLabel'].shape)
     return data
-    
+
 
 if __name__ == '__main__':
-    data = getFrames()
-    data = data.transpose()
-    print(data[:5])
-
-    #cellLabel, headLabel = getLabels(head=True, frames=data[0])
+    frame_id = getFrames()
+    cellLabel, headLabel = getLabels(head=True, frames=frame_id[0])
+    trainAndEval(frames = frame_id, headingData=headLabel)
 
 
 
