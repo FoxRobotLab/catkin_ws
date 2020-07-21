@@ -1,14 +1,13 @@
 import numpy as np
 from paths import DATA
-
 from tensorflow import keras
-#from data_per_epoch_gen import DataGenerator
+from data_per_epoch_gen import __data_generation
 
 """The data is currently not being organized, but this should be 
 done for LSTMs"""
 
 
-#WE EVENTUALLY WANT TO USE A GENERATOR FOR THIS
+#GETTING THE FRAMES AND LABELS READY
 def getFrames():
     #Distinguishing which frames need to be modified (1) and which ones do not (0)
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
@@ -64,15 +63,25 @@ def trainAndEval(frames = None, cellData = None, headingData = None, fractToEval
     if headingData is not None:
         data['train_headingLabel'] = headingData[:-cutOff]
         data['eval_headingLabel'] = headingData[-cutOff:]
-    print("label", len(data['train_headingLabel']))
-    print("label", len(data['eval_headingLabel']))
     return data
 
 
 if __name__ == '__main__':
     frame_id = getFrames()
     cellLabel, headLabel = getLabels(head=True, frames=frame_id[0])
-    trainAndEval(frames = frame_id, headingData=headLabel)
+    data = trainAndEval(frames = frame_id, headingData=headLabel)
+
+    # Parameters
+    params = {'dim': (100, 100, 1),
+              'batch_size': 24,
+              'n_channels': 1,
+              'shuffle': True}
+    # Generators
+    training_generator = __data_generation(data['train_frames'], data['train_headingLabel'], **params)
+    validation_generator = __data_generation(data['eval_frames'], data['eval_headingLabel'], **params)
+
+    
+
 
 
 
