@@ -6,6 +6,7 @@ import cv2
 
 mean = np.load(DATA + "lstm_mean_122k.npy")
 
+
 def __init__(self, list_IDs, labels, batch_size=20, dim=(100,100,1), n_channels=1, n_classes=10, shuffle=True,
              img_size = 100):
 
@@ -72,8 +73,6 @@ def _load_grayscale_image(self, image_path):
 
     return img
 
-if __name__ == '__main__':
-    cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
-    rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
+
 
 

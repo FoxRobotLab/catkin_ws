@@ -2,12 +2,25 @@ import numpy as np
 from paths import DATA
 from tensorflow import keras
 from data_per_epoch_gen import __data_generation
+import time
+from olin_cnn_lstm import CNN
 
 """The data is currently not being organized, but this should be 
 done for LSTMs"""
 
 
 #GETTING THE FRAMES AND LABELS READY
+def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None,outputSize= None, image_size=224, data_name = None):
+    self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+    self.outputSize = outputSize
+    self.eval_ratio = eval_ratio
+    self.learning_rate = 0.001
+    self.image_size = image_size
+    self.num_eval = None
+    self.data_name = data_name
+
+
+
 def getFrames():
     #Distinguishing which frames need to be modified (1) and which ones do not (0)
     cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
@@ -80,7 +93,7 @@ if __name__ == '__main__':
     training_generator = __data_generation(data['train_frames'], data['train_headingLabel'], **params)
     validation_generator = __data_generation(data['eval_frames'], data['eval_headingLabel'], **params)
 
-    
+
 
 
 
