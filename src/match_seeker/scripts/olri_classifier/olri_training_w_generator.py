@@ -10,7 +10,7 @@ done for LSTMs"""
 
 
 #GETTING THE FRAMES AND LABELS READY
-class OlinClassifier(object):
+class OlriLocator(object):
     def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None,outputSize= None, image_size=100, data_name = None,
                  cellOutput = None, headingOuput = None):
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
@@ -97,9 +97,18 @@ class OlinClassifier(object):
 
 
 if __name__ == '__main__':
-    OlinClassifier.getFrames()
-    OlinClassifier.getLabels()
-    data_dict = OlinClassifier.trainAndEval()
+    olri_locator = OlriLocator(
+        eval_ratio=11.0 / 61.0,
+        outputSize= 8,
+        image_size=100,
+        data_name=None,
+        headingOuput=True,
+    checkpoint_name = None
+
+    )
+    olri_locator.getFrames()
+    olri_locator.getLabels()
+    data_dict = olri_locator.trainAndEval()
 
     # Parameters
     params = {'dim': (100, 100, 1),
