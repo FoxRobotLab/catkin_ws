@@ -54,8 +54,6 @@ def getLabels(cell = None, head = None, frames = None):
         if head == True:
             headLabel.append(frame_head_dict[frm])
             print("head", frame_head_dict[frm])
-        break
-
     return cellLabel, headLabel
 
 
