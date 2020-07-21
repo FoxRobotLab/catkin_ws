@@ -56,8 +56,8 @@ def getLabels(cell = None, head = None, frames = None):
 
 if __name__ == '__main__':
     data = getFrames()
+    data = data.transpose()
     print(data[0])
-    print(data[:3])
 
     #cellLabel, headLabel = getLabels(head=True, frames=data[0])
 
