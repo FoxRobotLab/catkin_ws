@@ -3,7 +3,9 @@ from paths import DATA
 from tensorflow import keras
 import time
 from olin_cnn_lstm import CNN
-from data_per_epoch_gen import DataGenerator.__data_generation
+from data_per_epoch_gen import DataGenerator
+from data_per_epoch_gen import __data_generation
+
 
 """The data is currently not being organized, but this should be 
 done for LSTMs"""
