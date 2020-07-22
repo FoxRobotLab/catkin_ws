@@ -118,7 +118,7 @@ if __name__ == '__main__':
     data_dict = olri_locator.trainAndEval()
 
     # Parameters
-    params = {'dim': (100, 100, 1),
+    params = {'dim': (100, 100),
               'batch_size': 24,
               'n_channels': 1,
               'shuffle': True}
