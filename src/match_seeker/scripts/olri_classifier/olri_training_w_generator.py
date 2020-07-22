@@ -4,6 +4,7 @@ from tensorflow import keras
 from data_per_epoch_gen import __data_generation
 import time
 from olin_cnn_lstm import CNN
+from data_per_epoch_gen import DataGenerator
 
 """The data is currently not being organized, but this should be 
 done for LSTMs"""
@@ -36,7 +37,7 @@ class OlriLocator(object):
 
 
     def getFrames(self):
-        #Distinguishing which frames need to be modified (1) and which ones do not (0)
+        #self.frame should be a 122000 by 2 matrix where the second row determines how the frame will be processed
         cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
         rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
 
@@ -52,9 +53,10 @@ class OlriLocator(object):
     def getLabels(self):
         #Returning labels (cell or heading) for the frames
 
+
         master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-        headLabel = []
-        cellLabel = []
+        headLabel = {}
+        cellLabel = {}
 
         frame_cell_dict = {}
         frame_head_dict = {}
@@ -67,32 +69,25 @@ class OlriLocator(object):
                 frame_cell_dict[frame] = split[1]
                 frame_head_dict[frame] = split[-1]
 
-        for frm in self.frame:
+        for frm in self.frame[0]:
             if self.cellOuput:
-                cellLabel.append(frame_cell_dict[frm])
+                self.cellLabel[frm] = frame_cell_dict[frm]
             if self.headingOutput:
-                headLabel.append(frame_head_dict[frm])
+                self.headLabel[frm] = frame_head_dict[frm]
 
-        self.cellLabel = cellLabel
-        self.headLabel = headLabel
+
+        return self.cellOuput, self.headingOutput
 
 
     def trainAndEval(self):
-        data = {}
+        self.dataDict = {}
+
         frames_transposed = self.frame.transpose()
         cutOff = int(len(frames_transposed)* self.eval_ratio)
 
-        data['train_frames'] = frames_transposed[:-cutOff]
-        data['eval_frames'] = frames_transposed[-cutOff:]
+        self.dataDict['train_frames'] = frames_transposed[:-cutOff]
+        self.dataDict['eval_frames'] = frames_transposed[-cutOff:]
 
-        if self.cellLabel is not None:
-            data['train_cellLabel'] = self.cellLabel[:-cutOff]
-            data['eval_cellLabel'] = self.cellLabel[-cutOff:]
-        if self.headLabel is not None:
-            data['train_headingLabel'] = self.headLabel[:-cutOff]
-            data['eval_headingLabel'] = self.headLabel[-cutOff:]
-
-        self.dataDict = data
         return self.dataDict
 
     def train(self, training_generator, validation_generator ):
@@ -114,7 +109,7 @@ if __name__ == '__main__':
 
     )
     olri_locator.getFrames()
-    olri_locator.getLabels()
+    _, labels = olri_locator.getLabels()
     data_dict = olri_locator.trainAndEval()
 
     # Parameters
@@ -124,8 +119,9 @@ if __name__ == '__main__':
               'n_classes' :8,
               'shuffle': True}
     # Generators
-    training_generator = __data_generation(data_dict['train_frames'], data_dict['train_headingLabel'], **params)
-    validation_generator = __data_generation(data_dict['eval_frames'], data_dict['eval_headingLabel'], **params)
+    newDataGen = DataGenerator()
+    training_generator = __data_generation(data_dict['train_frames'], labels, **params)
+    validation_generator = __data_generation(data_dict['eval_frames'], labels, **params)
 
     olri_locator.train(training_generator,validation_generator)
 
