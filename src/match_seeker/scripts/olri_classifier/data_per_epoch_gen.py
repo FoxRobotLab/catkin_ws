@@ -23,10 +23,10 @@ class DataGenerator(object):
 
         self.shuffle = shuffle
         self.img_size = img_size
-        self.on_epoch_end()
         self.image_path = DATA + 'frames/moreframes/frame'
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.data_name = data_name
+        self.on_epoch_end()
 
 
     def __len__(self):
