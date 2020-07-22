@@ -121,6 +121,7 @@ if __name__ == '__main__':
     params = {'dim': (100, 100),
               'batch_size': 24,
               'n_channels': 1,
+              'n_classes' :8,
               'shuffle': True}
     # Generators
     training_generator = __data_generation(data_dict['train_frames'], data_dict['train_headingLabel'], **params)

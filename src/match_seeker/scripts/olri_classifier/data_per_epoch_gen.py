@@ -2,16 +2,17 @@ import numpy as np
 from paths import DATA
 from tensorflow import keras
 import random
+import time
 import cv2
 
 
 
 mean = np.load(DATA + "lstm_mean_122k.npy")
 class DataGenerator(object):
-    def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=10, shuffle=True,
-                 img_size = 100):
-        self.labels = labels
+    def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
+                 img_size = 100, data_name = "CNN_generator_headPred"):
         self.list_frames = list_frames
+        self.labels = labels
         self.batch_size = batch_size
         self.dim = dim
 
@@ -24,6 +25,8 @@ class DataGenerator(object):
         self.img_size = img_size
         self.on_epoch_end()
         self.image_path = DATA + 'frames/moreframes/frame'
+        self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.data_name = data_name
 
 
     def __len__(self):
@@ -32,6 +35,10 @@ class DataGenerator(object):
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
+        keras.callbacks.ModelCheckpoint(
+            self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+            period=1  # save every n epoch
+        )
         self.indexes = np.arange(len(self.list_frames))
 
         if self.shuffle == True:
@@ -44,13 +51,14 @@ class DataGenerator(object):
 
       # Find list of frames
       list_frame_temp = [self.list_frames[k] for k in indexes]
+      list_labels = [self.labels[k] for k in indexes]
 
       # Generate data
-      X, y = self.__data_generation(list_frame_temp)
+      X, y = self.__data_generation(list_frame_temp, list_labels)
 
       return X, y
 
-    def __data_generation(self, list_frame_temp):
+    def __data_generation(self, list_frame_temp, list_labels):
         'Generates data containing batch_size images'
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
@@ -60,10 +68,7 @@ class DataGenerator(object):
             # Store sample
             X[i,] = self._load_grayscale_image(self.image_path + frm[0]+ '.jpg', frm[1]) #Array of images
 
-            # Store class
-            y[i] = self.labels[frm]
-
-        return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
+        return X, keras.utils.to_categorical(list_labels, num_classes=self.n_classes) #Array of labels
 
     def _load_grayscale_image(self, image_path, typeOfProcessing):
         img = cv2.imread(image_path)
