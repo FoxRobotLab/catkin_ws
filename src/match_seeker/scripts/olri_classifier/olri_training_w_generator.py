@@ -12,7 +12,7 @@ done for LSTMs"""
 
 
 #GETTING THE FRAMES AND LABELS READY
-class OlriLocator(object):
+class OlriLocator(keras.utils.Sequence):
     def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None,outputSize= None, image_size=100, data_name = None,
                  cellOutput = None, headingOuput = None):
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
