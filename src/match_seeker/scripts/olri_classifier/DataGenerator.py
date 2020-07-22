@@ -12,7 +12,7 @@ class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
                  img_size = 100, data_name = "CNN_generator_headPred"):
         self.list_frames = list_frames
-        self.labels = labels.tolist()
+        self.labels = labels
         self.batch_size = batch_size
         self.dim = dim
 
@@ -68,7 +68,7 @@ class DataGenerator(keras.utils.Sequence):
             # Store sample
             X[i,] = self._load_grayscale_image(self.image_path + frm[0]+ '.jpg', frm[1]) #Array of images
 
-            y[i] = self.labels[frm]
+            y[i] = (self.labels[frm]).tolist()
 
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
 
