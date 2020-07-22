@@ -26,6 +26,7 @@ class OlriLocator(object):
         self.cellOuput = cellOutput
         self.headingOutput = headingOuput
         self.dataDict = None
+        self.image_depth = 1
         self.model = CNN(self)
         self.loss = keras.losses.categorical_crossentropy
         self.model.compile(
@@ -104,7 +105,7 @@ if __name__ == '__main__':
         image_size=100,
         data_name=None,
         headingOuput=True,
-    checkpoint_name = None
+    checkpoint_name = "CNN_predHead_generator"
 
     )
     olri_locator.getFrames()
