@@ -75,8 +75,6 @@ class OlriLocator(object):
             if self.cellOuput:
                 self.cellLabel[frm] = frame_cell_dict[frm]
             if self.headingOutput:
-                print("This is the frame", frm)
-                print("this is the heading for that value", frame_head_dict[frm])
                 self.headLabel[frm] = frame_head_dict[frm]
 
 
@@ -126,6 +124,7 @@ if __name__ == '__main__':
 
     newDataGen = DataGenerator(data_dict, labels)
     newDataGen.on_epoch_end()
+    print("It went through!")
 
     training_generator = DataGenerator.newDataGen.__data_generation(data_dict['train_frames'], labels, **params)
     validation_generator = DataGenerator.newDataGen.__data_generation(data_dict['eval_frames'], labels, **params)

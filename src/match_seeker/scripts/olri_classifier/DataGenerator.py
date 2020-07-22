@@ -27,6 +27,7 @@ class DataGenerator(object):
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.data_name = data_name
         self.on_epoch_end()
+        self.__data_generation(None)
 
 
     def __len__(self):
