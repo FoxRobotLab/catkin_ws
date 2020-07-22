@@ -80,6 +80,7 @@ class DataGenerator(keras.utils.Sequence):
             img = self.randerase_image(img)
         img = img - mean
         img = img / 255
+        img = img.reshape(100, 100, 1)
         return img
 
     def randerase_image(self, image, erase_ratio, size_min=0.02, size_max=0.4, ratio_min=0.3, ratio_max=1 / 0.3, val_min=0,
