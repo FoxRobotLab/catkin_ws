@@ -12,7 +12,7 @@ class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
                  img_size = 100, data_name = "CNN_generator_headPred"):
         self.list_frames = list_frames
-        self.labels = labels
+        self.labels = labels.tolist()
         self.batch_size = batch_size
         self.dim = dim
 
