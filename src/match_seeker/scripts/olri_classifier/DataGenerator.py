@@ -67,9 +67,8 @@ class DataGenerator(keras.utils.Sequence):
         for i, frm in enumerate(list_frame_temp):
             # Store sample
             X[i,] = self._load_grayscale_image(self.image_path + frm[0]+ '.jpg', frm[1]) #Array of images
-
+            print("The HEADING", self.labels[frm])
             y[i] = self.labels[frm]
-            print("HELLOOOOOOO", y)
 
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
 
