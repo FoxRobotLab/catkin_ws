@@ -121,8 +121,8 @@ if __name__ == '__main__':
               'n_classes' :8,
               'shuffle': True}
     # Generators
-    newDataGen = DataGenerator()
-    newDataGen(data_dict, labels)
+
+    newDataGen = DataGenerator(data_dict, labels)
 
     training_generator = newDataGen.__data_generation(data_dict['train_frames'], labels, **params)
     validation_generator = newDataGen.__data_generation(data_dict['eval_frames'], labels, **params)
