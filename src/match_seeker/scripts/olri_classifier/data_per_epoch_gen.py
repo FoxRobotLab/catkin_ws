@@ -51,14 +51,14 @@ class DataGenerator(object):
 
       # Find list of frames
       list_frame_temp = [self.list_frames[k] for k in indexes]
-      list_labels = [self.labels[k] for k in indexes]
+
 
       # Generate data
-      X, y = self.__data_generation(list_frame_temp, list_labels)
+      X, y = self.__data_generation(list_frame_temp)
 
       return X, y
 
-    def __data_generation(self, list_frame_temp, list_labels):
+    def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
@@ -68,7 +68,9 @@ class DataGenerator(object):
             # Store sample
             X[i,] = self._load_grayscale_image(self.image_path + frm[0]+ '.jpg', frm[1]) #Array of images
 
-        return X, keras.utils.to_categorical(list_labels, num_classes=self.n_classes) #Array of labels
+            y[i] = self.labels[frm]
+
+        return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
 
     def _load_grayscale_image(self, image_path, typeOfProcessing):
         img = cv2.imread(image_path)

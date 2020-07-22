@@ -1,7 +1,6 @@
 import numpy as np
 from paths import DATA
 from tensorflow import keras
-from data_per_epoch_gen import __data_generation
 import time
 from olin_cnn_lstm import CNN
 from data_per_epoch_gen import DataGenerator
@@ -120,8 +119,10 @@ if __name__ == '__main__':
               'shuffle': True}
     # Generators
     newDataGen = DataGenerator()
-    training_generator = __data_generation(data_dict['train_frames'], labels, **params)
-    validation_generator = __data_generation(data_dict['eval_frames'], labels, **params)
+    newDataGen(data_dict, labels)
+
+    training_generator = newDataGen.__data_generation(data_dict['train_frames'], labels, **params)
+    validation_generator = newDataGen.__data_generation(data_dict['eval_frames'], labels, **params)
 
     olri_locator.train(training_generator,validation_generator)
 
