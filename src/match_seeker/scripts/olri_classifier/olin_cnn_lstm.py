@@ -57,8 +57,7 @@ def CNN_LSTM(self):
 
 
 def CNN(self):
-    """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
-    print("Building a model that takes cell number as input")
+    print("Building a CNN model with 32, 64, and 32 filters")
     model = keras.models.Sequential()
 
     model.add(keras.layers.Conv2D(
