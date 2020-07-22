@@ -122,12 +122,9 @@ if __name__ == '__main__':
               'shuffle': True}
     # Generators
 
-    newDataGen = DataGenerator(data_dict, labels)
-    newDataGen.on_epoch_end()
+    training_generator = DataGenerator(data_dict['train_frames'], labels)
+    validation_generator = DataGenerator(data_dict['eval_frames'], labels)
     print("It went through!")
-
-    training_generator = DataGenerator.newDataGen.__data_generation(data_dict['train_frames'], labels, **params)
-    validation_generator = DataGenerator.newDataGen.__data_generation(data_dict['eval_frames'], labels, **params)
 
     olri_locator.train(training_generator,validation_generator)
 
