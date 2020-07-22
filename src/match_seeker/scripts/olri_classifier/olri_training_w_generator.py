@@ -73,12 +73,10 @@ class OlriLocator(object):
             if self.cellOuput:
                 self.cellLabel[frm] = frame_cell_dict[frm]
             if self.headingOutput:
-                print("This is the frame", frm)
-                print("this is the heading for that value", frame_head_dict[frm])
                 self.headLabel[frm] = frame_head_dict[frm]
 
 
-        return self.cellOuput, self.headingOutput
+        return self.cellLabel,self.headLabel
 
 
     def trainAndEval(self):
