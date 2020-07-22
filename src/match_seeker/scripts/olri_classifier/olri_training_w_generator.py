@@ -55,8 +55,8 @@ class OlriLocator(object):
 
 
         master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-        headLabel = {}
-        cellLabel = {}
+        self.headLabel = {}
+        self.cellLabel = {}
 
         frame_cell_dict = {}
         frame_head_dict = {}
@@ -73,6 +73,8 @@ class OlriLocator(object):
             if self.cellOuput:
                 self.cellLabel[frm] = frame_cell_dict[frm]
             if self.headingOutput:
+                print("This is the frame", frm)
+                print("this is the heading for that value", frame_head_dict[frm])
                 self.headLabel[frm] = frame_head_dict[frm]
 
 
