@@ -65,9 +65,11 @@ class DataGenerator(keras.utils.Sequence):
         y = np.empty((self.batch_size), dtype=int)
         print("This is the shape of y", y.shape)
         print("this is y", y)
-        print("This should be a dictionary", self.labels)
+        #print("This should be a dictionary", self.labels) The key and value are both strings
         # Generate data
         for i, frm in enumerate(list_frame_temp):
+            print("this is the frame", frm)
+            print("this is the type", type(frm))
             # Store sample
             X[i,] = self._load_grayscale_image(self.image_path + frm[0]+ '.jpg', frm[1]) #Array of images
 
