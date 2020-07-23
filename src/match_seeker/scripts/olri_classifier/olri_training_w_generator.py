@@ -123,31 +123,32 @@ class OlriLocator(object):
 
 
 if __name__ == '__main__':
-    olri_locator = OlriLocator(
-        eval_ratio= 1.0/6.0, #ALL DATA --->11.0 / 61.0
-        outputSize= 8,
-        image_size=100,
-        data_name=None,
-        headingOuput=True,
-    checkpoint_name = "CNN_predHead_generator"
-
-    )
-    olri_locator.getFrames()
-    _, labels = olri_locator.getLabels()
-    data_dict = olri_locator.trainAndEval()
-
-    # Parameters
-    params = {'dim': (100, 100),
-              'batch_size': 24,
-              'n_channels': 1,
-              'n_classes' :8,
-              'shuffle': True}
-    # Generators
-
-    training_generator = DataGenerator(data_dict['train_frames'], labels)
-    validation_generator = DataGenerator(data_dict['eval_frames'], labels)
-
-    olri_locator.train(training_generator,validation_generator)
+    # olri_locator = OlriLocator(
+    #     eval_ratio= 1.0/6.0, #ALL DATA --->11.0 / 61.0
+    #     outputSize= 8,
+    #     image_size=100,
+    #     data_name=None,
+    #     headingOuput=True,
+    # checkpoint_name = "CNN_predHead_generator"
+    #
+    # )
+    # olri_locator.getFrames()
+    # _, labels = olri_locator.getLabels()
+    # data_dict = olri_locator.trainAndEval()
+    #
+    # # Parameters
+    # params = {'dim': (100, 100),
+    #           'batch_size': 24,
+    #           'n_channels': 1,
+    #           'n_classes' :8,
+    #           'shuffle': True}
+    # # Generators
+    #
+    # training_generator = DataGenerator(data_dict['train_frames'], labels)
+    # validation_generator = DataGenerator(data_dict['eval_frames'], labels)
+    #
+    # olri_locator.train(training_generator,validation_generator)
+    print(keras.__version__)
 
 
 
