@@ -9,6 +9,12 @@ from pool_helper import PoolHelper
 
 from lrn import LRN
 
+from keras import backend as K
+
+
+
+
+
 if keras.backend.backend() == 'tensorflow':
     from keras import backend as K
     import tensorflow as tf
@@ -17,7 +23,20 @@ if keras.backend.backend() == 'tensorflow':
 
 def create_googlenet(weights_path=None):
     # creates GoogLeNet a.k.a. Inception v1 (Szegedy, 2015)
-    input = Input(shape=(3, 224, 224))
+    input_crop = Input(shape=(3, 224, 224))
+    img_rows, img_cols = 224, 224
+
+    if K.image_data_format() == 'channels_first':
+        input_crop = input_crop.reshape(input_crop.shape[0], 3, img_rows, img_cols)
+        input_shape = (3, img_rows, img_cols)
+    else:
+        input_crop = input_crop.reshape(input_crop.shape[0], img_rows, img_cols, 3)
+        input_shape = (img_rows, img_cols, 3)
+
+    input_crop = Input(shape=input_shape)
+    input = input_crop #Input(shape=(3, 224, 224))
+
+
 
     input_pad = ZeroPadding2D(padding=(3, 3))(input)
     conv1_7x7_s2 = Conv2D(64, (7,7), strides=(2,2), padding='valid', activation='relu', name='conv1/7x7_s2', kernel_regularizer=l2(0.0002))(input_pad)
@@ -165,7 +184,7 @@ def create_googlenet(weights_path=None):
     googlenet = Model(inputs=input, outputs=[pool1_norm1]) #outputs=[loss1_classifier_act,loss2_classifier_act,loss3_classifier_act])
 
     googlenet.summary()
-    
+
     if weights_path:
         googlenet.load_weights(weights_path)
 
