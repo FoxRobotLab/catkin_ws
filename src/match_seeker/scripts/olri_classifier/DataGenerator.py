@@ -10,7 +10,7 @@ import cv2
 mean = np.load(DATA + "lstm_mean_122k.npy")
 class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
-                 img_size = 100, data_name = "CNN_generator_headPred"):
+                 img_size = 100, data_name = "model_usingGenerator"):
         self.list_frames = list_frames
         self.labels = labels
         self.batch_size = batch_size
@@ -34,7 +34,6 @@ class DataGenerator(keras.utils.Sequence):
       return int(np.floor(len(self.list_frames) / self.batch_size))
 
     def on_epoch_end(self):
-        print("HELLOOOOOOOO!!!!!!!!!!!")
         'Updates indexes after each epoch'
         self.indexes = np.arange(len(self.list_frames))
 
