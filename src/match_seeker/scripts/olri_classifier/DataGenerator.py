@@ -40,16 +40,6 @@ class DataGenerator(keras.utils.Sequence):
 
         if self.shuffle == True:
             np.random.shuffle(self.indexes)
-        callback_model_checkpoint(
-            filepath,
-            monitor="val_loss",
-            verbose=0,
-            save_best_only=FALSE,
-            save_weights_only=FALSE,
-            mode=c("auto", "min", "max"),
-            period=NULL,
-            save_freq="epoch"
-        )
 
     def __getitem__(self, index):
       'Generate one batch of data'
