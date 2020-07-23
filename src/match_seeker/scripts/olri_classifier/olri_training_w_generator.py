@@ -1,6 +1,6 @@
 import numpy as np
 from paths import DATA
-# from tensorflow import keras
+from tensorflow import keras
 import time
 from olin_cnn_lstm import CNN
 from DataGenerator import DataGenerator
@@ -118,38 +118,49 @@ class OlriLocator(object):
                             use_multiprocessing=True,
                             workers=6,
                             steps_per_epoch = 600,
+                            callbacks=[keras.callbacks.History(),keras.callbacks.ModelCheckpoint(
+                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                    period=1  # save every n epoch
+                ),
+                keras.callbacks.TensorBoard(
+                    log_dir=self.checkpoint_dir,
+                    batch_size=1,
+                    write_images=False,
+                    write_grads=True,
+                    histogram_freq=1,
+                ),
+                keras.callbacks.TerminateOnNaN()],
                             epochs= 20) #ALL DATA ---> 6100
 
 
 
 if __name__ == '__main__':
-    # olri_locator = OlriLocator(
-    #     eval_ratio= 1.0/6.0, #ALL DATA --->11.0 / 61.0
-    #     outputSize= 8,
-    #     image_size=100,
-    #     data_name=None,
-    #     headingOuput=True,
-    # checkpoint_name = "CNN_predHead_generator"
-    #
-    # )
-    # olri_locator.getFrames()
-    # _, labels = olri_locator.getLabels()
-    # data_dict = olri_locator.trainAndEval()
-    #
-    # # Parameters
-    # params = {'dim': (100, 100),
-    #           'batch_size': 24,
-    #           'n_channels': 1,
-    #           'n_classes' :8,
-    #           'shuffle': True}
-    # # Generators
-    #
-    # training_generator = DataGenerator(data_dict['train_frames'], labels)
-    # validation_generator = DataGenerator(data_dict['eval_frames'], labels)
-    #
-    # olri_locator.train(training_generator,validation_generator)
-    from tensorflow.python import keras
-    print(keras.__version__)
+    olri_locator = OlriLocator(
+        eval_ratio= 1.0/6.0, #ALL DATA --->11.0 / 61.0
+        outputSize= 8,
+        image_size=100,
+        data_name=None,
+        headingOuput=True,
+    checkpoint_name = "CNN_predHead_generator"
+
+    )
+    olri_locator.getFrames()
+    _, labels = olri_locator.getLabels()
+    data_dict = olri_locator.trainAndEval()
+
+    # Parameters
+    params = {'dim': (100, 100),
+              'batch_size': 24,
+              'n_channels': 1,
+              'n_classes' :8,
+              'shuffle': True}
+    # Generators
+
+    training_generator = DataGenerator(data_dict['train_frames'], labels)
+    validation_generator = DataGenerator(data_dict['eval_frames'], labels)
+
+    olri_locator.train(training_generator,validation_generator)
+
 
 
 
