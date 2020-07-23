@@ -122,13 +122,6 @@ class OlriLocator(object):
                     self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
                     period=1  # save every n epoch
                 ),
-                keras.callbacks.TensorBoard(
-                    log_dir=self.checkpoint_dir,
-                    batch_size=1,
-                    write_images=False,
-                    write_grads=True,
-                    histogram_freq=1,
-                ),
                 keras.callbacks.TerminateOnNaN()],
                             epochs= 20) #ALL DATA ---> 6100
 
