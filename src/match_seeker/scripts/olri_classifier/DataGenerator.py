@@ -63,6 +63,7 @@ class DataGenerator(keras.utils.Sequence):
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
         y = np.empty((self.batch_size), dtype=int)
+        print("This is the shape of y", y.shape)
         # Generate data
         for i, frm in enumerate(list_frame_temp):
             # Store sample
