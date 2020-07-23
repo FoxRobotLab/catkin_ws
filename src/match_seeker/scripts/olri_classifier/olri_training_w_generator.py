@@ -118,9 +118,19 @@ class OlriLocator(object):
                             use_multiprocessing=True,
                             workers=6,
                             steps_per_epoch = 600,
-                            callbacks=[keras.callbacks.ModelCheckpoint(
-                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    period=1)  # save every n epoch
+                            callbacks=[
+                                keras.callbacks.History(),
+                                keras.callbacks.ModelCheckpoint(
+                                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                                    period=1  # save every n epoch
+                                ),
+                                keras.callbacks.TensorBoard(
+                                    log_dir=self.checkpoint_dir,
+                                    batch_size=1,
+                                    write_images=False,
+                                    write_grads=True
+                                ),
+                                keras.callbacks.TerminateOnNaN()
                 ],
                             epochs= 20) #ALL DATA ---> 6100
 
