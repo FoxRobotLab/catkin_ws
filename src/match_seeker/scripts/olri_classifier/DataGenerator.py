@@ -68,13 +68,11 @@ class DataGenerator(keras.utils.Sequence):
         #print("This should be a dictionary", self.labels) The key and value are both strings
         # Generate data
         for i, frm in enumerate(list_frame_temp):
-            print("this is the frame", frm)
-            print("this is the type", type(frm))
+            frameNum = frm[0]
             # Store sample
-            X[i,] = self._load_grayscale_image(self.image_path + frm[0]+ '.jpg', frm[1]) #Array of images
-
-            # print("The HEADING", self.labels[frm])
-            # y[i] = self.labels[frm]
+            X[i,] = self._load_grayscale_image(self.image_path + frameNum+ '.jpg', frm[1]) #Array of images
+            y[i] = int(self.labels[frameNum])
+            print(y[i])
 
 
         # return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
