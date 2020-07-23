@@ -117,7 +117,8 @@ class OlriLocator(object):
                             validation_data=validation_generator,
                             use_multiprocessing=True,
                             workers=6,
-                            steps_per_epoch = 600) #ALL DATA ---> 6100
+                            steps_per_epoch = 600,
+                            epochs= 20) #ALL DATA ---> 6100
 
 
 

@@ -36,10 +36,6 @@ class DataGenerator(keras.utils.Sequence):
     def on_epoch_end(self):
         print("HELLOOOOOOOO!!!!!!!!!!!")
         'Updates indexes after each epoch'
-        keras.callbacks.ModelCheckpoint(
-            self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-            period=1  # save every n epoch
-        )
         self.indexes = np.arange(len(self.list_frames))
 
         if self.shuffle == True:
