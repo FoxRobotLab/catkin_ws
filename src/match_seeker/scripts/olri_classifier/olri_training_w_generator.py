@@ -125,7 +125,6 @@ if __name__ == '__main__':
 
     training_generator = DataGenerator(data_dict['train_frames'], labels)
     validation_generator = DataGenerator(data_dict['eval_frames'], labels)
-    print("It went through!")
 
     olri_locator.train(training_generator,validation_generator)
 
