@@ -79,7 +79,7 @@ class OlinClassifier(object):
         self.data_name = data_name
 
         if self.googleNet:
-            self.model = googleNet()
+            self.model = create_googlenet()
             self.loss = keras.losses.binary_crossentropy
 
             sgd = keras.optimizers.SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
@@ -586,7 +586,7 @@ if __name__ == "__main__":
         dataLabel=DATA + 'regressionOutput.npy',
         data_name="cellInputReference",
         outputSize=3,
-        googNet=True,
+        googleNet=True,
         eval_ratio=1.0 / 13.0,
         image_size=100,
         image_depth=1

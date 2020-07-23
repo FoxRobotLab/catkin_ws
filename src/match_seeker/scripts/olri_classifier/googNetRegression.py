@@ -4,9 +4,6 @@ import keras
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, Dropout, Flatten, Concatenate, Reshape, Activation
 from keras.models import Model
 from keras.regularizers import l2
-from keras.optimizers import SGD
-from pool_helper import PoolHelper
-from lrn import LRN
 
 if keras.backend.backend() == 'tensorflow':
     from keras import backend as K
