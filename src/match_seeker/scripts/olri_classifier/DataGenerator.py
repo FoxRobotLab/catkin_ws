@@ -54,9 +54,9 @@ class DataGenerator(keras.utils.Sequence):
 
 
       # Generate data
-      X, y = self.__data_generation(list_frame_temp)
-
-      return X, y
+      # X, y = self.__data_generation(list_frame_temp)
+      self.__data_generation(list_frame_temp)
+      # return X, y
 
     def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
@@ -73,7 +73,7 @@ class DataGenerator(keras.utils.Sequence):
             y[i] = self.labels[frm]
 
 
-        return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
+        # return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
 
     def _load_grayscale_image(self, image_path, typeOfProcessing):
         img = cv2.imread(image_path)
