@@ -117,13 +117,13 @@ class OlriLocator(object):
                             validation_data=validation_generator,
                             use_multiprocessing=True,
                             workers=6,
-                            steps_per_epoch = 6100)
+                            steps_per_epoch = 600) #ALL DATA ---> 6100
 
 
 
 if __name__ == '__main__':
     olri_locator = OlriLocator(
-        eval_ratio=11.0 / 61.0,
+        eval_ratio= 1.0/6.0, #ALL DATA --->11.0 / 61.0
         outputSize= 8,
         image_size=100,
         data_name=None,
