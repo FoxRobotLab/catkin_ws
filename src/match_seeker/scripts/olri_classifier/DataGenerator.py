@@ -34,6 +34,7 @@ class DataGenerator(keras.utils.Sequence):
       return int(np.floor(len(self.list_frames) / self.batch_size))
 
     def on_epoch_end(self):
+        print("HELLOOOOOOOO!!!!!!!!!!!")
         'Updates indexes after each epoch'
         keras.callbacks.ModelCheckpoint(
             self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",

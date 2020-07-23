@@ -43,14 +43,34 @@ class OlriLocator(object):
         cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
         rndUnderRepSubset = np.load(DATA + 'cell_newFrames.npy', allow_pickle='TRUE').item()
 
+
+        ###########TAKING A SAMPLE############
+        # Change the name of he saved data, so there is no overwritten data
+        wantedCells = ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33',
+                       '34',
+                       '35', '36', '37', '38', '39', '40', '41', '42', '43']
+
         frame_per_cell = []
         id = np.empty(0, dtype=int)
-
-        for cell in cell_frame_dict.keys():
+        for cell in wantedCells:
             frame_per_cell = frame_per_cell + cell_frame_dict[cell] + rndUnderRepSubset[cell]
-            id = np.hstack((id, np.zeros(len(cell_frame_dict[cell]), dtype = int), np.ones(len(rndUnderRepSubset[cell]), dtype = int)))
+            id = np.hstack(
+                (id, np.zeros(len(cell_frame_dict[cell]), dtype=int), np.ones(len(rndUnderRepSubset[cell]), dtype=int)))
 
         self.frame = np.vstack((np.asarray(frame_per_cell), id))
+        ##################################################################
+
+
+        ###########THIS IS FOR ALL DATA###########
+        # frame_per_cell = []
+        # id = np.empty(0, dtype=int)
+        #
+        # for cell in cell_frame_dict.keys():
+        #     frame_per_cell = frame_per_cell + cell_frame_dict[cell] + rndUnderRepSubset[cell]
+        #     id = np.hstack((id, np.zeros(len(cell_frame_dict[cell]), dtype = int), np.ones(len(rndUnderRepSubset[cell]), dtype = int)))
+        #
+        # self.frame = np.vstack((np.asarray(frame_per_cell), id))
+        #######################################################
 
     def getLabels(self):
         #Returning labels (cell or heading) for the frames
