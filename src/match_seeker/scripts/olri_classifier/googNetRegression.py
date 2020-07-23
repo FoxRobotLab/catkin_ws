@@ -5,7 +5,6 @@ from keras.layers import Input, Dense, Conv2D, MaxPooling2D, AveragePooling2D, Z
 from keras.models import Model
 from keras.regularizers import l2
 from keras.optimizers import SGD
-from pool_helper import PoolHelper
 from lrn import LRN
 
 if keras.backend.backend() == 'tensorflow':
