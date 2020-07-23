@@ -41,6 +41,12 @@ class DataGenerator(keras.utils.Sequence):
         if self.shuffle == True:
             np.random.shuffle(self.indexes)
         #THIS SHOULD ALSO BE WHERE WE SAVE DATA
+        keras.callback_model_checkpoint(
+            self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+            monitor="val_loss",
+            verbose=0,
+            save_freq="epoch"
+        )
 
     def __getitem__(self, index):
       'Generate one batch of data'
