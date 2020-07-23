@@ -48,14 +48,15 @@ from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
 
+from googNetRegression import create_googlenet
+
 ### Uncomment next line to use CPU instead of GPU: ###
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 
 class OlinClassifier(object):
     def __init__(self, eval_ratio=1.0 / 13.0, checkpoint_name=None, dataImg=None, dataLabel=None, outputSize=271,
-                 cellInput=False, headingInput=False,
-                 image_size=224, image_depth=2, data_name=None):
+                 googleNet = None, image_size=224, image_depth=2, data_name=None):
         ### Set up paths and basic model hyperparameters
 
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
@@ -63,9 +64,7 @@ class OlinClassifier(object):
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
 
-        self.cellInput = cellInput
-        self.headingInput = headingInput
-        self.neitherAsInput = (not cellInput) and (not headingInput)
+        self.googleNet = googleNet
 
         self.dataImg = dataImg
         self.dataLabel = dataLabel
@@ -79,24 +78,17 @@ class OlinClassifier(object):
         self.eval_labels = None
         self.data_name = data_name
 
-        if self.neitherAsInput:
+        if self.googleNet:
+            self.model = googleNet()
+            self.loss = keras.losses.binary_crossentropy
+
+            sgd = keras.optimizers.SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+            self.model.compile(optimizer=sgd, loss='categorical_crossentropy')
+        else:
             self.model = self.cnn_headings()
             self.loss = keras.losses.binary_crossentropy
-        elif self.headingInput:
-            # self.model = self.cnn_headings()
-            self.loss = keras.losses.categorical_crossentropy
-            self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-                compile=True)
-        elif self.cellInput:
-            # self.model = self.cnn_cells()  !!!!!!!!!CHANGE THIS INPUT BACK!!!!!!
-            self.model = self.cnn_cells()
-            self.loss = keras.losses.categorical_crossentropy
-        else:  # both as input, seems weird
-            print("At most one of cellInput and headingInput should be true.")
-            self.model = None
-            self.loss = None
-            return
+
+
 
         # self.model.compile(
         #     loss=self.loss,
@@ -594,9 +586,9 @@ if __name__ == "__main__":
         dataLabel=DATA + 'regressionOutput.npy',
         data_name="cellInputReference",
         outputSize=3,
+        googNet=True,
         eval_ratio=1.0 / 13.0,
         image_size=100,
-        cellInput=True,
         image_depth=1
     )
     print("Classifier built")
