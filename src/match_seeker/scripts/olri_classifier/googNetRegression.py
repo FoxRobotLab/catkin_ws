@@ -7,6 +7,8 @@ from keras.regularizers import l2
 
 from pool_helper import PoolHelper
 
+from lrn import LRN
+
 if keras.backend.backend() == 'tensorflow':
     from keras import backend as K
     import tensorflow as tf

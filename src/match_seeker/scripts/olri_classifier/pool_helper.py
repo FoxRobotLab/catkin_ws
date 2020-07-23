@@ -1,3 +1,6 @@
+'''
+pool_helper file for regression cnn
+'''
 
 from keras.layers.core import Layer
 
