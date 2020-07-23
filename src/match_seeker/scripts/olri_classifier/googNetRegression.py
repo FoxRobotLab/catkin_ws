@@ -26,7 +26,7 @@ def create_googlenet(weights_path=None):
     pool1_3x3_s2 = MaxPooling2D(pool_size=(3,3), strides=(2,2), padding='valid', name='pool1/3x3_s2')(pool1_helper)
     pool1_norm1 = LRN(name='pool1/norm1')(pool1_3x3_s2)
 
-    conv2_3x3_reduce = Conv2D(64, (1,1), padding='same', activation='relu', name='conv2/3x3_reduce', kernel_regularizer=l2(0.0002))(pool1_norm1)
+    conv2_3x3_reduce = Conv2D(63, (1,1), padding='same', activation='relu', name='conv2/3x3_reduce', kernel_regularizer=l2(0.0002))(pool1_norm1)
     conv2_3x3 = Conv2D(192, (3,3), padding='same', activation='relu', name='conv2/3x3', kernel_regularizer=l2(0.0002))(conv2_3x3_reduce)
     conv2_norm2 = LRN(name='conv2/norm2')(conv2_3x3)
     conv2_zero_pad = ZeroPadding2D(padding=(1, 1))(conv2_norm2)
