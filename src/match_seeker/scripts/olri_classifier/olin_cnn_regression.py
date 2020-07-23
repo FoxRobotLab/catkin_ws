@@ -586,7 +586,7 @@ if __name__ == "__main__":
         dataLabel=DATA + 'regressionOutput.npy',
         data_name="cellInputReference",
         outputSize=3,
-        googNet=True,
+        googleNet=True,
         eval_ratio=1.0 / 13.0,
         image_size=100,
         image_depth=1
