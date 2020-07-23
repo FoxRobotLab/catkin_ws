@@ -1,6 +1,6 @@
 import numpy as np
 from paths import DATA
-from tensorflow import keras
+# from tensorflow import keras
 import time
 from olin_cnn_lstm import CNN
 from DataGenerator import DataGenerator
@@ -148,6 +148,7 @@ if __name__ == '__main__':
     # validation_generator = DataGenerator(data_dict['eval_frames'], labels)
     #
     # olri_locator.train(training_generator,validation_generator)
+    from tensorflow.python import keras
     print(keras.__version__)
 
 
