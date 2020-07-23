@@ -116,7 +116,7 @@ class OlriLocator(object):
         self.model.fit_generator(generator=training_generator,
                             validation_data=validation_generator,
                             use_multiprocessing=True,
-                            workers=6,
+                            workers=6100,#ALL DATA ---> 6
                             steps_per_epoch = 600,
                             callbacks=[
                                 keras.callbacks.History(),
@@ -132,7 +132,7 @@ class OlriLocator(object):
                                 ),
                                 keras.callbacks.TerminateOnNaN()
                 ],
-                            epochs= 20) #ALL DATA ---> 6100
+                            epochs= 20)
 
 
 
