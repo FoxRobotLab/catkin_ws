@@ -54,17 +54,14 @@ class DataGenerator(keras.utils.Sequence):
 
 
       # Generate data
-      # X, y = self.__data_generation(list_frame_temp)
-      self.__data_generation(list_frame_temp)
-      # return X, y
+      X, y = self.__data_generation(list_frame_temp)
+      return X, y
 
     def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
         y = np.empty((self.batch_size), dtype=int)
-        print("This is the shape of y", y.shape)
-        print("this is y", y)
         #print("This should be a dictionary", self.labels) The key and value are both strings
         # Generate data
         for i, frm in enumerate(list_frame_temp):
@@ -72,10 +69,9 @@ class DataGenerator(keras.utils.Sequence):
             # Store sample
             X[i,] = self._load_grayscale_image(self.image_path + frameNum+ '.jpg', frm[1]) #Array of images
             y[i] = int(self.labels[frameNum])
-            print(y[i])
 
 
-        # return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
+        return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
 
     def _load_grayscale_image(self, image_path, typeOfProcessing):
         img = cv2.imread(image_path)
