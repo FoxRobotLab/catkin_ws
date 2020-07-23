@@ -139,7 +139,7 @@ if __name__ == '__main__':
         eval_ratio= 1.0/6.0, #ALL DATA --->11.0 / 61.0
         outputSize= 8,
         image_size=100,
-        data_name=None,
+        data_name= "CNN_sampleData",
         headingOuput=True,
     checkpoint_name = "CNN_predHead_generator"
 
