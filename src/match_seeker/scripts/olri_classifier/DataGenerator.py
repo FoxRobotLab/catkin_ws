@@ -10,7 +10,7 @@ import cv2
 mean = np.load(DATA + "lstm_mean_122k.npy")
 class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
-                 img_size = 100, data_name = "model_usingGenerator"):
+                 img_size = 100):
         self.list_frames = list_frames
         self.labels = labels
         self.batch_size = batch_size
@@ -24,8 +24,6 @@ class DataGenerator(keras.utils.Sequence):
         self.shuffle = shuffle
         self.img_size = img_size
         self.image_path = DATA + 'frames/moreframes/frame'
-        self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
-        self.data_name = data_name
         self.on_epoch_end()
 
 
@@ -57,7 +55,7 @@ class DataGenerator(keras.utils.Sequence):
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
         y = np.empty((self.batch_size), dtype=int)
-        #print("This should be a dictionary", self.labels) The key and value are both strings
+
         # Generate data
         for i, frm in enumerate(list_frame_temp):
             frameNum = frm[0]

@@ -37,7 +37,6 @@ class OlriLocator(object):
             metrics=["accuracy"])
 
 
-
     def getFrames(self):
         #self.frame should be a 122000 by 2 matrix where the second row determines how the frame will be processed
         cell_frame_dict = np.load(DATA+ 'cell_origFrames.npy',allow_pickle='TRUE').item()
@@ -70,6 +69,7 @@ class OlriLocator(object):
             id = np.hstack((id, np.zeros(len(cell_frame_dict[cell]), dtype = int), np.ones(len(rndUnderRepSubset[cell]), dtype = int)))
 
         self.frame = np.vstack((np.asarray(frame_per_cell), id))
+
         ######################################################
 
     def getLabels(self):
@@ -105,6 +105,9 @@ class OlriLocator(object):
         self.dataDict = {}
 
         frames_transposed = self.frame.transpose()
+        self.p = np.random.permutation(len(frames_transposed))
+        frames_transposed = frames_transposed[self.p]
+
         cutOff = int(len(frames_transposed)* self.eval_ratio)
 
         self.dataDict['train_frames'] = frames_transposed[:-cutOff]
