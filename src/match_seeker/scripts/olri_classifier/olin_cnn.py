@@ -40,8 +40,10 @@ from tensorflow import keras
 import cv2
 import time
 
+
 ### Uncomment next line to use CPU instead of GPU: ###
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
 
 class OlinClassifier(object):
     def __init__(self, eval_ratio=0.1, checkpoint_name=None, train_data=None, num_cells=271, train_with_headings=False):
@@ -52,7 +54,7 @@ class OlinClassifier(object):
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
 
-        self.train_data = np.load(train_data,allow_pickle=True,encoding='latin1')
+        self.train_data = np.load(train_data, allow_pickle=True, encoding='latin1')
         self.image_size = self.train_data[0][0].shape[0]
         self.train_with_headings = train_with_headings
 
@@ -62,7 +64,7 @@ class OlinClassifier(object):
             self.image_depth = 1
 
         self.num_eval = int(self.eval_ratio * self.train_data.size / 3)
-        np.random.seed(2845) #45600
+        np.random.seed(2845)  # 45600
         np.random.shuffle(self.train_data)
 
         # train_with_headings was used for models which had two outputs - cell and heading
@@ -364,6 +366,9 @@ class OlinClassifier(object):
         precision = true_positives / (predicted_positives + keras.backend.epsilon())
         return precision
 
+
+
+
 def loading_bar(start,end, size = 20):
     # Useful when running a method that takes a long time
     loadstr = '\r'+str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
@@ -405,6 +410,7 @@ def resave_from_wulver(datapath):
     model.load_weights(datapath)
     print("Loaded weights. Saving...")
     model.save(datapath[:-4]+'_NEW.hdf5')
+
 
 if __name__ == "__main__":
     # check_data()
