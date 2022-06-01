@@ -41,7 +41,7 @@ from OlinWorldMap import WorldMap
 
 class OlinTest(object):
     def __init__(self):
-        self.recent_n_cells = []
+        self.recent_n_matches = []
         # rospy.init_node("olin_test") #uncomment to run independent of match_planner
         self.robot = TurtleBot()
         self.robot.pauseMovement()
@@ -143,8 +143,8 @@ class OlinTest(object):
 
     def get_prediction(self, image, mapGraph,odomLoc):
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        cv2.imshow('turtle view', image)
-        cv2.waitKey(10)
+        # cv2.imshow('turtle view', image)
+        # cv2.waitKey(10)
         # for testing
 
 
@@ -184,6 +184,7 @@ class OlinTest(object):
                 best_cells_xy[i] = best_cells_xy[0]
                 best_scores[i] = best_scores[0]
         cell = mapGraph.convertLocToCell(best_cells_xy[0])
+
         return best_scores, best_cells_xy
 
 if __name__ == "__main__":

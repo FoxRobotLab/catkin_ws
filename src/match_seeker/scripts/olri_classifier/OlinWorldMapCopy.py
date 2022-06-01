@@ -21,8 +21,10 @@ import numpy as np
 from FoxQueue import PriorityQueue
 import Graphs
 from DataPaths import basePath, graphMapData, mapLineData, cellMapData
+from paths import DATA
 # from Particle import Particle
 import MapGraph
+import preprocessData as pd
 
 
 class WorldMap(object):
@@ -65,7 +67,7 @@ class WorldMap(object):
         if self.isValidNode(graphNode):
             loc = self.olinGraph.getData(graphNode)
             return loc
-        print("ERROR in WorldMap: bad node to getLocation:", graphNode)
+        print ("ERROR in WorldMap: bad node to getLocation:", graphNode)
         return None
 
 
@@ -78,7 +80,7 @@ class WorldMap(object):
         """Asks if these two nodes are neighbors. A pass-through method."""
         if self.isValidNode(node1) and self.isValidNode(node2):
             return self.olinGraph.areNeighbors(node1, node2)
-        print("ERROR in WorldMap: invalid node one of:", node1, node2)
+        print ("ERROR in WorldMap: invalid node one of:", node1, node2)
         return False
 
 
@@ -218,7 +220,7 @@ class WorldMap(object):
             (n1x, n1y) = node[0:2]    # the slicing allows for poses as well as locations, ignores the angle
             return n1x, n1y
         else:  # bad data for node
-            print("ERROR in WorldMap: Data cannot be converted to (x, y) location:", node, type(node))
+            print ("ERROR in WorldMap: Data cannot be converted to (x, y) location:", node, type(node))
             return None
 
 
@@ -258,7 +260,7 @@ class WorldMap(object):
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
         else:
-            return None #TODO: It should not think it is outside the map
+            return -1 #TODO: It should not think it is outside the map
 
 
     def isAllowedLocation(self, pose):
@@ -292,7 +294,7 @@ class WorldMap(object):
             elif startVert == goalVert:
                 return []
             else:
-                print("rerunning dijkstra's")
+                print ("rerunning dijkstra's")
                 self.goalNode = goalVert
                 q = PriorityQueue()
                 visited = set()
@@ -417,11 +419,11 @@ class WorldMap(object):
                     else:
                         [nodeNumStr, locStr, descr] = line.split("   ")
                 except ValueError:
-                    print("OlinWorldMap: ERROR IN FILE AT LINE: ", line, "ABORTING")
+                    print ("OlinWorldMap: ERROR IN FILE AT LINE: ", line, "ABORTING")
                     return
                 nodeNum = int(nodeNumStr)
                 if nodeNum != row:
-                    print("OlinWorldMap: ROW DOESN'T MATCH, SKIPPING")
+                    print ("OlinWorldMap: ROW DOESN'T MATCH, SKIPPING")
                 else:
                     dataList = locStr.split()
                     nodeData = [part.strip("(),") for part in dataList]
@@ -456,7 +458,7 @@ class WorldMap(object):
                 [fromNode, toNode] = [int(x) for x in line.split()]
                 graph.addEdge(fromNode, toNode)
             else:
-                print("Shouldn't get here", line)
+                print ("Shouldn't get here", line)
         self.olinGraph = graph
         self.graphSize = graph.getSize()
 
@@ -648,11 +650,11 @@ class WorldMap(object):
 
 
 
-    def _convertPixelsToWorld(self, mapLoc):
+    def _convertPixelsToWorld(self, mapPos):
         """Converts coordinates in pixels, on the map, to coordinates (real-valued) in
         meters. Note that this also has to adjust for the rotation and flipping of the map."""
+        mapX, mapY = mapPos
         # First flip x and y values around...
-        mapX, mapY = mapLoc
         flipY = self.mapTotalXDim - 1 - mapX
         flipX = self.mapTotalYDim - 1 - mapY
         # Next convert to meters from pixels, assuming 20 pixels per meter
@@ -661,11 +663,11 @@ class WorldMap(object):
         return (mapXMeters, mapYMeters)
 
 
-    def _convertWorldToPixels(self, worldLoc):
+    def _convertWorldToPixels(self, worldPos):
         """Converts coordinates in meters in the world to integer coordinates on the map
         Note that this also has to adjust for the rotation and flipping of the map."""
         # First convert from meters to pixels, assuming 20 pixels per meter
-        worldX, worldY = worldLoc
+        worldX, worldY = worldPos
         pixelX = worldX * 20.0 #originally 20
         pixelY = worldY * 20.0
         # Next flip x and y values around
@@ -678,24 +680,38 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     # Uncomment to run matchPlanner
+    data = pd.DataPreprocess(imageDir=DATA + "frames/moreframes/",
+                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+                             imagesPerCell=100)
     mapper = WorldMap()
-    mapper.cleanMapImage(obstacles=True,cells=True, drawCellNum=True)
-    mapper.drawPose((34, 16, 0))
-    mapper.drawPose((30, 16, 90))
-    mapper.drawPose((26, 16, -90))
-    mapper.drawPose((22, 16, 180))
-    mapper.drawPose((15, 16, 270))
-    mapper.drawPose((10, 16, 360))
 
-    # mapper.drawNodes()
-    # # mapper.drawLocsAllFrames()
-    # print "starting"
-    # mapper.getShortestPath(87,92)
-    # print "stopping"
-    mapper.displayMap()
-    #cv2.imwrite("BIGMAP.jpg", mapper.currentMapImg)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
-    ## Test _readGraphMap for cellGraph.txt
-    # mapper = WorldMap()
+    data.buildDataDicts()
+
+    frameData = data.frameData
+
+    count = 0
+    frames = 0
+
+    badFrames = []
+    cellCount = {}
+    for frame in frameData.keys():
+        loc = frameData[frame]['loc']
+        cell = frameData[frame]['cell']
+        x, y = loc
+        pose = [x, y]
+        if int(mapper.convertLocToCell(pose)) != int(cell):
+            badFrames.append(frameData[frame])
+
+            if cell not in cellCount:
+                cellCount[cell] = 1
+            else:
+                cellCount[cell] += 1
+
+    print(cellCount)
+
+
+
+
+
+
