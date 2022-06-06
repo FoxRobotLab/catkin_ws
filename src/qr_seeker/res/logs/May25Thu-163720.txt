@@ -1,4 +1,0 @@
-Finding most similar to selected
-Primary image = 50
-==========Close Matches==========
-Image 50 matches with similarity = 0.0

@@ -41,7 +41,7 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 import os
 import numpy as np
 from tensorflow import keras
-#import cv2
+import cv2
 import time
 from paths import pathToMatchSeeker
 from paths import DATA
@@ -103,6 +103,7 @@ class OlinClassifier(object):
             self.model = keras.models.load_model(
                 DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
             self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
+            self.model.summary()
             # self.model = keras.models.load_model(
             #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
             # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
@@ -152,7 +153,7 @@ class OlinClassifier(object):
             self.image_depth = 1
 
         self.num_eval = int((self.eval_ratio * self.image_totalImgs))
-        print("This is the toal images", self.image_totalImgs)
+        print("This is the total images", self.image_totalImgs)
         print("This is the ratio", self.num_eval)
 
 
@@ -182,7 +183,7 @@ class OlinClassifier(object):
 
 
     def train(self):
-        """Sets up the loss function and optimizer, an d then trains the model on the current training data. Quits if no
+        """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
         training data is set up yet."""
         print("This is the shape of the train images!!", self.train_images.shape)
         if self.train_images is None:
@@ -194,11 +195,11 @@ class OlinClassifier(object):
         #         loss=self.loss,
         #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
         #         metrics=["accuracy"]
-        #     )
+        #     )= self.label[
 
 
 
-        #UNCOMMENT FOR OVERLAPING
+        #UNCOMMENT FOR OVERLAPPING
         ####################################################################
         # timeStepsEach = 400
         # self.train_images= creatingSequence(self.train_images, 400, 100)
@@ -392,7 +393,7 @@ class OlinClassifier(object):
             #cv2.waitKey(0)
 
             # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
-            # print(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
+            # prinpredictt(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
             # print(np.argmax(self),np.argmax(pred[0]))
             if np.argmax(self.eval_labels[i]) == np.argmax(pred[0]):
                 correctCells += 1
@@ -510,7 +511,7 @@ class OlinClassifier(object):
 
 
             # cell = oi2.getOneHotLabel(int(cell), 271)
-            # cell_arr = []
+            # cell_arr = []model.predict
             # im_arr = []
             # cell_arr.append(cell)
             # im_arr.append(image)
@@ -529,6 +530,14 @@ class OlinClassifier(object):
                 return self.model.predict(image), cell
         return None
 
+
+    def predictSingleImageAllData(self, cleanImage):
+        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
+        the resulting prediction."""
+        listed = np.array([cleanImage])
+        modelPredict = self.model.predict(listed)
+        maxIndex = np.argmax(modelPredict)
+        return maxIndex, modelPredict[0]
 
 
 def loading_bar(start,end, size = 20):

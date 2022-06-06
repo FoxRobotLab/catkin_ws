@@ -40,10 +40,10 @@ class Localizer(object):
         self.confidence = 0
         self.navType = "CNN"
 
-        xyTuple = self.olin._nodeToCoord(int(self.gui.inputStartLoc()))
+        clean_imagexyTuple = self.olin._nodeToCoord(int(self.gui.inputStartLoc()))
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
-        self.mcl.initializeParticles(250, point=(xyTuple[0], xyTuple[1], float(self.gui.inputStartYaw())))
+        clean_imageself.mcl.initializeParticles(250, point=(xyTuple[0], xyTuple[1], float(self.gui.inputStartYaw())))
 
         self.odomScore = 100.0
         self.olin_tester = OlinTest()

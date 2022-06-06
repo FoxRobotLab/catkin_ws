@@ -7,7 +7,7 @@ from tensorflow import keras
 class OlinClassifier(object):
     def __init__(self, eval_ratio=0.1, checkpoint_dir=None, savedCheckpoint=None, dataImg=None, dataLabel=None,
                  outputSize=271,
-                 cellInput=False, headingInput=False,
+                 cellInput=False, headingInput=False, cellInput20=False, headingInput20=False,
                  image_size=224, image_depth=2, data_name=None):
         ### Set up paths and basic model hyperparameters
 
@@ -49,6 +49,15 @@ class OlinClassifier(object):
             #self.model = self.cnn_cells()
             self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
             self.loss = keras.losses.categorical_crossentropy
+        elif headingInput20:
+            # self.model = self.cnn_headings()
+            self.activation = "softmax"
+            self.loss = keras.losses.categorical_crossentropy
+            self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
+        elif cellInput20:
+            self.activation = "softmax"
+            self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
+            self.loss = keras.losses.categorical_crossentropy
         else:  # both as input, seems weird
             print("At most one of cellInput and headingInput should be true.")
             self.activation = None
@@ -60,6 +69,8 @@ class OlinClassifier(object):
             loss=self.loss,
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
+
+        self.model.summary()
 
         if self.savedCheckpoint is not None:
             self.model.load_weights(self.savedCheckpoint)

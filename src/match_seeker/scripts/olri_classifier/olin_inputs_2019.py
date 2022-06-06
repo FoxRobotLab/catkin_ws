@@ -2,7 +2,7 @@
 # This program divides the image data into two parts, overrepped, with images corresponding to cells that have too much
 # and underrepped, with images corresponding to cells that have too little. To cull the overrepped data, for each
 # overrepped cell we iteratively removed a random image with the most represented heading until we had the desired
-# number of images. This is the new and immproved version of olin_inputs.py
+# number of images. This is the new and improved version of olin_inputs.py
 # Authors: Avik Bosshardt, Angel Sylvester, Maddie AlQatami
 
 import cv2
@@ -224,7 +224,7 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         allLabels, randStart = getLabels()
 
     def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
+        print("Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
         image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
