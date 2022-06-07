@@ -117,7 +117,7 @@ class OlinTest(object):
         cleaned_image = np.array([image], dtype="float") \
             .reshape(1, image_size, image_size, depth)
         return cleaned_image
-self.cell_model
+
     def test_turtlebot(self):
 
         lastpreds = []

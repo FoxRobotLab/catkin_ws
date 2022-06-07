@@ -4,7 +4,7 @@
 olin_cnn.py
 Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
 Creation Date: July 2018
-Updated: Summer 2019, Summer 2020
+Updated: Summer 2019, Summer 2020, Summer 2022
 
 A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
 Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
@@ -30,8 +30,12 @@ Notes:
     Use terminal if import rospy does not work on PyCharm but does work on a
     terminal
 
-
 FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
+
+The OlinClassifier class is also in olinClassifiers.py. They both can build and train CNN and load checkpoints/models.
+Check where OlinClassifier class is imported from because they may take different inputs.
+The OlinClassifier class in this file is mainly used to train models. It can load the model trained in 2020, 
+but we don't know how it's trained and how are the inputs preprocessed when training.
 --------------------------------------------------------------------------------"""
 
 
@@ -98,12 +102,19 @@ class OlinClassifier(object):
         elif self.cellInput:
             self.model = self.cnn_cells()  #CNN
             self.loss = keras.losses.categorical_crossentropy
-        elif self.model2020:
+        elif self.model2020 == "Cell": #no compiling for 2020 models
             self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
                 DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
             self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
-            self.model.summary()
+            #self.model.summary()
+        elif self.model2020 == "Heading":  # no compiling for 2020 models
+            self.loss = keras.losses.categorical_crossentropy
+            self.model = keras.models.load_model(
+                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")
+            self.model.load_weights(
+                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")
+            #self.model.summary()
             # self.model = keras.models.load_model(
             #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
             # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
@@ -537,6 +548,8 @@ class OlinClassifier(object):
         listed = np.array([cleanImage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
+        print("Model predicts:", modelPredict.shape, modelPredict)
+        print("predict[0]:", modelPredict[0].shape, modelPredict[0])
         return maxIndex, modelPredict[0]
 
 

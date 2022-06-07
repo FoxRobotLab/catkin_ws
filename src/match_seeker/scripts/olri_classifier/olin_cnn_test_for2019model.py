@@ -19,6 +19,8 @@ file as input because it requires the program to load the whole dataset before f
 
 
 FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
+
+The OlinClassifier class is imported from olinClassifier.py file!
 --------------------------------------------------------------------------------"""
 
 import random
@@ -220,7 +222,7 @@ def testingOnCellOutputNetwork(n):
     """This runs each of the first n images in the folder of frames through the cell-output network, reporting how
     often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5."""
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
+    #cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
     cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
     meanFile = "TRAININGDATA_100_500_mean.npy"
     dataPath = DATA
@@ -290,7 +292,7 @@ def testingOnHeadingOutputNetwork(n):
     """This runs each of the first n images in the folder of frames through the heading-output network, reporting how often the correct
     heading was produced, and how often the correct heading was in the top 3 and top 5."""
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
+    #cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
     cellOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
     meanFile = "TRAININGDATA_100_500_mean.npy"
     dataPath = DATA
