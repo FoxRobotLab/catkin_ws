@@ -14,31 +14,26 @@ import numpy as np
 from tensorflow import keras
 import cv2
 import time
-from paths import DATA
+from paths import DATA,frames, checkPts
 from imageFileUtils import makeFilename
 import random
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+from src.match_seeker.scripts.olri_classifier.preprocessData import DataPreprocess
+
 
 class CellPredictor2019(object):
-    def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize= None, model2020 = False,cellInput=False, headingInput=False,
-                 image_size=224, image_depth=2, data_name = None):
+    def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 271,
+                 image_size=100, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
-        self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.checkpoint_dir = checkPts+"olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
-
-        self.cellInput = cellInput
-        self.headingInput = headingInput
-        self.model2020 = model2020
-        self.neitherAsInput = (not cellInput) and (not headingInput) and (not model2020)
-
         self.dataImg = dataImg
         self.dataLabel = dataLabel
-        self.dataArray = None
         self.image_size = image_size
         self.image_depth = image_depth
         self.num_eval = None
@@ -47,60 +42,19 @@ class CellPredictor2019(object):
         self.eval_images = None
         self.eval_labels = None
         self.data_name = data_name
-
-        if self.neitherAsInput:
-            self.model = self.cnn_headings()
-            self.loss = keras.losses.binary_crossentropy
-        elif self.headingInput:
-            # self.model = self.cnn_headings()
-            self.loss = keras.losses.categorical_crossentropy
-            self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0716201129/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-                compile=True)
-        elif self.cellInput:
-            self.model = self.cnn_cells()  #CNN
-            self.loss = keras.losses.categorical_crossentropy
-        elif self.model2020 == "Cell": #no compiling for 2020 models
-            self.loss = keras.losses.categorical_crossentropy
-            self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
-            self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
-            #self.model.summary()
-        elif self.model2020 == "Heading":  # no compiling for 2020 models
-            self.loss = keras.losses.categorical_crossentropy
-            self.model = keras.models.load_model(
-                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")
-            self.model.load_weights(
-                DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")
-            #self.model.summary()
-            # self.model = keras.models.load_model(
-            #     DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
-            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720201032/CNN_headPred_all244Cell-06-0.27.hdf5")
-            # self.model = keras.models.load_model(
-            # DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
-            # self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0719202339/Transfer_8epochCNN_LSTM_headPred_all244Cell-02-1.96.hdf5")
-            #self.model = CNN(self)  # CNN
-            # self.model = lstm_cell_pred(self) #CNN + LSTM
-            # self.model = transfer_lstm_cellPred(self) #CNN + LSTM with transer learning
-            #self.model =transfer_lstm_headPred(self) #CNN + LSTM with transer learning
-            # self.model = predictingCells(self) #Transfer Learning
-            # self.model = image_head_predCell(self) #2 feature CNN + LSTM
-
-
-        else:  # both as input, seems weird
-            print("At most one of cellInput and headingInput should be true.")
-            self.model = None
-            self.loss = None
-            return
+        self.loss = keras.losses.categorical_crossentropy
+        self.loaded_checkpoint = loaded_checkpoint
+        if self.loaded_checkpoint is not None:
+            self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
+            self.model.load_weights(self.loaded_checkpoint)
+        else:
+            # Code for cell input
+            self.model = self.cnn_headings()  # CNN
 
         self.model.compile(
             loss=self.loss,
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
-
-        # self.checkpoint_name = checkpoint_name
-        # if self.checkpoint_name is not None:
-        #     self.model.load_weights(self.checkpoint_name)
 
 
     def loadData(self):
@@ -108,7 +62,8 @@ class CellPredictor2019(object):
         inputs and outputs, as well as other helpful values."""
 
         self.image = np.load(self.dataImg)
-        self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
+        # self.image = self.image[:,:,:,0] #OBTAINING JUST THE IMAGE
+        # self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
         self.image_totalImgs = self.image.shape[0]
         self.label = np.load(self.dataLabel)
 
@@ -121,8 +76,7 @@ class CellPredictor2019(object):
         print("This is the total images", self.image_totalImgs)
         print("This is the ratio", self.num_eval)
 
-        #shuffles the orders of the photos
-        np.random.seed(2845) #45600
+        np.random.seed(2845) #45600 #shuffles the orders of the photos
         if (len(self.image) == len(self.label)):
             p = np.random.permutation(len(self.image))
             self.image = self.image[p]
@@ -135,14 +89,10 @@ class CellPredictor2019(object):
         print("This is the len of train images after it has been divided", len(self.train_images))
         self.eval_images = self.image[-self.num_eval:, :]
 
-        # input could include cell data, heading data, or neither (no method right now for doing both as input)
-        if self.neitherAsInput:
-            print("There is no cell or heading as input!")
-        else:
-            print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", len(self.label))
-            self.train_labels = self.label[:-self.num_eval, :]
-            print("This is cutting the labels!!!!!", len(self.train_labels))
-            self.eval_labels = self.label[-self.num_eval:, :]
+        print("THIS IS THE TOTAL SIZE BEFORE DIVIDING THE DATA", len(self.label))
+        self.train_labels = self.label[:-self.num_eval, :]
+        print("This is cutting the labels!!!!!", len(self.train_labels))
+        self.eval_labels = self.label[-self.num_eval:, :]
 
 
 
@@ -180,9 +130,9 @@ class CellPredictor2019(object):
 
 
     def cnn_headings(self):
-        """Builds the model for the network that takes heading as input along with image and produces the cell numbeer."""
-        model = keras.models.Sequential()
+        """Builds a network that takes an image and heading as extra channel along with image and produces the cell number."""
 
+        model = keras.models.Sequential()
         model.add(keras.layers.Conv2D(
             filters=128,
             kernel_size=(5, 5),
@@ -212,187 +162,159 @@ class CellPredictor2019(object):
             padding="same"
         ))
         model.add(keras.layers.Dropout(0.4))
-
-
         model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(units=256, activation="relu"))
         model.add(keras.layers.Dense(units=256, activation="relu"))
-
         model.add(keras.layers.Dropout(0.2))
-
-        # activate with softmax when training one label and sigmoid when training both headings and cells
-        if self.neitherAsInput:
-            activation = "sigmoid"
-        else:
-            activation = "softmax"
-        model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+        model.add(keras.layers.Dense(units=self.outputSize, activation="softmax"))
         model.summary()
         return model
 
 
-    def getAccuracy(self):
-        """Sets up the network, and produces an accuracy value on the evaluation data.
-        If no data is set up, it quits."""
-
-        if self.eval_images is None:
-            return
-
-        num_eval = 5000
-        correctCells = 0
-        correctHeadings = 0
-        eval_copy = self.eval_images
-        self.model.compile(loss=self.loss, optimizer=keras.optimizers.SGD(lr=0.001), metrics=["accuracy"])
-        self.model.load_weights()
-
-        for i in range(num_eval):
-            loading_bar(i,num_eval)
-            image = eval_copy[i]
-            image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
-            potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-
-            pred = self.model.predict(image)
-            print("correct:{}".format(np.argmax(self.eval_labels[i])))
-            print("pred:{}".format(np.argmax(pred[0])))
-            #cv2.imshow('im',image[0,:,:,0])
-            #cv2.waitKey(0)
-
-            # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
-            # prinpredictt(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
-            # print(np.argmax(self),np.argmax(pred[0]))
-            if np.argmax(self.eval_labels[i]) == np.argmax(pred[0]):
-                correctCells += 1
-            # if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
-            #      correctHeadings += 1
-
-        print("%Correct Cells: " + str(float(correctCells) / num_eval))
-        #print("%Correct Headings: " + str(float(correctHeadings) / num_eval))
-        return float(correctCells) / num_eval
+    # def getAccuracy(self):
+    #     """Sets up the network, and produces an accuracy value on the evaluation data.
+    #     If no data is set up, it quits."""
+    #
+    #     if self.eval_images is None:
+    #         return
+    #
+    #     num_eval = 5000
+    #     correctCells = 0
+    #     eval_copy = self.eval_images
+    #     self.model.compile(loss=self.loss, optimizer=keras.optimizers.SGD(lr=0.001), metrics=["accuracy"])
+    #     self.model.load_weights()
+    #
+    #     for i in range(num_eval):
+    #         loading_bar(i,num_eval)
+    #         image = eval_copy[i]
+    #         image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
+    #         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    #
+    #         pred = self.model.predict(image)
+    #         print("correct:{}".format(np.argmax(self.eval_labels[i])))
+    #         print("pred:{}".format(np.argmax(pred[0])))
+    #         #cv2.imshow('im',image[0,:,:,0])
+    #         #cv2.waitKey(0)
+    #
+    #         # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
+    #         # prinpredictt(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
+    #         # print(np.argmax(self),np.argmax(pred[0]))
+    #         if np.argmax(self.eval_labels[i]) == np.argmax(pred[0]):
+    #             correctCells += 1
+    #         # if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
+    #         #       += 1
+    #
+    #     print("%Correct Cells: " + str(float(correctCells) / num_eval))
+    #     return float(correctCells) / num_eval
 
 
-    def retrain(self):
-        """This method seems out of date, was used for transfer learning from VGG. DON"T CALL IT!"""
-        # Use for retraining models included with keras
-        # if training with headings cannot use categorical crossentropy to evaluate loss
-        if self.checkpoint_name is None:
-            self.model = keras.models.Sequential()
+    # def retrain(self):
+    #     """This method seems out of date, was used for transfer learning from VGG. DON"T CALL IT!"""
+    #     # Use for retraining models included with keras
+    #     # if training with headings cannot use categorical crossentropy to evaluate loss
+    #     if self.checkpoint_name is None:
+    #         self.model = keras.models.Sequential()
+    #
+    #         xc = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False,
+    #                                                     input_shape=(self.image_size, self.image_size, self.image_depth))
+    #         for layer in xc.layers[:-1]:
+    #             layer.trainable = False
+    #
+    #         self.model.add(xc)
+    #         self.model.add(keras.layers.Flatten())
+    #         self.model.add(keras.layers.Dropout(rate=0.4))
+    #         # activate with softmax when training one label and sigmoid when training both headings and cells
+    #         activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
+    #         self.model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+    #         self.model.summary()
+    #         self.model.compile(
+    #             loss=self.loss,
+    #             optimizer=keras.optimizers.Adam(lr=.001),
+    #             metrics=["accuracy"]
+    #         )
+    #     else:
+    #         print("Loaded model")
+    #         self.model = keras.models.load_model(self.checkpoint_name, compile=False)
+    #         self.model.compile(
+    #             loss=self.loss,
+    #             optimizer=keras.optimizers.Adam(lr=.001),
+    #             metrics=["accuracy"]
+    #         )
+    #     print("Train:", self.train_images.shape, self.train_labels.shape)
+    #     print("Eval:", self.eval_images.shape, self.eval_labels.shape)
+    #     self.model.fit(
+    #         self.train_images, self.train_labels,
+    #         batch_size=100,
+    #         epochs=10,
+    #         verbose=1,
+    #         validation_data=(self.eval_images, self.eval_labels),
+    #         shuffle=True,
+    #         callbacks=[
+    #             keras.callbacks.History(),
+    #             keras.callbacks.ModelCheckpoint(
+    #                 self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+    #                 period=1  # save every n epoch
+    #             )
+    #             ,
+    #             keras.callbacks.TensorBoard(
+    #                 log_dir=self.checkpoint_dir,
+    #                 batch_size=100,
+    #                 write_images=False,
+    #                 write_grads=True,
+    #                 histogram_freq=0,
+    #             ),
+    #             keras.callbacks.TerminateOnNaN(),
+    #         ]
+    #     )
 
-            xc = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False,
-                                                        input_shape=(self.image_size, self.image_size, self.image_depth))
-            for layer in xc.layers[:-1]:
-                layer.trainable = False
-
-            self.model.add(xc)
-            self.model.add(keras.layers.Flatten())
-            self.model.add(keras.layers.Dropout(rate=0.4))
-            # activate with softmax when training one label and sigmoid when training both headings and cells
-            activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
-            self.model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
-            self.model.summary()
-            self.model.compile(
-                loss=self.loss,
-                optimizer=keras.optimizers.Adam(lr=.001),
-                metrics=["accuracy"]
-            )
-        else:
-            print("Loaded model")
-            self.model = keras.models.load_model(self.checkpoint_name, compile=False)
-            self.model.compile(
-                loss=self.loss,
-                optimizer=keras.optimizers.Adam(lr=.001),
-                metrics=["accuracy"]
-            )
-        print("Train:", self.train_images.shape, self.train_labels.shape)
-        print("Eval:", self.eval_images.shape, self.eval_labels.shape)
-        self.model.fit(
-            self.train_images, self.train_labels,
-            batch_size=100,
-            epochs=10,
-            verbose=1,
-            validation_data=(self.eval_images, self.eval_labels),
-            shuffle=True,
-            callbacks=[
-                keras.callbacks.History(),
-                keras.callbacks.ModelCheckpoint(
-                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    period=1  # save every n epoch
-                )
-                ,
-                keras.callbacks.TensorBoard(
-                    log_dir=self.checkpoint_dir,
-                    batch_size=100,
-                    write_images=False,
-                    write_grads=True,
-                    histogram_freq=0,
-                ),
-                keras.callbacks.TerminateOnNaN(),
-            ]
-        )
-
-
-    def precision(self,y_true, y_pred):
-        """Precision metric.
-
-        Use precision in place of accuracy to evaluate models that have multiple outputs. Otherwise it's relatively
-        unhelpful. The values returned during training do not represent the accuracy of the model. Use get_accuracy
-        after training to evaluate models with multiple outputs.
-
-        Only computes a batch-wise average of precision.
-
-        Computes the precision, a metric for multi-label classification of how many selected items are relevant.
-        """
-        true_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_true * y_pred, 0, 1)))
-        predicted_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_pred, 0, 1)))
-        precision = true_positives / (predicted_positives + keras.backend.epsilon())
-        return precision
-
-
-    def runSingleImage(self, num, input='heading'):
-        imDirectory = DATA + 'frames/moreframes/'
-        count = 0
-        filename = makeFilename(imDirectory, num)
-        # st = None
-
-        # for fname in os.listdir(imDirectory):
-        #     if count == num:
-        #         st = imDirectory + fname
-        #         break
-
-        # print(imgs)
-        # print(filename)
-        if filename is not None:
-            image = cv2.imread(filename)
-            # print("This is image:", image)
-            # print("This is the shape", image.shape)
-            if image is not None:
-                cellDirectory = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-                count = 0
-                with open(cellDirectory) as fp:
-                    for line in fp:
-                        (fNum, cell, x, y, head) = line.strip().split(' ')
-                        if fNum == str(num):
-                            break
-                        count += 1
-
-
-            # cell = oi2.getOneHotLabel(int(cell), 271)
-            # cell_arr = []model.predict
-            # im_arr = []
-            # cell_arr.append(cell)
-            # im_arr.append(image)
-            #
-            # cell_arr = np.asarray(cell_arr)
-            # im_arr = np.asarray(im_arr)
-
-                if input=='heading':
-                    image = clean_image(image, data='heading_channel', heading=int(head))
-
-                elif input=='cell':
-                    image = clean_image(image, data='cell_channel', heading=int(cell))
-
-
-
-                return self.model.predict(image), cell
-        return None
+    # def runSingleImage(self, num, input='heading'):
+    #"""Makes prediction on one image"""
+    #     imDirectory = DATA + 'frames/moreframes/'
+    #     count = 0
+    #     filename = makeFilename(imDirectory, num)
+    #     # st = None
+    #
+    #     # for fname in os.listdir(imDirectory):
+    #     #     if count == num:
+    #     #         st = imDirectory + fname
+    #     #         break
+    #
+    #     # print(imgs)
+    #     # print(filename)
+    #     if filename is not None:
+    #         image = cv2.imread(filename)
+    #         # print("This is image:", image)
+    #         # print("This is the shape", image.shape)
+    #         if image is not None:
+    #             cellDirectory = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+    #             count = 0
+    #             with open(cellDirectory) as fp:
+    #                 for line in fp:
+    #                     (fNum, cell, x, y, head) = line.strip().split(' ')
+    #                     if fNum == str(num):
+    #                         break
+    #                     count += 1
+    #
+    #
+    #         # cell = oi2.getOneHotLabel(int(cell), 271)
+    #         # cell_arr = []model.predict
+    #         # im_arr = []
+    #         # cell_arr.append(cell)
+    #         # im_arr.append(image)
+    #         #
+    #         # cell_arr = np.asarray(cell_arr)
+    #         # im_arr = np.asarray(im_arr)
+    #
+    #             if input=='heading':
+    #                 image = clean_image(image, data='heading_channel', heading=int(head))
+    #
+    #             elif input=='cell':
+    #                 image = clean_image(image, data='cell_channel', heading=int(cell))
+    #
+    #
+    #
+    #             return self.model.predict(image), cell
+    #     return None
 
 
     def predictSingleImageAllData(self, cleanImage):
@@ -401,9 +323,116 @@ class CellPredictor2019(object):
         listed = np.array([cleanImage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
-        print("Model predicts:", modelPredict.shape, modelPredict)
-        print("predict[0]:", modelPredict[0].shape, modelPredict[0])
+        print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
+        print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
         return maxIndex, modelPredict[0]
+
+    def findTopX(self, x, numList):
+        """Given a number and a list of numbers, this finds the x largest values in the number list, and reports
+        both the values, and their positions in the numList."""
+        topVals = [0.0] * x
+        topIndex = [None] * x
+        for i in range(len(numList)):
+            val = numList[i]
+
+            for j in range(x):
+                if topIndex[j] is None or val > topVals[j]:
+                    break
+            if val > topVals[x - 1]:
+                topIndex.insert(j, i)
+                topVals.insert(j, val)
+                topIndex.pop(-1)
+                topVals.pop(-1)
+        return topVals, topIndex
+
+    def test(self, n):
+        """This runs each of the first n images in the folder of frames through the cell-output network, reporting how
+        often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5."""
+
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        meanFile = "TRAININGDATA_100_500_mean.npy"
+        mean = np.load(DATA + "TRAININGDATA_100_500_mean.npy")
+
+        print("Setting up preprocessor to get frame data...")
+        dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+
+        countPerfect = 0
+        countTop3 = 0
+        countTop5 = 0
+        for i in range(n):
+            rand = random.randrange(95000)
+            print("===========", rand)
+            imFile = makeFilename(frames, rand)
+            imageB = cv2.imread(imFile)
+            if imageB is None:
+                print(" image not found")
+                continue
+            cellB = dPreproc.frameData[rand]['cell']
+            headingB = dPreproc.frameData[rand]['heading']
+            headingIndex = potentialHeadings.index(headingB)  #converting from 0, 45, 90, etc. to 0, 1, 2, etc.
+            smallerB, grayB, processedB = self.cleanImage(imageB, mean)
+            headBArr = headingIndex * np.ones((100, 100, 1))
+            procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
+            predB, output = self.predictSingleImageAllData(procBPlus)
+            topThreePercs, topThreeCells = self.findTopX(3, output)
+            topFivePercs, topFiveCells = self.findTopX(5, output)
+            print("cellB =", cellB, "   predB =", predB)
+            print("Top three:", topThreeCells, topThreePercs)
+            print("Top five:", topFiveCells, topFivePercs)
+            if predB == cellB:
+                countPerfect += 1
+            if cellB in topThreeCells:
+                countTop3 += 1
+            if cellB in topFiveCells:
+                countTop5 += 1
+            dispProcB = cv2.convertScaleAbs(processedB)
+            cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
+            cv2.moveWindow("Image B", 50, 50)
+            cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
+            cv2.moveWindow("Smaller B", 50, 500)
+            cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
+            cv2.moveWindow("Gray B", 500, 500)
+            cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
+            cv2.moveWindow("Proce B", 500, 50)
+            x = cv2.waitKey(50)
+            if chr(x & 0xFF) == 'q':
+                break
+        print("Count of perfect:", countPerfect)
+        print("Count of top 3:", countTop3)
+        print("Count of top 5:", countTop5)
+
+    def cleanImage(self, image, mean=None, imageSize=100):
+        """Preprocessing the images in similar ways to the training dataset of 2019 model."""
+        shrunkenIm = cv2.resize(image, (imageSize, imageSize))
+        grayed = cv2.cvtColor(shrunkenIm, cv2.COLOR_BGR2GRAY)
+        meaned = np.subtract(grayed, mean)
+        return shrunkenIm, grayed, meaned
+
+    # def clean_image(self, image, complexProcessing=None, heading=None):
+    #     """Preprocess image into the form able to be fed into the model"""
+    #     mean = np.load(DATA + 'TRAININGDATA_100_500_mean95k.npy')
+    #     image_size = self.image_size
+    #     if not complexProcessing:
+    #         if not heading:
+    #             resized_image = cv2.resize(image, (image_size, image_size))
+    #             gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+    #             image = np.subtract(gray_image, mean)
+    #             heading_arr = heading * np.ones((image_size, image_size, 1))
+    #             image = np.concatenate((np.expand_dims(image, axis=-1), heading_arr), axis=-1)
+    #             depth = 2
+    #         else:
+    #             print("No value for heading found")
+    #     else:
+    #         image = cv2.resize(image, (170, 128))
+    #         x = random.randrange(0, 70)
+    #         y = random.randrange(0, 28)
+    #         cropped_image = image[y:y + 100, x:x + 100]
+    #         gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+    #         image = np.subtract(gray_image, mean)
+    #         depth = 1
+    #     cleaned_image = np.array([image], dtype="float") \
+    #         .reshape(1, image_size, image_size, depth)
+    #     return cleaned_image
 
 
 def loading_bar(start,end, size = 20):
@@ -413,100 +442,30 @@ def loading_bar(start,end, size = 20):
         print(loadstr)
 
 
-def check_data():
-    data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
-    np.random.shuffle(data)
-    print(data[0])
-    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    for i in range(len(data)):
-        print("cell:"+str(np.argmax(data[i][1])))
-        print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
-        cv2.imshow('im',data[i][0][:,:,0])
-        cv2.moveWindow('im',200,200)
-        cv2.waitKey(0)
-
-
-def clean_image(image, data = 'old', cell = None, heading = None):
-    #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
-    image_size = 100
-    if data == 'old': #compatible with olin_cnn 2018
-        resized_image = cv2.resize(image, (image_size, image_size))
-        gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-        image = np.subtract(gray_image, mean)
-        depth = 1
-    elif data == 'vgg16': #compatible with vgg16 network for headings
-        image = cv2.resize(image, (170, 128))
-        x = random.randrange(0, 70)
-        y = random.randrange(0, 28)
-        image = image[y:y + 100, x:x + 100]
-        depth = 3
-    elif data == 'cell_channel':
-        if cell != None:
-            resized_image = cv2.resize(image, (image_size, image_size))
-            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-            image = np.subtract(gray_image, mean)
-            cell_arr = cell * np.ones((image_size, image_size, 1))
-            image = np.concatenate((np.expand_dims(image,axis=-1),cell_arr),axis=-1)
-            depth = 2
-        else:
-            print("No value for cell found")
-    elif data == 'heading_channel':
-        if heading != None:
-            resized_image = cv2.resize(image, (image_size, image_size))
-            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-            image = np.subtract(gray_image, mean)
-            cell_arr = heading * np.ones((image_size, image_size, 1))
-            image = np.concatenate((np.expand_dims(image,axis=-1), cell_arr),axis=-1)
-            depth = 2
-        else:
-            print("No value for heading found")
-    else: #compatible with olin_cnn 2019
-        image = cv2.resize(image, (170, 128))
-        x = random.randrange(0, 70)
-        y = random.randrange(0, 28)
-        cropped_image = image[y:y + 100, x:x + 100]
-        gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-        image = np.subtract(gray_image, mean)
-        depth = 1
-    cleaned_image = np.array([image], dtype="float") \
-        .reshape(1, image_size, image_size, depth)
-    return cleaned_image
+# def check_data():
+#     data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
+#     np.random.shuffle(data)
+#     print(data[0])
+#     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+#     for i in range(len(data)):
+#         print("cell:"+str(np.argmax(data[i][1])))
+#         print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
+#         cv2.imshow('im',data[i][0][:,:,0])
+#         cv2.moveWindow('im',200,200)
+#         cv2.waitKey(0)
 
 
 if __name__ == "__main__":
     # check_data()
-    olin_classifier = CellPredictor2019(
+    cellPredictor = CellPredictor2019(
         # dataImg= DATA +"Img_w_head_13k.npy",
         # dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_cellPred_all244Cell_20epochs",
-        outputSize= 271,
-        eval_ratio= 11.0/61.0,
-        image_size=100,
-        model2020= True,
-        image_depth= 1
+        data_name = "testCellPredictor"
     )
     print("Classifier built")
-    olin_classifier.loadData()
+    cellPredictor.loadData()
     print("Data loaded")
-    olin_classifier.train()
+    cellPredictor.train()
 
-
-
-
-    # print(len(olin_classifier.train_images))
-    #olin_classifier.train()
-    # olin_classifier.getAccuracy()
-    #ORIG count = 0
-    # ORIG for i in range(1000):
-    #     num = random.randint(0,95000)
-    #     thing, cell = olin_classifier.runSingleImage(num)
-    #     count += (np.argmax(thing)==cell)
-    # print(count)
-
-
-    # model = olin_classifier.threeConv()
-    #olin_classifier.train()
-
-    # self.cell_model = keras.models.load_model(
-    #     "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-    #     compile=True)
+    # print("Tests the cell predictor")
+    # cellPredictor.test(1000)
