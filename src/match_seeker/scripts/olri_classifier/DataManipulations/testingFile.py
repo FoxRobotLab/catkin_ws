@@ -1,5 +1,5 @@
 import numpy as np
-from paths import DATA
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 
 if __name__ == '__main__':
     mat = np.load(DATA + 'testNewMatrix.npy')

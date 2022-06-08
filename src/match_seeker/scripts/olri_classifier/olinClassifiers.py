@@ -1,4 +1,39 @@
 
+"""--------------------------------------------------------------------------------
+olinClassifiers.py
+Updated: Summer 2019, Summer 2020, Summer 2022
+
+A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
+Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
+(layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
+Keras as a framework.
+
+Acknowledgements:
+    ft_floortype_classifier
+        floortype_cnn.py
+
+Notes:
+    Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
+        Do not freak out you get this warning. It is expected and not a problem per
+        https://github.com/tensorpack/tensorpack/issues/502
+
+    Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
+        tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
+        empty images/labels
+
+    To open up virtual env:
+        source ~/tensorflow/bin/activate
+
+    Use terminal if import rospy does not work on PyCharm but does work on a
+    terminal
+
+FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
+
+The OlinClassifier class is also in olin_cnn.py. They both can build and train CNN.
+The OlinClassifier class in this file can load the model trained in 2019, but we don't know how it's trained and
+how are the inputs exactly preprocessed when training. Check olin_cnn_test_for2019model.py for similar preprocessing.
+--------------------------------------------------------------------------------"""
+
 import os
 import numpy as np
 from tensorflow import keras
@@ -7,7 +42,7 @@ from tensorflow import keras
 class OlinClassifier(object):
     def __init__(self, eval_ratio=0.1, checkpoint_dir=None, savedCheckpoint=None, dataImg=None, dataLabel=None,
                  outputSize=271,
-                 cellInput=False, headingInput=False,
+                 cellInput=False, headingInput=False, cellInput20=False, headingInput20=False,
                  image_size=224, image_depth=2, data_name=None):
         ### Set up paths and basic model hyperparameters
 
@@ -60,6 +95,8 @@ class OlinClassifier(object):
             loss=self.loss,
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
+
+        self.model.summary()
 
         if self.savedCheckpoint is not None:
             self.model.load_weights(self.savedCheckpoint)

@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import cv2
-from paths import DATA
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 from collections import OrderedDict
 
 """

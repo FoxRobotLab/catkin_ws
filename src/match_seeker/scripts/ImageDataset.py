@@ -22,7 +22,8 @@ import cv2
 import ImageFeatures
 #sys.path.insert(0, "/home/macalester/PycharmProjects/src/deep_learning/olri_classifier/olin_factory")
 #from olin_factory import paths, cell
-from olri_classifier import olin_factory
+from src.match_seeker.scripts.olri_classifier.DataManipulations import olin_factory
+
 
 class ImageDataset(object):
     """This constructs a dataset to associate images with locations, allowing us to access the location of an

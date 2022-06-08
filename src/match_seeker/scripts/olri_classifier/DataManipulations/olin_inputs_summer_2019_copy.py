@@ -1,7 +1,7 @@
 # This program divides the image data into two parts, overrepped, with images corresponding to cells that have too much
 # and underrepped, with images corresponding to cells that have too little. To cull the overrepped data, for each
 # overrepped cell we iteratively removed a random image with the most represented heading until we had the desired
-# number of images. This is the new and immproved version of olin_inputs.py
+# number of images. This is the new and improved version of olin_inputs.py
 # Authors: Avik Bosshardt, Angel Sylvester, Maddie AlQatami
 
 import cv2
@@ -9,7 +9,7 @@ import numpy as np
 import os
 import random
 from datetime import datetime
-from olin_cnn import loading_bar
+from src.match_seeker.scripts.olri_classifier.olin_cnn import loading_bar
 
 numCells = 271
 image_size = 100

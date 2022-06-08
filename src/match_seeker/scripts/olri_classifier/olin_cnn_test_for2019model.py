@@ -1,49 +1,33 @@
 #!/usr/bin/env python3.5
 
 """--------------------------------------------------------------------------------
-olin_cnn.py
+olin_cnn_test_for2019model.py
 Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
 Creation Date: July 2018
-Updated: Summer 2019, Summer 2020
+Updated: Summer 2019, Summer 2020, Summer 2022
 
-A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
-Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
-(layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
-Keras as a framework.
+This file contains two main testing functions: testingOnCellOutputNetwork and testingOnHeadingOutputNetwork.
+testingOrigData and testingSusanData are no longer used.
 
-Acknowledgements:
-    ft_floortype_classifier
-        floortype_cnn.py
+The two functions load and test the 2019 model on the existing training dataset.
 
-Notes:
-    Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
-        Do not freak out you get this warning. It is expected and not a problem per
-        https://github.com/tensorpack/tensorpack/issues/502
+They preprocess and then predict either the cell number or the heading of each frame, one at a time.
 
-    Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
-        tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
-        empty images/labels
+We no longer use the NEWTRAININGDATA_100_500withHeadingInput95k.npy
+file as input because it requires the program to load the whole dataset before feeding the frames into the network.
 
-    To open up virtual env:
-        source ~/tensorflow/bin/activate
-
-    Use terminal if import rospy does not work on PyCharm but does work on a
-    terminal
 
 
 FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
+
+The OlinClassifier class is imported from olinClassifier.py file!
 --------------------------------------------------------------------------------"""
 
-
-
-import os
 import random
 import numpy as np
-import time
 import cv2
-from tensorflow import keras
 
-from paths import pathToMatchSeeker, DATA
+from paths import pathToMatchSeeker, DATA, frames
 from imageFileUtils import makeFilename
 from preprocessData import DataPreprocess
 from olinClassifiers import OlinClassifier
@@ -83,13 +67,11 @@ def makeFrameDict(dataFile):
 
 
 def cleanImage(image, mean=None, imageSize = 100):
-    """Converts the image to the form used when saving the data."""
+    """Preprocessing the images in similar ways to the training dataset of 2019 model."""
     shrunkenIm = cv2.resize(image, (imageSize, imageSize))
     grayed = cv2.cvtColor(shrunkenIm, cv2.COLOR_BGR2GRAY)
     meaned = np.subtract(grayed, mean)
     return shrunkenIm, grayed, meaned
-
-
 
 
 
@@ -124,6 +106,9 @@ def testingOrigData():
     numIms = imageData.shape[0]
     # print(imageData[0][:, :, 0])
     for i in range(1000):
+        #for 1000 images in the dataset, find images
+        # in the same cell in NEWTRAININGDATA_100_500withHeadingInput95k.npy
+        #and compare them and the predictions the network outputs on them
         print("===========", i)
         imFile = makeFilename(dataPath + 'frames/moreFrames/', i)
         imageB = cv2.imread(imFile)
@@ -219,7 +204,7 @@ def testingSusanData():
 
         # predImg = np.array([image])
         networkResult, allRes = olin_classifier.predictSingleImageAllData(predImg)
-        topThreePercs, topThreeCells = findTopX(3, output)
+        topThreePercsframes, topThreeCells = findTopX(3, output)
         topFivePercs, topFiveCells = findTopX(5, output)
         print("Expected result:", expectedResult, "Actual result:", networkResult)
         if networkResult == expectedResult:
@@ -235,12 +220,12 @@ def testingSusanData():
 
 def testingOnCellOutputNetwork(n):
     """This runs each of the first n images in the folder of frames through the cell-output network, reporting how
-    often the correct cell was produced, and how often the correct heading was in the top 3 and top 5."""
+    often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5."""
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
+    #cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
     cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
-    meanFile = "AngelTRAININGDATA_100_500_mean.npy"
-    dataPath = pathToMatchSeeker + 'res/classifier2019data/'
+    meanFile = "TRAININGDATA_100_500_mean.npy"
+    dataPath = DATA
 
     print("Setting up preprocessor to get frame data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
@@ -252,7 +237,6 @@ def testingOnCellOutputNetwork(n):
     checkPts = dataPath + "CHECKPOINTS/"
     olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
                                      savedCheckpoint=checkPts + cellOutputCheckpoint,
-                                     data_name="cellInput",
                                      headingInput=True,
                                      outputSize=271,
                                      image_size=100,
@@ -262,17 +246,17 @@ def testingOnCellOutputNetwork(n):
     countTop3 = 0
     countTop5 = 0
     for i in range(n):
-        print("===========", i)
-        imFile = makeFilename(dataPath + 'frames/moreFrames/', i)
+        rand = random.randrange(95000)
+        print("===========", rand)
+        imFile = makeFilename(frames, rand)
         imageB = cv2.imread(imFile)
-        cellB = dPreproc.frameData[i]['cell']
-        headingB = dPreproc.frameData[i]['heading']
-        headingIndex = potentialHeadings.index(headingB)    # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
         if imageB is None:
             print(" image not found")
             continue
+        cellB = dPreproc.frameData[rand]['cell']
+        headingB = dPreproc.frameData[rand]['heading']
+        headingIndex = potentialHeadings.index(headingB)    # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
         smallerB, grayB, processedB = cleanImage(imageB, mean)
-
         headBArr = headingIndex * np.ones((100, 100, 1))
         procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
         predB, output = olin_classifier.predictSingleImageAllData(procBPlus)
@@ -296,7 +280,7 @@ def testingOnCellOutputNetwork(n):
         cv2.moveWindow("Gray B", 500, 500)
         cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
         cv2.moveWindow("Proce B", 500, 50)
-        x = cv2.waitKey(500)
+        x = cv2.waitKey(50)
         if chr(x & 0xFF) == 'q':
             break
     print("Count of perfect:", countPerfect)
@@ -308,10 +292,10 @@ def testingOnHeadingOutputNetwork(n):
     """This runs each of the first n images in the folder of frames through the heading-output network, reporting how often the correct
     heading was produced, and how often the correct heading was in the top 3 and top 5."""
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
+    #cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
     cellOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
-    meanFile = "AngelTRAININGDATA_100_500_mean.npy"
-    dataPath = pathToMatchSeeker + 'res/classifier2019data/'
+    meanFile = "TRAININGDATA_100_500_mean.npy"
+    dataPath = DATA
 
     print("Setting up preprocessor to get frame data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
@@ -323,24 +307,24 @@ def testingOnHeadingOutputNetwork(n):
     checkPts = dataPath + "CHECKPOINTS/"
     olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
                                      savedCheckpoint=checkPts + cellOutputCheckpoint,
-                                     data_name="cellInput",
-                                     headingInput=True,
-                                     outputSize=271,
+                                     cellInput=True,
+                                     outputSize=9,
                                      image_size=100,
                                      image_depth=2)
     countPerfect = 0
     countTop3 = 0
     countTop5 = 0
     for i in range(n):
-        print("===========", i)
-        imFile = makeFilename(dataPath + 'frames/moreFrames/', i)
+        rand = random.randrange(95000)
+        print("===========", rand)
+        imFile = makeFilename(frames, rand)
         imageB = cv2.imread(imFile)
-        cellB = dPreproc.frameData[i]['cell']
-        headingB = dPreproc.frameData[i]['heading']
-        headingIndex = potentialHeadings.index(headingB)    # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
         if imageB is None:
             print(" image not found")
             continue
+        cellB = dPreproc.frameData[rand]['cell']
+        headingB = dPreproc.frameData[rand]['heading']
+        headingIndex = potentialHeadings.index(headingB)    # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
         smallerB, grayB, processedB = cleanImage(imageB, mean)
 
         cellBArr = cellB * np.ones((100, 100, 1))
@@ -366,7 +350,7 @@ def testingOnHeadingOutputNetwork(n):
         cv2.moveWindow("Gray B", 500, 500)
         cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
         cv2.moveWindow("Proce B", 500, 50)
-        x = cv2.waitKey(500)
+        x = cv2.waitKey(50)
         if chr(x & 0xFF) == 'q':
             break
     print("Count of perfect:", countPerfect)

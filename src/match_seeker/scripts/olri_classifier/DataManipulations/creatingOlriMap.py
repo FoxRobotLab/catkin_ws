@@ -1,5 +1,5 @@
 import numpy as np
-from paths import DATA
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 def linear(start, stop):
     for cellNum in range(start, stop):
         matrix[cellNum][cellNum+1] = 1

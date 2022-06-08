@@ -18,13 +18,13 @@ import math
 import cv2
 import numpy as np
 
-from FoxQueue import PriorityQueue
-import Graphs
-from DataPaths import basePath, graphMapData, mapLineData, cellMapData
-from paths import DATA
+from src.match_seeker.scripts.olri_classifier.DataManipulations.FoxQueue import PriorityQueue
+import src.match_seeker.scripts.olri_classifier.DataManipulations.Graphs
+from src.match_seeker.scripts.olri_classifier.DataPaths import basePath, graphMapData, mapLineData, cellMapData
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 # from Particle import Particle
-import MapGraph
-import preprocessData as pd
+import src.match_seeker.scripts.olri_classifier.DataManipulations.MapGraph
+import src.match_seeker.scripts.olri_classifier.preprocessData as pd
 
 
 class WorldMap(object):
@@ -323,9 +323,9 @@ class WorldMap(object):
                 finalPath.reverse()
                 return finalPath
         elif startVert >= self.graphSize:
-            raise Graphs.NodeIndexOutOfRangeException(0, self.graphSize, startVert)
+            raise src.match_seeker.scripts.olri_classifier.DataManipulations.Graphs.NodeIndexOutOfRangeException(0, self.graphSize, startVert)
         else:
-            raise Graphs.NodeIndexOutOfRangeException(0, self.graphSize, goalVert)
+            raise src.match_seeker.scripts.olri_classifier.DataManipulations.Graphs.NodeIndexOutOfRangeException(0, self.graphSize, goalVert)
 
 
     def reconstructPath(self, currVert):
@@ -432,7 +432,7 @@ class WorldMap(object):
                 if row == numNodes:
                     # If reading nodes, and should be done, then go on
                     readingNodes = False
-                    graph = MapGraph.MapGraph(numNodes, allData)
+                    graph = src.match_seeker.scripts.olri_classifier.DataManipulations.MapGraph.MapGraph(numNodes, allData)
             elif (not readingNodes) and lowerLine.startswith('markers:'):
                 # If there are markers, then start reading them
                 readingMarkers = True
