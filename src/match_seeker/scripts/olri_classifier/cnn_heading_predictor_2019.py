@@ -25,7 +25,7 @@ import numpy as np
 from tensorflow import keras
 import cv2
 import time
-from paths import DATA, frames, pathToMatchSeeker
+from paths import DATA, frames, checkPts
 from imageFileUtils import makeFilename
 from preprocessData import DataPreprocess
 
@@ -37,8 +37,8 @@ from cnn_lstm_functions import creatingSequence, getCorrectLabels, transfer_lstm
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class HeadingPredictor(object):
-    def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize= None, model2020 = False,
-                 image_size=224, image_depth=2, data_name = None):
+    def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 8,
+                 image_size=100, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
 
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
@@ -59,29 +59,30 @@ class HeadingPredictor(object):
         self.eval_images = None
         self.eval_labels = None
         self.data_name = data_name
-
-        #Code for cell input
-        self.model = self.build_cnn()  #CNN
         self.loss = keras.losses.categorical_crossentropy
-
-
         # elif self.model2020 == "Heading":  # no compiling for 2020 models
         #     self.loss = keras.losses.categorical_crossentropy
         #     self.model = keras.models.load_model(
         #         DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")
         #     self.model.load_weights(
         #         DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")hdf5
+        # self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
 
+
+
+        self.loaded_checkpoint = loaded_checkpoint
+        if self.loaded_checkpoint is not None:
+            self.model = keras.models.load_model(self.loaded_checkpoint, compile=True)
+            self.model.load_weights(self.loaded_checkpoint)
+        else:
+            # Code for cell input
+            self.model = self.build_cnn()  # CNN
+            self.loss = keras.losses.categorical_crossentropy
 
         self.model.compile(
             loss=self.loss,
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
-
-        # self.checkpoint_name = checkpoint_name
-        # if self.checkpoint_name is not None:
-        #     self.model.load_weights(self.checkpoint_name)
-
 
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
@@ -91,7 +92,7 @@ class HeadingPredictor(object):
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
-        self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
+        # self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
 
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
@@ -242,8 +243,7 @@ class HeadingPredictor(object):
         model.add(keras.layers.Dropout(0.2))
 
         # activate with softmax when training one label and sigmoid when training both headings and cells
-        activation = "softmax"
-        model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+        model.add(keras.layers.Dense(units=self.outputSize, activation="softmax"))
         model.summary()
         return model
 
@@ -262,7 +262,8 @@ class HeadingPredictor(object):
         heading was produced, and how often the correct heading was in the top 3 and top 5."""
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
         # cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
-        cellOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
+        # cellOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
+        # savedCheckpoint = checkPts + cellOutputCheckpoint
         meanFile = "TRAININGDATA_100_500_mean.npy"
         dataPath = DATA
 
@@ -272,8 +273,7 @@ class HeadingPredictor(object):
         print("Loading mean...")
         mean = np.load(dataPath + meanFile)
 
-        print("Setting up classifier loading checkpoints...")
-        checkPts = dataPath + "CHECKPOINTS/"
+        #print("Setting up classifier loading checkpoints...")
         # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
         #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
         #                                  cellInput=True,
@@ -532,47 +532,40 @@ class HeadingPredictor(object):
 #         print(loadstr)
 #
 #
-# def check_data():
-#     data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
-#     np.random.shuffle(data)
-#     print(data[0])
-#     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-#     for i in range(len(data)):
-#         print("cell:"+str(np.argmax(data[i][1])))
-#         print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
-#         cv2.imshow('im',data[i][0][:,:,0])
-#         cv2.moveWindow('im',200,200)
-#         cv2.waitKey(0)
+def check_data():
+    data = np.load(DATA + 'IMG_CellInput_12K.npy')
+    np.random.shuffle(data)
+    print(data[0])
+    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    for i in range(len(data)):
+        print("cell:"+str(np.argmax(data[i][1])))
+        print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
+        cv2.imshow('im',data[i][0][:,:,0])
+        cv2.moveWindow('im',200,200)
+        cv2.waitKey(0)
 
 
 if __name__ == "__main__":
     # check_data()
-    olin_classifier = HeadingPredictor(
-
-        # dat aImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-        # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
-        # dataImg= DATA +"Img_w_head_13k.npy",
-        # dataImg=DATA + "lstm_Img_13k.npy",
-        dataImg= DATA + 'Img_122k_ordered.npy',
-        # dataLabel= DATA + 'lstm_cellOutput_122k.npy',
-        dataLabel= DATA + 'lstm_headOuput_122k.npy',
-        #dataLabel=DATA + 'lstm_head_13k.npy',
-        # dataLabel = DATA + 'cell_ouput13k.npy',
-        data_name = "CNN_cellPred_all244Cell_20epochs",
-        outputSize= 271,
-        eval_ratio= 11.0/61.0,
-        image_size=100,
-        model2020= True,
-        image_depth= 1
+    headingPredictor = HeadingPredictor(
+        # checkpoint_name=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
+        dataImg= DATA + 'IMG_CellInput_12K.npy',
+        dataLabel = DATA + 'Heading_CellInput12k.npy',
+        data_name = "testheadingpredictor"
+        # # dataLabel = DATA + 'cell_ouput13k.npy',
+        # data_name = "CNN_cellPred_all244Cell_20epochs",
+        # outputSize= 271,
+        # eval_ratio= 11.0/61.0,
+        # image_size=100,
+        # image_depth= 1
     )
     print("Classifier built")
-    olin_classifier.loadData()
+    headingPredictor.loadData()
     print("Data loaded")
-    olin_classifier.train()
+    headingPredictor.train()
 
-    print("Tests for Heading Predictor")
-    olin_classifier.testingOnHeadingOutputNetwork(1000)
+    # print("Tests for Heading Predictor")
+    # HeadingPredictor.testingOnHeadingOutputNetwork(1000)
 
     # how the classifier was set up in original updated 2019 test file
     # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
