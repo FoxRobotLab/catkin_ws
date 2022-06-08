@@ -382,6 +382,7 @@ def findTopX(x, numList):
 
 
 
+
 # Test random elements of susan's test dataset on network
 # testingSusanData()
 
@@ -389,7 +390,7 @@ def findTopX(x, numList):
 # testingOrigData()
 
 # Run each of the first 1000 images through the cell output trained CNN from 2019
-# testingOnCellOutputNetwork(1000)
+testingOnCellOutputNetwork(1000)
 
 # Run each of the first 1000 images through the heading output trained CNN from 2019
 testingOnHeadingOutputNetwork(1000)

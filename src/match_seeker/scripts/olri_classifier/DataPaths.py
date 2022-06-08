@@ -24,7 +24,7 @@ import os
 # basePath = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/"
 
 # base path on Precision
-basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
+# basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
 #
 turtleBase = 'kobuki' # os.environ["TURTLEBOT_BASE"]
 #
@@ -41,3 +41,4 @@ elif turtleBase == "kobuki":
 graphMapData = "res/map/cellGraph.txt"
 mapLineData = "res/map/olinNewMap.txt"
 cellMapData = "res/map/mapToCells.txt"
+DATA = basePath + "res/"

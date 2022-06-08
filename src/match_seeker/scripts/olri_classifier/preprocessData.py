@@ -63,47 +63,45 @@ class DataPreprocess(object):
                       189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
 
         with open(self.dataFile) as frameData:
-            lines = frameData.readlines()
+            for line in frameData:
+                splitList = line.split()
+                frameNum = int(splitList[0])
+                cellNum = int(splitList[1])
+                xVal = float(splitList[2])
+                yVal = float(splitList[3])
+                headingNum = int(splitList[4])
+                loc = (xVal, yVal)
+                self.frameData[frameNum] = {}
+                if locBool:
 
-        for line in lines:
-            splitList = line.split()
-            frameNum = int(splitList[0])
-            cellNum = int(splitList[1])
-            xVal = float(splitList[2])
-            yVal = float(splitList[3])
-            headingNum = int(splitList[4])
-            loc = (xVal, yVal)
-            self.frameData[frameNum] = {}
-            if locBool:
+                    self.frameData[frameNum]['loc'] = loc
 
-                self.frameData[frameNum]['loc'] = loc
+                if cell:
+                    self.frameData[frameNum]['cell'] = cellNum
 
-            if cell:
-                self.frameData[frameNum]['cell'] = cellNum
+                if heading:
+                    self.frameData[frameNum]['heading'] = headingNum
 
-            if heading:
-                self.frameData[frameNum]['heading'] = headingNum
-
-            if frameNum:
-                self.frameData[frameNum]['frameNum'] = frameNum
+                if frameNum:
+                    self.frameData[frameNum]['frameNum'] = frameNum
 
 
-            if cellNum not in self.cellData:
-                self.cellData[cellNum] = [frameNum]
-            else:
-                cellList = self.cellData[cellNum]
-                cellList.append(frameNum)
-            if headingNum not in self.headingData:
-                self.headingData[headingNum] = [frameNum]
-            else:
-                headingList = self.headingData[headingNum]
-                headingList.append(frameNum)
+                if cellNum not in self.cellData:
+                    self.cellData[cellNum] = [frameNum]
+                else:
+                    cellList = self.cellData[cellNum]
+                    cellList.append(frameNum)
+                if headingNum not in self.headingData:
+                    self.headingData[headingNum] = [frameNum]
+                else:
+                    headingList = self.headingData[headingNum]
+                    headingList.append(frameNum)
 
-            if loc not in self.locData:
-                self.locData[loc] = [frameNum]
-            else:
-                locList = self.locData[loc]
-                locList.append(frameNum)
+                if loc not in self.locData:
+                    self.locData[loc] = [frameNum]
+                else:
+                    locList = self.locData[loc]
+                    locList.append(frameNum)
 
 
         if locBool:
@@ -434,9 +432,9 @@ def main():
     Main program. Creates the preprocessor, from that generates the dataset, and then saves it to a file.
     :return: Nothing
     """
-    # preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-    #                          dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-    #                          imagesPerCell=100)
+    preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
+                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+                             imagesPerCell=100)
     # preProc.generateTrainingData()
     # preProc.saveDataset(DATA + "regressionTestSet")
 

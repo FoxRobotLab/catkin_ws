@@ -637,8 +637,7 @@ def clean_image(image, data = 'old', cell = None, heading = None):
         gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
         image = np.subtract(gray_image, mean)
         depth = 1
-    cleaned_image = np.array([image], dtype="float") \
-        .reshape(1, image_size, image_size, depth)
+    cleaned_image = np.array([image], dtype="float").reshape(1, image_size, image_size, depth)
     return cleaned_image
 
 
