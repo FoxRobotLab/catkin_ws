@@ -8,6 +8,7 @@ import cv2
 
 
 mean = np.load(DATA + "lstm_mean_122k.npy")
+
 class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
                  img_size = 100):
@@ -60,7 +61,7 @@ class DataGenerator(keras.utils.Sequence):
         for i, frm in enumerate(list_frame_temp):
             frameNum = frm[0]
             # Store sample
-            X[i,] = self._load_grayscale_image(self.image_path + frameNum+ '.jpg', frm[1]) #Array of images
+            X[i,] = self._load_grayscale_image(self.image_path + frameNum + '.jpg', frm[1]) #Array of images
             y[i] = int(self.labels[frameNum]) % 8
 
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes) #Array of labels
