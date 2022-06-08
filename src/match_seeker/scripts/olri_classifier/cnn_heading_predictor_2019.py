@@ -185,7 +185,6 @@ class HeadingPredictor(object):
         )
 
 
-
     def build_cnn(self):
         """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
         print("Building a model that takes cell number as input")
@@ -248,6 +247,9 @@ class HeadingPredictor(object):
         model.summary()
         return model
 
+
+    # TESTING CODE
+
     def cleanImage(self, image, mean=None, imageSize=100):
         """Preprocessing the images in similar ways to the training dataset of 2019 model."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
@@ -272,12 +274,12 @@ class HeadingPredictor(object):
 
         print("Setting up classifier loading checkpoints...")
         checkPts = dataPath + "CHECKPOINTS/"
-        olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
-                                         savedCheckpoint=checkPts + cellOutputCheckpoint,
-                                         cellInput=True,
-                                         outputSize=9,
-                                         image_size=100,
-                                         image_depth=2)
+        # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
+        #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
+        #                                  cellInput=True,
+        #                                  outputSize=9,
+        #                                  image_size=100,
+        #                                  image_depth=2)
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
@@ -297,7 +299,7 @@ class HeadingPredictor(object):
 
             cellBArr = cellB * np.ones((100, 100, 1))
             procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), cellBArr), axis=-1)
-            predB, output = olin_classifier.predictSingleImageAllData(procBPlus)
+            predB, output = self.predictSingleImageAllData(procBPlus)
             topThreePercs, topThreeCells = self.findTopX(3, output)
             topFivePercs, topFiveCells = self.findTopX(5, output)
             print("headingIndex =", headingIndex, "   predB =", predB)
@@ -325,6 +327,7 @@ class HeadingPredictor(object):
         print("Count of top 3:", countTop3)
         print("Count of top 5:", countTop5)
 
+
     def findTopX(self, x, numList):
         """Given a number and a list of numbers, this finds the x largest values in the number list, and reports
         both the values, and their positions in the numList."""
@@ -342,6 +345,17 @@ class HeadingPredictor(object):
                 topIndex.pop(-1)
                 topVals.pop(-1)
         return topVals, topIndex
+
+
+    def predictSingleImageAllData(self, cleanImage):
+        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
+        the resulting prediction."""
+        listed = np.array([cleanImage])
+        modelPredict = self.model.predict(listed)
+        maxIndex = np.argmax(modelPredict)
+        print("Model predicts:", modelPredict.shape, modelPredict)
+        print("predict[0]:", modelPredict[0].shape, modelPredict[0])
+        return maxIndex, modelPredict[0]
 
     # def getAccuracy(self):
     #     """Sets up the network, and produces an accuracy value on the evaluation data.
@@ -508,16 +522,8 @@ class HeadingPredictor(object):
     #     return None
 
 
-# def predictSingleImageAllData(self, cleanImage):
-#     """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
-#     the resulting prediction."""
-#     listed = np.array([cleanImage])
-#     modelPredict = self.model.predict(listed)
-#     maxIndex = np.argmax(modelPredict)
-#     print("Model predicts:", modelPredict.shape, modelPredict)
-#     print("predict[0]:", modelPredict[0].shape, modelPredict[0])
-#     return maxIndex, modelPredict[0]
-#
+
+
 #
 # def loading_bar(start,end, size = 20):
 #     # Useful when running a method that takes a long time
@@ -565,7 +571,16 @@ if __name__ == "__main__":
     print("Data loaded")
     olin_classifier.train()
 
+    print("Tests for Heading Predictor")
+    olin_classifier.testingOnHeadingOutputNetwork(1000)
 
+    # how the classifier was set up in original updated 2019 test file
+    # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
+    #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
+    #                                  cellInput=True,
+    #                                  outputSize=9,
+    #                                  image_size=100,
+    #                                  image_depth=2)
 
 
     # print(len(olin_classifier.train_images))
