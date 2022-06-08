@@ -248,43 +248,43 @@ class HeadingPredictor(object):
         return model
 
 
-    def getAccuracy(self):
-        """Sets up the network, and produces an accuracy value on the evaluation data.
-        If no data is set up, it quits."""
-
-        if self.eval_images is None:
-            return
-
-        num_eval = 5000
-        correctCells = 0
-        correctHeadings = 0
-        eval_copy = self.eval_images
-        self.model.compile(loss=self.loss, optimizer=keras.optimizers.SGD(lr=0.001), metrics=["accuracy"])
-        self.model.load_weights()
-
-        for i in range(num_eval):
-            loading_bar(i,num_eval)
-            image = eval_copy[i]
-            image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
-            potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-
-            pred = self.model.predict(image)
-            print("correct:{}".format(np.argmax(self.eval_labels[i])))
-            print("pred:{}".format(np.argmax(pred[0])))
-            #cv2.imshow('im',image[0,:,:,0])
-            #cv2.waitKey(0)
-
-            # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
-            # prinpredictt(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
-            # print(np.argmax(self),np.argmax(pred[0]))
-            if np.argmax(self.eval_labels[i]) == np.argmax(pred[0]):
-                correctCells += 1
-            # if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
-            #      correctHeadings += 1
-
-        print("%Correct Cells: " + str(float(correctCells) / num_eval))
-        #print("%Correct Headings: " + str(float(correctHeadings) / num_eval))
-        return float(correctCells) / num_eval
+    # def getAccuracy(self):
+    #     """Sets up the network, and produces an accuracy value on the evaluation data.
+    #     If no data is set up, it quits."""
+    #
+    #     if self.eval_images is None:
+    #         return
+    #
+    #     num_eval = 5000
+    #     correctCells = 0
+    #     correctHeadings = 0
+    #     eval_copy = self.eval_images
+    #     self.model.compile(loss=self.loss, optimizer=keras.optimizers.SGD(lr=0.001), metrics=["accuracy"])
+    #     self.model.load_weights()
+    #
+    #     for i in range(num_eval):
+    #         loading_bar(i,num_eval)
+    #         image = eval_copy[i]
+    #         image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
+    #         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    #
+    #         pred = self.model.predict(image)
+    #         print("correct:{}".format(np.argmax(self.eval_labels[i])))
+    #         print("pred:{}".format(np.argmax(pred[0])))
+    #         #cv2.imshow('im',image[0,:,:,0])
+    #         #cv2.waitKey(0)
+    #
+    #         # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
+    #         # prinpredictt(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
+    #         # print(np.argmax(self),np.argmax(pred[0]))
+    #         if np.argmax(self.eval_labels[i]) == np.argmax(pred[0]):
+    #             correctCells += 1
+    #         # if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
+    #         #      correctHeadings += 1
+    #
+    #     print("%Correct Cells: " + str(float(correctCells) / num_eval))
+    #     #print("%Correct Headings: " + str(float(correctHeadings) / num_eval))
+    #     return float(correctCells) / num_eval
 
 
     # def retrain(self):
@@ -347,170 +347,101 @@ class HeadingPredictor(object):
     #     )
 
 
-    def precision(self,y_true, y_pred):
-        """Precision metric.
-
-        Use precision in place of accuracy to evaluate models that have multiple outputs. Otherwise it's relatively
-        unhelpful. The values returned during training do not represent the accuracy of the model. Use get_accuracy
-        after training to evaluate models with multiple outputs.
-
-        Only computes a batch-wise average of precision.
-
-        Computes the precision, a metric for multi-label classification of how many selected items are relevant.
-        """
-        true_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_true * y_pred, 0, 1)))
-        predicted_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_pred, 0, 1)))
-        precision = true_positives / (predicted_positives + keras.backend.epsilon())
-        return precision
-
-
-    def runSingleImage(self, num, input='heading'):
-        imDirectory = DATA + 'frames/moreframes/'
-        count = 0
-        filename = makeFilename(imDirectory, num)
-        # st = None
-
-        # for fname in os.listdir(imDirectory):
-        #     if count == num:
-        #         st = imDirectory + fname
-        #         break
-
-        # print(imgs)
-        # print(filename)
-        if filename is not None:
-            image = cv2.imread(filename)
-            # print("This is image:", image)
-            # print("This is the shape", image.shape)
-            if image is not None:
-                cellDirectory = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-                count = 0
-                with open(cellDirectory) as fp:
-                    for line in fp:
-                        (fNum, cell, x, y, head) = line.strip().split(' ')
-                        if fNum == str(num):
-                            break
-                        count += 1
+    # def precision(self,y_true, y_pred):
+    #     """Precision metric.
+    #
+    #     Use precision in place of accuracy to evaluate models that have multiple outputs. Otherwise it's relatively
+    #     unhelpful. The values returned during training do not represent the accuracy of the model. Use get_accuracy
+    #     after training to evaluate models with multiple outputs.
+    #
+    #     Only computes a batch-wise average of precision.
+    #
+    #     Computes the precision, a metric for multi-label classification of how many selected items are relevant.
+    #     """
+    #     true_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_true * y_pred, 0, 1)))
+    #     predicted_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_pred, 0, 1)))
+    #     precision = true_positives / (predicted_positives + keras.backend.epsilon())
+    #     return precision
 
 
-            # cell = oi2.getOneHotLabel(int(cell), 271)
-            # cell_arr = []model.predict
-            # im_arr = []
-            # cell_arr.append(cell)
-            # im_arr.append(image)
-            #
-            # cell_arr = np.asarray(cell_arr)
-            # im_arr = np.asarray(im_arr)
-
-                if input=='heading':
-                    image = clean_image(image, data='heading_channel', heading=int(head))
-
-                elif input=='cell':
-                    image = clean_image(image, data='cell_channel', heading=int(cell))
-
-
-
-                return self.model.predict(image), cell
-        return None
-
-
-    def predictSingleImageAllData(self, cleanImage):
-        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
-        the resulting prediction."""
-        listed = np.array([cleanImage])
-        modelPredict = self.model.predict(listed)
-        maxIndex = np.argmax(modelPredict)
-        print("Model predicts:", modelPredict.shape, modelPredict)
-        print("predict[0]:", modelPredict[0].shape, modelPredict[0])
-        return maxIndex, modelPredict[0]
-
-
-def loading_bar(start,end, size = 20):
-    # Useful when running a method that takes a long time
-    loadstr = '\r'+str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
-    if start % 10 == 0:
-        print(loadstr)
-
-
-def check_data():
-    data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
-    np.random.shuffle(data)
-    print(data[0])
-    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    for i in range(len(data)):
-        print("cell:"+str(np.argmax(data[i][1])))
-        print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
-        cv2.imshow('im',data[i][0][:,:,0])
-        cv2.moveWindow('im',200,200)
-        cv2.waitKey(0)
-
-def resave_from_wulver(datapath):
-    """Networks trained on wulver are saved in a slightly different format because it uses a newer version of keras. Use this function to load the weights from a
-    wulver trained checkpoint and resave it in a format that this computer will recognize."""
-
-    olin_classifier = HeadingPredictor(
-        checkpoint_name=None,
-        train_data=None,
-        extraInput=False,  # Only use when training networks with BOTH cells and headings
-        outputSize=8, #TODO 271 for cells, 8 for headings
-        eval_ratio=0.1
-    )
-
-    model = olin_classifier.cnn_headings()
-    model.compile(
-        loss=keras.losses.categorical_crossentropy,
-        optimizer=keras.optimizers.SGD(lr=0.001),
-        metrics=["accuracy"]
-    )
-    model.load_weights(datapath)
-    print("Loaded weights. Saving...")
-    model.save(datapath[:-4]+'_NEW.hdf5')
+    # def runSingleImage(self, num, input='heading'):
+    #     imDirectory = DATA + 'frames/moreframes/'
+    #     count = 0
+    #     filename = makeFilename(imDirectory, num)
+    #     # st = None
+    #
+    #     # for fname in os.listdir(imDirectory):
+    #     #     if count == num:
+    #     #         st = imDirectory + fname
+    #     #         break
+    #
+    #     # print(imgs)
+    #     # print(filename)
+    #     if filename is not None:
+    #         image = cv2.imread(filename)
+    #         # print("This is image:", image)
+    #         # print("This is the shape", image.shape)
+    #         if image is not None:
+    #             cellDirectory = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
+    #             count = 0
+    #             with open(cellDirectory) as fp:
+    #                 for line in fp:
+    #                     (fNum, cell, x, y, head) = line.strip().split(' ')
+    #                     if fNum == str(num):
+    #                         break
+    #                     count += 1
+    #
+    #
+    #         # cell = oi2.getOneHotLabel(int(cell), 271)
+    #         # cell_arr = []model.predict
+    #         # im_arr = []
+    #         # cell_arr.append(cell)
+    #         # im_arr.append(image)
+    #         #
+    #         # cell_arr = np.asarray(cell_arr)
+    #         # im_arr = np.asarray(im_arr)
+    #
+    #             if input=='heading':
+    #                 image = clean_image(image, data='heading_channel', heading=int(head))
+    #
+    #             elif input=='cell':
+    #                 image = clean_image(image, data='cell_channel', heading=int(cell))
+    #
+    #
+    #
+    #             return self.model.predict(image), cell
+    #     return None
 
 
-def clean_image(image, data = 'old', cell = None, heading = None):
-    #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
-    image_size = 100
-    if data == 'old': #compatible with olin_cnn 2018
-        resized_image = cv2.resize(image, (image_size, image_size))
-        gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-        image = np.subtract(gray_image, mean)
-        depth = 1
-    elif data == 'vgg16': #compatible with vgg16 network for headings
-        image = cv2.resize(image, (170, 128))
-        x = random.randrange(0, 70)
-        y = random.randrange(0, 28)
-        image = image[y:y + 100, x:x + 100]
-        depth = 3
-    elif data == 'cell_channel':
-        if cell != None:
-            resized_image = cv2.resize(image, (image_size, image_size))
-            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-            image = np.subtract(gray_image, mean)
-            cell_arr = cell * np.ones((image_size, image_size, 1))
-            image = np.concatenate((np.expand_dims(image,axis=-1),cell_arr),axis=-1)
-            depth = 2
-        else:
-            print("No value for cell found")
-    elif data == 'heading_channel':
-        if heading != None:
-            resized_image = cv2.resize(image, (image_size, image_size))
-            gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-            image = np.subtract(gray_image, mean)
-            cell_arr = heading * np.ones((image_size, image_size, 1))
-            image = np.concatenate((np.expand_dims(image,axis=-1), cell_arr),axis=-1)
-            depth = 2
-        else:
-            print("No value for heading found")
-    else: #compatible with olin_cnn 2019
-        image = cv2.resize(image, (170, 128))
-        x = random.randrange(0, 70)
-        y = random.randrange(0, 28)
-        cropped_image = image[y:y + 100, x:x + 100]
-        gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-        image = np.subtract(gray_image, mean)
-        depth = 1
-    cleaned_image = np.array([image], dtype="float") \
-        .reshape(1, image_size, image_size, depth)
-    return cleaned_image
+# def predictSingleImageAllData(self, cleanImage):
+#     """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
+#     the resulting prediction."""
+#     listed = np.array([cleanImage])
+#     modelPredict = self.model.predict(listed)
+#     maxIndex = np.argmax(modelPredict)
+#     print("Model predicts:", modelPredict.shape, modelPredict)
+#     print("predict[0]:", modelPredict[0].shape, modelPredict[0])
+#     return maxIndex, modelPredict[0]
+#
+#
+# def loading_bar(start,end, size = 20):
+#     # Useful when running a method that takes a long time
+#     loadstr = '\r'+str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
+#     if start % 10 == 0:
+#         print(loadstr)
+#
+#
+# def check_data():
+#     data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
+#     np.random.shuffle(data)
+#     print(data[0])
+#     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+#     for i in range(len(data)):
+#         print("cell:"+str(np.argmax(data[i][1])))
+#         print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
+#         cv2.imshow('im',data[i][0][:,:,0])
+#         cv2.moveWindow('im',200,200)
+#         cv2.waitKey(0)
 
 
 if __name__ == "__main__":
