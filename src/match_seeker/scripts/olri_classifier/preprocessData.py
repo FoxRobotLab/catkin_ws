@@ -432,9 +432,9 @@ def main():
     Main program. Creates the preprocessor, from that generates the dataset, and then saves it to a file.
     :return: Nothing
     """
-    # preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-    #                          dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-    #                          imagesPerCell=100)
+    preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
+                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+                             imagesPerCell=100)
     # preProc.generateTrainingData()
     # preProc.saveDataset(DATA + "regressionTestSet")
 
