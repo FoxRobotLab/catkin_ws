@@ -60,6 +60,7 @@ class OlinClassifier(object):
             loss=self.loss,
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
+        self.model.summary()
 
         if self.savedCheckpoint is not None:
             self.model.load_weights(self.savedCheckpoint)

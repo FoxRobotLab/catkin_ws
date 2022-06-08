@@ -7,7 +7,6 @@ This file is a new version of olin_2019_inputs.py intended to clean up the code,
 a bunch of globalish variables, and make it more efficient. Also trying to fix bugs inadvertently introduced when we
 modified the code, so now we can't generate the right kind of datasets.  Will also include an alternative using
 a generator, eventually.
-TODO: Create a generator version
 """
 
 
@@ -173,6 +172,13 @@ class DataPreprocess(object):
             finalImage = self.randEraseImage(grayResizedImage)
         else:
             finalImage = grayResizedImage
+
+        cv2.imshow("Original", origImage)
+        cv2.imshow("Resized", resizedImage)
+        cv2.imshow("grayResized", grayResizedImage)
+        cv2.imshow("RandErased", finalImage)
+        cv2.waitKey()
+
         cellOneHot = self.makeOneHotList(self.frameData[frameNum]['cell'], self.numCells)
         headingIndex = self.frameData[frameNum]['heading'] // (360 // self.numHeadings)
         headOneHot = self.makeOneHotList(headingIndex, self.numHeadings)
@@ -385,6 +391,7 @@ class DataPreprocess(object):
         midCol = np.random.randint(0, w)
         topRow = midRow - (height // 2)
         leftCol = midCol - (width // 2)
+        print(topRow, height, leftCol, width)
         reImage[topRow:topRow + height, leftCol:leftCol + width] = brightness
         if topRow < 0:
             tr += 1
@@ -434,13 +441,14 @@ def main():
     Main program. Creates the preprocessor, from that generates the dataset, and then saves it to a file.
     :return: Nothing
     """
-    # preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-    #                          dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-    #                          imagesPerCell=100)
+    preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
+                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+                             imagesPerCell=100)
+    print("Preproc build")
     # preProc.generateTrainingData()
     # preProc.saveDataset(DATA + "regressionTestSet")
-
-
+    print("Processing frame")
+    preProc.processFrame(4954, True)
 
 if __name__ == "__main__":
     main()
