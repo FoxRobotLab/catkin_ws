@@ -1,7 +1,0 @@
-Finding most similar to selected
-Primary image = 2
-==========Close Matches==========
-Primary image = 2
-==========Close Matches==========
-Primary image = 45
-==========Close Matches==========

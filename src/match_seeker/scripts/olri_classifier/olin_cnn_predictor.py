@@ -30,7 +30,7 @@ import random
 import sys
 import os
 from tensorflow import keras
-
+frames
 sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
 from turtleControl import TurtleBot
 from OlinWorldMap import WorldMap
@@ -54,7 +54,7 @@ class OlinTest(object):
 
         ### Load model and weights from the specified checkpoint
         self.mean = np.load('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/DATA/TRAININGDATA_100_500_mean.npy')
-        self.model = keras.models.load_model('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/0725181447_olin-CPDr-CPDr-CPDr-DDDDr-L_lr0.001-bs128-weighted/00-745-0.71.hdf5')
+        # self.model = keras.models.load_model('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/0725181447_olin-CPDr-CPDr-CPDr-DDDDr-L_lr0.001-bs128-weighted/00-745-0.71.hdf5')
 
         self.heading_model = keras.models.load_model("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/heading_acc9517_cellInput_250epochs_95k_NEW.hdf5",
                                                      compile = True)

@@ -7,6 +7,7 @@ This file is a new version of olin_2019_inputs.py intended to clean up the code,
 a bunch of globalish variables, and make it more efficient. Also trying to fix bugs inadvertently introduced when we
 modified the code, so now we can't generate the right kind of datasets.  Will also include an alternative using
 a generator, eventually.
+TODO: Create a generator version
 """
 
 
@@ -62,47 +63,45 @@ class DataPreprocess(object):
                       189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
 
         with open(self.dataFile) as frameData:
-            lines = frameData.readlines()
+            for line in frameData:
+                splitList = line.split()
+                frameNum = int(splitList[0])
+                cellNum = int(splitList[1])
+                xVal = float(splitList[2])
+                yVal = float(splitList[3])
+                headingNum = int(splitList[4])
+                loc = (xVal, yVal)
+                self.frameData[frameNum] = {}
+                if locBool:
 
-        for line in lines:
-            splitList = line.split()
-            frameNum = int(splitList[0])
-            cellNum = int(splitList[1])
-            xVal = float(splitList[2])
-            yVal = float(splitList[3])
-            headingNum = int(splitList[4])
-            loc = (xVal, yVal)
-            self.frameData[frameNum] = {}
-            if locBool:
+                    self.frameData[frameNum]['loc'] = loc
 
-                self.frameData[frameNum]['loc'] = loc
+                if cell:
+                    self.frameData[frameNum]['cell'] = cellNum
 
-            if cell:
-                self.frameData[frameNum]['cell'] = cellNum
+                if heading:
+                    self.frameData[frameNum]['heading'] = headingNum
 
-            if heading:
-                self.frameData[frameNum]['heading'] = headingNum
-
-            if frameNum:
-                self.frameData[frameNum]['frameNum'] = frameNum
+                if frameNum:
+                    self.frameData[frameNum]['frameNum'] = frameNum
 
 
-            if cellNum not in self.cellData:
-                self.cellData[cellNum] = [frameNum]
-            else:
-                cellList = self.cellData[cellNum]
-                cellList.append(frameNum)
-            if headingNum not in self.headingData:
-                self.headingData[headingNum] = [frameNum]
-            else:
-                headingList = self.headingData[headingNum]
-                headingList.append(frameNum)
+                if cellNum not in self.cellData:
+                    self.cellData[cellNum] = [frameNum]
+                else:
+                    cellList = self.cellData[cellNum]
+                    cellList.append(frameNum)
+                if headingNum not in self.headingData:
+                    self.headingData[headingNum] = [frameNum]
+                else:
+                    headingList = self.headingData[headingNum]
+                    headingList.append(frameNum)
 
-            if loc not in self.locData:
-                self.locData[loc] = [frameNum]
-            else:
-                locList = self.locData[loc]
-                locList.append(frameNum)
+                if loc not in self.locData:
+                    self.locData[loc] = [frameNum]
+                else:
+                    locList = self.locData[loc]
+                    locList.append(frameNum)
 
 
         if locBool:
@@ -391,7 +390,6 @@ class DataPreprocess(object):
         midCol = np.random.randint(0, w)
         topRow = midRow - (height // 2)
         leftCol = midCol - (width // 2)
-        print(topRow, height, leftCol, width)
         reImage[topRow:topRow + height, leftCol:leftCol + width] = brightness
         if topRow < 0:
             tr += 1

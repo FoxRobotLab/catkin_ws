@@ -1,69 +1,27 @@
- #!/usr/bin/env python3.5
-
 """--------------------------------------------------------------------------------
-olin_cnn.py
-Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
-Creation Date: July 2018
-Updated: Summer 2019, Summer 2020, Summer 2022
+cnn_cell_predictor_2019.py
 
-A convolutional neural network to classify 2x2 cells of Olin Rice. Based on
-Floortype Classifier CNN, which is based on CIFAR10 tensorflow tutorial
-(layer architecture) and cat vs dog kaggle (preprocessing) as guides. Uses
-Keras as a framework.
+Updated: Summer 2022
 
-Acknowledgements:
-    ft_floortype_classifier
-        floortype_cnn.py
-
-Notes:
-    Warning: "Failed to load OpenCL runtime (expected version 1.1+)"
-        Do not freak out you get this warning. It is expected and not a problem per
-        https://github.com/tensorpack/tensorpack/issues/502
-
-    Error: F tensorflow/stream_executor/cuda/cuda_dnn.cc:427] could not set cudnn
-        tensor descriptor: CUDNN_STATUS_BAD_PARAM. Might occur when feeding an
-        empty images/labels
-
-    To open up virtual env:
-        source ~/tensorflow/bin/activate
-
-    Use terminal if import rospy does not work on PyCharm but does work on a
-    terminal
+This file can build and train CNN and load checkpoints/models for predicting cells.
+The model was originally created in 2019 that takes a picture and its heading as input to predict its cell number.
 
 FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
-
-The OlinClassifier class is also in olinClassifiers.py. They both can build and train CNN and load checkpoints/models.
-Check where OlinClassifier class is imported from because they may take different inputs.
-The OlinClassifier class in this file is mainly used to train models. It can load the model trained in 2020, 
-but we don't know how it's trained and how are the inputs preprocessed when training.
 --------------------------------------------------------------------------------"""
 
-
-# from __future__ import absolute_import
-# from __future__ import division
-# from __future__ import print_function
 import os
 import numpy as np
 from tensorflow import keras
 import cv2
 import time
-from paths import pathToMatchSeeker
 from paths import DATA
 from imageFileUtils import makeFilename
-# ORIG import olin_inputs_2019 as oi2
 import random
-from cnn_lstm_functions import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN, transfer_lstm_headPred
-
-
-
-
-
-
 
 ### Uncomment next line to use CPU instead of GPU: ###
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+#os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-class OlinClassifier(object):
+class CellPredictor2019(object):
     def __init__(self, eval_ratio=11.0/61.0, checkpoint_name=None, dataImg=None, dataLabel= None, outputSize= None, model2020 = False,cellInput=False, headingInput=False,
                  image_size=224, image_depth=2, data_name = None):
         ### Set up paths and basic model hyperparameters
@@ -149,14 +107,10 @@ class OlinClassifier(object):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
 
-
-        #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
         self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
-
-        self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
+        self.label = np.load(self.dataLabel)
 
         try:
             self.image_depth = self.image[0].shape[2]
@@ -167,9 +121,8 @@ class OlinClassifier(object):
         print("This is the total images", self.image_totalImgs)
         print("This is the ratio", self.num_eval)
 
-
+        #shuffles the orders of the photos
         np.random.seed(2845) #45600
-
         if (len(self.image) == len(self.label)):
             p = np.random.permutation(len(self.image))
             self.image = self.image[p]
@@ -200,41 +153,6 @@ class OlinClassifier(object):
         if self.train_images is None:
             print("No training data loaded yet.")
             return 0
-
-        # if (self.checkpoint_name is None):
-        #     self.model.compile(
-        #         loss=self.loss,
-        #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-        #         metrics=["accuracy"]
-        #     )= self.label[
-
-
-
-        #UNCOMMENT FOR OVERLAPPING
-        ####################################################################
-        # timeStepsEach = 400
-        # self.train_images= creatingSequence(self.train_images, 400, 100)
-        # timeSteps = len(self.train_images)
-        # subSequences = int(timeSteps/timeStepsEach)
-        # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        # self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
-
-        #
-        # self.eval_images = creatingSequence(self.eval_images, 400, 100)
-        # timeSteps = len(self.eval_images)
-        # subSequences = int(timeSteps / timeStepsEach)
-        # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
-
-        ####################################################################
-        # #ONLY FOR LSTM
-        # sampleSize = 1000
-        # self.train_images = self.train_images.reshape(100, sampleSize, 100, 100, 1)
-        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        # self.eval_images = self.eval_images.reshape(22, sampleSize, 100, 100, 1)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
-
-
 
         self.model.fit(
             self.train_images, self.train_labels,
@@ -295,71 +213,6 @@ class OlinClassifier(object):
         ))
         model.add(keras.layers.Dropout(0.4))
 
-
-        model.add(keras.layers.Flatten())
-        model.add(keras.layers.Dense(units=256, activation="relu"))
-        model.add(keras.layers.Dense(units=256, activation="relu"))
-
-        model.add(keras.layers.Dropout(0.2))
-
-        # activate with softmax when training one label and sigmoid when training both headings and cells
-        if self.neitherAsInput:
-            activation = "sigmoid"
-        else:
-            activation = "softmax"
-        model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
-        model.summary()
-        return model
-
-    def cnn_cells(self):
-        """Builds a network that takes an image and an extra channel for the cell number, and produces the heading."""
-        print("Building a model that takes cell number as input")
-        model = keras.models.Sequential()
-
-        model.add(keras.layers.Conv2D(
-            filters=128,
-            kernel_size=(5, 5),
-            strides=(1, 1),
-            activation="relu",
-            padding="same",
-            data_format="channels_last",
-            input_shape=[self.image_size, self.image_size, self.image_depth]
-        ))
-        model.add(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same"
-        ))
-        model.add(keras.layers.Dropout(0.4))
-
-        model.add(keras.layers.Conv2D(
-            filters=64,
-            kernel_size=(5, 5),
-            strides=(1, 1),
-            activation="relu",
-            padding="same"
-        ))
-        model.add(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same"
-        ))
-        model.add(keras.layers.Dropout(0.4))
-
-        model.add(keras.layers.Conv2D(
-            filters=64,
-            kernel_size=(5, 5),
-            strides=(1, 1),
-            activation="relu",
-            padding="same",
-            data_format="channels_last"
-        ))
-        model.add(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same",
-        ))
-        model.add(keras.layers.Dropout(0.4))
 
         model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(units=256, activation="relu"))
@@ -572,28 +425,6 @@ def check_data():
         cv2.moveWindow('im',200,200)
         cv2.waitKey(0)
 
-def resave_from_wulver(datapath):
-    """Networks trained on wulver are saved in a slightly different format because it uses a newer version of keras. Use this function to load the weights from a
-    wulver trained checkpoint and resave it in a format that this computer will recognize."""
-
-    olin_classifier = OlinClassifier(
-        checkpoint_name=None,
-        train_data=None,
-        extraInput=False,  # Only use when training networks with BOTH cells and headings
-        outputSize=8, #TODO 271 for cells, 8 for headings
-        eval_ratio=0.1
-    )
-
-    model = olin_classifier.cnn_headings()
-    model.compile(
-        loss=keras.losses.categorical_crossentropy,
-        optimizer=keras.optimizers.SGD(lr=0.001),
-        metrics=["accuracy"]
-    )
-    model.load_weights(datapath)
-    print("Loaded weights. Saving...")
-    model.save(datapath[:-4]+'_NEW.hdf5')
-
 
 def clean_image(image, data = 'old', cell = None, heading = None):
     #mean = np.load(pathToMatchSeeker + 'res/classifier2019data/TRAININGDATA_100_500_mean95k.npy')
@@ -637,23 +468,15 @@ def clean_image(image, data = 'old', cell = None, heading = None):
         gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
         image = np.subtract(gray_image, mean)
         depth = 1
-    cleaned_image = np.array([image], dtype="float").reshape(1, image_size, image_size, depth)
+    cleaned_image = np.array([image], dtype="float") \
+        .reshape(1, image_size, image_size, depth)
     return cleaned_image
 
 
 if __name__ == "__main__":
     # check_data()
-    olin_classifier = OlinClassifier(
-
-        # dat aImg= DATA + 'SAMPLETRAININGDATA_IMG_withCellInput135K.npy',
-        # dataLabel = DATA + 'SAMPLETRAININGDATA_HEADING_withCellInput135K.npy',
-        #dataImg = DATA + 'lstm_Img_Cell_Input13k.npy',
+    olin_classifier = CellPredictor2019(
         # dataImg= DATA +"Img_w_head_13k.npy",
-        # dataImg=DATA + "lstm_Img_13k.npy",
-        dataImg= DATA + 'Img_122k_ordered.npy',
-        dataLabel= DATA + 'lstm_cellOutput_122k.npy',
-        # dataLabel= DATA + 'lstm_headOuput_122k.npy',
-        #dataLabel=DATA + 'lstm_head_13k.npy',
         # dataLabel = DATA + 'cell_ouput13k.npy',
         data_name = "CNN_cellPred_all244Cell_20epochs",
         outputSize= 271,

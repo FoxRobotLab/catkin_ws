@@ -12,21 +12,14 @@ Acknowledgement:
 --------------------------------------------------------------------------------"""
 
 import keras
-from keras import backend as K
 import matplotlib.pyplot as plt
-import olin_factory as factory
+from src.match_seeker.scripts.olri_classifier.DataManipulations import olin_factory as factory
 import numpy as np
 import os
 import cv2
 from keras.utils import plot_model
-from sklearn.manifold import TSNE
 ### https://github.com/raghakot/keras-vis
-from vis.losses import ActivationMaximization
 from vis.regularizers import TotalVariation, LPNorm
-from vis.optimizer import Optimizer
-from vis.callbacks import GifGenerator
-from vis.visualization import visualize_activation, get_num_filters
-from vis.utils import utils as visutils
 
 # model_dir="0724181052_olin-CPDr-CPDr-DDDDr-L_lr0.001-bs256"
 # model_hdf5_name="00-90-0.72.hdf5",
