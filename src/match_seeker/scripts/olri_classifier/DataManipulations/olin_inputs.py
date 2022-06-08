@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 import random
-import olin_factory as factory
+import src.match_seeker.scripts.olri_classifier.DataManipulations.olin_factory as factory
 import time
 
 ################## Preprocessing of data ##################

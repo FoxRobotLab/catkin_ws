@@ -1,3 +1,11 @@
+"""
+File: olin_cnn_lstm
+
+Contains functions that build different variations on CNN and CNN-LSTM models for use by olin_cnn
+and olin_cnn_w_generator
+
+"""
+
 from tensorflow import keras
 import numpy as np
 import cv2

@@ -2,7 +2,7 @@ import numpy as np
 from paths import DATA
 from tensorflow import keras
 import time
-from olin_cnn_lstm import CNN
+from cnn_lstm_functions import CNN
 from DataGenerator import DataGenerator
 
 

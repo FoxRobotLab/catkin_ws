@@ -3,7 +3,7 @@
 # Susan Fox
 # Spring 2008
 
-from Graphs import WeightedListGraph
+from src.match_seeker.scripts.olri_classifier.DataManipulations.Graphs import WeightedListGraph
 import math
 
 class MapGraph(WeightedListGraph):

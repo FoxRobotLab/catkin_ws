@@ -1,5 +1,5 @@
 import numpy as np
-from paths import DATA
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 from collections import OrderedDict
 
 master_cell_loc_frame_id = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
@@ -25,7 +25,7 @@ def getChange():
     return change
 
 def notNeigh(changeCell, olinMap):
-#Looks at the change in cell number and compares if the cells were neighbors. If they are not the frame number of the new cell is appended to an array called notANeigh.NOTE: because of how the matrix (olinMap) was created, the row always has to be greater than the column. 
+#Looks at the change in cell number and compares if the cells were neighbors. If they are not the frame number of the new cell is appended to an array called notANeigh.NOTE: because of how the matrix (olinMap) was created, the row always has to be greater than the column.
     notANeigh = []
     for i in changeCell:
         if i[0] > i[1]:
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     change = getChange()
     notANeigh = notNeigh(change, olinMap)
     np.save(DATA + 'noNeighborCells', notANeigh)
-    
 
 
-      
+
+

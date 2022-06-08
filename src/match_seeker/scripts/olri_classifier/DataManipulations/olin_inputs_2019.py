@@ -12,7 +12,7 @@ import random
 from datetime import datetime
 #from olin_cnn import loading_bar
 
-from paths import DATA
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 
 numCells = 25
 image_size = 100

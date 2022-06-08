@@ -1,4 +1,4 @@
-from paths import DATA
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 import cv2
 
 imagePath = DATA + 'frames/moreframes/frame'

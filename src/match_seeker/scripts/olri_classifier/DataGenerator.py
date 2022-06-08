@@ -7,15 +7,15 @@ import cv2
 
 
 
-mean = np.load(DATA + "lstm_mean_122k.npy")
+
 class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
-                 img_size = 100):
+                 img_size = 100, meanFile="lstm_mean_122k.npy"):
         self.list_frames = list_frames
         self.labels = labels
         self.batch_size = batch_size
         self.dim = dim
-
+        self.mean = np.load(DATA + meanFile)
         #######
         self.n_channels = n_channels
         self.n_classes = n_classes
@@ -71,7 +71,7 @@ class DataGenerator(keras.utils.Sequence):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if typeOfProcessing == 1:
             img = self.randerase_image(img)
-        img = img - mean
+        img = img - self.mean
         img = img / 255
         img = img.reshape(100, 100, 1)
         return img

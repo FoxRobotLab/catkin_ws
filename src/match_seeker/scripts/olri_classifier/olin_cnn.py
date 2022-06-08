@@ -52,7 +52,7 @@ from paths import DATA
 from imageFileUtils import makeFilename
 # ORIG import olin_inputs_2019 as oi2
 import random
-from olin_cnn_lstm import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN, transfer_lstm_headPred
+from cnn_lstm_functions import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN, transfer_lstm_headPred
 
 
 

@@ -9,7 +9,7 @@ import numpy as np
 import os
 import random
 from datetime import datetime
-from olin_cnn import loading_bar
+from src.match_seeker.scripts.olri_classifier.olin_cnn import loading_bar
 
 numCells = 271
 image_size = 100
