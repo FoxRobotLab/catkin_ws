@@ -32,12 +32,6 @@ from imageFileUtils import makeFilename
 import random
 from cnn_lstm_functions import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN, transfer_lstm_headPred
 
-
-
-
-
-
-
 ### Uncomment next line to use CPU instead of GPU: ###
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
@@ -166,16 +160,6 @@ class HeadingPredictor(object):
         # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
         # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
-        ####################################################################
-        # #ONLY FOR LSTM
-        # sampleSize = 1000
-        # self.train_images = self.train_images.reshape(100, sampleSize, 100, 100, 1)
-        # self.train_labels = getCorrectLabels(self.train_labels, sampleSize)
-        # self.eval_images = self.eval_images.reshape(22, sampleSize, 100, 100, 1)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, sampleSize)
-
-
-
         self.model.fit(
             self.train_images, self.train_labels,
             batch_size= 1,
@@ -259,10 +243,7 @@ class HeadingPredictor(object):
         model.add(keras.layers.Dropout(0.2))
 
         # activate with softmax when training one label and sigmoid when training both headings and cells
-        if self.neitherAsInput:
-            activation = "sigmoid"
-        else:
-            activation = "softmax"
+        activation = "softmax"
         model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
         model.summary()
         return model
