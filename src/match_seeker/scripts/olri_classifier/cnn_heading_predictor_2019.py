@@ -5,7 +5,7 @@ cnn_heading_predictor_2019.py
 
 Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
 
-Updated: Summer 2022 by Bea Bautista, Yifan, and Shoske Noma
+Updated: Summer 2022 by Bea Bautista, Yifan Wu, and Shoske Noma
 
 This file can build and train CNN and load checkpoints/models for predicting headings using cell input.
 The model was originally created in 2019 that takes a picture and its heading as input to predict its cell number.
@@ -45,8 +45,7 @@ class HeadingPredictor(object):
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
 
-
-        self.model2020 = model2020
+        # self.model2020 = model2020
 
         self.dataImg = dataImg
         self.dataLabel = dataLabel
@@ -288,64 +287,64 @@ class HeadingPredictor(object):
         return float(correctCells) / num_eval
 
 
-    def retrain(self):
-        """This method seems out of date, was used for transfer learning from VGG. DON"T CALL IT!"""
-        # Use for retraining models included with keras
-        # if training with headings cannot use categorical crossentropy to evaluate loss
-        if self.checkpoint_name is None:
-            self.model = keras.models.Sequential()
-
-            xc = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False,
-                                                        input_shape=(self.image_size, self.image_size, self.image_depth))
-            for layer in xc.layers[:-1]:
-                layer.trainable = False
-
-            self.model.add(xc)
-            self.model.add(keras.layers.Flatten())
-            self.model.add(keras.layers.Dropout(rate=0.4))
-            # activate with softmax when training one label and sigmoid when training both headings and cells
-            activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
-            self.model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
-            self.model.summary()
-            self.model.compile(
-                loss=self.loss,
-                optimizer=keras.optimizers.Adam(lr=.001),
-                metrics=["accuracy"]
-            )
-        else:
-            print("Loaded model")
-            self.model = keras.models.load_model(self.checkpoint_name, compile=False)
-            self.model.compile(
-                loss=self.loss,
-                optimizer=keras.optimizers.Adam(lr=.001),
-                metrics=["accuracy"]
-            )
-        print("Train:", self.train_images.shape, self.train_labels.shape)
-        print("Eval:", self.eval_images.shape, self.eval_labels.shape)
-        self.model.fit(
-            self.train_images, self.train_labels,
-            batch_size=100,
-            epochs=10,
-            verbose=1,
-            validation_data=(self.eval_images, self.eval_labels),
-            shuffle=True,
-            callbacks=[
-                keras.callbacks.History(),
-                keras.callbacks.ModelCheckpoint(
-                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    period=1  # save every n epoch
-                )
-                ,
-                keras.callbacks.TensorBoard(
-                    log_dir=self.checkpoint_dir,
-                    batch_size=100,
-                    write_images=False,
-                    write_grads=True,
-                    histogram_freq=0,
-                ),
-                keras.callbacks.TerminateOnNaN(),
-            ]
-        )
+    # def retrain(self):
+    #     """This method seems out of date, was used for transfer learning from VGG. DON"T CALL IT!"""
+    #     # Use for retraining models included with keras
+    #     # if training with headings cannot use categorical crossentropy to evaluate loss
+    #     if self.checkpoint_name is None:
+    #         self.model = keras.models.Sequential()
+    #
+    #         xc = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False,
+    #                                                     input_shape=(self.image_size, self.image_size, self.image_depth))
+    #         for layer in xc.layers[:-1]:
+    #             layer.trainable = False
+    #
+    #         self.model.add(xc)
+    #         self.model.add(keras.layers.Flatten())
+    #         self.model.add(keras.layers.Dropout(rate=0.4))
+    #         # activate with softmax when training one label and sigmoid when training both headings and cells
+    #         activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
+    #         self.model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
+    #         self.model.summary()
+    #         self.model.compile(
+    #             loss=self.loss,
+    #             optimizer=keras.optimizers.Adam(lr=.001),
+    #             metrics=["accuracy"]
+    #         )
+    #     else:
+    #         print("Loaded model")
+    #         self.model = keras.models.load_model(self.checkpoint_name, compile=False)
+    #         self.model.compile(
+    #             loss=self.loss,
+    #             optimizer=keras.optimizers.Adam(lr=.001),
+    #             metrics=["accuracy"]
+    #         )
+    #     print("Train:", self.train_images.shape, self.train_labels.shape)
+    #     print("Eval:", self.eval_images.shape, self.eval_labels.shape)
+    #     self.model.fit(
+    #         self.train_images, self.train_labels,
+    #         batch_size=100,
+    #         epochs=10,
+    #         verbose=1,
+    #         validation_data=(self.eval_images, self.eval_labels),
+    #         shuffle=True,
+    #         callbacks=[
+    #             keras.callbacks.History(),
+    #             keras.callbacks.ModelCheckpoint(
+    #                 self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+    #                 period=1  # save every n epoch
+    #             )
+    #             ,
+    #             keras.callbacks.TensorBoard(
+    #                 log_dir=self.checkpoint_dir,
+    #                 batch_size=100,
+    #                 write_images=False,
+    #                 write_grads=True,
+    #                 histogram_freq=0,
+    #             ),
+    #             keras.callbacks.TerminateOnNaN(),
+    #         ]
+    #     )
 
 
     def precision(self,y_true, y_pred):
@@ -524,8 +523,8 @@ if __name__ == "__main__":
         # dataImg= DATA +"Img_w_head_13k.npy",
         # dataImg=DATA + "lstm_Img_13k.npy",
         dataImg= DATA + 'Img_122k_ordered.npy',
-        dataLabel= DATA + 'lstm_cellOutput_122k.npy',
-        # dataLabel= DATA + 'lstm_headOuput_122k.npy',
+        # dataLabel= DATA + 'lstm_cellOutput_122k.npy',
+        dataLabel= DATA + 'lstm_headOuput_122k.npy',
         #dataLabel=DATA + 'lstm_head_13k.npy',
         # dataLabel = DATA + 'cell_ouput13k.npy',
         data_name = "CNN_cellPred_all244Cell_20epochs",
