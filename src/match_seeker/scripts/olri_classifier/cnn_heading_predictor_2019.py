@@ -88,7 +88,6 @@ class HeadingPredictor(object):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
 
-
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
@@ -135,31 +134,6 @@ class HeadingPredictor(object):
         if self.train_images is None:
             print("No training data loaded yet.")
             return 0
-
-        # if (self.checkpoint_name is None):
-        #     self.model.compile(
-        #         loss=self.loss,
-        #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-        #         metrics=["accuracy"]
-        #     )= self.label[
-
-
-
-        #UNCOMMENT FOR OVERLAPPING
-        ####################################################################
-        # timeStepsEach = 400
-        # self.train_images= creatingSequence(self.train_images, 400, 100)
-        # timeSteps = len(self.train_images)
-        # subSequences = int(timeSteps/timeStepsEach)
-        # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        # self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
-
-        #
-        # self.eval_images = creatingSequence(self.eval_images, 400, 100)
-        # timeSteps = len(self.eval_images)
-        # subSequences = int(timeSteps / timeStepsEach)
-        # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         self.model.fit(
             self.train_images, self.train_labels,
@@ -257,7 +231,18 @@ class HeadingPredictor(object):
         meaned = np.subtract(grayed, mean)
         return shrunkenIm, grayed, meaned
 
-    def testingOnHeadingOutputNetwork(self, n):
+    def cleanImageRandomCrop(self, image, mean=None, imageSize=100):
+        """Alternative preprocessing function to cleanImage that crops the input image to a 100x100 image starting
+        at a random x and y position. Resulted in very bad performance, we might not use anymore."""
+        image = cv2.resize(image, (170, 128))
+        x = random.randrange(0, 70)
+        y = random.randrange(0, 28)
+        cropped_image = image[y:y + imageSize, x:x + imageSize]
+        grayed = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        meaned = np.subtract(grayed, mean)
+        return cropped_image, grayed, meaned
+
+    def test(self, n, randomCrop = False):
         """This runs each of the first n images in the folder of frames through the heading-output network, reporting how often the correct
         heading was produced, and how often the correct heading was in the top 3 and top 5."""
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -273,13 +258,6 @@ class HeadingPredictor(object):
         print("Loading mean...")
         mean = np.load(dataPath + meanFile)
 
-        #print("Setting up classifier loading checkpoints...")
-        # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
-        #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
-        #                                  cellInput=True,
-        #                                  outputSize=9,
-        #                                  image_size=100,
-        #                                  image_depth=2)
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
@@ -295,7 +273,11 @@ class HeadingPredictor(object):
             headingB = dPreproc.frameData[rand]['heading']
             headingIndex = potentialHeadings.index(
                 headingB)  # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
-            smallerB, grayB, processedB = self.cleanImage(imageB, mean)
+
+            if randomCrop:
+                smallerB, grayB, processedB = self.cleanImageRandomCrop(imageB, mean)
+            else:
+                smallerB, grayB, processedB = self.cleanImage(imageB, mean)
 
             cellBArr = cellB * np.ones((100, 100, 1))
             procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), cellBArr), axis=-1)
@@ -396,66 +378,6 @@ class HeadingPredictor(object):
     #     return float(correctCells) / num_eval
 
 
-    # def retrain(self):
-    #     """This method seems out of date, was used for transfer learning from VGG. DON"T CALL IT!"""
-    #     # Use for retraining models included with keras
-    #     # if training with headings cannot use categorical crossentropy to evaluate loss
-    #     if self.checkpoint_name is None:
-    #         self.model = keras.models.Sequential()
-    #
-    #         xc = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False,
-    #                                                     input_shape=(self.image_size, self.image_size, self.image_depth))
-    #         for layer in xc.layers[:-1]:
-    #             layer.trainable = False
-    #
-    #         self.model.add(xc)
-    #         self.model.add(keras.layers.Flatten())
-    #         self.model.add(keras.layers.Dropout(rate=0.4))
-    #         # activate with softmax when training one label and sigmoid when training both headings and cells
-    #         activation = self.train_with_headings*"sigmoid" + (not self.train_with_headings)*"softmax"
-    #         self.model.add(keras.layers.Dense(units=self.outputSize, activation=activation))
-    #         self.model.summary()
-    #         self.model.compile(
-    #             loss=self.loss,
-    #             optimizer=keras.optimizers.Adam(lr=.001),
-    #             metrics=["accuracy"]
-    #         )
-    #     else:
-    #         print("Loaded model")
-    #         self.model = keras.models.load_model(self.checkpoint_name, compile=False)
-    #         self.model.compile(
-    #             loss=self.loss,
-    #             optimizer=keras.optimizers.Adam(lr=.001),
-    #             metrics=["accuracy"]
-    #         )
-    #     print("Train:", self.train_images.shape, self.train_labels.shape)
-    #     print("Eval:", self.eval_images.shape, self.eval_labels.shape)
-    #     self.model.fit(
-    #         self.train_images, self.train_labels,
-    #         batch_size=100,
-    #         epochs=10,
-    #         verbose=1,
-    #         validation_data=(self.eval_images, self.eval_labels),
-    #         shuffle=True,
-    #         callbacks=[
-    #             keras.callbacks.History(),
-    #             keras.callbacks.ModelCheckpoint(
-    #                 self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-    #                 period=1  # save every n epoch
-    #             )
-    #             ,
-    #             keras.callbacks.TensorBoard(
-    #                 log_dir=self.checkpoint_dir,
-    #                 batch_size=100,
-    #                 write_images=False,
-    #                 write_grads=True,
-    #                 histogram_freq=0,
-    #             ),
-    #             keras.callbacks.TerminateOnNaN(),
-    #         ]
-    #     )
-
-
     # def precision(self,y_true, y_pred):
     #     """Precision metric.
     #
@@ -532,26 +454,26 @@ class HeadingPredictor(object):
 #         print(loadstr)
 #
 #
-def check_data():
-    data = np.load(DATA + 'IMG_CellInput_12K.npy')
-    np.random.shuffle(data)
-    print(data[0])
-    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    for i in range(len(data)):
-        print("cell:"+str(np.argmax(data[i][1])))
-        print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
-        cv2.imshow('im',data[i][0][:,:,0])
-        cv2.moveWindow('im',200,200)
-        cv2.waitKey(0)
+# def check_data():
+#     data = np.load(DATA + 'IMG_CellInput_12K.npy')
+#     np.random.shuffle(data)
+#     print(data[0])
+#     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+#     for i in range(len(data)):
+#         print("cell:"+str(np.argmax(data[i][1])))
+#         print("heading:"+str(potentialHeadings[int(data[i][0][0,0,1])]))
+#         cv2.imshow('im',data[i][0][:,:,0])
+#         cv2.moveWindow('im',200,200)
+#         cv2.waitKey(0)
 
 
 if __name__ == "__main__":
     # check_data()
     headingPredictor = HeadingPredictor(
-        # checkpoint_name=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
-        dataImg= DATA + 'IMG_CellInput_12K.npy',
-        dataLabel = DATA + 'Heading_CellInput12k.npy',
-        data_name = "testheadingpredictor"
+        loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
+        # dataImg= DATA + 'IMG_CellInput_12K.npy',
+        # dataLabel = DATA + 'Heading_CellInput12k.npy',
+        # data_name = "testheadingpredictor"
         # # dataLabel = DATA + 'cell_ouput13k.npy',
         # data_name = "CNN_cellPred_all244Cell_20epochs",
         # outputSize= 271,
@@ -559,37 +481,15 @@ if __name__ == "__main__":
         # image_size=100,
         # image_depth= 1
     )
-    print("Classifier built")
-    headingPredictor.loadData()
-    print("Data loaded")
-    headingPredictor.train()
+    # print("Classifier built")
+    # headingPredictor.loadData()
+    # print("Data loaded")
+    # headingPredictor.train()
 
-    # print("Tests for Heading Predictor")
-    # HeadingPredictor.testingOnHeadingOutputNetwork(1000)
+    print("Tests for Heading Predictor")
+    # print("Randomly Cropped Images")
+    # headingPredictor.test(1000, randomCrop=True)
 
-    # how the classifier was set up in original updated 2019 test file
-    # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
-    #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
-    #                                  cellInput=True,
-    #                                  outputSize=9,
-    #                                  image_size=100,
-    #                                  image_depth=2)
+    print("Original Test Call")
+    headingPredictor.test(1000, randomCrop=False)
 
-
-    # print(len(olin_classifier.train_images))
-    #olin_classifier.train()
-    # olin_classifier.getAccuracy()
-    #ORIG count = 0
-    # ORIG for i in range(1000):
-    #     num = random.randint(0,95000)
-    #     thing, cell = olin_classifier.runSingleImage(num)
-    #     count += (np.argmax(thing)==cell)
-    # print(count)
-
-
-    # model = olin_classifier.threeConv()
-    #olin_classifier.train()
-
-    # self.cell_model = keras.models.load_model(
-    #     "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-    #     compile=True)
