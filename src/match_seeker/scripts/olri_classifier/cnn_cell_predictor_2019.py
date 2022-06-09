@@ -17,15 +17,14 @@ import time
 from paths import DATA,frames, checkPts
 from imageFileUtils import makeFilename
 import random
+from src.match_seeker.scripts.olri_classifier.preprocessData import DataPreprocess
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
-from src.match_seeker.scripts.olri_classifier.preprocessData import DataPreprocess
-
 
 class CellPredictor2019(object):
     def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 271,
-                 image_size=100, image_depth=2, data_name = None):
+                 image_size=100, image_depth=2, data_name = None, testData = DATA, testFrames = frames, checkPtsDirectory = checkPts):
         ### Set up paths and basic model hyperparameters
 
         self.checkpoint_dir = checkPts+"olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
@@ -43,12 +42,17 @@ class CellPredictor2019(object):
         self.eval_labels = None
         self.data_name = data_name
         self.loss = keras.losses.categorical_crossentropy
+        self.testData = testData
         self.loaded_checkpoint = loaded_checkpoint
-        if self.loaded_checkpoint is not None:
+        self.mean_image = np.load(self.testData + "TRAININGDATA_100_500_mean.npy")
+        self.frameIDtext = DataPreprocess(dataFile=self.testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+        self.frames = testFrames
+        if loaded_checkpoint:
+            self.loaded_checkpoint = checkPtsDirectory + loaded_checkpoint
+        if self.loaded_checkpoint:
             self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
             self.model.load_weights(self.loaded_checkpoint)
         else:
-            # Code for cell input
             self.model = self.cnn_headings()  # CNN
 
         self.model.compile(
@@ -170,94 +174,6 @@ class CellPredictor2019(object):
         model.summary()
         return model
 
-
-    # def getAccuracy(self):
-    #     """Sets up the network, and produces an accuracy value on the evaluation data.
-    #     If no data is set up, it quits."""
-    #
-    #     if self.eval_images is None:
-    #         return
-    #
-    #     num_eval = 5000
-    #     correctCells = 0
-    #     eval_copy = self.eval_images
-    #     self.model.compile(loss=self.loss, optimizer=keras.optimizers.SGD(lr=0.001), metrics=["accuracy"])
-    #     self.model.load_weights()
-    #
-    #     for i in range(num_eval):
-    #         loading_bar(i,num_eval)
-    #         image = eval_copy[i]
-    #         image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
-    #         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    #
-    #         pred = self.model.predict(image)
-    #         print("correct:{}".format(np.argmax(self.eval_labels[i])))
-    #         print("pred:{}".format(np.argmax(pred[0])))
-    #         #cv2.imshow('im',image[0,:,:,0])
-    #         #cv2.waitKey(0)
-    #
-    #         # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
-    #         # prinpredictt(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
-    #         # print(np.argmax(self),np.argmax(pred[0]))
-    #         if np.argmax(self.eval_labels[i]) == np.argmax(pred[0]):
-    #             correctCells += 1
-    #         # if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
-    #         #       += 1
-    #
-    #     print("%Correct Cells: " + str(float(correctCells) / num_eval))
-    #     return float(correctCells) / num_eval
-
-
-    # def runSingleImage(self, num, input='heading'):
-    #"""Makes prediction on one image"""
-    #     imDirectory = DATA + 'frames/moreframes/'
-    #     count = 0
-    #     filename = makeFilename(imDirectory, num)
-    #     # st = None
-    #
-    #     # for fname in os.listdir(imDirectory):
-    #     #     if count == num:
-    #     #         st = imDirectory + fname
-    #     #         break
-    #
-    #     # print(imgs)
-    #     # print(filename)
-    #     if filename is not None:
-    #         image = cv2.imread(filename)
-    #         # print("This is image:", image)
-    #         # print("This is the shape", image.shape)
-    #         if image is not None:
-    #             cellDirectory = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-    #             count = 0
-    #             with open(cellDirectory) as fp:
-    #                 for line in fp:
-    #                     (fNum, cell, x, y, head) = line.strip().split(' ')
-    #                     if fNum == str(num):
-    #                         break
-    #                     count += 1
-    #
-    #
-    #         # cell = oi2.getOneHotLabel(int(cell), 271)
-    #         # cell_arr = []model.predict
-    #         # im_arr = []
-    #         # cell_arr.append(cell)
-    #         # im_arr.append(image)
-    #         #
-    #         # cell_arr = np.asarray(cell_arr)
-    #         # im_arr = np.asarray(im_arr)
-    #
-    #             if input=='heading':
-    #                 image = clean_image(image, data='heading_channel', heading=int(head))
-    #
-    #             elif input=='cell':
-    #                 image = clean_image(image, data='cell_channel', heading=int(cell))
-    #
-    #
-    #
-    #             return self.model.predict(image), cell
-    #     return None
-
-
     def predictSingleImageAllData(self, cleanImage):
         """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
         the resulting prediction."""
@@ -286,31 +202,40 @@ class CellPredictor2019(object):
                 topVals.pop(-1)
         return topVals, topIndex
 
-    def test(self, n):
-        """This runs each of the first n images in the folder of frames through the cell-output network, reporting how
-        often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5."""
+    def test(self, n, randomChoose = True, randomCrop = False):
+        """This runs each of the random n images in the folder of frames through the cell-output network, reporting how
+        often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5.
+        Or when setting random to be false, it tests the model on the n-th image."""
 
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        meanFile = "TRAININGDATA_100_500_mean.npy"
-        mean = np.load(DATA + "TRAININGDATA_100_500_mean.npy")
-
+        mean = np.load(self.mean_image)
         print("Setting up preprocessor to get frame data...")
-        dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
-
+        dPreproc = DataPreprocess(dataFile=self.frameIDtext)
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
-        for i in range(n):
-            rand = random.randrange(95000)
-            print("===========", rand)
-            imFile = makeFilename(frames, rand)
+        if randomChoose:
+            iterations = n
+        else: iterations = 1
+        for i in range(iterations):
+            if randomChoose:
+                index = random.randrange(95000)-1
+            else: index = n - 1
+            print("===========", index)
+            imFile = makeFilename(self.frames, index)
             imageB = cv2.imread(imFile)
             if imageB is None:
                 print(" image not found")
                 continue
-            cellB = dPreproc.frameData[rand]['cell']
-            headingB = dPreproc.frameData[rand]['heading']
+            cellB = dPreproc.frameData[index]['cell']
+            headingB = dPreproc.frameData[index]['heading']
             headingIndex = potentialHeadings.index(headingB)  #converting from 0, 45, 90, etc. to 0, 1, 2, etc.
+
+            if randomCrop:
+                smallerB, grayB, processedB = self.cleanImageRandomCrop(imageB, mean)
+            else:
+                smallerB, grayB, processedB = self.cleanImage(imageB, mean)
+
             smallerB, grayB, processedB = self.cleanImage(imageB, mean)
             headBArr = headingIndex * np.ones((100, 100, 1))
             procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
@@ -349,32 +274,16 @@ class CellPredictor2019(object):
         meaned = np.subtract(grayed, mean)
         return shrunkenIm, grayed, meaned
 
-    # def clean_image(self, image, complexProcessing=None, heading=None):
-    #     """Preprocess image into the form able to be fed into the model"""
-    #     mean = np.load(DATA + 'TRAININGDATA_100_500_mean95k.npy')
-    #     image_size = self.image_size
-    #     if not complexProcessing:
-    #         if not heading:
-    #             resized_image = cv2.resize(image, (image_size, image_size))
-    #             gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
-    #             image = np.subtract(gray_image, mean)
-    #             heading_arr = heading * np.ones((image_size, image_size, 1))
-    #             image = np.concatenate((np.expand_dims(image, axis=-1), heading_arr), axis=-1)
-    #             depth = 2
-    #         else:
-    #             print("No value for heading found")
-    #     else:
-    #         image = cv2.resize(image, (170, 128))
-    #         x = random.randrange(0, 70)
-    #         y = random.randrange(0, 28)
-    #         cropped_image = image[y:y + 100, x:x + 100]
-    #         gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-    #         image = np.subtract(gray_image, mean)
-    #         depth = 1
-    #     cleaned_image = np.array([image], dtype="float") \
-    #         .reshape(1, image_size, image_size, depth)
-    #     return cleaned_image
-
+    def cleanImageRandomCrop(self, image, mean=None, imageSize=100):
+        """Alternative preprocessing function to cleanImage that crops the input image to a 100x100 image starting
+        at a random x and y position. Resulted in very bad performance, we might not use anymore."""
+        image = cv2.resize(image, (170, 128))
+        x = random.randrange(0, 70)
+        y = random.randrange(0, 28)
+        cropped_image = image[y:y + imageSize, x:x + imageSize]
+        grayed = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        meaned = np.subtract(grayed, mean)
+        return cropped_image, grayed, meaned
 
 def loading_bar(start,end, size = 20):
     # Useful when running a method that takes a long time
@@ -402,7 +311,7 @@ if __name__ == "__main__":
         # dataImg= DATA +"Img_w_head_13k.npy",
         # dataLabel = DATA + 'cell_ouput13k.npy',
         #data_name = "testCellPredictor"
-        loaded_checkpoint = checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
+        loaded_checkpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
     )
     # print("Classifier built")
     # cellPredictor.loadData()
