@@ -44,8 +44,8 @@ class CellPredictor2019(object):
         self.loss = keras.losses.categorical_crossentropy
         self.testData = testData
         self.loaded_checkpoint = loaded_checkpoint
-        self.mean_image = np.load(self.testData + "TRAININGDATA_100_500_mean.npy")
-        self.frameIDtext = DataPreprocess(dataFile=self.testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+        self.mean_image = self.testData + "TRAININGDATA_100_500_mean.npy"
+        self.frameIDtext = self.testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.frames = testFrames
         if loaded_checkpoint:
             self.loaded_checkpoint = checkPtsDirectory + loaded_checkpoint
@@ -235,8 +235,6 @@ class CellPredictor2019(object):
                 smallerB, grayB, processedB = self.cleanImageRandomCrop(imageB, mean)
             else:
                 smallerB, grayB, processedB = self.cleanImage(imageB, mean)
-
-            smallerB, grayB, processedB = self.cleanImage(imageB, mean)
             headBArr = headingIndex * np.ones((100, 100, 1))
             procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
             predB, output = self.predictSingleImageAllData(procBPlus)
@@ -319,4 +317,4 @@ if __name__ == "__main__":
     # cellPredictor.train()
 
     print("Tests the cell predictor")
-    cellPredictor.test(1000)
+    cellPredictor.test(1000, randomChoose = False, randomCrop = True)
