@@ -32,7 +32,7 @@ class Interpolator(object):
 
     def __init__(self, mapFile, dataSource, outputFilePath,inputLocsFilePath, mode = "image"):
         """Set up data to be held, including displayed and stored maps, current labeling location
-        and heading, and dictionary mapping frame numbers to locations and headings. Default mode
+        and heading, and dictionary mapping frames numbers to locations and headings. Default mode
         is to run on a stored video feed, but it can also run through a folder of images. The "data" field
         is either the name of the video or of the folder where the images are found. The mode variable is either
         'video' or 'images'"""
@@ -98,7 +98,7 @@ class Interpolator(object):
         self.origMap = self.drawWalkingLocations(self.walking)     # draws the circles for the already marked locations
 
 
-        # set up video capture and first frame
+        # set up video capture and first frames
         self._setupImageCapture()
         ch = ' '
         goodFrame = self._getNextImage()
@@ -228,7 +228,7 @@ class Interpolator(object):
 
 
     def _displayStatus(self):
-        """Displays the current location and frame counter on the main window."""
+        """Displays the current location and frames counter on the main window."""
 
         yellow = (0, 255, 255)
         cv2.rectangle(self.mainImg, (0, 210), (210, 340), (0, 0, 0), -1)
@@ -238,7 +238,7 @@ class Interpolator(object):
         yStr = floatTemplate.format('y', self.currLoc[1])
         hStr = intTemplate.format('h', self.currHeading)
 
-        countStr = intTemplate.format('frame', self.picNum)
+        countStr = intTemplate.format('frames', self.picNum)
         cv2.putText(self.mainImg, "Current location:", (20, 240), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
         cv2.putText(self.mainImg, xStr, (30, 260), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
         cv2.putText(self.mainImg, yStr, (30, 280), cv2.FONT_HERSHEY_PLAIN, 1.0, yellow)
@@ -249,7 +249,7 @@ class Interpolator(object):
 
     def _mouseMainResponse(self, event, x, y, flags, param):
         """A mouse callback function that reads the user's click and responds by updating the robot's heading,
-        or by moving on to the next frame in the video."""
+        or by moving on to the next frames in the video."""
 
         if event == cv2.EVENT_LBUTTONDOWN:
             if (0 <= x < 70) and (0 <= y < 70):
@@ -277,11 +277,11 @@ class Interpolator(object):
                 # click was in "southeast" heading square
                 self.currHeading = 225
             elif (20 <= x < 100) and (350 <= y <= 400):
-                # click was in "Previous" frame
+                # click was in "Previous" frames
                 self.imgIndex -= 1
                 self._processToNextFrame()
             elif (110 <= x < 190) and (350 <= y <= 400):
-                # click was in "Next" frame
+                # click was in "Next" frames
                 if self.imgIndex >= len(self.imgFileList):
                     self.dataDone = True
                 else:
@@ -328,7 +328,7 @@ class Interpolator(object):
                     currYaw = currYaw + 360
                 thisYaw =self.roundToNearestAngle(currYaw)
                 self.labeling[frameNum] = [xAvg, yAvg, thisYaw]
-            # move to the next unlabeled frame
+            # move to the next unlabeled frames
             self.currLoc = (xNext, yNext)
             self.currHeading = int(yawNext)
             # here is where picNum needs to be updated
@@ -394,7 +394,7 @@ class Interpolator(object):
                 thisX = float("{0:.1f}".format(x))
                 thisY = float("{0:.1f}".format(y))
                 self.labeling[frameNum] = [thisX, thisY, yaw]
-            # move to the next unlabeled frame
+            # move to the next unlabeled frames
             thisX = float("{0:.1f}".format(x))
             thisY = float("{0:.1f}".format(y))
             self.currLoc = (thisX, thisY)
@@ -527,7 +527,7 @@ class Interpolator(object):
 
     def setCurrentStamps(self):
         """
-        determines the previous stamped location and the next stamped location to the current frame.
+        determines the previous stamped location and the next stamped location to the current frames.
         :return:
         """
         if self.picNum < self.walkingNums[0]:
@@ -587,7 +587,7 @@ class Interpolator(object):
 
 
     def _getNextImage(self):
-        """Gets the next frame from the camera or from reading the next file"""
+        """Gets the next frames from the camera or from reading the next file"""
         while True:
             if self.imgFileList == []:
                 return False

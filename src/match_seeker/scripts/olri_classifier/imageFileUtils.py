@@ -4,7 +4,7 @@
 def makeFilename(path, fileNum):
     """Makes a filename for reading or writing image files"""
     formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
-    name = formStr.format(path, 'frame', fileNum, "jpg")
+    name = formStr.format(path, 'frames', fileNum, "jpg")
     return name
 
 

@@ -11,7 +11,7 @@ def saveVideo(videoName, destDir):
         res, frame = capt.read()
         if not res:
             break
-        #cv2.imshow("frame",frame)
+        #cv2.imshow("frames",frames)
         #cv2.waitKey(10)
         saveToFolder(frame, destDir, frameNum)
         frameNum+=1
@@ -29,7 +29,7 @@ def saveToFolder(img, folderName, frameNum):
 
 
 def nextFilename(num):
-    fTempl = "frame{0:04d}.jpg"
+    fTempl = "frames{0:04d}.jpg"
     fileName = fTempl.format(num)
     return fileName
 

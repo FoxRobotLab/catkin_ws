@@ -25,7 +25,7 @@ class LabeledFrames(object):
 
     def __init__(self, mapFile, dataSource, outputFilePath, mode = "image"):
         """Set up data to be held, including displayed and stored maps, current labeling location
-        and heading, and dictionary mapping frame numbers to locations and headings. Default mode
+        and heading, and dictionary mapping frames numbers to locations and headings. Default mode
         is to run on a stored video feed, but it can also run through a folder of images. The "data" field
         is either the name of the video or of the folder where the images are found. The mode variable is either
         'video' or 'images'"""
@@ -70,7 +70,7 @@ class LabeledFrames(object):
         cv2.imshow("Map", self.currMap)
         cv2.setMouseCallback("Map", self._mouseSetLoc)          # Set x, y location
 
-        # set up video capture and first frame
+        # set up video capture and first frames
         self._setupImageCapture()
         ch = ' '
         nextFrame = self._getNextImage()
@@ -174,7 +174,7 @@ class LabeledFrames(object):
 
 
     def _displayStatus(self):
-        """Displays the current location and frame counter on the main window."""
+        """Displays the current location and frames counter on the main window."""
 
         white = (255, 255, 255)
         cv2.rectangle(self.locGUI, (0, 210), (210, 340), (0, 0, 0), -1)
@@ -184,7 +184,7 @@ class LabeledFrames(object):
         yStr = floatTemplate.format('y', self.currLoc[1])
         yawStr = intTemplate.format('yaw', self.currHeading)
 
-        countStr = intTemplate.format('frame', self.picNum)
+        countStr = intTemplate.format('frames', self.picNum)
         cv2.putText(self.locGUI, "Current location:", (20, 240), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
         cv2.putText(self.locGUI, xStr, (30, 260), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
         cv2.putText(self.locGUI, yStr, (30, 280), cv2.FONT_HERSHEY_PLAIN, 1.0, white)
@@ -195,7 +195,7 @@ class LabeledFrames(object):
 
     def _mouseMainResponse(self, event, x, y, flags, param):
         """A mouse callback function that reads the user's click and responds by updating the robot's heading,
-        or by moving on to the next frame in the video."""
+        or by moving on to the next frames in the video."""
 
         if event == cv2.EVENT_LBUTTONDOWN:
             if (0 <= x < 70) and (0 <= y < 70):
@@ -223,11 +223,11 @@ class LabeledFrames(object):
                 # click was in "southeast" heading square
                 self.currHeading = 225
             elif (20 <= x < 100) and (350 <= y <= 400):
-                # click was in "Previous" frame
+                # click was in "Previous" frames
                 self.imgIndex -= 1
                 self._processToNextFrame()
             elif (110 <= x < 190) and (350 <= y <= 400):
-                # click was in "Next" frame
+                # click was in "Next" frames
                 if self.imgIndex >= len(self.imgFileList):
                     self.dataDone = True
                 else:
@@ -334,13 +334,13 @@ class LabeledFrames(object):
 
 
     def _getNextImage(self):
-        """Gets the next frame from the camera or from reading the next file"""
+        """Gets the next frames from the camera or from reading the next file"""
         # if self.mode == 'video':
-        #     good, frame = self.videoObject.read()
+        #     good, frames = self.videoObject.read()
         #     if not good:
         #         return good
         #     self.picNum += 1
-        #     self.currImg = frame
+        #     self.currImg = frames
         #     return good
         # else:
         while True:

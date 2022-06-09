@@ -267,7 +267,7 @@ class HeadingPredictor(object):
         meanFile = "TRAININGDATA_100_500_mean.npy"
         dataPath = DATA
 
-        print("Setting up preprocessor to get frame data...")
+        print("Setting up preprocessor to get frames data...")
         dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
         print("Loading mean...")

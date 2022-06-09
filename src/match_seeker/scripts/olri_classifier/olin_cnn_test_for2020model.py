@@ -6,7 +6,7 @@ Creation Date: June 2022
 
 This file contains functions that load and test the 2020 model on the existing training dataset.
 
-They preprocess and then predict either the cell number or the heading of each frame, one at a time.
+They preprocess and then predict either the cell number or the heading of each frames, one at a time.
 
 FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
 
@@ -36,7 +36,7 @@ def testingOnHeadingOutputNetwork(n):
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
     meanFile = "TRAININGDATA_100_500_mean.npy"
     dataPath = DATA
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     #print("Loading mean...")
@@ -90,7 +90,7 @@ def testingOnHeadingOutputNetwork(n):
 def testingOnCellOutputNetwork(n):
     meanFile = "TRAININGDATA_100_500_mean.npy"
     dataPath = DATA
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     #print("Loading mean...")

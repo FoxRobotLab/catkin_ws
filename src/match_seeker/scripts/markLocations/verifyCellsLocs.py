@@ -4,8 +4,8 @@
 
 
 
-CELL_FILE_PATH = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/frame-loc-heading_MASTER'
-LOC_FILE_PATH = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/frame-xyh'
+CELL_FILE_PATH = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/frames-loc-heading_MASTER'
+LOC_FILE_PATH = '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/frames-xyh'
 
 
 with open(CELL_FILE_PATH, 'r') as cellfile:

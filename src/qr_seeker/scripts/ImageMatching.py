@@ -314,7 +314,7 @@ class ImageMatcher(object):
 
     def _userSelectFrame(self, cap):
         """User types 'q' to quit without selecting, or space to
-        select the current frame. Frame or None is returned."""
+        select the current frames. Frame or None is returned."""
         while True:
             r, frame = cap.read()
             if not r:
@@ -522,7 +522,7 @@ if __name__ == '__main__':
     print "GOT HERE"
     matcher = ImageMatcher(logFile = True, logShell = True,
                            dir1 = basePath + directory,
-                           baseName = "frame",
+                           baseName = "frames",
                            ext = "jpg", startPic = 0,
                            numPics = 1086)
     print "finish ImageMatcher call"

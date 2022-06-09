@@ -11,7 +11,7 @@ testingOrigData and testingSusanData are no longer used.
 
 The two functions load and test the 2019 model on the existing training dataset.
 
-They preprocess and then predict either the cell number or the heading of each frame, one at a time.
+They preprocess and then predict either the cell number or the heading of each frames, one at a time.
 
 We no longer use the NEWTRAININGDATA_100_500withHeadingInput95k.npy
 file as input because it requires the program to load the whole dataset before feeding the frames into the network.
@@ -35,7 +35,7 @@ from olinClassifiers import OlinClassifier
 
 
 def makeFrameDict(dataFile):
-    """Reads the data from the data file, making a dictionary where the keys are the frame numbers, and the data attached is
+    """Reads the data from the data file, making a dictionary where the keys are the frames numbers, and the data attached is
     another dictionary, with entries for the cell, heading, and location."""
     dataDict = {}
     with open(dataFile) as fp:
@@ -81,7 +81,7 @@ def testingOrigData():
     cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
     meanFile = "AngelTRAININGDATA_100_500_mean.npy"
     dataPath = pathToMatchSeeker + 'res/classifier2019data/'
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
     print("Loading mean...")
 
@@ -227,7 +227,7 @@ def testingOnCellOutputNetwork(n):
     meanFile = "TRAININGDATA_100_500_mean.npy"
     dataPath = DATA
 
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     print("Loading mean...")
@@ -297,7 +297,7 @@ def testingOnHeadingOutputNetwork(n):
     meanFile = "TRAININGDATA_100_500_mean.npy"
     dataPath = DATA
 
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     print("Loading mean...")

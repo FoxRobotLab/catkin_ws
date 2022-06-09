@@ -14,7 +14,7 @@ class DatasetVisualizer(object):
         self.logger = OutputLogger(True, True)
         self.fakeGUI = FakeGUI()
         self.dataset = ImageDataset.ImageDataset(self.logger, self.fakeGUI)
-        self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
+        self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frames", "jpg")
 
 
     def countWithinRange(self, xPos, yPos, radiusInMeters):

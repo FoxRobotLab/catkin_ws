@@ -353,7 +353,7 @@ class CellPredictor2019(object):
         meanFile = "TRAININGDATA_100_500_mean.npy"
         mean = np.load(DATA + "TRAININGDATA_100_500_mean.npy")
 
-        print("Setting up preprocessor to get frame data...")
+        print("Setting up preprocessor to get frames data...")
         dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
         countPerfect = 0

@@ -260,7 +260,7 @@ if __name__ == '__main__':
     matcher = ImageMatcher(logFile = True, logShell = True,
                            dir1 =basePath + imageDirectory,
                            locFile = basePath + locData,
-                           baseName = "frame",
+                           baseName = "frames",
                            ext = "jpg", numMatches=3)
     matcher.makeCollection()
     matcher.makeLocDict()

@@ -27,7 +27,7 @@ class OrganizeData(object):
         self.desFramesPath = desFramesPath
         self.origLocFilePath = origLocFilePath
         self.desLocFilePath = desLocFilePath
-        self.startNewNum = startNewNum  # starting frame number for the merged file in desFramesPath and desLocFile
+        self.startNewNum = startNewNum  # starting frames number for the merged file in desFramesPath and desLocFile
 
         self.outLocFile = open(self.desLocFilePath, 'a')
 
@@ -44,7 +44,7 @@ class OrganizeData(object):
         """Makes a filename for reading or writing image files"""
         formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
         name = formStr.format(self.origFramesPath,
-                              'frame',
+                              'frames',
                               fileNum,
                               "jpg")
         return name
@@ -54,7 +54,7 @@ class OrganizeData(object):
         """Makes a filename for reading or writing image files"""
         formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
         name = formStr.format(self.desFramesPath,
-                              'frame',
+                              'frames',
                               fileNum,
                               "jpg")
         return name

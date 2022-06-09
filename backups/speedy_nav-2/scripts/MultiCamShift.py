@@ -9,7 +9,7 @@ from TargetScanner import *
 class MultiCamShift(threading.Thread):
 
 	def __init__(self, exampleImage):
-		"""Creates the cam shift thread and sets up scanners for all objects listed in 'self.toScanFor'. Needs an example image to get the dimensions of the frame."""
+		"""Creates the cam shift thread and sets up scanners for all objects listed in 'self.toScanFor'. Needs an example image to get the dimensions of the frames."""
 
 		threading.Thread.__init__(self)
 		self.toScanFor = ["indigo", "green", "red", "blue", "violet"]
@@ -100,7 +100,7 @@ class MultiCamShift(threading.Thread):
 
 
 	def getHorzPatterns(self):
-		"""Searches for patterns of three colors placed horizontally. It returns the most likely match with information about the pattern, location in frame, porportion of the screen taken up by the pattern, and the predicted angle of the robot to the pattern"""
+		"""Searches for patterns of three colors placed horizontally. It returns the most likely match with information about the pattern, location in frames, porportion of the screen taken up by the pattern, and the predicted angle of the robot to the pattern"""
 		with self.lock:
 			tracked = self.locationAndArea.copy()
 		colors = tracked.keys()
@@ -216,11 +216,11 @@ class MultiCamShift(threading.Thread):
 
 
 	def getFrameShape(self):
-			"""Returns the the dimmensions and depth of the camera frame"""
+			"""Returns the the dimmensions and depth of the camera frames"""
 			return self.fWidth, self.fHeight, self.fDepth
 
 	def getFrameCenter(self):
-			"""Returns the center coordinates of the camera frame"""
+			"""Returns the center coordinates of the camera frames"""
 			return self.fWidth/2, self.fHeight/2
 
 

@@ -24,7 +24,7 @@ def makeFilename(fileNum):
     """Makes a filename for reading or writing image files"""
     formStr = "{0:s}{1:s}{2:0>4d}.{3:s}"
     name = formStr.format(dir1,
-                          'frame',
+                          'frames',
                           fileNum,
                           "jpg")
     return name
@@ -37,7 +37,7 @@ for lines in duplicates.readlines():
 
 for img in listDir:
     end = len(img) - (len('jpg') + 1)
-    picNum = int(img[len('frame'):end])
+    picNum = int(img[len('frames'):end])
     if picNum not in dupList:
         file = makeFilename(picNum)
         shutil.copy(file,dir2)

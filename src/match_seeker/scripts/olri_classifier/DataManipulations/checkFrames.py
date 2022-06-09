@@ -1,5 +1,5 @@
 """
-Quick program to check if all frame numbers are present
+Quick program to check if all frames numbers are present
 """
 import cv2
 import numpy as np
@@ -7,7 +7,7 @@ import numpy as np
 def makeFilename(path, fileNum):
     """Makes a filename for reading or writing image files"""
     formStr = "{0:s}{1:s}{2:0>4d}.{3:s}" #the {2: 0>4d} garantees that a 0 will be seen as 0000
-    name = formStr.format(path, 'frame', fileNum, "jpg")
+    name = formStr.format(path, 'frames', fileNum, "jpg")
     return name
 
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         fData = [int(lineList[1]), float(lineList[2]), float(lineList[3]), int(lineList[4])]
         frameData[fNum] = fData #Creating a dictionary : {label0:[cell, x, y, head], label1 ...}
     #There are 95810 labels
-        
+
 
 
 # Set up picture to display when there is no such file in the dataset
@@ -78,8 +78,8 @@ if __name__ == "__main__":
         # x = cv2.waitKey(500)
         # c = chr(x & 0xFF)
         index += 1
-       
-    
+
+
     # else:
     #     x = cv2.waitKey(0)
     #     c = chr(x & 0xFF)
@@ -100,6 +100,6 @@ if __name__ == "__main__":
 
 
 
-    
-    
-    
+
+
+

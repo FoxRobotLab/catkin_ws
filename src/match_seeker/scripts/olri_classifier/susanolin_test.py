@@ -64,7 +64,7 @@ def testingOrigData():
     cellOutputCheckpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
     meanFile = "AngelTRAININGDATA_100_500_mean.npy"
     dataPath = pathToMatchSeeker + 'res/classifier2019data/'
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
     print("Loading mean...")
 
@@ -199,7 +199,7 @@ def testingOnCellOutputNetwork(n):
     meanFile = "AngelTRAININGDATA_100_500_mean.npy"
     dataPath = pathToMatchSeeker + 'res/classifier2019data/'
 
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     print("Loading mean...")
@@ -270,7 +270,7 @@ def testingOnHeadingOutputNetwork(n):
     meanFile = "AngelTRAININGDATA_100_500_mean.npy"
     dataPath = pathToMatchSeeker + 'res/classifier2019data/'
 
-    print("Setting up preprocessor to get frame data...")
+    print("Setting up preprocessor to get frames data...")
     dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     print("Loading mean...")

@@ -160,7 +160,7 @@ class MovementHandler(object):
         angle to the wall."""
 
         #wallAngle = self.robot.findAngleToWall() - 90
-        wallAngle = 0        
+        wallAngle = 0
 
         #determines actual orientation given where the robot would face if it was directly
         #looking at the imageMatch (headingToMarker) and the correct angle to the imageMatch
@@ -253,7 +253,7 @@ class MovementHandler(object):
 
 
     def getFrameDims(self, cam):
-        """Returns the the dimmensions and depth of the camera frame"""
+        """Returns the the dimmensions and depth of the camera frames"""
         if cam == "center":
             return self.botWidth, self.botHeight
         else:
@@ -261,7 +261,7 @@ class MovementHandler(object):
 
 
     def getFrameCenter(self, cam):
-        """Returns the center coordinates of the camera frame"""
+        """Returns the center coordinates of the camera frames"""
         if cam == "center":
             return self.botWidth / 2, self.botHeight / 2
         else:

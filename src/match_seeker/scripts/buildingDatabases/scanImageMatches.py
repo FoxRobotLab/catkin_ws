@@ -2,16 +2,16 @@
 """
 shows user the matching images from the dataset. Flags for removal with user permission.
 
- uses the same image matching program as the program to find matching images in the dataset. If you took video, there 
- will be dozens of frames saved at every location, and you just don’t need to have that many images in the database. 
- 
- This program displays two images. If they match, press y to record the number of the matching image in a txt file. 
- Press any other key to advance. 
- 
- NOTE this program assumes that the first image in a series of matching images is the 
- best one, but that is often not the case since the camera image gets very blurry during turning. We found it easiest 
- to have pen and paper nearby either while doing this or just after and recording blurry image numbers while passing over 
- them during deletion. You can then add your list of blurry images to the list of matches compiled by this program and 
+ uses the same image matching program as the program to find matching images in the dataset. If you took video, there
+ will be dozens of frames saved at every location, and you just don’t need to have that many images in the database.
+
+ This program displays two images. If they match, press y to record the number of the matching image in a txt file.
+ Press any other key to advance.
+
+ NOTE this program assumes that the first image in a series of matching images is the
+ best one, but that is often not the case since the camera image gets very blurry during turning. We found it easiest
+ to have pen and paper nearby either while doing this or just after and recording blurry image numbers while passing over
+ them during deletion. You can then add your list of blurry images to the list of matches compiled by this program and
  delete them all at once.
 """
 
@@ -160,7 +160,7 @@ class scanImageMatches(object):
 if __name__ == '__main__':
     scan = scanImageMatches(
                            dir1 = "/home/macalester/turtlebot_videos/atriumClockwiseFrames/",
-                           baseName = "frame",
+                           baseName = "frames",
                            ext = "jpg",
                            startPic = 1550,
                            numPics = 200)

@@ -176,7 +176,7 @@ class RealTimeLocs(object):
 
     def _mouseMainResponse(self, event, x, y, flags, param):
         """A mouse callback function that reads the user's click and responds by updating the robot's heading,
-        or by moving on to the next frame in the video."""
+        or by moving on to the next frames in the video."""
 
         if event == cv2.EVENT_LBUTTONDOWN:
             if (0 <= x < 70) and (0 <= y < 70):
@@ -204,12 +204,12 @@ class RealTimeLocs(object):
                 # click was in "southeast" heading square
                 self.currHeading = 225
             elif (20 <= x < 100) and (350 <= y <= 400):
-                # click was in "Previous" frame
+                # click was in "Previous" frames
                 self.clickNum = self.clickNum - 1
                 self.getValues()
             #elif (62 <= x < 141) and (350 <= y <= 400):
             elif (110 <= x < 190) and (350 <= y <= 400):
-                # click was in "Next" frame
+                # click was in "Next" frames
                 time1 = time.localtime()
                 self.getValues()
                 self.clickNum = self.clickNum + 1
