@@ -88,7 +88,6 @@ class HeadingPredictor(object):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
 
-
         #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
         #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
@@ -135,31 +134,6 @@ class HeadingPredictor(object):
         if self.train_images is None:
             print("No training data loaded yet.")
             return 0
-
-        # if (self.checkpoint_name is None):
-        #     self.model.compile(
-        #         loss=self.loss,
-        #         optimizer=keras.optimizers.SGD(lr=self.learning_rate),
-        #         metrics=["accuracy"]
-        #     )= self.label[
-
-
-
-        #UNCOMMENT FOR OVERLAPPING
-        ####################################################################
-        # timeStepsEach = 400
-        # self.train_images= creatingSequence(self.train_images, 400, 100)
-        # timeSteps = len(self.train_images)
-        # subSequences = int(timeSteps/timeStepsEach)
-        # self.train_images = self.train_images.reshape(subSequences,timeStepsEach, 100, 100, 1)
-        # self.train_labels = getCorrectLabels(self.train_labels, 400, 100)
-
-        #
-        # self.eval_images = creatingSequence(self.eval_images, 400, 100)
-        # timeSteps = len(self.eval_images)
-        # subSequences = int(timeSteps / timeStepsEach)
-        # self.eval_images = self.eval_images.reshape(subSequences,timeStepsEach,100, 100, 1)
-        # self.eval_labels = getCorrectLabels(self.eval_labels, 400, 100)
 
         self.model.fit(
             self.train_images, self.train_labels,
