@@ -45,6 +45,7 @@ class DataPreprocess(object):
         self.cellData = {}
         self.locData = {}
         self.headingData = {}
+        self.cellBorders = self._readCells(basePath + cellMapData)
         self.buildDataDicts()
 
         self.dumbNum = 0
@@ -71,44 +72,31 @@ class DataPreprocess(object):
                 yVal = float(splitList[3])
                 headingNum = int(splitList[4])
                 loc = (xVal, yVal)
-                self.frameData[frameNum] = {}
-                if locBool:
-
-                    self.frameData[frameNum]['loc'] = loc
-
-                if cell:
-                    self.frameData[frameNum]['cell'] = cellNum
-
-                if heading:
-                    self.frameData[frameNum]['heading'] = headingNum
-
-                if frameNum:
-                    self.frameData[frameNum]['frameNum'] = frameNum
-
+                self.frameData[frameNum] = {'loc': loc, 'cell': cellNum, 'heading': headingNum, 'frameNum': frameNum}
 
                 if cellNum not in self.cellData:
-                    self.cellData[cellNum] = [frameNum]
+                    self.cellData[cellNum] = {frameNum}
                 else:
-                    cellList = self.cellData[cellNum]
-                    cellList.append(frameNum)
+                    self.cellData[cellNum].add(frameNum)
+
                 if headingNum not in self.headingData:
-                    self.headingData[headingNum] = [frameNum]
+                    self.headingData[headingNum] = {frameNum}
                 else:
-                    headingList = self.headingData[headingNum]
-                    headingList.append(frameNum)
+                    self.headingData[headingNum].add(frameNum)
 
                 if loc not in self.locData:
-                    self.locData[loc] = [frameNum]
+                    self.locData[loc] = {frameNum}
                 else:
-                    locList = self.locData[loc]
-                    locList.append(frameNum)
+                    self.locData[loc].add(frameNum)
 
-
+        print("locBool loop...")
         if locBool:
             for frame in self.frameData:
                 loc = self.frameData[frame]['loc']
                 cell = self.frameData[frame]['cell']
-                if int(self.convertLocToCell(loc)) != int(cell):
+                calcCell = self.convertLocToCell(loc)
+                if int(calcCell) != int(cell):
+                    print(calcCell, cell)
                     self.frameData[frame]['loc'] = locDict[cell]
 
 
@@ -402,17 +390,14 @@ class DataPreprocess(object):
         return reImage
 
 
-
     def convertLocToCell(self, pose):
         """Takes in a location that has 2 or 3 values and reports the cell, if any, that it is a part
         of."""
         x = pose[0]
         y = pose[1]
 
-        cellBorders = self._readCells(basePath + cellMapData)
-
-        for cell in cellBorders:
-            [x1, y1, x2, y2] = cellBorders[cell]
+        for cell in self.cellBorders:
+            [x1, y1, x2, y2] = self.cellBorders[cell]
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
 
@@ -439,14 +424,17 @@ def main():
     Main program. Creates the preprocessor, from that generates the dataset, and then saves it to a file.
     :return: Nothing
     """
-    preProc = DataPreprocess(imageDir=DATA + "frames/moreframes/",
-                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+    print("DataPreprocess loading")
+    preProc = DataPreprocess(imageDir=DATA + "moreframes/",
+                             dataFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
                              imagesPerCell=100)
-    print("Preproc build")
+
+    print("Done loading")
+
     # preProc.generateTrainingData()
     # preProc.saveDataset(DATA + "regressionTestSet")
-    print("Processing frame")
-    preProc.processFrame(4954, True)
+    # print("Processing frame")
+    # preProc.processFrame(4954, True)
 
 if __name__ == "__main__":
     main()

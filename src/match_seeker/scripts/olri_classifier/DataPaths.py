@@ -41,4 +41,4 @@ elif turtleBase == "kobuki":
 graphMapData = "res/map/cellGraph.txt"
 mapLineData = "res/map/olinNewMap.txt"
 cellMapData = "res/map/mapToCells.txt"
-DATA = basePath + "res/"
+
