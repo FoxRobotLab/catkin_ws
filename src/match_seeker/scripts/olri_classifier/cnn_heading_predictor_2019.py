@@ -257,9 +257,9 @@ class HeadingPredictor(object):
         meaned = np.subtract(grayed, mean)
         return shrunkenIm, grayed, meaned
 
-    def cleanImageRandomResize(self, image, mean=None, imageSize=100):
-        """Alternative preprocessing function that crops the input image to a 100x100 image starting
-        at a random x and y position. """
+    def cleanImageRandomCrop(self, image, mean=None, imageSize=100):
+        """Alternative preprocessing function to cleanImage that crops the input image to a 100x100 image starting
+        at a random x and y position. Resulted in very bad performance, we might not use anymore."""
         image = cv2.resize(image, (170, 128))
         x = random.randrange(0, 70)
         y = random.randrange(0, 28)
@@ -301,7 +301,7 @@ class HeadingPredictor(object):
                 headingB)  # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
 
             if randomCrop:
-                smallerB, grayB, processedB = self.cleanImageRandomResize(imageB, mean)
+                smallerB, grayB, processedB = self.cleanImageRandomCrop(imageB, mean)
             else:
                 smallerB, grayB, processedB = self.cleanImage(imageB, mean)
 
@@ -513,31 +513,9 @@ if __name__ == "__main__":
     # headingPredictor.train()
 
     print("Tests for Heading Predictor")
-    headingPredictor.test(1000)
+    # print("Randomly Cropped Images")
+    # headingPredictor.test(1000, randomCrop=True)
 
-    # how the classifier was set up in original updated 2019 test file
-    # olin_classifier = OlinClassifier(checkpoint_dir=checkPts,
-    #                                  savedCheckpoint=checkPts + cellOutputCheckpoint,
-    #                                  cellInput=True,
-    #                                  outputSize=9,
-    #                                  image_size=100,
-    #                                  image_depth=2)
+    print("Original Test Call")
+    headingPredictor.test(1000, randomCrop=False)
 
-
-    # print(len(olin_classifier.train_images))
-    #olin_classifier.train()
-    # olin_classifier.getAccuracy()
-    #ORIG count = 0
-    # ORIG for i in range(1000):
-    #     num = random.randint(0,95000)
-    #     thing, cell = olin_classifier.runSingleImage(num)
-    #     count += (np.argmax(thing)==cell)
-    # print(count)
-
-
-    # model = olin_classifier.threeConv()
-    #olin_classifier.train()
-
-    # self.cell_model = keras.models.load_model(
-    #     "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/CHECKPOINTS/cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-    #     compile=True)
