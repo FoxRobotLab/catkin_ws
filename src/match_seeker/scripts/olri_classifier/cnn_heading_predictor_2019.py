@@ -257,7 +257,18 @@ class HeadingPredictor(object):
         meaned = np.subtract(grayed, mean)
         return shrunkenIm, grayed, meaned
 
-    def test(self, n):
+    def cleanImageRandomResize(self, image, mean=None, imageSize=100):
+        """Alternative preprocessing function that crops the input image to a 100x100 image starting
+        at a random x and y position. """
+        image = cv2.resize(image, (170, 128))
+        x = random.randrange(0, 70)
+        y = random.randrange(0, 28)
+        cropped_image = image[y:y + imageSize, x:x + imageSize]
+        grayed = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+        meaned = np.subtract(grayed, mean)
+        return cropped_image, grayed, meaned
+
+    def test(self, n, randomCrop = False):
         """This runs each of the first n images in the folder of frames through the heading-output network, reporting how often the correct
         heading was produced, and how often the correct heading was in the top 3 and top 5."""
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -288,7 +299,11 @@ class HeadingPredictor(object):
             headingB = dPreproc.frameData[rand]['heading']
             headingIndex = potentialHeadings.index(
                 headingB)  # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
-            smallerB, grayB, processedB = self.cleanImage(imageB, mean)
+
+            if randomCrop:
+                smallerB, grayB, processedB = self.cleanImageRandomResize(imageB, mean)
+            else:
+                smallerB, grayB, processedB = self.cleanImage(imageB, mean)
 
             cellBArr = cellB * np.ones((100, 100, 1))
             procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), cellBArr), axis=-1)
