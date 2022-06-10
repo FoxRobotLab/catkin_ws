@@ -56,7 +56,7 @@ def testingOnHeadingOutputNetwork(n):
             continue
 
         smallerB, grayB, processedB = cleanImage(imageB, mean)
-        processedB = np.expand_dims(grayB, 2)
+        #processedB = np.expand_dims(grayB, 2)
         predB, output = olin_classifier.predictSingleImageAllData(processedB)
         topThreePercs, topThreeCells = findTopX(3, output)
         topFivePercs, topFiveCells = findTopX(5, output)
@@ -109,7 +109,7 @@ def testingOnCellOutputNetwork(n):
             print(" image not found")
             continue
         smallerB, grayB, processedB = cleanImage(imageB, mean)
-        processedB = np.expand_dims(grayB, 2)
+        #processedB = np.expand_dims(grayB, 2)
         predB, output = olin_classifier.predictSingleImageAllData(processedB)
         topThreePercs, topThreeCells = findTopX(3, output)
         topFivePercs, topFiveCells = findTopX(5, output)
