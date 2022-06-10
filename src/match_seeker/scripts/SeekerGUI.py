@@ -3,7 +3,7 @@ SeekerGUI.py
 
 This is a user interface that displays the information instead of the terminal.
 
-All the methods start with setUp is the frame setup and all the methods
+All the methods start with setUp is the frames setup and all the methods
 start with update can update the information on display.
 
 """
@@ -259,7 +259,7 @@ class SeekerGUI():
             self.turnInfo.append(var)
 
     def setUpHeadFrame(self):
-        # Heading frame
+        # Heading frames
         headFrame = tk.Frame(self.mainWin, bg="gray22", bd=2, relief=tk.GROOVE)
         headFrame.grid(row = 0, column = 0, columnspan=4)
         modeLab = tk.Label(headFrame, bg="gray22", text="Mode:", font="DroidSans 24", width=8, height = 1)
@@ -273,7 +273,7 @@ class SeekerGUI():
 
 
     def setUpLocFrame(self):
-        #Locations frame
+        #Locations frames
         locationsFrame = tk.Frame(self.mainWin, bg="gray22", bd=2, relief=tk.GROOVE)
         locationsFrame.grid(row = 1, column = 0)
 
@@ -365,7 +365,7 @@ class SeekerGUI():
 
 
     def setUpMessages(self):
-        # Messages frame
+        # Messages frames
         messageFrame = tk.Frame(self.mainWin, bg="light goldenrod", bd = 2, relief=tk.GROOVE, width = 480, height = 160)
         messageFrame.grid(row = 2, column = 0)
         # messageFrame.grid_propagate(0)
@@ -384,7 +384,7 @@ class SeekerGUI():
 
 
     def setUpturnInfo(self):
-        # Coordinate check frame
+        # Coordinate check frames
         turnCheckFrame = tk.Frame(self.mainWin, bg="pink", bd=2, relief=tk.GROOVE)
         turnCheckFrame.grid(row = 2, column = 1)
         coordCheck= tk.Label(turnCheckFrame, bg="pale violet red", text="Turn Info", font="DroidSans 22 bold", width=25)
@@ -414,7 +414,7 @@ class SeekerGUI():
 
 
     def setUpImgMatch(self):
-        # Image matching frame
+        # Image matching frames
         imageMatchFrame = tk.Frame(self.mainWin, bg="plum1", bd=2, relief=tk.GROOVE)
         imageMatchFrame.grid(row = 1, column = 1)
         imageMatchInfo = tk.Label(imageMatchFrame, bg="plum3", text="Image Matching Info", font="DroidSans 22 bold", width=25)

@@ -15,7 +15,7 @@ For identifying (blur or duplicate) images that need to be deleted.
 - By looking at those images (mainly DIFF for duplicate and current for blur), user decides whether or not the current
 image should be deleted.
 - Has "undo" functionality that lets the user to go backward by one image
-- More graceful handling of missing images (discrete image (or frame) numbers that might have been due to manual
+- More graceful handling of missing images (discrete image (or frames) numbers that might have been due to manual
 deletion of some images) compared to scanImageMatches.py
 - Make sure to cut images by 10000 if there are more than that. This is to prevent the image *jumping* from 1000 to
 10000 (then 10009 to 1001 and etc.) because the minimum number of digits when saving frames is 4
@@ -204,7 +204,7 @@ class CullPicturesTimeStamp(object):
     def makeFilename(self, fileNum):
         """Makes a filename for reading or writing image files (from organizePics.py)"""
         formStr = "{0:s}{1:0>4d}.{2:s}"
-        name = formStr.format('frame',
+        name = formStr.format('frames',
                               fileNum,
                               "jpg")
         return name

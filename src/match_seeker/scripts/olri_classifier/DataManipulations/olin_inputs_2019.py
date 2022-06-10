@@ -43,7 +43,7 @@ def getCellCounts():
     return cell_counts, cell_frame_dict
 
 def getFrameCellDict():
-    # Returns dict with cell corresponding to each frame
+    # Returns dict with cell corresponding to each frames
     frame_cell_dict = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -224,11 +224,11 @@ def add_cell_channel(allLabels = None, randStart= None, cellInput = None, headin
         allLabels, randStart = getLabels()
 
     def processFrame(frame):
-        print("Processing frame " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
-        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
+        print("Processing frames " + str(frameNum) + " / " + str(len(allLabels)) + "     (Frame number: " + frame + ")")
+        image = cv2.imread(DATA +'frames/moreframes/frames' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
-        # training_data.append([image, getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8)])
+        # training_data.append([image, getOneHotLabel(int(frame_heading_dict[frames]) // 45, 8)])
 
         return image
 

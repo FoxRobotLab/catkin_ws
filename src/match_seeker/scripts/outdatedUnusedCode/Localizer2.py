@@ -34,7 +34,7 @@ class Localizer(object):
         self.navType = "Images"
 
         # self.dataset = ImageDataset2.ImageDataset(logger, None, numMatches = 3)
-        # self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frame", "jpg")
+        # self.dataset.setupData(basePath + imageDirectory, basePath + locData, "frames", "jpg")
         #
         # self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
         # self.mcl.initializeParticles(250)

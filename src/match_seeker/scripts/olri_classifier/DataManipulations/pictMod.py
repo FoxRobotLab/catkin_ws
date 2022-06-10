@@ -1,7 +1,7 @@
 from src.match_seeker.scripts.olri_classifier.paths import DATA
 import cv2
 
-imagePath = DATA + 'frames/moreframes/frame'
+imagePath = DATA + 'frames/moreframes/frames'
 
 for i in range(20603,28462, 1):
     img = cv2.imread(imagePath + str(i)+ '.jpg')

@@ -5,7 +5,7 @@ File: deleteFrames.py
 Authors: Jane Pellegrini, Jinyoung Lim
 Date: May 2018
 
-Simply goes through a text file that is created by cullPictures and has names of frames to be removed line by line to 
+Simply goes through a text file that is created by cullPictures and has names of frames to be removed line by line to
 delete them without much pain in the wrists.
 ------------------------------------------------------------------------------------------------------------------"""
 
@@ -20,7 +20,7 @@ class DeleteFrames(object):
         while True:
             line = file.readline()
             line = line.rstrip()
-            if (line.startswith("f")):  # Hard coding of determining if the line's name is "frame<frameNum>"
+            if (line.startswith("f")):  # Hard coding of determining if the line's name is "frames<frameNum>"
                 self.toBeDeleted.add(line)
             if not line: break
 

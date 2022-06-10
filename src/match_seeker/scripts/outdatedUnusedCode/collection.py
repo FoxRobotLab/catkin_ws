@@ -14,7 +14,7 @@ import cv2
 
 
 currDirectory = basePath + "res/refinedFeb2017Data/"
-baseName = "frame"
+baseName = "frames"
 extension = "jpg"
 
 

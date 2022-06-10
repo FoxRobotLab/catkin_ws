@@ -6,8 +6,6 @@ import time
 import cv2
 
 
-
-
 class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_frames, labels, batch_size=20, dim=(100,100), n_channels=1, n_classes=8, shuffle=True,
                  img_size = 100, meanFile="lstm_mean_122k.npy"):
@@ -23,7 +21,7 @@ class DataGenerator(keras.utils.Sequence):
 
         self.shuffle = shuffle
         self.img_size = img_size
-        self.image_path = DATA + 'frames/moreframes/frame'
+        self.image_path = DATA + 'frames/moreframes/frames'
         self.on_epoch_end()
 
 

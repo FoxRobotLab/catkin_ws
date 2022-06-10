@@ -37,7 +37,7 @@ def getCellCounts():
     return cell_counts, cell_frame_dict
 
 def getFrameCellDict():
-    # Returns dict with cell corresponding to each frame
+    # Returns dict with cell corresponding to each frames
     frame_cell_dict = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -131,11 +131,11 @@ def cullOverRepped():
             cell_counts[cell] -= 1
 
     print(len(overreppedFrames))
-    # for frame in remove:
+    # for frames in remove:
     #     try:
-    #         overreppedFrames.remove(frame)
+    #         overreppedFrames.remove(frames)
     #     except ValueError:
-    #         print(frame)
+    #         print(frames)
 
     np.save('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/newdata_overreppedFrames95k.npy',overreppedFrames)
     return overreppedFrames
@@ -204,14 +204,14 @@ def add_cell_channel(overRepped=None, underRepped=None):
 
 
     def processFrame(frame):
-        print("Processing frame " + str(frameNum) + " / " + str(
+        print("Processing frames " + str(frameNum) + " / " + str(
             len(overRepped) + len(underRepped)) + "     (Frame number: " + frame + ")")
-        print("frame",frame)
-        image = cv2.imread('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/moreframes/frame' + frame + '.jpg')
+        print("frames",frame)
+        image = cv2.imread('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/frames/moreframes/frames' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
 
-        # training_data.append([image, getOneHotLabel(int(frame_cell_dict[frame]), numCells)])
+        # training_data.append([image, getOneHotLabel(int(frame_cell_dict[frames]), numCells)])
 
         training_data.append([image, getOneHotLabel(int(frame_heading_dict[frame]) // 45, 8)])
 
@@ -224,23 +224,23 @@ def add_cell_channel(overRepped=None, underRepped=None):
         frameNum += 1
 
     # if underRepped is not None:
-    #     for frame in underRepped:
-    #         processFrame(frame)
+    #     for frames in underRepped:
+    #         processFrame(frames)
     #         frameNum += 1
     # else:
     #     underRepped = addUnderRepped()
-    #     for frame in underRepped:
-    #         processFrame(frame)
+    #     for frames in underRepped:
+    #         processFrame(frames)
     #         frameNum += 1
 
     # if overRepped is not None:
-    #     for frame in overRepped:
-    #         processFrame(frame)
+    #     for frames in overRepped:
+    #         processFrame(frames)
     #         frameNum += 1
     # else:
     #     overRepped = cullOverRepped()
-    #     for frame in overRepped:
-    #         processFrame(frame)
+    #     for frames in overRepped:
+    #         processFrame(frames)
     #         frameNum += 1
 
     mean = calculate_mean(allImages)
@@ -263,7 +263,7 @@ def add_cell_channel(overRepped=None, underRepped=None):
         cell_arr = cell*np.ones((image.shape[0], image.shape[1], 1))
         training_data[i][0] = np.concatenate((np.expand_dims(image, axis=-1), cell_arr), axis=-1)
 
-        # heading = (int(frame_heading_dict[frame])) // 45
+        # heading = (int(frame_heading_dict[frames])) // 45
         # heading_arr = heading*np.ones((image.shape[0], image.shape[1], 1))
         # training_data[i][0] = np.concatenate((np.expand_dims(image,axis=-1),heading_arr),axis=-1)
 
@@ -332,10 +332,10 @@ def getTrainingData(overRepped=None,underRepped=None):
     allImages = []
 
     def processFrame(frame):
-        print("Processing frame " + str(frameNum) + " / " + str(len(overRepped) + len(underRepped))+ "     (Frame number: " + frame + ")")
+        print("Processing frames " + str(frameNum) + " / " + str(len(overRepped) + len(underRepped))+ "     (Frame number: " + frame + ")")
 
 
-        image = cv2.imread('frames/moreframes/frame' + frame + '.jpg')
+        image = cv2.imread('frames/moreframes/frames' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
 

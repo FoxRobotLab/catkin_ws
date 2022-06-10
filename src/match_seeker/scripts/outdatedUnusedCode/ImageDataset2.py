@@ -259,5 +259,5 @@ class ImageDataset(object):
 # if __name__ == '__main__':
 #     # Demo code
 #     matcher = ImageDataset(None, None, 3)
-#     matcher.setupData(basePath + ImageDirectory, locData, "frame", "jpg")
+#     matcher.setupData(basePath + ImageDirectory, locData, "frames", "jpg")
 

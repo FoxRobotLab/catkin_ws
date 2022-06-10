@@ -2,7 +2,7 @@
 buildDatabase.py
 Author: Jinyoung Lim
 Date: June 2018
-Visit each frame in the data directory and classify into different classes. Make a database directory that has label
+Visit each frames in the data directory and classify into different classes. Make a database directory that has label
 incorporated into each filename.
 """
 
@@ -103,8 +103,8 @@ def main():
         class_dict=CLASS_DICT,
         outputpath=""
     )
-    # for frame in os.listdir("/home/macalester/PycharmProjects/tf_floortype_classifier/allfloorframes"):
-    #     oldname = frame
+    # for frames in os.listdir("/home/macalester/PycharmProjects/tf_floortype_classifier/allfloorframes"):
+    #     oldname = frames
     #     ext = ".jpg"
     #     framename = oldname.rstrip(" (1).jpg")
     #     print(framename)
@@ -112,7 +112,7 @@ def main():
     #     newname = framename+ext
     #
     #     os.rename(
-    #         os.path.join("/home/macalester/PycharmProjects/tf_floortype_classifier/allfloorframes/", frame),
+    #         os.path.join("/home/macalester/PycharmProjects/tf_floortype_classifier/allfloorframes/", frames),
     #         os.path.join("/home/macalester/PycharmProjects/tf_floortype_classifier/allfloorframes/", newname)
     #     )
 

@@ -118,7 +118,7 @@ class StraightToFrames(object):
         """This function is a helper function for the writeData() function. It gives writeData() the next file name."""
 
 
-        fTempl = "frame{0:04d}.jpg"
+        fTempl = "frames{0:04d}.jpg"
         fileName = fTempl.format(num)
         return fileName
 

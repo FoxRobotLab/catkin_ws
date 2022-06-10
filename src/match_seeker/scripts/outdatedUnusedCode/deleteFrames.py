@@ -27,7 +27,7 @@ class scanForDeletes(object):
 
     def __init__(self,
                  direct=None,
-                 baseName='frame', ext="jpg",
+                 baseName='frames', ext="jpg",
                  resultFile = "picsToDelete.txt",
                  startPic=0, numPics=-1):
         self.currDirectory = direct
@@ -104,7 +104,7 @@ class scanForDeletes(object):
 if __name__ == '__main__':
     delScanner = scanForDeletes(
         direct="/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/res/May2417/",
-        baseName="frame",
+        baseName="frames",
         ext="jpg",
         resultFile="testingDelList.txt",
         startPic=0,

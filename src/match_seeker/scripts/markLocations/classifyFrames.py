@@ -47,7 +47,7 @@ import numpy as np
 class ClassifyFrames(object):
     def __init__(self, imageFolder):
         """Set up data to be held, including displayed and stored maps, current labeling location
-        and heading, and dictionary mapping frame numbers to locations and headings."""
+        and heading, and dictionary mapping frames numbers to locations and headings."""
         self.categories = ['Space Type', 'Orientation', 'Side Walls', 'Facing', 'Floor Type']
         self.envMapToStr = {'Space Type': {0: 'in room', 1: 'hallway', 2: 'open space'},
                             'Orientation': {0: 'none', 1: 'straight', 2: 'angled left', 3: 'angled right',
@@ -208,7 +208,7 @@ class ClassifyFrames(object):
 
 
     def _getNextImage(self, index, freshVisit):
-        """Gets the next frame from the camera or from reading the next file"""
+        """Gets the next frames from the camera or from reading the next file"""
         filename = self.imgFileList[index]
         thisNum = self._extractNum(filename)
         if freshVisit:

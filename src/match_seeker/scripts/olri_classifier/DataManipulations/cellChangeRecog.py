@@ -25,7 +25,7 @@ def getChange():
     return change
 
 def notNeigh(changeCell, olinMap):
-#Looks at the change in cell number and compares if the cells were neighbors. If they are not the frame number of the new cell is appended to an array called notANeigh.NOTE: because of how the matrix (olinMap) was created, the row always has to be greater than the column.
+#Looks at the change in cell number and compares if the cells were neighbors. If they are not the frames number of the new cell is appended to an array called notANeigh.NOTE: because of how the matrix (olinMap) was created, the row always has to be greater than the column.
     notANeigh = []
     for i in changeCell:
         if i[0] > i[1]:

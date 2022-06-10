@@ -55,9 +55,9 @@ class DataPreprocess(object):
     def buildDataDicts(self, locBool=True, cell=True, heading=True):
         """
         Reads in the data in the self.dataFile file, and fills in various dictionaries.
-        self.frameData uses the frame number as the key and contains a dictionary with keys 'cell', 'heading', 'loc'
-        self.cellData uses the cell number as the key, and the frame number as the value
-        self.headingData uses the heading number as the key, and the frame number as the value
+        self.frameData uses the frames number as the key and contains a dictionary with keys 'cell', 'heading', 'loc'
+        self.cellData uses the cell number as the key, and the frames number as the value
+        self.headingData uses the heading number as the key, and the frames number as the value
         :return: nothing
         """
         locDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83),
@@ -111,7 +111,7 @@ class DataPreprocess(object):
             print("Must read in data first")
             return
 
-        # Create lists of frame numbers so that there are the right number frames per cell
+        # Create lists of frames numbers so that there are the right number frames per cell
         self.splitCellsByThreshold()
         enoughFrames = self.selectEnoughFrames()
         shortFrames, extraFrames = self.createMoreFrames()
@@ -119,18 +119,18 @@ class DataPreprocess(object):
         totalLen = len(enoughFrames) + len(shortFrames) + len(extraFrames)
         frameCount = 0
         for frame in (enoughFrames + shortFrames):
-            print("Processing frame ", frameCount, "of", totalLen, "     (Frame number: ", frame,  ")")
+            print("Processing frames ", frameCount, "of", totalLen, "     (Frame number: ", frame,  ")")
             frameCount += 1
             self.processFrame(frame)
 
 
         for frame in extraFrames:
-            print("Processing frame ", frameCount, "of", totalLen, "     (Frame number: ", frame, ")")
+            print("Processing frames ", frameCount, "of", totalLen, "     (Frame number: ", frame, ")")
             frameCount += 1
             image = self.processFrame(frame, doRandErase=True)
 
-            # training_data.append([np.array(image), self.makeOneHotList(int(frame_cell_dict[frame]), numCells),
-            #                       self.makeOneHotList(int(frame_heading_dict[frame]) // 45, 8)])
+            # training_data.append([np.array(image), self.makeOneHotList(int(frame_cell_dict[frames]), numCells),
+            #                       self.makeOneHotList(int(frame_heading_dict[frames]) // 45, 8)])
 
 
         self.dataMean = self.calculateMean(self.allImages)
@@ -141,11 +141,11 @@ class DataPreprocess(object):
 
     def processFrame(self, frameNum, doRandErase=False):
         """
-        Given an image frame number, this does the actual preprocessing. It (1) resizes the image to be square,
+        Given an image frames number, this does the actual preprocessing. It (1) resizes the image to be square,
         with the dimensions stored in this object, (2) converts the image to grayscale, and if doRandErase is True
         then it also performs a random erase on a rectangle of the image. It also builds one-hot arrays for
         both cell and heading, and then adds all the relevant data to the instance variable lists
-        :param frameNum: The number of the frame to be read in
+        :param frameNum: The number of the frames to be read in
         :param doRandErase: Boolean, if True then an extra preprocessing step is performed: randErase
         :return: nothing
         """
@@ -227,7 +227,7 @@ class DataPreprocess(object):
             fListLens = [len(l) for l in frameLists]
             listInd = 0
 
-            # loops through each heading index, and randomly selects a frame from that heading list, skipping []
+            # loops through each heading index, and randomly selects a frames from that heading list, skipping []
             while len(framesForCell) < self.imagesPerCell:
                 if len(frameLists[listInd]) > 0:
                     pickedFrame = random.choice(frameLists[listInd])
@@ -265,7 +265,7 @@ class DataPreprocess(object):
             frameLists = list(framesEachHeading.values())
             fListLens = [len(l) for l in frameLists]
 
-            # loops through each heading index, and randomly selects a frame from that heading list, skipping []
+            # loops through each heading index, and randomly selects a frames from that heading list, skipping []
             while len(oldFramesForCell) + len(newFramesForCell) < self.imagesPerCell:
                 minInd = np.argmin(fListLens)
                 if len(frameLists[minInd]) > 0:
@@ -332,8 +332,8 @@ class DataPreprocess(object):
 
     def readImage(self, frameNum):
         """
-        Takes in a frame number, and reads in and returns the image with that frame number.
-        :param frameNum: The number of the frame
+        Takes in a frames number, and reads in and returns the image with that frames number.
+        :param frameNum: The number of the frames
         :return: Returns an image array (or None if no image with that number)
         """
         fName = makeFilename(self.imageDir, frameNum)
@@ -433,7 +433,7 @@ def main():
 
     # preProc.generateTrainingData()
     # preProc.saveDataset(DATA + "regressionTestSet")
-    # print("Processing frame")
+    # print("Processing frames")
     # preProc.processFrame(4954, True)
 
 if __name__ == "__main__":

@@ -5,12 +5,12 @@ from src.match_seeker.scripts.olri_classifier.paths import DATA
 from collections import OrderedDict
 
 """
-lstm_data_prep.py 
-Editor/Author: Analeidi 
+lstm_data_prep.py
+Editor/Author: Analeidi
 Creation Date: July 2019
 
-Much of this file is a modification of the file olin_inputs_2019.py. However, the modifications were made so that the image, 
-cell, and heading data would be organized by cell order and be themselves in consecutive order within each cell. 
+Much of this file is a modification of the file olin_inputs_2019.py. However, the modifications were made so that the image,
+cell, and heading data would be organized by cell order and be themselves in consecutive order within each cell.
 """
 
 
@@ -53,7 +53,7 @@ def getUnderOverRep(cell_counts):
     return underRep, overRep
 
 def getFrameCellDict():
-    # Returns dict of frame as key and cell as value
+    # Returns dict of frames as key and cell as value
     frame_cell_dict = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -153,7 +153,7 @@ def addUnderRepped(cell_counts, cell_frame_dict, cell_heading_counts):
     return cell_frame_dict, rndUnderRepSubset
 
 def resizeAndCrop(image):
-    #Processing the frame into an image that is of 'image_size' and
+    #Processing the frames into an image that is of 'image_size' and
     if image is None:
         print("No Image")
     else:
@@ -167,7 +167,7 @@ def getOneHotLabel(number,size):
     return onehot
 
 def getFrameHeadingDict():
-    #Dictionary of frame as key and heading as value
+    #Dictionary of frames as key and heading as value
     fhd = {}
     with open(master_cell_loc_frame_id,'r') as masterlist:
         lines = masterlist.readlines()
@@ -237,13 +237,13 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
     frame_cell_dict = getFrameCellDict()
 
     def processFrame(frame):
-        print( "Processing frame " + str(frameNum) + " / " + str(len(cell_frame_dict) * images_per_cell) + "     (Frame number: " + frame + ")")
-        image = cv2.imread(DATA +'frames/moreframes/frame' + frame + '.jpg')
+        print( "Processing frames " + str(frameNum) + " / " + str(len(cell_frame_dict) * images_per_cell) + "     (Frame number: " + frame + ")")
+        image = cv2.imread(DATA +'frames/moreframes/frames' + frame + '.jpg')
         image = resizeAndCrop(image)
         allImages.append(image)
         return image
 
-    #Processing the frames into numpy images. One that is just getting the images according to the frame and the other
+    #Processing the frames into numpy images. One that is just getting the images according to the frames and the other
     #That is getting the image plus a grey rectangle
     frameNum = 1
     for cell in cell_frame_dict.keys():
@@ -264,7 +264,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
             whichFrame += 1
             frameNum += 1
 
-    #Merging the dictionaries so cell_frame_dict with rndUnderRepSubset, which only contain cell: ["frame", ...] format and
+    #Merging the dictionaries so cell_frame_dict with rndUnderRepSubset, which only contain cell: ["frames", ...] format and
     #notNewImages with newImages, which contain cell: [image, ...] format
 
     for key in rndUnderRepSubset.keys(): #DATA in rndUnderRepSubset ----> cell_frame_dict
@@ -275,8 +275,8 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
         for imgs in newImages[key]:
             notNewImages[key].append(imgs)
 
-    #Creating a tuple of frame with its corresponding image within each cell, so {cell: [("frame", image), ...]}
-    #And sorting it according to the frame number
+    #Creating a tuple of frames with its corresponding image within each cell, so {cell: [("frames", image), ...]}
+    #And sorting it according to the frames number
 
     for key in cell_frame_dict.keys(): #DATA in notNewImages ----> cell_frame_dict
         whichFrame = 0
@@ -316,13 +316,13 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
     #TOGETHER
     # whichImage = 0
     # for cell in cell_frame_dict.keys():
-    #     frame = cell_frame_dict[cell][0]
+    #     frames = cell_frame_dict[cell][0]
     #     if headInput == True:
-    #         head = int(frame_heading_dict[frame])
+    #         head = int(frame_heading_dict[frames])
     #         head_arr = head * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
     #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), head_arr), axis=-1)
     #     if cellInput == True:
-    #         cell = int(frame_cell_dict[frame])
+    #         cell = int(frame_cell_dict[frames])
     #         cell_arr = cell * np.ones((train_IMG[whichImage].shape[0], train_IMG[whichImage].shape[1], 1))
     #         train_IMG[whichImage] = np.concatenate((np.expand_dims(train_IMG[whichImage], axis=-1), cell_arr), axis=-1)
     #     whichImage +=1
@@ -342,7 +342,7 @@ def add_cell_channel(cell_frame_dict = None, rndUnderRepSubset = None , cellOutp
 if __name__ == '__main__':
 
     """This creates a dictionary where cells are keys and array of frames are values. Each cell is made to have the same
-    number of frames. There is an additional dictionary created for the frames that have to be reused in order for the 
+    number of frames. There is an additional dictionary created for the frames that have to be reused in order for the
     cell to reach the specified number of frames"""
 
     # cell_counts, cell_frame_dict = getCellCounts()
