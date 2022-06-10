@@ -15,24 +15,25 @@ import tensorflow as tf
 from tensorflow import keras
 import cv2
 import time
-from paths import DATA
+from paths import DATA, checkPts
 from imageFileUtils import makeFilename, extractNum
+from DataGenerator2022 import DataGenerator2022
 import random
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 from preprocessData import DataPreprocess
 
-
+# print(tf.__version__)
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictor2019(object):
-    def __init__(self, checkPts, eval_ratio=11.0/61.0, loaded_checkpoint=None, imagesFolder=None, labelMapFile=None, outputSize=271,
-                 image_size=100, image_depth=2, data_name=None, dataSize = 0, testData=DATA):
+    def __init__(self, checkPts = checkPts, eval_ratio=11.0/61.0, loaded_checkpoint=None, imagesFolder=None, labelMapFile=None,
+                 outputSize=271, image_size=100, image_depth=3, data_name=None, dataSize = 0, testData=DATA):
         ### Set up paths and basic model hyperparameters
         # TODO: We need to add a comment here that describes exactly what each of these inputs means!!
 
-        self.checkpoint_dir = checkPts+"olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.checkpoint_dir = checkPts+"2022CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -45,14 +46,13 @@ class CellPredictor2019(object):
         self.eval_labels = None
         self.data_name = data_name
         self.dataSize = dataSize
-        self.loss = keras.losses.categorical_crossentropy
+
         self.testData = testData
         self.loaded_checkpoint = loaded_checkpoint
         self.mean_image = self.testData + "TRAININGDATA_100_500_mean.npy"
         self.frameIDtext = self.testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.frames = imagesFolder
-        print(labelMapFile)
-        self.labelMap = DataPreprocess(imageDir=self.frames, dataFile=labelMapFile)  # Susan added this
+        #self.labelMap = DataPreprocess(imageDir=self.frames, dataFile=labelMapFile)  # Susan added this
 
         if loaded_checkpoint:
             self.loaded_checkpoint = checkPts + loaded_checkpoint
@@ -62,8 +62,8 @@ class CellPredictor2019(object):
             self.model = self.cnn_headings()  # CNN
 
         self.model.compile(
-            loss=self.loss,
-            optimizer=keras.optimizers.SGD(learning_rate=self.learning_rate),
+            loss= keras.losses.sparse_categorical_crossentropy,
+            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
 
 
@@ -145,6 +145,31 @@ class CellPredictor2019(object):
                 keras.callbacks.TerminateOnNaN()
             ]
         )
+
+
+    def train_withGenerator(self, training_generator, validation_generator ):
+        self.model.fit_generator(generator=training_generator,
+                            validation_data=validation_generator,
+                            use_multiprocessing=True,
+                            workers=6,
+                            #steps_per_epoch = 6100, #Sample data ---> 6
+                            callbacks=[
+                                keras.callbacks.History(),
+                                keras.callbacks.ModelCheckpoint(
+                                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                                    period=1  # save every n epoch
+                                ),
+                                keras.callbacks.TensorBoard(
+                                    log_dir=self.checkpoint_dir,
+                                    batch_size=1,
+                                    write_images=False,
+                                    write_grads=True
+                                ),
+                                keras.callbacks.TerminateOnNaN()
+                ],
+                            epochs= 20)
+
+
 
 
     def cnn_headings(self):
@@ -323,21 +348,27 @@ class CellPredictor2019(object):
 
 
 if __name__ == "__main__":
-    # check_data()
+    #check_data()
     cellPredictor = CellPredictor2019(
         # for setting up for building and training model
-        eval_ratio = 0.2,
-        checkPts = DATA + "CHECKPOINTS",    # TODO: check this not sure about it
-        imagesFolder = DATA + "frames/moreFrames/",
-        labelMapFile = DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint=False,
-        dataSize=95810
+        # eval_ratio = 0.2,
+        # checkPts = DATA + "CHECKPOINTS",    # TODO: check this not sure about it
+        # imagesFolder = DATA + "frames/moreFrames/",
+        # labelMapFile = DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+        # loaded_checkpoint=False,
+        # dataSize=95810
         # data_name = "testCellPredictor"
+        data_name="FullData"
     )
-    print("Classifier built")
-    cellPredictor.prepDatasets()
+    # print("Classifier built")
+    # cellPredictor.prepDatasets()
     # print("Data loaded")
     # cellPredictor.train()
 
     # print("Tests the cell predictor")
     # cellPredictor.test(1000, randomChoose = False, randomCrop = True)
+
+    training_generator = DataGenerator2022()
+    validation_generator = DataGenerator2022(train = False)
+
+    cellPredictor.train_withGenerator(training_generator,validation_generator)
