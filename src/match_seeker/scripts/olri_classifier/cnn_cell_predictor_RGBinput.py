@@ -11,29 +11,31 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 
 import os
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras
 import cv2
 import time
-from paths import DATA,frames, checkPts
-from imageFileUtils import makeFilename
+from paths import DATA
+from imageFileUtils import makeFilename, extractNum
 import random
-from src.match_seeker.scripts.olri_classifier.preprocessData import DataPreprocess
 from sklearn.model_selection import train_test_split
+from preprocessData import DataPreprocess
+
+
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictor2019(object):
-    def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 271,
-                 image_size=100, image_depth=2, data_name = None, testData = DATA, testFrames = frames, checkPtsDirectory = checkPts):
+    def __init__(self, checkPts, eval_ratio=11.0/61.0, loaded_checkpoint=None, imagesFolder=None, labelMapFile=None, outputSize=271,
+                 image_size=100, image_depth=2, data_name=None, dataSize = 0, testData=DATA):
         ### Set up paths and basic model hyperparameters
+        # TODO: We need to add a comment here that describes exactly what each of these inputs means!!
 
         self.checkpoint_dir = checkPts+"olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
-        self.dataImg = dataImg
-        self.dataLabel = dataLabel
         self.image_size = image_size
         self.image_depth = image_depth
         self.num_eval = None
@@ -42,15 +44,18 @@ class CellPredictor2019(object):
         self.eval_images = None
         self.eval_labels = None
         self.data_name = data_name
+        self.dataSize = dataSize
         self.loss = keras.losses.categorical_crossentropy
         self.testData = testData
         self.loaded_checkpoint = loaded_checkpoint
         self.mean_image = self.testData + "TRAININGDATA_100_500_mean.npy"
         self.frameIDtext = self.testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
-        self.frames = testFrames
+        self.frames = imagesFolder
+        print(labelMapFile)
+        self.labelMap = DataPreprocess(imageDir=self.frames, dataFile=labelMapFile)  # Susan added this
+
         if loaded_checkpoint:
-            self.loaded_checkpoint = checkPtsDirectory + loaded_checkpoint
-        if self.loaded_checkpoint:
+            self.loaded_checkpoint = checkPts + loaded_checkpoint
             self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
             self.model.load_weights(self.loaded_checkpoint)
         else:
@@ -58,17 +63,54 @@ class CellPredictor2019(object):
 
         self.model.compile(
             loss=self.loss,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            optimizer=keras.optimizers.SGD(learning_rate=self.learning_rate),
             metrics=["accuracy"])
 
 
-    def loadData(self):
-        """Loads the data from the given data file, setting several instance variables to hold training and testing
-        inputs and outputs, as well as other helpful values."""
+    # def loadData(self):
+    #     """Loads the data from the given data file, setting several instance variables to hold training and testing
+    #     inputs and outputs, as well as other helpful values."""
+    #     # TODO: Deprecate this method
+    #
+    #     self.image = np.load(self.dataImg)
+    #     self.label = np.load(self.dataLabel)  # Removed this, as this method will be deprecated
+    #     self.train_images, self.eval_images, self.train_labels, self.eval_labels = train_test_split(self.image, self.label, test_size = 0.33, random_state = 42)
 
-        self.image = np.load(self.dataImg)
-        self.label = np.load(self.dataLabel)
-        self.train_images, self.eval_images, self.train_labels, self.eval_labels = train_test_split(self.image, self.label, test_size = 0.33, random_state = 42)
+    def prepDatasets(self):
+        """This will prepare Dataset objects for training and validation, using the tensorflow data methods. It assigns
+        two instance variables that can be used by the train method."""
+        print(self.frames, self.labelMap)
+        # This will read in the filenames and shuffle them, using a fixed seed
+        # list_ds is a Dataset object that contains a list of filenames
+        list_ds = tf.data.Dataset.list_files(self.frames + "frame*.jpg", seed=487367)
+
+        # This splits the data into training and validation
+        valSize = int(self.dataSize * self.eval_ratio)
+        train_ds = list_ds.skip(valSize)
+        val_ds = list_ds.take(valSize)
+
+        # map filenames to images and cells
+        # Here we produce a new Dataset object where the data has been converted
+        # from a list of filenames to a list of tuples, each tuple containing
+        # the image corresponding to the filename, and its cell number
+        train_ds = train_ds.map(self._processFile, num_parallel_calls=tf.data.AUTOTUNE)
+        val_ds = val_ds.map(self._processFile, num_parallel_calls=tf.data.AUTOTUNE)
+
+        for image, label in train_ds.take(5):
+            print("Image shape:", image.shape)
+            print("Label:", label)
+
+    def _processFile(self, filenameTensor):
+        """Takes in a Tensor holding the filename, and extracts it, reading in the image
+        and also extracting the frame number and looking up its cell"""
+        filename = filenameTensor.numpy()
+        print(filename)
+        justFname = filename.split('/')[-1]
+        frameNum = extractNum(justFname)
+        cellNum = self.labelMap.frameData[frameNum]['cell']
+        image = cv2.imread(filename)
+        assert image is not None
+        return (image, cellNum)
 
 
     def train(self):
@@ -109,10 +151,9 @@ class CellPredictor2019(object):
         """Builds a network that takes an image and heading as extra channel along with image and produces the cell number."""
 
         model = keras.models.Sequential()
-        model.add(keras.layers.Rescaling(scale = 1./255, offset=0.0, **kwargs)
-)
-        model.add(keras.layers.Resizing(
-                self.image_size, self.image_size, interpolation="bilinear", crop_to_aspect_ratio=False, **kwargs))
+        # model.add(keras.layers.Rescaling(scale = 1./255, offset=0.0, **kwargs))
+        # model.add(keras.layers.Resizing(
+        #         self.image_size, self.image_size, interpolation="bilinear", crop_to_aspect_ratio=False, **kwargs))
 
         model.add(keras.layers.Conv2D(
             filters=128,
@@ -284,15 +325,19 @@ class CellPredictor2019(object):
 if __name__ == "__main__":
     # check_data()
     cellPredictor = CellPredictor2019(
-        #for setting up for building and training model
-        # dataImg= DATA +"Img_w_head_13k.npy",
-        # dataLabel = DATA + 'cell_ouput13k.npy',
+        # for setting up for building and training model
+        eval_ratio = 0.2,
+        checkPts = DATA + "CHECKPOINTS",    # TODO: check this not sure about it
+        imagesFolder = DATA + "frames/moreFrames/",
+        labelMapFile = DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+        loaded_checkpoint=False,
+        dataSize=95810
         # data_name = "testCellPredictor"
     )
-    # print("Classifier built")
-    # cellPredictor.loadData()
+    print("Classifier built")
+    cellPredictor.prepDatasets()
     # print("Data loaded")
     # cellPredictor.train()
 
-    print("Tests the cell predictor")
-    cellPredictor.test(1000, randomChoose = False, randomCrop = True)
+    # print("Tests the cell predictor")
+    # cellPredictor.test(1000, randomChoose = False, randomCrop = True)
