@@ -32,7 +32,6 @@ class DataPreprocess(object):
         self.numHeadings = numHeadings
         self.imageDir = imageDir
         self.dataFile = dataFile
-
         self.dataMean = None
         self.allFrames = []
         self.allImages = []
@@ -89,14 +88,13 @@ class DataPreprocess(object):
                 else:
                     self.locData[loc].add(frameNum)
 
-        print("locBool loop...")
         if locBool:
             for frame in self.frameData:
                 loc = self.frameData[frame]['loc']
                 cell = self.frameData[frame]['cell']
                 calcCell = self.convertLocToCell(loc)
                 if int(calcCell) != int(cell):
-                    print(calcCell, cell)
+                    # print(calcCell, cell)
                     self.frameData[frame]['loc'] = locDict[cell]
 
 

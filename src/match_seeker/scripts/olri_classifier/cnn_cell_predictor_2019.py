@@ -17,7 +17,7 @@ import time
 from paths import DATA,frames, checkPts
 from imageFileUtils import makeFilename
 import random
-from src.match_seeker.scripts.olri_classifier.preprocessData import DataPreprocess
+from preprocessData import DataPreprocess
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
