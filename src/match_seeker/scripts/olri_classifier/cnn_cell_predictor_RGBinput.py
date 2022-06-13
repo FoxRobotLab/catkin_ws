@@ -16,7 +16,7 @@ import tensorflow as tf
 import os
 import numpy as np
 from tensorflow import keras
-import cv2
+# from cv2 import imread, imshow, resize, moveWindow, waitKey
 import time
 from paths import DATA, checkPts, frames
 from imageFileUtils import makeFilename, extractNum
@@ -261,6 +261,7 @@ class CellPredictorRGB(object):
             else: index = n - 1
             print("===========", index+1)
             imFile = makeFilename(self.frames, index)
+            print(imFile)
             image = cv2.imread(imFile)
             if image is None:
                 print(" image not found")
@@ -308,10 +309,10 @@ if __name__ == "__main__":
         # dataSize=95810,
         data_name="FullData",
         checkPointFolder=checkPts,
-        loaded_checkpoint="2022CellPredict_checkpoint-0610221632/FullData-20-0.80.hdf5",
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+        loaded_checkpoint="2022CellPredict_checkpoint-0613221515/FullData-05-0.48.hdf5",
     )
 
     cellPredictor.buildNetwork()
@@ -321,6 +322,9 @@ if __name__ == "__main__":
     #cellPredictor.train_withGenerator(cellPredictor.train_ds, cellPredictor.val_ds)
 
     #for Tensorflow 1
-    training_generator = DataGenerator2022()
-    validation_generator = DataGenerator2022(train = False)
-    cellPredictor.train_withGenerator(training_generator,validation_generator)
+    # training_generator = DataGenerator2022()
+    # validation_generator = DataGenerator2022(train = False)
+    # cellPredictor.train_withGenerator(training_generator,validation_generator)
+
+    #for testing
+    cellPredictor.test(100)
