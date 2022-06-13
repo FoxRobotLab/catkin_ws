@@ -38,7 +38,7 @@ class FrameCellMap(object):
         self.locData = {}
         self.headingData = {}
         self.cellBorders = self._readCells(basePath + cellMapData)
-        self.buildDataDicts()
+        self.buildDataDicts(locBool=False)
 
         self.dumbNum = 0
         # TODO: Figure out what the badLocDict is all about

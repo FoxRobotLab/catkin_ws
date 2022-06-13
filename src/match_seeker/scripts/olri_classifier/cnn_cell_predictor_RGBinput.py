@@ -19,13 +19,13 @@ import tensorflow as tf
 from tensorflow import keras
 import cv2
 import time
-from paths import DATA, checkPts
+from paths import DATA, checkPts, frames
 from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
 from DataGenerator2022 import DataGenerator2022
 import random
 # from sklearn.model_selection import train_test_split
-from preprocessData import DataPreprocess
+#from preprocessData import DataPreprocess
 
 
 
@@ -33,13 +33,13 @@ from preprocessData import DataPreprocess
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictor2019(object):
-    def __init__(self, checkPts, eval_ratio=11.0/61.0, loaded_checkpoint=None, imagesFolder=None, imagesParent=None,
-                 labelMapFile=None, outputSize=271, image_size=100, image_depth=3, data_name=None, dataSize = 0,
+    def __init__(self, checkPointFolder = checkPts, eval_ratio=11.0 / 61.0, loaded_checkpoint="2022CellPredict_checkpoint-0610221632/FullData-20-0.80.hdf5", imagesFolder=frames, imagesParent=DATA+"frames/",
+                 labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt", outputSize=271, image_size=100, image_depth=3, data_name=None, dataSize = 0,
                  testData=DATA, batch_size = 32, seed=123456):
         ### Set up paths and basic model hyperparameters
         # TODO: We need to add a comment here that describes exactly what each of these inputs means!!
 
-        self.checkpoint_dir = checkPts+"2022CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.checkpoint_dir = checkPointFolder + "2022CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -48,10 +48,10 @@ class CellPredictor2019(object):
         self.batch_size = batch_size
         self.seed = seed
         self.num_eval = None
-        self.train_images = None
-        self.train_labels = None
-        self.eval_images = None
-        self.eval_labels = None
+        # self.train_images = None
+        # self.train_labels = None
+        # self.eval_images = None
+        # self.eval_labels = None
         self.data_name = data_name
         self.dataSize = dataSize
 
@@ -66,22 +66,25 @@ class CellPredictor2019(object):
         self.train_ds = None
         self.val_ds = None
         if loaded_checkpoint:
-            self.loaded_checkpoint = checkPts + loaded_checkpoint
+            self.loaded_checkpoint = checkPointFolder + loaded_checkpoint
 
-    def prepDatasets(self):
-        """Finds the cell labels associated with the files in the frames folder, and then sets up two
-        data generators to produce the data in batches."""
-        self.labelMap = FrameCellMap(imageDir=self.frames, dataFile=self.labelMapFile)  # Susan added this
-        files = [f for f in os.listdir(self.frames) if f.endswith("jpg")]
-        cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, files)]
-        self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
-                                                                 validation_split=0.2,  seed=self.seed,
-                                                                 image_size=(self.image_size, self.image_size),
-                                                                 batch_size=self.batch_size)
-        self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels,subset="validation",
-                                                               validation_split=0.2, seed=self.seed,
-                                                               image_size=(self.image_size, self.image_size),
-                                                               batch_size=self.batch_size)
+    # def prepDatasets(self):
+    #     """Finds the cell labels associated with the files in the frames folder, and then sets up two
+    #     data generators to produce the data in batches."""
+    #     self.labelMap = FrameCellMap(dataFile=self.labelMapFile)  # imageDir=self.frames Susan added this
+    #     files = [f for f in os.listdir(self.frames) if f.endswith("jpg")]
+    #     cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, files)]
+    #     self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
+    #                                                              validation_split=0.2,  seed=self.seed,
+    #                                                              image_size=(self.image_size, self.image_size),
+    #                                                              batch_size=self.batch_size)
+    #     self.train_ds = self.train_ds.map(lambda x, y: (x /255., y))
+    #
+    #     self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels,subset="validation",
+    #                                                            validation_split=0.2, seed=self.seed,
+    #                                                            image_size=(self.image_size, self.image_size),
+    #                                                            batch_size=self.batch_size)
+    #     self.val_ds = self.val_ds.map(lambda x, y: (x / 255., y))
 
 
 
@@ -91,46 +94,14 @@ class CellPredictor2019(object):
             self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
             self.model.load_weights(self.loaded_checkpoint)
         else:
-            self.model = self.cnn_headings()  # CNN
+            # self.model = self.cnn_headings()  # CNN
+            self.model = self.cnn()  # CNN
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
 
-
-    # def loadData(self):
-    #     """Loads the data from the given data file, setting several instance variables to hold training and testing
-    #     inputs and outputs, as well as other helpful values."""
-    #     # TODO: Deprecate this method
-    #
-    #     self.image = np.load(self.dataImg)
-    #     self.label = np.load(self.dataLabel)  # Removed this, as this method will be deprecated
-    #     self.train_images, self.eval_images, self.train_labels, self.eval_labels = train_test_split(self.image, self.label, test_size = 0.33, random_state = 42)
-
-    def prepDatasets(self):
-        """This will prepare Dataset objects for training and validation, using the tensorflow data methods. It assigns
-        two instance variables that can be used by the train method."""
-        print(self.frames, self.labelMap)
-        # This will read in the filenames and shuffle them, using a fixed seed
-        # list_ds is a Dataset object that contains a list of filenames
-        list_ds = tf.data.Dataset.list_files(self.frames + "frame*.jpg", seed=487367)
-
-        # This splits the data into training and validation
-        valSize = int(self.dataSize * self.eval_ratio)
-        train_ds = list_ds.skip(valSize)
-        val_ds = list_ds.take(valSize)
-
-        # map filenames to images and cells
-        # Here we produce a new Dataset object where the data has been converted
-        # from a list of filenames to a list of tuples, each tuple containing
-        # the image corresponding to the filename, and its cell number
-        train_ds = train_ds.map(self._processFile, num_parallel_calls=tf.data.AUTOTUNE)
-        val_ds = val_ds.map(self._processFile, num_parallel_calls=tf.data.AUTOTUNE)
-
-        for image, label in train_ds.take(5):
-            print("Image shape:", image.shape)
-            print("Label:", label)
 
     def _processFile(self, filenameTensor):
         """Takes in a Tensor holding the filename, and extracts it, reading in the image
@@ -145,41 +116,41 @@ class CellPredictor2019(object):
         return (image, cellNum)
 
 
-    def train(self):
-        """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
-        training data is set up yet."""
+    # def train(self):
+    #     """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
+    #     training data is set up yet."""
+    #
+    #     print("This is the shape of the train images!!", self.train_images.shape)
+    #     if self.train_images is None:
+    #         print("No training data loaded yet.")
+    #         return 0
+    #
+    #     self.model.fit(
+    #         self.train_images, self.train_labels,
+    #         batch_size= 1,
+    #         epochs=20,
+    #         verbose=1,
+    #         validation_data=(self.eval_images, self.eval_labels),
+    #         shuffle=True,
+    #         callbacks=[
+    #             keras.callbacks.History(),
+    #             keras.callbacks.ModelCheckpoint(
+    #                 self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+    #                 period=1  # save every n epoch
+    #             ),
+    #             keras.callbacks.TensorBoard(
+    #                 log_dir=self.checkpoint_dir,
+    #                 batch_size=1,
+    #                 write_images=False,
+    #                 write_grads=True,
+    #                 histogram_freq=1,
+    #             ),
+    #             keras.callbacks.TerminateOnNaN()
+    #         ]
+    #     )
 
-        print("This is the shape of the train images!!", self.train_images.shape)
-        if self.train_images is None:
-            print("No training data loaded yet.")
-            return 0
 
-        self.model.fit(
-            self.train_images, self.train_labels,
-            batch_size= 1,
-            epochs=20,
-            verbose=1,
-            validation_data=(self.eval_images, self.eval_labels),
-            shuffle=True,
-            callbacks=[
-                keras.callbacks.History(),
-                keras.callbacks.ModelCheckpoint(
-                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    period=1  # save every n epoch
-                ),
-                keras.callbacks.TensorBoard(
-                    log_dir=self.checkpoint_dir,
-                    batch_size=1,
-                    write_images=False,
-                    write_grads=True,
-                    histogram_freq=1,
-                ),
-                keras.callbacks.TerminateOnNaN()
-            ]
-        )
-
-
-    def train_withGenerator(self, training_generator, validation_generator ):
+    def train_withGenerator(self, training_generator, validation_generator, epoch = 5 ):
         self.model.fit_generator(generator=training_generator,
                             validation_data=validation_generator,
                             use_multiprocessing=True,
@@ -199,7 +170,7 @@ class CellPredictor2019(object):
                                 ),
                                 keras.callbacks.TerminateOnNaN()
                 ],
-                            epochs= 20)
+                            epochs= epoch)
 
 
 
@@ -278,68 +249,68 @@ class CellPredictor2019(object):
                 topVals.pop(-1)
         return topVals, topIndex
 
-    # def test(self, n, randomChoose = True, randomCrop = False):
-    #     """This runs each of the random n images in the folder of frames through the cell-output network, reporting how
-    #     often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5.
-    #     Or when setting random to be false, it tests the model on the n-th image."""
-    #
-    #     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    #     mean = np.load(self.mean_image)
-    #     print("Setting up preprocessor to get frame data...")
-    #     dPreproc = FrameCellMap(dataFile=self.frameIDtext)
-    #     countPerfect = 0
-    #     countTop3 = 0
-    #     countTop5 = 0
-    #     if randomChoose:
-    #         iterations = n
-    #     else: iterations = 1
-    #     for i in range(iterations):
-    #         if randomChoose:
-    #             index = random.randrange(95000)-1
-    #         else: index = n - 1
-    #         print("===========", index)
-    #         imFile = makeFilename(self.frames, index)
-    #         imageB = cv2.imread(imFile)
-    #         if imageB is None:
-    #             print(" image not found")
-    #             continue
-    #         cellB = dPreproc.frameData[index]['cell']
-    #         headingB = dPreproc.frameData[index]['heading']
-    #         headingIndex = potentialHeadings.index(headingB)  #converting from 0, 45, 90, etc. to 0, 1, 2, etc.
-    #
-    #         if randomCrop:
-    #             smallerB, grayB, processedB = self.cleanImageRandomCrop(imageB, mean)
-    #         else:
-    #             smallerB, grayB, processedB = self.cleanImage(imageB, mean)
-    #         headBArr = headingIndex * np.ones((100, 100, 1))
-    #         procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
-    #         predB, output = self.predictSingleImageAllData(procBPlus)
-    #         topThreePercs, topThreeCells = self.findTopX(3, output)
-    #         topFivePercs, topFiveCells = self.findTopX(5, output)
-    #         print("cellB =", cellB, "   predB =", predB)
-    #         print("Top three:", topThreeCells, topThreePercs)
-    #         print("Top five:", topFiveCells, topFivePercs)
-    #         if predB == cellB:
-    #             countPerfect += 1
-    #         if cellB in topThreeCells:
-    #             countTop3 += 1
-    #         if cellB in topFiveCells:
-    #             countTop5 += 1
-    #         dispProcB = cv2.convertScaleAbs(processedB)
-    #         cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
-    #         cv2.moveWindow("Image B", 50, 50)
-    #         cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
-    #         cv2.moveWindow("Smaller B", 50, 500)
-    #         cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
-    #         cv2.moveWindow("Gray B", 500, 500)
-    #         cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
-    #         cv2.moveWindow("Proce B", 500, 50)
-    #         x = cv2.waitKey(50)
-    #         if chr(x & 0xFF) == 'q':
-    #             break
-    #     print("Count of perfect:", countPerfect)
-    #     print("Count of top 3:", countTop3)
-    #     print("Count of top 5:", countTop5)
+    def test(self, n, randomChoose = True, randomCrop = False):
+        """This runs each of the random n images in the folder of frames through the cell-output network, reporting how
+        often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5.
+        Or when setting random to be false, it tests the model on the n-th image."""
+
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        mean = np.load(self.mean_image)
+        print("Setting up preprocessor to get frame data...")
+        dPreproc = FrameCellMap(dataFile=self.frameIDtext)
+        countPerfect = 0
+        countTop3 = 0
+        countTop5 = 0
+        if randomChoose:
+            iterations = n
+        else: iterations = 1
+        for i in range(iterations):
+            if randomChoose:
+                index = random.randrange(95000)-1
+            else: index = n - 1
+            print("===========", index)
+            imFile = makeFilename(self.frames, index)
+            imageB = cv2.imread(imFile)
+            if imageB is None:
+                print(" image not found")
+                continue
+            cellB = dPreproc.frameData[index]['cell']
+            headingB = dPreproc.frameData[index]['heading']
+            headingIndex = potentialHeadings.index(headingB)  #converting from 0, 45, 90, etc. to 0, 1, 2, etc.
+
+            if randomCrop:
+                smallerB, grayB, processedB = self.cleanImageRandomCrop(imageB, mean)
+            else:
+                smallerB, grayB, processedB = self.cleanImage(imageB, mean)
+            headBArr = headingIndex * np.ones((100, 100, 1))
+            procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
+            predB, output = self.predictSingleImageAllData(procBPlus)
+            topThreePercs, topThreeCells = self.findTopX(3, output)
+            topFivePercs, topFiveCells = self.findTopX(5, output)
+            print("cellB =", cellB, "   predB =", predB)
+            print("Top three:", topThreeCells, topThreePercs)
+            print("Top five:", topFiveCells, topFivePercs)
+            if predB == cellB:
+                countPerfect += 1
+            if cellB in topThreeCells:
+                countTop3 += 1
+            if cellB in topFiveCells:
+                countTop5 += 1
+            dispProcB = cv2.convertScaleAbs(processedB)
+            cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
+            cv2.moveWindow("Image B", 50, 50)
+            cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
+            cv2.moveWindow("Smaller B", 50, 500)
+            cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
+            cv2.moveWindow("Gray B", 500, 500)
+            cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
+            cv2.moveWindow("Proce B", 500, 50)
+            x = cv2.waitKey(50)
+            if chr(x & 0xFF) == 'q':
+                break
+        print("Count of perfect:", countPerfect)
+        print("Count of top 3:", countTop3)
+        print("Count of top 5:", countTop5)
     #
     # def cleanImage(self, image, mean=None, imageSize=100):
     #     """Preprocessing the images in similar ways to the training dataset of 2019 model."""
@@ -393,15 +364,11 @@ if __name__ == "__main__":
         # data_name = "testCellPredictor"
         data_name="FullData"
     )
-    # print("Classifier built")
-    # cellPredictor.prepDatasets()
-    # print("Data loaded")
-    # cellPredictor.train()
 
-    # print("Tests the cell predictor")
-    # cellPredictor.test(1000, randomChoose = False, randomCrop = True)
+    cellPredictor.buildNetwork()
+    #cellPredictor.prepDatasets()
 
     training_generator = DataGenerator2022()
     validation_generator = DataGenerator2022(train = False)
-
+    #cellPredictor.train_withGenerator(cellPredictor.train_ds, cellPredictor.val_ds)
     cellPredictor.train_withGenerator(training_generator,validation_generator)

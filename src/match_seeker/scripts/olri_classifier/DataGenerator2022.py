@@ -6,7 +6,7 @@ import time
 import cv2
 import os
 from imageFileUtils import makeFilename, extractNum
-from preprocessData import DataPreprocess
+from frameCellMap import FrameCellMap
 
 """ 
 Updated Data Generator that returns batches of images in an np array that allows the model to
@@ -76,7 +76,7 @@ class DataGenerator2022(keras.utils.Sequence):
     def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
 
-        dPreproc = DataPreprocess(dataFile=self.frameIDtext)
+        dPreproc = FrameCellMap(dataFile=self.frameIDtext)
 
         # # Initialization
         # X = np.empty((self.batch_size)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
