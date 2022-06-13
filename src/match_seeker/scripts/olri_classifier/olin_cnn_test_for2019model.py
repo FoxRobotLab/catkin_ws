@@ -29,7 +29,7 @@ import cv2
 
 from paths import pathToMatchSeeker, DATA, frames
 from imageFileUtils import makeFilename
-from preprocessData import DataPreprocess
+from frameCellMap import FrameCellMap
 from olinClassifiers import OlinClassifier
 
 
@@ -82,7 +82,7 @@ def testingOrigData():
     meanFile = "AngelTRAININGDATA_100_500_mean.npy"
     dataPath = pathToMatchSeeker + 'res/classifier2019data/'
     print("Setting up preprocessor to get frames data...")
-    dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+    dPreproc = FrameCellMap(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
     print("Loading mean...")
 
     mean = np.load(dataPath + meanFile)
@@ -228,7 +228,7 @@ def testingOnCellOutputNetwork(n):
     dataPath = DATA
 
     print("Setting up preprocessor to get frames data...")
-    dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+    dPreproc = FrameCellMap(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     print("Loading mean...")
     mean = np.load(dataPath + meanFile)
@@ -298,7 +298,7 @@ def testingOnHeadingOutputNetwork(n):
     dataPath = DATA
 
     print("Setting up preprocessor to get frames data...")
-    dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+    dPreproc = FrameCellMap(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
     print("Loading mean...")
     mean = np.load(dataPath + meanFile)

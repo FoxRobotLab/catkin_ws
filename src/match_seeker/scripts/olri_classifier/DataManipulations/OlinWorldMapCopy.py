@@ -24,7 +24,7 @@ from src.match_seeker.scripts.olri_classifier.DataPaths import basePath, graphMa
 from src.match_seeker.scripts.olri_classifier.paths import DATA
 # from Particle import Particle
 import src.match_seeker.scripts.olri_classifier.DataManipulations.MapGraph
-import src.match_seeker.scripts.olri_classifier.preprocessData as pd
+import src.match_seeker.scripts.olri_classifier.frameCellMap as pd
 
 
 class WorldMap(object):
@@ -680,9 +680,9 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     # Uncomment to run matchPlanner
-    data = pd.DataPreprocess(imageDir=DATA + "frames/moreframes/",
-                             dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-                             imagesPerCell=100)
+    data = pd.FrameCellMap(imageDir=DATA + "frames/moreframes/",
+                           dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+                           imagesPerCell=100)
     mapper = WorldMap()
 
 
