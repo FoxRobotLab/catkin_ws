@@ -10,26 +10,32 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 --------------------------------------------------------------------------------"""
 
 import os
+import random
+import time
+
 import numpy as np
+import cv2
 import tensorflow as tf
 from tensorflow import keras
 import cv2
 import time
 from paths import DATA, checkPts
 from imageFileUtils import makeFilename, extractNum
+from frameCellMap import FrameCellMap
 from DataGenerator2022 import DataGenerator2022
 import random
 # from sklearn.model_selection import train_test_split
 from preprocessData import DataPreprocess
 
-# print(tf.__version__)
+
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictor2019(object):
-    def __init__(self, checkPts = checkPts, eval_ratio=11.0/61.0, loaded_checkpoint=None, imagesFolder=None, labelMapFile=None,
-                 outputSize=271, image_size=100, image_depth=3, data_name=None, dataSize = 0, testData=DATA):
+    def __init__(self, checkPts, eval_ratio=11.0/61.0, loaded_checkpoint=None, imagesFolder=None, imagesParent=None,
+                 labelMapFile=None, outputSize=271, image_size=100, image_depth=3, data_name=None, dataSize = 0,
+                 testData=DATA, batch_size = 32, seed=123456):
         ### Set up paths and basic model hyperparameters
         # TODO: We need to add a comment here that describes exactly what each of these inputs means!!
 
@@ -39,6 +45,8 @@ class CellPredictor2019(object):
         self.learning_rate = 0.001
         self.image_size = image_size
         self.image_depth = image_depth
+        self.batch_size = batch_size
+        self.seed = seed
         self.num_eval = None
         self.train_images = None
         self.train_labels = None
@@ -52,10 +60,34 @@ class CellPredictor2019(object):
         self.mean_image = self.testData + "TRAININGDATA_100_500_mean.npy"
         self.frameIDtext = self.testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.frames = imagesFolder
-        #self.labelMap = DataPreprocess(imageDir=self.frames, dataFile=labelMapFile)  # Susan added this
-
+        self.framesParent = imagesParent
+        self.labelMapFile = labelMapFile
+        self.labelMap = None
+        self.train_ds = None
+        self.val_ds = None
         if loaded_checkpoint:
             self.loaded_checkpoint = checkPts + loaded_checkpoint
+
+    def prepDatasets(self):
+        """Finds the cell labels associated with the files in the frames folder, and then sets up two
+        data generators to produce the data in batches."""
+        self.labelMap = FrameCellMap(imageDir=self.frames, dataFile=self.labelMapFile)  # Susan added this
+        files = [f for f in os.listdir(self.frames) if f.endswith("jpg")]
+        cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, files)]
+        self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
+                                                                 validation_split=0.2,  seed=self.seed,
+                                                                 image_size=(self.image_size, self.image_size),
+                                                                 batch_size=self.batch_size)
+        self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels,subset="validation",
+                                                               validation_split=0.2, seed=self.seed,
+                                                               image_size=(self.image_size, self.image_size),
+                                                               batch_size=self.batch_size)
+
+
+
+    def buildNetwork(self):
+        """Builds the network, saving it to self.model."""
+        if self.loaded_checkpoint:
             self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
             self.model.load_weights(self.loaded_checkpoint)
         else:
@@ -172,8 +204,8 @@ class CellPredictor2019(object):
 
 
 
-    def cnn_headings(self):
-        """Builds a network that takes an image and heading as extra channel along with image and produces the cell number."""
+    def cnn(self):
+        """Builds a network that takes an image and produces the cell number."""
 
         model = keras.models.Sequential()
         # model.add(keras.layers.Rescaling(scale = 1./255, offset=0.0, **kwargs))
@@ -217,6 +249,7 @@ class CellPredictor2019(object):
         model.summary()
         return model
 
+
     def predictSingleImageAllData(self, cleanImage):
         """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
         the resulting prediction."""
@@ -253,7 +286,7 @@ class CellPredictor2019(object):
     #     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
     #     mean = np.load(self.mean_image)
     #     print("Setting up preprocessor to get frame data...")
-    #     dPreproc = DataPreprocess(dataFile=self.frameIDtext)
+    #     dPreproc = FrameCellMap(dataFile=self.frameIDtext)
     #     countPerfect = 0
     #     countTop3 = 0
     #     countTop5 = 0

@@ -27,7 +27,7 @@ import cv2
 import time
 from paths import DATA, frames, checkPts
 from imageFileUtils import makeFilename
-from preprocessData import DataPreprocess
+from frameCellMap import FrameCellMap
 
 # ORIG import olin_inputs_2019 as oi2
 import random
@@ -253,7 +253,7 @@ class HeadingPredictor(object):
         dataPath = DATA
 
         print("Setting up preprocessor to get frames data...")
-        dPreproc = DataPreprocess(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+        dPreproc = FrameCellMap(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
 
         print("Loading mean...")
         mean = np.load(dataPath + meanFile)

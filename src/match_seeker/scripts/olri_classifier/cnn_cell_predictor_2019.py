@@ -17,7 +17,7 @@ import time
 from paths import DATA,frames, checkPts
 from imageFileUtils import makeFilename
 import random
-from preprocessData import DataPreprocess
+from frameCellMap import FrameCellMap
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -210,7 +210,7 @@ class CellPredictor2019(object):
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
         mean = np.load(self.mean_image)
         print("Setting up preprocessor to get frame data...")
-        dPreproc = DataPreprocess(dataFile=self.frameIDtext)
+        dPreproc = FrameCellMap(dataFile=self.frameIDtext)
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
