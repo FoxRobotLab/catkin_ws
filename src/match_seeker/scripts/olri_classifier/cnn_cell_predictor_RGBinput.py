@@ -27,12 +27,25 @@ import random
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-class CellPredictor2019(object):
+class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
                  eval_ratio=11.0 / 61.0, outputSize=271, image_size=100, image_depth=3, dataSize = 0, batch_size = 32, seed=123456):
-
+        """
+        :param checkPointFolder: Destination path where checkpoints should be saved
+        :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
+        :param imagesFolder: Path of the folder containing all 95k image files
+        :param imagesParent: Path of the parent folder of the imagesFolder, required by prepDatasets which isn't yet working
+        :param labelMapFile: Path of the txt file that contains the cell/heading/x y coordinate information for each of the 95k images
+        :param data_name: Name that each checkpoint is saved under, indicates whether model is trained on all images or just a subset
+        :param eval_ratio: Ratio of validation data as a proportion of the entire data, used for splitting testing and validation data
+        :param outputSize: Number of output categories, 271 cells
+        :param image_size: Target length of images after resizing, typically 100x100 pixels
+        :param image_depth: Number of channels in the input images; 3 for RGB color images, 1 for black and white
+        :param dataSize: NOT CURRENTLY USED - need to ask Susan
+        :param batch_size: Number of images in each batch fed into the model via Data Generator pipeline
+        :param seed: Random seed to ensure that random splitting remains the same between training and validation
+        """
         ### Set up paths and basic model hyperparameters
-        # TODO: We need to add a comment here that describes exactly what each of these inputs means!!
         self.checkpoint_dir = checkPointFolder + "2022CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
@@ -59,12 +72,13 @@ class CellPredictor2019(object):
             self.loaded_checkpoint = checkPointFolder + loaded_checkpoint
 
     def buildMap(self):
+        """Builds dictionaries containing the corresponding cell, heading, and location information for each frame"""
         self.labelMap = FrameCellMap(dataFile=self.labelMapFile)
 
     # def prepDatasets(self):
     #     """Finds the cell labels associated with the files in the frames folder, and then sets up two
     #     data generators to produce the data in batches."""
-    #     self.buidMap
+    #     self.buidMap()
     #     files = [f for f in os.listdir(self.frames) if f.endswith("jpg")]
     #     cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, files)]
     #     self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
@@ -234,7 +248,7 @@ class CellPredictor2019(object):
         often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5.
         Or when setting randomChoose to be false, it tests the model on the n-th image."""
 
-        dPreproc = FrameCellMap(dataFile=self.labelMapFile)
+        self.buildMap()
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
@@ -247,26 +261,26 @@ class CellPredictor2019(object):
             else: index = n - 1
             print("===========", index+1)
             imFile = makeFilename(self.frames, index)
-            imageB = cv2.imread(imFile)
-            if imageB is None:
+            image = cv2.imread(imFile)
+            if image is None:
                 print(" image not found")
                 continue
-            cellB = dPreproc.frameData[index]['cell']
+            cell = self.labelMap.frameData[index]['cell']
 
-            processedB = self.cleanImage(imageB)
-            predB, output = self.predictSingleImageAllData(processedB)
+            processed = self.cleanImage(image)
+            pred, output = self.predictSingleImageAllData(processed)
             topThreePercs, topThreeCells = self.findTopX(3, output)
             topFivePercs, topFiveCells = self.findTopX(5, output)
-            print("cellB =", cellB, "   predB =", predB)
+            print("cellB =", cell, "   pred =", pred)
             print("Top three:", topThreeCells, topThreePercs)
             print("Top five:", topFiveCells, topFivePercs)
-            if predB == cellB:
+            if pred == cell:
                 countPerfect += 1
-            if cellB in topThreeCells:
+            if cell in topThreeCells:
                 countTop3 += 1
-            if cellB in topFiveCells:
+            if cell in topFiveCells:
                 countTop5 += 1
-            cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
+            cv2.imshow("Image B", cv2.resize(image, (400, 400)))
             cv2.moveWindow("Image B", 50, 50)
             x = cv2.waitKey(50)
             if chr(x & 0xFF) == 'q':
@@ -290,7 +304,7 @@ class CellPredictor2019(object):
 
 if __name__ == "__main__":
     #check_data()
-    cellPredictor = CellPredictor2019(
+    cellPredictor = CellPredictorRGB(
         # dataSize=95810,
         data_name="FullData",
         checkPointFolder=checkPts,
