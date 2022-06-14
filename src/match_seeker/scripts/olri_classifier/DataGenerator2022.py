@@ -1,16 +1,15 @@
 import numpy as np
 from paths import DATA, frames
 from tensorflow import keras
-import random
-import time
 import cv2
 import os
 from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
 
 """ 
-Updated Data Generator that returns batches of images in an np array that allows the model to
-not load in the entire .npy file and instead uses a list of image paths to read images in batches
+Updated Data Generator that preprocesses images into desired input form
+and constructs batches of tuples of images and corresponding labels that allows the model to
+not load in the entire .npy file or the whold dataset for training or validation
 
 Created Summer 2022
 Authors: Bea Bautista, Yifan Wu, Shosuke Noma
@@ -20,17 +19,20 @@ Authors: Bea Bautista, Yifan Wu, Shosuke Noma
 class DataGenerator2022(keras.utils.Sequence):
     def __init__(self, frames = frames, batch_size=20, shuffle=True,
                  img_size = 100, testData = DATA, seed = 25,
-                 train = True, eval_ratio=11.0/61.0):
+                 train = True, eval_ratio=11.0/61.0, generateForCellPred = True):
 
         self.batch_size = batch_size
         self.frameIDtext = testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.shuffle = shuffle
         self.img_size = img_size
         self.image_path = frames
-        np.random.seed(seed)
+        np.random.seed(seed) #setting the random seed insures the training and testing data are not mix
         self.allImages = self.createListofPaths()
         self.eval_ratio = eval_ratio
         self.allImages, self.valImages = self.traintestsplit(self.allImages, self.eval_ratio)
+        self.labelMap = None
+        self.generateForCellPred = generateForCellPred
+        self.potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
         if not train:
             self.allImages = self.valImages
 
@@ -68,7 +70,7 @@ class DataGenerator2022(keras.utils.Sequence):
       return X, Y
 
     def cleanImage(self, image, imageSize=100):
-        """Preprocessing the images in similar ways to the training dataset of 2019 model."""
+        """Preprocessing the images into the correct input form."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
         processedIm = shrunkenIm / 255.0
         return processedIm
@@ -76,7 +78,7 @@ class DataGenerator2022(keras.utils.Sequence):
     def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
 
-        dPreproc = FrameCellMap(dataFile=self.frameIDtext)
+        self.labelMap = FrameCellMap(dataFile=self.frameIDtext)
 
         # # Initialization
         # X = np.empty((self.batch_size)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
@@ -86,13 +88,22 @@ class DataGenerator2022(keras.utils.Sequence):
         Y = [None] * self.batch_size
 
         # Generate data
-        for i, filename in enumerate(list_frame_temp):
-            frameNum = extractNum(filename)
-            # Store sample
-            raw = cv2.imread(self.image_path + filename) #Array of images
-            X[i] = self.cleanImage(raw)
-            Y[i] = dPreproc.frameData[frameNum]['cell']
-
+        if self.generateForCellPred:
+            for i, filename in enumerate(list_frame_temp):
+                frameNum = extractNum(filename)
+                raw = cv2.imread(self.image_path + filename)
+                X[i] = self.cleanImage(raw)
+                Y[i] = self.labelMap.frameData[frameNum]['cell']
+        else:
+            for i, filename in enumerate(list_frame_temp):
+                frameNum = extractNum(filename)
+                raw = cv2.imread(self.image_path + filename)
+                X[i] = self.cleanImage(raw)
+                heading = self.labelMap.frameData[frameNum]['heading']
+                headingIndex = self.potentialHeadings.index(heading)
+                if headingIndex is 8: #the 0th index is 0 degree and is the same as the 8th index 360 degrees
+                    headingIndex = 0
+                Y[i] = headingIndex
         return np.array(X), np.array(Y) #Array of labels
 
     def traintestsplit(self, images, eval_ratio):
