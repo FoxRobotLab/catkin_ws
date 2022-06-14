@@ -230,6 +230,38 @@ class FrameCellMap(object):
     #         chosenFrames += framesForCell
     #     return chosenFrames
 
+    def selectEnoughFramesForTests(self, imagesPerCell):
+        """
+        Simplified version of selectEnoughFrames which randomly selects imagesPerCell number of images
+        :return: List of imagesPerCell x 271 randomly selected image numbers used for testing cell predictor models
+        """
+        chosenFrames = []
+
+        # missingCells = []
+        # for i in range(271):
+        #     if i not in self.cellData.keys():
+        #         missingCells.append(i)
+        # print('MISSING', missingCells)
+        # print('--------')
+
+        for cell in self.cellData.keys():
+            framesForCell = []
+
+            while len(framesForCell) < imagesPerCell:
+                # if there are fewer images than imagesPerCell, pick with repetition
+                if len(self.cellData[cell]) < imagesPerCell:
+                    randImage = random.choice(list(self.cellData[cell]))
+                    framesForCell.append(randImage)
+
+                else:
+                    # do not pick with repetition
+                    randImage = random.choice(list(self.cellData[cell]))
+                    if randImage not in framesForCell:
+                        framesForCell.append(randImage)
+            chosenFrames += framesForCell
+
+        return chosenFrames
+
 
     # def createMoreFrames(self):
     #     """
