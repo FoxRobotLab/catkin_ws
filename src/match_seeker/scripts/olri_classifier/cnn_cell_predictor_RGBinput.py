@@ -16,8 +16,9 @@ import tensorflow as tf
 import os
 import numpy as np
 from tensorflow import keras
-# from cv2 import imread, imshow, resize, moveWindow, waitKey
 import time
+# import seaborn as sns
+import matplotlib.pyplot as plt
 from paths import DATA, checkPts, frames
 from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
@@ -25,7 +26,7 @@ from DataGenerator2022 import DataGenerator2022
 import random
 
 ### Uncomment next line to use CPU instead of GPU: ###
-#os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
@@ -142,7 +143,7 @@ class CellPredictorRGB(object):
     #     )
 
 
-    def train_withGenerator(self, training_generator, validation_generator, epoch = 5 ):
+    def train_withGenerator(self, training_generator, validation_generator, epoch = 20 ):
         self.model.fit_generator(generator=training_generator,
                             validation_data=validation_generator,
                             use_multiprocessing=True,
@@ -221,8 +222,6 @@ class CellPredictorRGB(object):
         listed = np.array([cleanImage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
-        print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
-        print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
         return maxIndex, modelPredict[0]
 
     def findTopX(self, x, numList):
@@ -250,8 +249,15 @@ class CellPredictorRGB(object):
 
         self.buildMap()
         countPerfect = 0
+
         countTop3 = 0
         countTop5 = 0
+
+        perfMap = {}
+        failedMap = {}
+
+        trueCell = []
+        predCell = []
         if randomChoose:
             iterations = n
         else: iterations = 1
@@ -267,9 +273,12 @@ class CellPredictorRGB(object):
                 print(" image not found")
                 continue
             cell = self.labelMap.frameData[index]['cell']
-
             processed = self.cleanImage(image)
             pred, output = self.predictSingleImageAllData(processed)
+
+            trueCell.append(cell)
+            predCell.append(pred)
+
             topThreePercs, topThreeCells = self.findTopX(3, output)
             topFivePercs, topFiveCells = self.findTopX(5, output)
             print("cellB =", cell, "   pred =", pred)
@@ -277,6 +286,14 @@ class CellPredictorRGB(object):
             print("Top five:", topFiveCells, topFivePercs)
             if pred == cell:
                 countPerfect += 1
+                perfMap[cell] = perfMap.get(cell, 0) + 1
+            else:
+                if cell in failedMap:
+                    prevFails = failedMap.get(cell, [])
+                    prevFails.append(pred)
+                    failedMap[cell] = prevFails
+                else:
+                    failedMap[cell] = [pred]
             if cell in topThreeCells:
                 countTop3 += 1
             if cell in topFiveCells:
@@ -286,9 +303,47 @@ class CellPredictorRGB(object):
             x = cv2.waitKey(50)
             if chr(x & 0xFF) == 'q':
                 break
+        # print('true cell: ', trueCell)
+        # print('pred cell:', predCell)
+        print('Perfect predictions', perfMap)
+        print('Failed predictions', failedMap)
+        # self.graphConfusionMatrix(n, trueCell, predCell)
         print("Count of perfect:", countPerfect)
         print("Count of top 3:", countTop3)
         print("Count of top 5:", countTop5)
+        self.calculateImperfectSuccessPerCell(perfMap,failedMap)
+
+
+    def testnImagesEachCell(self, n):
+        self.buildMap()
+        n_frames = self.labelMap.selectEnoughFramesForTests(n)
+
+        perfMap = {}
+        failedMap = {}
+
+        for frame in n_frames:
+            imFile = makeFilename(self.frames, frame)
+            print(imFile)
+            image = cv2.imread(imFile)
+            if image is None:
+                print(" image not found")
+                continue
+            cell = self.labelMap.frameData[frame]['cell']
+            processed = self.cleanImage(image)
+            pred, output = self.predictSingleImageAllData(processed)
+            if pred == cell:
+                perfMap[cell] = perfMap.get(cell, 0) + 1
+            else:
+                if cell in failedMap:
+                    prevFails = failedMap.get(cell, [])
+                    prevFails.append(pred)
+                    failedMap[cell] = prevFails
+                else:
+                    failedMap[cell] = [pred]
+        print('Perfect predictions', perfMap)
+        print('Failed predictions', failedMap)
+        self.calculateImperfectSuccessPerCell(perfMap,failedMap)
+
 
 
     def cleanImage(self, image, imageSize=100):
@@ -296,6 +351,101 @@ class CellPredictorRGB(object):
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
         processedIm = shrunkenIm / 255.0
         return processedIm
+
+    def calculateSuccessPerCell(self, perfMap, failedMap):
+
+        """
+        Calculates and creates a scatterplot of the success rate per cell number category.
+
+        :param perfMap: Map of perfectly predicted test cases, cell number as keys and count of perfect predictions as values
+        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of incorrect predictions as values
+        :return:
+        """
+        successRates = []
+        cells = []
+        for c in range(self.outputSize):
+            cells.append(c)
+            totalPred = 0
+            if c in failedMap:
+                totalPred += len(failedMap[c])
+            if c in perfMap:
+                totalPred += perfMap[c]
+
+            if totalPred > 0:
+                successRates.append(perfMap.get(c, 0)/totalPred)
+            else:
+                successRates.append(-1)
+        print("Success rates: ", successRates)
+        print("Number of cells: ", len(successRates))
+
+        plt.scatter(cells, successRates)
+        plt.xlabel('Cell Number', fontsize=18)
+        plt.ylabel('Success Rate', fontsize=18)
+        plt.title('Success Rate Per Cell', fontsize=18)
+        plt.show()
+
+
+    def calculateImperfectSuccessPerCell(self, perfMap, failedMap):
+        """
+        Calculates and creates a scatterplot of the success rate per cell number category,
+        excluding cells that have a 1.0 perfect success rate or cells that do not show up in the randomly
+        generated test cases.
+
+        :param perfMap: Map of perfectly predicted test cases, cell number as keys and count of perfect predictions as values
+        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of incorrect predictions as values
+        :return:
+        """
+        successRates = []
+        cells = []
+        for c in range(self.outputSize):
+            totalPred = 0
+            if c in failedMap:
+                totalPred += len(failedMap[c])
+            if c in perfMap:
+                totalPred += perfMap[c]
+
+            if totalPred > 0:
+                successrate = perfMap.get(c, 0)/totalPred
+                if successrate < 1.0:
+                    cells.append(str(c))
+                    successRates.append(successrate)
+        print("Success rates: ", successRates)
+        print("Number of cells: ", len(successRates))
+
+        plt.scatter(cells, successRates)
+        plt.xlabel('Cell Number', fontsize=18)
+        plt.ylabel('Success Rate %', fontsize=18)
+        plt.title('Success Rate Per Cell', fontsize=18)
+        plt.show()
+
+
+
+    def graphConfusionMatrix(self, n, true_Label, predict_Label):
+        """
+        Graphs a confusion matrix using matplotlib. Currently not very informative
+        because of the 271x271 size of the confusion matrix.
+
+        :param n: number of tests run/cells predicted
+        :param true_Label: List of true cell numbers in order of prediction
+        :param predict_Label: List of predicted cell numbers in order of prediction
+        :return:
+        """
+        conf_matrix = np.zeros((self.outputSize, self.outputSize))
+
+        for i in range(n):
+            conf_matrix[true_Label[i]][predict_Label[i]] += 1
+
+        print(conf_matrix.shape[0])
+        norm = np.linalg.norm(conf_matrix)
+        norm_conf_matrix = conf_matrix / norm
+
+        fig = plt.figure(figsize=(self.outputSize,self.outputSize))
+        plt.matshow(norm_conf_matrix, fignum=fig.number)
+
+        plt.xlabel('Predictions', fontsize=18)
+        plt.ylabel('Actuals', fontsize=18)
+        plt.title('Confusion Matrix', fontsize=18)
+        plt.show()
 
 # def loading_bar(start,end, size = 20):
 #     # Useful when running a method that takes a long time
@@ -310,9 +460,10 @@ if __name__ == "__main__":
         data_name="FullData",
         checkPointFolder=checkPts,
         imagesFolder=frames,
+        batch_size=10,
         imagesParent=DATA + "frames/",
         labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint="2022CellPredict_checkpoint-0613221515/FullData-05-0.48.hdf5",
+        loaded_checkpoint="2022CellPredict_checkpoint-0613221711/FullData-20-0.27.hdf5",
     )
 
     cellPredictor.buildNetwork()
@@ -327,4 +478,5 @@ if __name__ == "__main__":
     # cellPredictor.train_withGenerator(training_generator,validation_generator)
 
     #for testing
-    cellPredictor.test(100)
+    # cellPredictor.test(1000)
+    cellPredictor.testnImagesEachCell(100)
