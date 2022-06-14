@@ -16,10 +16,6 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 
 --------------------------------------------------------------------------------"""
 
-
-# from __future__ import absolute_import
-# from __future__ import division
-# from __future__ import print_function
 import os
 import numpy as np
 from tensorflow import keras
@@ -28,13 +24,10 @@ import time
 from paths import DATA, frames, checkPts
 from imageFileUtils import makeFilename
 from frameCellMap import FrameCellMap
-
-# ORIG import olin_inputs_2019 as oi2
 import random
-from cnn_lstm_functions import creatingSequence, getCorrectLabels, transfer_lstm_cellPred, CNN, transfer_lstm_headPred
 
 ### Uncomment next line to use CPU instead of GPU: ###
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+# os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class HeadingPredictor(object):
     def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 8,
@@ -45,9 +38,6 @@ class HeadingPredictor(object):
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
-
-        # self.model2020 = model2020
-
         self.dataImg = dataImg
         self.dataLabel = dataLabel
         self.dataArray = None
@@ -60,16 +50,6 @@ class HeadingPredictor(object):
         self.eval_labels = None
         self.data_name = data_name
         self.loss = keras.losses.categorical_crossentropy
-        # elif self.model2020 == "Heading":  # no compiling for 2020 models
-        #     self.loss = keras.losses.categorical_crossentropy
-        #     self.model = keras.models.load_model(
-        #         DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")
-        #     self.model.load_weights(
-        #         DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")hdf5
-        # self.model = keras.models.load_model(self.savedCheckpoint, compile=True)
-
-
-
         self.loaded_checkpoint = loaded_checkpoint
         if self.loaded_checkpoint is not None:
             self.model = keras.models.load_model(self.loaded_checkpoint, compile=True)
@@ -87,12 +67,7 @@ class HeadingPredictor(object):
     def loadData(self):
         """Loads the data from the given data file, setting several instance variables to hold training and testing
         inputs and outputs, as well as other helpful values."""
-
-        #ORIG self.dataArray = np.load(self.dataFile, allow_pickle=True, encoding='latin1')
         self.image = np.load(self.dataImg)
-        #self.image = self.image[:,:,:,0] # #WHEN DOING IMAGE ALONE
-        # self.image = self.image.reshape(len(self.image), 100, 100, 1) #WHEN DOING IMAGE ALONE
-
         self.label = np.load(self.dataLabel)
         self.image_totalImgs = self.image.shape[0]
 
@@ -216,7 +191,6 @@ class HeadingPredictor(object):
 
         model.add(keras.layers.Dropout(0.2))
 
-        # activate with softmax when training one label and sigmoid when training both headings and cells
         model.add(keras.layers.Dense(units=self.outputSize, activation="softmax"))
         model.summary()
         return model
@@ -246,9 +220,6 @@ class HeadingPredictor(object):
         """This runs each of the first n images in the folder of frames through the heading-output network, reporting how often the correct
         heading was produced, and how often the correct heading was in the top 3 and top 5."""
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        # cellOutputFile = "NEWTRAININGDATA_100_500withHeadingInput95k.npy"
-        # cellOutputCheckpoint = "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
-        # savedCheckpoint = checkPts + cellOutputCheckpoint
         meanFile = "TRAININGDATA_100_500_mean.npy"
         dataPath = DATA
 
@@ -282,16 +253,17 @@ class HeadingPredictor(object):
             cellBArr = cellB * np.ones((100, 100, 1))
             procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), cellBArr), axis=-1)
             predB, output = self.predictSingleImageAllData(procBPlus)
-            topThreePercs, topThreeCells = self.findTopX(3, output)
-            topFivePercs, topFiveCells = self.findTopX(5, output)
+            topThreePercs, topThreeHeadings = self.findTopX(3, output)
+            topFivePercs, topFiveHeadings = self.findTopX(5, output)
             print("headingIndex =", headingIndex, "   predB =", predB)
-            print("Top three:", topThreeCells, topThreePercs)
-            print("Top five:", topFiveCells, topFivePercs)
+            print("Top three:", topThreeHeadings, topThreePercs)
+            print("Top five:", topFiveHeadings, topFivePercs)
             if predB == headingIndex:
+
                 countPerfect += 1
-            if headingIndex in topThreeCells:
+            if headingIndex in topThreeHeadings:
                 countTop3 += 1
-            if headingIndex in topFiveCells:
+            if headingIndex in topFiveHeadings:
                 countTop5 += 1
             dispProcB = cv2.convertScaleAbs(processedB)
             cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
@@ -339,114 +311,6 @@ class HeadingPredictor(object):
         print("predict[0]:", modelPredict[0].shape, modelPredict[0])
         return maxIndex, modelPredict[0]
 
-    # def getAccuracy(self):
-    #     """Sets up the network, and produces an accuracy value on the evaluation data.
-    #     If no data is set up, it quits."""
-    #
-    #     if self.eval_images is None:
-    #         return
-    #
-    #     num_eval = 5000
-    #     correctCells = 0
-    #     correctHeadings = 0
-    #     eval_copy = self.eval_images
-    #     self.model.compile(loss=self.loss, optimizer=keras.optimizers.SGD(lr=0.001), metrics=["accuracy"])
-    #     self.model.load_weights()
-    #
-    #     for i in range(num_eval):
-    #         loading_bar(i,num_eval)
-    #         image = eval_copy[i]
-    #         image = np.array([image], dtype="float").reshape(-1, self.image_size, self.image_size, self.image_depth)
-    #         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    #
-    #         pred = self.model.predict(image)
-    #         print("correct:{}".format(np.argmax(self.eval_labels[i])))
-    #         print("pred:{}".format(np.argmax(pred[0])))
-    #         #cv2.imshow('im',image[0,:,:,0])
-    #         #cv2.waitKey(0)
-    #
-    #         # print(np.argmax(labels[i][:self.num_cells]),np.argmax(pred[0][:self.num_cells]))
-    #         # prinpredictt(np.argmax(labels[i][self.num_cells:]),np.argmax(pred[0][self.num_cells:]))
-    #         # print(np.argmax(self),np.argmax(pred[0]))
-    #         if np.argmax(self.eval_labels[i]) == np.argmax(pred[0]):
-    #             correctCells += 1
-    #         # if np.argmax(self.train_labels[i][self.num_cells-8:]) == np.argmax(pred[0][self.num_cells-8:]):
-    #         #      correctHeadings += 1
-    #
-    #     print("%Correct Cells: " + str(float(correctCells) / num_eval))
-    #     #print("%Correct Headings: " + str(float(correctHeadings) / num_eval))
-    #     return float(correctCells) / num_eval
-
-
-    # def precision(self,y_true, y_pred):
-    #     """Precision metric.
-    #
-    #     Use precision in place of accuracy to evaluate models that have multiple outputs. Otherwise it's relatively
-    #     unhelpful. The values returned during training do not represent the accuracy of the model. Use get_accuracy
-    #     after training to evaluate models with multiple outputs.
-    #
-    #     Only computes a batch-wise average of precision.
-    #
-    #     Computes the precision, a metric for multi-label classification of how many selected items are relevant.
-    #     """
-    #     true_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_true * y_pred, 0, 1)))
-    #     predicted_positives = keras.backend.sum(keras.backend.round(keras.backend.clip(y_pred, 0, 1)))
-    #     precision = true_positives / (predicted_positives + keras.backend.epsilon())
-    #     return precision
-
-
-    # def runSingleImage(self, num, input='heading'):
-    #     imDirectory = DATA + 'frames/moreframes/'
-    #     count = 0
-    #     filename = makeFilename(imDirectory, num)
-    #     # st = None
-    #
-    #     # for fname in os.listdir(imDirectory):
-    #     #     if count == num:
-    #     #         st = imDirectory + fname
-    #     #         break
-    #
-    #     # print(imgs)
-    #     # print(filename)
-    #     if filename is not None:
-    #         image = cv2.imread(filename)
-    #         # print("This is image:", image)
-    #         # print("This is the shape", image.shape)
-    #         if image is not None:
-    #             cellDirectory = DATA + 'frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt'
-    #             count = 0
-    #             with open(cellDirectory) as fp:
-    #                 for line in fp:
-    #                     (fNum, cell, x, y, head) = line.strip().split(' ')
-    #                     if fNum == str(num):
-    #                         break
-    #                     count += 1
-    #
-    #
-    #         # cell = oi2.getOneHotLabel(int(cell), 271)
-    #         # cell_arr = []model.predict
-    #         # im_arr = []
-    #         # cell_arr.append(cell)
-    #         # im_arr.append(image)
-    #         #
-    #         # cell_arr = np.asarray(cell_arr)
-    #         # im_arr = np.asarray(im_arr)
-    #
-    #             if input=='heading':
-    #                 image = clean_image(image, data='heading_channel', heading=int(head))
-    #
-    #             elif input=='cell':
-    #                 image = clean_image(image, data='cell_channel', heading=int(cell))
-    #
-    #
-    #
-    #             return self.model.predict(image), cell
-    #     return None
-
-
-
-
-#
 # def loading_bar(start,end, size = 20):
 #     # Useful when running a method that takes a long time
 #     loadstr = '\r'+str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
@@ -474,13 +338,8 @@ if __name__ == "__main__":
         # dataImg= DATA + 'IMG_CellInput_12K.npy',
         # dataLabel = DATA + 'Heading_CellInput12k.npy',
         # data_name = "testheadingpredictor"
-        # # dataLabel = DATA + 'cell_ouput13k.npy',
-        # data_name = "CNN_cellPred_all244Cell_20epochs",
-        # outputSize= 271,
-        # eval_ratio= 11.0/61.0,
-        # image_size=100,
-        # image_depth= 1
     )
+
     # print("Classifier built")
     # headingPredictor.loadData()
     # print("Data loaded")

@@ -72,9 +72,11 @@ class CellPredictorRGB(object):
             self.loaded_checkpoint = checkPointFolder + loaded_checkpoint
 
     def buildMap(self):
-        """Builds dictionaries containing the corresponding cell, heading, and location information for each frame"""
+        """Builds dictionaries containing the corresponding cell, heading, and location information for each frame,
+        saving it to self.labelMap."""
         self.labelMap = FrameCellMap(dataFile=self.labelMapFile)
 
+    #not compatible with tensorflow 1
     # def prepDatasets(self):
     #     """Finds the cell labels associated with the files in the frames folder, and then sets up two
     #     data generators to produce the data in batches."""
@@ -93,7 +95,11 @@ class CellPredictorRGB(object):
     #                                                            batch_size=self.batch_size)
     #     self.val_ds = self.val_ds.map(lambda x, y: (x / 255., y))
 
-
+    def prepDatasets(self):
+        """Finds the cell labels associated with the files in the frames folder, and then sets up two
+        data generators to preprocess data and produce the data in batches."""
+        self.train_ds = DataGenerator2022()
+        self.val_ds = DataGenerator2022(train = False)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
@@ -292,7 +298,7 @@ class CellPredictorRGB(object):
 
 
     def cleanImage(self, image, imageSize=100):
-        """Preprocessing the images in similar ways to the training dataset of 2019 model."""
+        """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
         processedIm = shrunkenIm / 255.0
         return processedIm
@@ -310,14 +316,14 @@ if __name__ == "__main__":
         data_name="FullData",
         checkPointFolder=checkPts,
         imagesFolder=frames,
-        imagesParent=DATA + "frames/",
+        #imagesParent=DATA + "frames/",
         labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
         loaded_checkpoint="2022CellPredict_checkpoint-0613221515/FullData-05-0.48.hdf5",
     )
 
     cellPredictor.buildNetwork()
 
-    #for newer Tensorflow versions:
+    #for training
     #cellPredictor.prepDatasets()
     #cellPredictor.train_withGenerator(cellPredictor.train_ds, cellPredictor.val_ds)
 
