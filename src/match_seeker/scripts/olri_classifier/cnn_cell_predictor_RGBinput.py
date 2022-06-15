@@ -9,10 +9,7 @@ The model was originally created in 2019 that takes a picture and its heading as
 FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
 --------------------------------------------------------------------------------"""
 
-import time
 import cv2
-import tensorflow as tf
-
 import os
 import numpy as np
 from tensorflow import keras
@@ -99,8 +96,8 @@ class CellPredictorRGB(object):
     def prepDatasets(self):
         """Finds the cell labels associated with the files in the frames folder, and then sets up two
         data generators to preprocess data and produce the data in batches."""
-        self.train_ds = DataGenerator2022()
-        self.val_ds = DataGenerator2022(train = False)
+        self.train_ds = DataGenerator2022(batch_size = self.batch_size)
+        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
@@ -126,7 +123,7 @@ class CellPredictorRGB(object):
     #
     #     self.model.fit(
     #         self.train_images, self.train_labels,
-    #         batch_size= 1,
+    #         #batch_size= 1,
     #         epochs=epochs,
     #         verbose=1,
     #         validation_data=(self.eval_images, self.eval_labels),
@@ -139,7 +136,7 @@ class CellPredictorRGB(object):
     #             ),
     #             keras.callbacks.TensorBoard(
     #                 log_dir=self.checkpoint_dir,
-    #                 batch_size=1,
+    #                 #batch_size=1,
     #                 write_images=False,
     #                 write_grads=True,
     #                 histogram_freq=1,
@@ -163,7 +160,6 @@ class CellPredictorRGB(object):
                                 ),
                                 keras.callbacks.TensorBoard(
                                     log_dir=self.checkpoint_dir,
-                                    batch_size=1,
                                     write_images=False,
                                     write_grads=True
                                 ),
@@ -317,38 +313,42 @@ class CellPredictorRGB(object):
         print("Count of perfect:", countPerfect)
         print("Count of top 3:", countTop3)
         print("Count of top 5:", countTop5)
-        self.calculateImperfectSuccessPerCell(perfMap,failedMap)
+        self.calculateSuccessPerCell(perfMap, failedMap)
 
 
     def testnImagesEachCell(self, n):
         self.buildMap()
-        n_frames = self.labelMap.selectEnoughFramesForTests(n)
+        n_frames_map = self.labelMap.selectEnoughFramesForTests(n)
 
         perfMap = {}
         failedMap = {}
 
-        for frame in n_frames:
-            imFile = makeFilename(self.frames, frame)
-            print(imFile)
-            image = cv2.imread(imFile)
-            if image is None:
-                print(" image not found")
-                continue
-            cell = self.labelMap.frameData[frame]['cell']
-            processed = self.cleanImage(image)
-            pred, output = self.predictSingleImageAllData(processed)
-            if pred == cell:
-                perfMap[cell] = perfMap.get(cell, 0) + 1
-            else:
-                if cell in failedMap:
-                    prevFails = failedMap.get(cell, [])
-                    prevFails.append(pred)
-                    failedMap[cell] = prevFails
+        for cell in n_frames_map:
+            cell_frames = n_frames_map.get(cell)
+            for frame in cell_frames:
+                imFile = makeFilename(self.frames, frame)
+                print(imFile)
+                image = cv2.imread(imFile)
+                if image is None:
+                    print(" image not found")
+                    continue
+                # cell = self.labelMap.frameData[frame]['cell']
+                processed = self.cleanImage(image)
+                pred, output = self.predictSingleImageAllData(processed)
+                if pred == cell:
+                    perfMap[cell] = perfMap.get(cell, 0) + 1
                 else:
-                    failedMap[cell] = [pred]
+                    if cell in failedMap:
+                        prevFails = failedMap.get(cell, [])
+                        prevFails.append(pred)
+                        failedMap[cell] = prevFails
+                    else:
+                        failedMap[cell] = [pred]
         print('Perfect predictions', perfMap)
         print('Failed predictions', failedMap)
-        self.calculateImperfectSuccessPerCell(perfMap,failedMap)
+        cells, successRates = self.calculateSuccessPerCell(perfMap, failedMap)
+        self.plotSuccessRates(cells, successRates)
+        self.showImagesofLeastSuccessCell(cells, successRates, n_frames_map)
 
 
 
@@ -358,51 +358,20 @@ class CellPredictorRGB(object):
         processedIm = shrunkenIm / 255.0
         return processedIm
 
-    def calculateSuccessPerCell(self, perfMap, failedMap):
 
+    def calculateSuccessPerCell(self, perfMap, failedMap, excludeMissing = True, excludePerfect = True):
         """
-        Calculates and creates a scatterplot of the success rate per cell number category.
-
-        :param perfMap: Map of perfectly predicted test cases, cell number as keys and count of perfect predictions as values
-        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of incorrect predictions as values
-        :return:
-        """
-        successRates = []
-        cells = []
-        for c in range(self.outputSize):
-            cells.append(c)
-            totalPred = 0
-            if c in failedMap:
-                totalPred += len(failedMap[c])
-            if c in perfMap:
-                totalPred += perfMap[c]
-
-            if totalPred > 0:
-                successRates.append(perfMap.get(c, 0)/totalPred)
-            else:
-                successRates.append(-1)
-        print("Success rates: ", successRates)
-        print("Number of cells: ", len(successRates))
-
-        plt.scatter(cells, successRates)
-        plt.xlabel('Cell Number', fontsize=18)
-        plt.ylabel('Success Rate', fontsize=18)
-        plt.title('Success Rate Per Cell', fontsize=18)
-        plt.show()
-
-
-    def calculateImperfectSuccessPerCell(self, perfMap, failedMap):
-        """
-        Calculates and creates a scatterplot of the success rate per cell number category,
-        excluding cells that have a 1.0 perfect success rate or cells that do not show up in the randomly
+        Calculates the success rate per cell number category, with the option to
+        exclude cells that have a 1.0 perfect success rate or cells that do not show up in the randomly
         generated test cases.
 
         :param perfMap: Map of perfectly predicted test cases, cell number as keys and count of perfect predictions as values
         :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of incorrect predictions as values
-        :return:
+        :return: List of cells (str) and list of success rates (float) of the cell in the same index
         """
         successRates = []
         cells = []
+
         for c in range(self.outputSize):
             totalPred = 0
             if c in failedMap:
@@ -410,19 +379,52 @@ class CellPredictorRGB(object):
             if c in perfMap:
                 totalPred += perfMap[c]
 
-            if totalPred > 0:
-                successrate = perfMap.get(c, 0)/totalPred
-                if successrate < 1.0:
+            if excludeMissing:
+                if totalPred > 0:
+                    successRates.append(perfMap.get(c, 0) / totalPred)
                     cells.append(str(c))
-                    successRates.append(successrate)
-        print("Success rates: ", successRates)
-        print("Number of cells: ", len(successRates))
+                # successrate = perfMap.get(c, 0)/totalPred
+                # if successrate < 1.0:
+                #     cells.append(c)
+                #     successRates.append(successrate)
+            else:
+                if totalPred > 0:
+                    successRates.append(perfMap.get(c, 0)/totalPred)
+                    cells.append(str(c))
+                else:
+                    successRates.append(-1)
+                    cells.append(str(c))
 
+        print("Success rates: ", successRates)
+        print("Number of cells: ", len(cells), "Number of success rates: ", len(successRates))
+        return cells, successRates
+
+
+    def plotSuccessRates(self, cells, successRates):
+        # cells_str = [str(c) for c in cells]
         plt.scatter(cells, successRates)
         plt.xlabel('Cell Number', fontsize=18)
         plt.ylabel('Success Rate %', fontsize=18)
         plt.title('Success Rate Per Cell', fontsize=18)
         plt.show()
+
+
+    def showImagesofLeastSuccessCell(self, cells, successRates, framesMap):
+        worstSuccessRate = min(successRates)
+        indexOfWorstCell = successRates.index(worstSuccessRate)
+        worstCell = cells[indexOfWorstCell]
+        print('Worst Performing Cell: ', worstCell, " Success Rate: ", worstSuccessRate)
+        framesList = framesMap.get(int(worstCell))
+        for frame in framesList:
+            imFile = makeFilename(self.frames, frame)
+            print(imFile)
+            image = cv2.imread(imFile)
+            if image is None:
+                print(" image not found")
+                continue
+            cv2.imshow(str(frame), image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 
@@ -468,7 +470,6 @@ if __name__ == "__main__":
         imagesFolder=frames,
         #imagesParent=DATA + "frames/",
         batch_size=10,
-        imagesParent=DATA + "frames/",
         labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
         loaded_checkpoint="2022CellPredict_checkpoint-0613221711/FullData-20-0.27.hdf5",
     )
@@ -486,4 +487,4 @@ if __name__ == "__main__":
 
     #for testing
     # cellPredictor.test(1000)
-    cellPredictor.testnImagesEachCell(100)
+    cellPredictor.testnImagesEachCell(10)

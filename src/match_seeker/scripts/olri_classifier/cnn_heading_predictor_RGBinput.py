@@ -25,7 +25,7 @@ import random
 
 class HeadingPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
-                 eval_ratio = 11.0 / 61.0, outputSize = 8, image_size=100, image_depth=3, dataSize = 0, batch_size = 32, seed=123456):
+                 eval_ratio = 11.0 / 61.0, outputSize = 8, image_size=100, image_depth=3, dataSize = 0, seed=123456, batch_size = 20): #batch #epoch
         """
         :param checkPointFolder: Destination path where checkpoints should be saved
         :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
@@ -47,8 +47,8 @@ class HeadingPredictorRGB(object):
         self.learning_rate = 0.001
         self.image_size = image_size
         self.image_depth = image_depth
-        self.batch_size = batch_size
         self.seed = seed
+        self.batch_size = batch_size
         self.num_eval = None
         # self.train_images = None
         # self.train_labels = None
@@ -73,8 +73,8 @@ class HeadingPredictorRGB(object):
     def prepDatasets(self):
         """Finds the cell labels associated with the files in the frames folder, and then sets up two
         data generators to preprocess data and produce the data in batches."""
-        self.train_ds = DataGenerator2022(generateForCellPred = False)
-        self.val_ds = DataGenerator2022(train=False, generateForCellPred = True)
+        self.train_ds = DataGenerator2022(generateForCellPred = False, batch_size = self.batch_size)
+        self.val_ds = DataGenerator2022(train=False, generateForCellPred = False, batch_size = self.batch_size)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
@@ -100,7 +100,7 @@ class HeadingPredictorRGB(object):
     #
     #     self.model.fit(
     #         self.train_images, self.train_labels,
-    #         batch_size= 1,
+    #         #batch_size= 1,
     #         epochs=epochs,
     #         verbose=1,
     #         validation_data=(self.eval_images, self.eval_labels),
@@ -113,7 +113,7 @@ class HeadingPredictorRGB(object):
     #             ),
     #             keras.callbacks.TensorBoard(
     #                 log_dir=self.checkpoint_dir,
-    #                 batch_size=1,
+    #                 #batch_size=1,
     #                 write_images=False,
     #                 write_grads=True,
     #                 histogram_freq=1,
@@ -123,7 +123,7 @@ class HeadingPredictorRGB(object):
     #     )
 
 
-    def train_withGenerator(self, training_generator, validation_generator, epoch = 20 ):
+    def train_withGenerator(self, training_generator, validation_generator, epoch = 20):
         self.model.fit_generator(generator=training_generator,
                             validation_data=validation_generator,
                             use_multiprocessing=True,
@@ -137,7 +137,6 @@ class HeadingPredictorRGB(object):
                                 ),
                                 keras.callbacks.TensorBoard(
                                     log_dir=self.checkpoint_dir,
-                                    batch_size=1,
                                     write_images=False,
                                     write_grads=True
                                 ),
@@ -306,14 +305,16 @@ if __name__ == "__main__":
         checkPointFolder=checkPts,
         imagesFolder=frames,
         labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        #loaded_checkpoint="",
+        loaded_checkpoint="2022HeadingPredict_checkpoint-0615221151/TestingForVal-01-0.53.hdf5",
     )
 
     headingPredictor.buildNetwork()
 
     #for training:
-    #cellPredictor.prepDatasets()
-    #headingPredictor.train_withGenerator(cellPredictor.train_ds, cellPredictor.val_ds)
 
-    #for testing
-    #headingPredictor.test(100)
+    headingPredictor.prepDatasets()
+    headingPredictor.train_withGenerator(headingPredictor.train_ds, headingPredictor.val_ds, epoch = 9)
+
+    #for testing:
+
+    #headingPredictor.test(1000)

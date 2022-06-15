@@ -235,7 +235,7 @@ class FrameCellMap(object):
         Simplified version of selectEnoughFrames which randomly selects imagesPerCell number of images
         :return: List of imagesPerCell x 271 randomly selected image numbers used for testing cell predictor models
         """
-        chosenFrames = []
+        chosenFrames = {}
 
         # missingCells = []
         # for i in range(271):
@@ -258,7 +258,7 @@ class FrameCellMap(object):
                     randImage = random.choice(list(self.cellData[cell]))
                     if randImage not in framesForCell:
                         framesForCell.append(randImage)
-            chosenFrames += framesForCell
+            chosenFrames[cell] = framesForCell
 
         return chosenFrames
 
