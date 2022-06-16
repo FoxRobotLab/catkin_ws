@@ -305,7 +305,7 @@ if __name__ == "__main__":
         checkPointFolder=checkPts,
         imagesFolder=frames,
         labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint="2022HeadingPredict_checkpoint-0615221151/TestingForVal-01-0.53.hdf5",
+        loaded_checkpoint="2022HeadingPredict_checkpoint-0615221203/FullData-09-0.43.hdf5",
     )
 
     headingPredictor.buildNetwork()
@@ -313,7 +313,7 @@ if __name__ == "__main__":
     #for training:
 
     headingPredictor.prepDatasets()
-    headingPredictor.train_withGenerator(headingPredictor.train_ds, headingPredictor.val_ds, epoch = 9)
+    headingPredictor.train_withGenerator(headingPredictor.train_ds, headingPredictor.val_ds, epoch = 20)
 
     #for testing:
 

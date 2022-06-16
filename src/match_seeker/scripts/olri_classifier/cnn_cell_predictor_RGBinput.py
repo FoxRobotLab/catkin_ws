@@ -247,7 +247,7 @@ class CellPredictorRGB(object):
     def findBottomX(self, x, numList):
         """Given a number and a list of numbers, this finds the x smallest values in the number list, and reports
         both the values, and their positions in the numList."""
-        topVals = [0.0] * x
+        topVals = [1e8] * x
         topIndex = [None] * x
         for i in range(len(numList)):
             val = numList[i]
@@ -263,21 +263,19 @@ class CellPredictorRGB(object):
         return topVals, topIndex
 
     def test(self, n, randomChoose = True):
-        """This runs each of the random n images in the folder of frames through the cell-output network, reporting how
-        often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5.
-        Or when setting randomChoose to be false, it tests the model on the n-th image."""
+        """
+        This runs each of the random n images in the folder of frames through the cell-output network, reporting how
+        often the correct cell was produced, and how often the correct heading was in the top 3 and top 5.
+        Or when setting randomChoose to be false, it tests the model on the n-th image
+        :param n: random n images or the n-th image if randomChoose is set to be False
+        :param randomChoose: boolean value deciding whether we are testing on n images or the n-th image on the model
+        :return:
+        """
 
         self.buildMap()
         countPerfect = 0
-
         countTop3 = 0
         countTop5 = 0
-
-        perfMap = {}
-        failedMap = {}
-
-        trueCell = []
-        predCell = []
         if randomChoose:
             iterations = n
         else: iterations = 1
@@ -295,10 +293,6 @@ class CellPredictorRGB(object):
             cell = self.labelMap.frameData[index]['cell']
             processed = self.cleanImage(image)
             pred, output = self.predictSingleImageAllData(processed)
-
-            trueCell.append(cell)
-            predCell.append(pred)
-
             topThreePercs, topThreeCells = self.findTopX(3, output)
             topFivePercs, topFiveCells = self.findTopX(5, output)
             print("cellB =", cell, "   pred =", pred)
@@ -306,14 +300,6 @@ class CellPredictorRGB(object):
             print("Top five:", topFiveCells, topFivePercs)
             if pred == cell:
                 countPerfect += 1
-                perfMap[cell] = perfMap.get(cell, 0) + 1
-            else:
-                if cell in failedMap:
-                    prevFails = failedMap.get(cell, [])
-                    prevFails.append(pred)
-                    failedMap[cell] = prevFails
-                else:
-                    failedMap[cell] = [pred]
             if cell in topThreeCells:
                 countTop3 += 1
             if cell in topFiveCells:
@@ -323,18 +309,19 @@ class CellPredictorRGB(object):
             x = cv2.waitKey(50)
             if chr(x & 0xFF) == 'q':
                 break
-        # print('true cell: ', trueCell)
-        # print('pred cell:', predCell)
-        print('Perfect predictions', perfMap)
-        print('Failed predictions', failedMap)
-        # self.graphConfusionMatrix(n, trueCell, predCell)
         print("Count of perfect:", countPerfect)
         print("Count of top 3:", countTop3)
         print("Count of top 5:", countTop5)
-        self.calculateSuccessPerCell(perfMap, failedMap)
 
 
     def testnImagesEachCell(self, n):
+        """
+        Tests the model on n randomly selected photos per cell. Calculates and plots
+        the success rate per cell and then displays the images used to test the worst
+        performing cell
+        :param n: number of randomly selected photos to test per cell
+        :return:
+        """
         self.buildMap()
         n_frames_map = self.labelMap.selectEnoughFramesForTests(n)
 
@@ -351,13 +338,11 @@ class CellPredictorRGB(object):
                 if image is None:
                     print(" image not found")
                     continue
-                # cell = self.labelMap.frameData[frame]['cell']
                 processed = self.cleanImage(image)
                 pred, output = self.predictSingleImageAllData(processed)
                 frameProbability[frame] = output
 
                 if pred == cell:
-                    # perfMap[cell] = perfMap.get(cell, 0) + 1
                     prevPerf = perfMap.get(cell, [])
                     prevPerf.append(frame)
                     perfMap[cell] = prevPerf
@@ -380,14 +365,16 @@ class CellPredictorRGB(object):
         return processedIm
 
 
-    def calculateSuccessPerCell(self, perfMap, failedMap, excludeMissing = True, excludePerfect = True):
+    def calculateSuccessPerCell(self, perfMap, failedMap, excludeMissing = True, excludePerfect = False):
         """
         Calculates the success rate per cell number category, with the option to
         exclude cells that have a 1.0 perfect success rate or cells that do not show up in the randomly
         generated test cases.
 
-        :param perfMap: Map of perfectly predicted test cases, cell number as keys and count of perfect predictions as values
-        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of incorrect predictions as values
+        :param perfMap: Map of perfectly predicted test cases, cell number as keys and list of perfectly predicted frames as values
+        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of lists containing incorrect predictions and frames as values
+        :param excludeMissing: boolean value deciding whether to include cells not tested
+        :param excludePerfect: boolean value deciding whether to include cells with 100% accuracy of prediction
         :return: List of cells (str) and list of success rates (float) of the cell in the same index
         """
         successRates = []
@@ -399,22 +386,18 @@ class CellPredictorRGB(object):
                 totalPred += len(failedMap[c])
             if c in perfMap:
                 totalPred += len(perfMap[c])
-
-            if excludeMissing:
-                if totalPred > 0:
-                    successRates.append(len(perfMap.get(c, 0)) / totalPred)
-                    cells.append(str(c))
-                # successrate = perfMap.get(c, 0)/totalPred
-                # if successrate < 1.0:
-                #     cells.append(c)
-                #     successRates.append(successrate)
+            if totalPred > 0:
+                successrate = len(perfMap.get(c, 0)) / totalPred
+                if successrate is 1.0:
+                    if excludePerfect:
+                        continue
+                cells.append(str(c))
+                successRates.append(successrate)
             else:
-                if totalPred > 0:
-                    successRates.append(len(perfMap.get(c, 0))/totalPred)
-                    cells.append(str(c))
-                else:
+                if not excludeMissing :
                     successRates.append(-1)
                     cells.append(str(c))
+                continue
 
         print("Success rates: ", successRates)
         print("Number of cells: ", len(cells), "Number of success rates: ", len(successRates))
@@ -422,49 +405,71 @@ class CellPredictorRGB(object):
 
 
     def plotSuccessRates(self, cells, successRates):
-        # cells_str = [str(c) for c in cells]
+        """
+        Plots success rates against cell number using matplotlib.
+        :param cells: List of cells, each entry MUST be a string and indices must be aligned with successRates
+        :param successRates: List of success rates per cell, indices must be aligned with cells
+        :return:
+        """
         plt.scatter(cells, successRates)
         plt.xlabel('Cell Number', fontsize=18)
         plt.ylabel('Success Rate %', fontsize=18)
         plt.title('Success Rate Per Cell', fontsize=18)
         plt.show()
 
-
-    def showImagesofLeastSuccessCell(self, cells, successRates, framesMap, successMap, failedMap, frameProbability):
-        worstSuccessRate = min(successRates)
-        indexOfWorstCell = successRates.index(worstSuccessRate)
-        worstCell = int(cells[indexOfWorstCell])
-
-        listOfList = failedMap.get(worstCell)
-        cellFailFramesMap ={list[0]:list[1] for list in listOfList}
-        #cellFailFramesMap = dict(zip(origFrame, failedPred))
-
-
-
-        print('Worst Performing Cell: ', worstCell, " Success Rate: ", worstSuccessRate)
-        framesList = framesMap.get(worstCell)
-        successFrames = successMap.get(worstCell)
-        for frame in framesList:
-
-
-            imFile = makeFilename(self.frames, frame)
-            print(imFile)
-            image = cv2.imread(imFile)
-            if image is None:
-                print(" image not found")
-                continue
-            if frame in successFrames:
-                probForActualCell = frameProbability[frame][worstCell]
-                cv2.imshow("Frame: " + str(frame) + " Success,  Prob of actual:" + str(probForActualCell), image)
-            else:
-                predCell = cellFailFramesMap.get(frame)
-                probForWrongPrediction = frameProbability[frame][predCell]
-                probForActualCell = frameProbability[frame][worstCell]
-                cv2.imshow("Frame: " + str(frame) + "Fail, Pred cell" + str(predCell) + ", Prob: " + str(probForWrongPrediction) + ", Prob Actual: " + str(probForActualCell), image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    def showImagesofLeastSuccessCell(self, cells, successRates, framesMap, successMap, failedMap, frameProbability, bottomN = 5):
+        """
+        Displays the n photos used in testnImagesEachCell of the cell with the lowest accuracy.
+        Each image window displays whether the tested image was successfully or unsuccessfully predicted, the
+        predicted cell (if unsuccessful), the probability of the model predicting the actual cell from the image,
+        and the probability of the model predicting the wrong cell (if the photo was unsuccessfully predicted).
+        Method is meant to be called inside testnImagesEachCell
+        :param cells: List of cells tested, indices align with successRates
+        :param successRates: List of success rates per cell, indices align with cells
+        :param framesMap: Map of n randomly selected frames per cell with cells for keys, list of frames as values
+        :param successMap: Map of successful frames predicted per cell with cells for keys, list of frames as values
+        :param failedMap: Map of unsuccessfully predicted frames per cell, with cells for keys, list of lists containing
+        failed predicted cell and frame number
+        :param frameProbability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities
+        for each cell generated by the model as values
+        :param bottomN: number of n lowest performing cells
+        :return:
+        """
+        bottomNRate, bottomNCellID = self.findBottomX(bottomN, successRates)
+        print(bottomNRate)
+        print(bottomNCellID)
+        for i in range(bottomN):
 
 
+            worstSuccessRate = bottomNRate[i]
+            indexOfWorstCell = bottomNCellID[i]
+            worstCell = int(cells[indexOfWorstCell])
+
+            listOfList = failedMap.get(worstCell)
+            cellFailFramesMap ={list[0]:list[1] for list in listOfList}
+
+            print('Worst Performing Cell: ', worstCell, " Success Rate: ", worstSuccessRate)
+            framesList = framesMap.get(worstCell)
+            successFrames = successMap.get(worstCell)
+            for frame in framesList:
+
+
+                imFile = makeFilename(self.frames, frame)
+                #print(imFile)
+                image = cv2.imread(imFile)
+                if image is None:
+                    print(" image not found")
+                    continue
+                if frame in successFrames:
+                    probForActualCell = frameProbability[frame][worstCell]
+                    cv2.imshow("Cell " + str(worstCell) + " Frame: " + str(frame) + " Success, Prob of actual:" + str(probForActualCell), image)
+                else:
+                    predCell = cellFailFramesMap.get(frame)
+                    probForWrongPrediction = frameProbability[frame][predCell]
+                    probForActualCell = frameProbability[frame][worstCell]
+                    cv2.imshow("Frame: " + str(frame) + "Fail, Pred cell " + str(predCell) + ", Prob: " + str(probForWrongPrediction) + ", Prob Actual: " + str(probForActualCell), image)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
     def graphConfusionMatrix(self, n, true_Label, predict_Label):
         """
@@ -493,14 +498,8 @@ class CellPredictorRGB(object):
         plt.title('Confusion Matrix', fontsize=18)
         plt.show()
 
-# def loading_bar(start,end, size = 20):
-#     # Useful when running a method that takes a long time
-#     loadstr = '\r'+str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
-#     if start % 10 == 0:
-#         print(loadstr)
 
 if __name__ == "__main__":
-    #check_data()
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
         data_name="FullData",
@@ -525,4 +524,4 @@ if __name__ == "__main__":
 
     #for testing
     # cellPredictor.test(1000)
-    cellPredictor.testnImagesEachCell(100)
+    cellPredictor.testnImagesEachCell(10)
