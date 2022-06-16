@@ -35,7 +35,7 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 The OlinClassifier class is also in olinClassifiers.py. They both can build and train CNN and load checkpoints/models.
 Check where OlinClassifier class is imported from because they may take different inputs.
 The OlinClassifier class in this file is mainly used to train models. It can load the model trained in 2020, 
-but we don't know how it's trained and how are the inputs preprocessed when training.
+but we don't know how it's trained and how are the inputs preprocessed when training, so the result is not good when testing the 2020 model.
 --------------------------------------------------------------------------------"""
 
 
