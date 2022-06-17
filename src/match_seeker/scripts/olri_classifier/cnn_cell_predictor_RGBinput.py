@@ -439,8 +439,6 @@ class CellPredictorRGB(object):
         print(bottomNRate)
         print(bottomNCellID)
         for i in range(bottomN):
-
-
             worstSuccessRate = bottomNRate[i]
             indexOfWorstCell = bottomNCellID[i]
             worstCell = int(cells[indexOfWorstCell])
@@ -452,10 +450,7 @@ class CellPredictorRGB(object):
             framesList = framesMap.get(worstCell)
             successFrames = successMap.get(worstCell)
             for frame in framesList:
-
-
                 imFile = makeFilename(self.frames, frame)
-                #print(imFile)
                 image = cv2.imread(imFile)
                 if image is None:
                     print(" image not found")
@@ -517,11 +512,6 @@ if __name__ == "__main__":
     #cellPredictor.prepDatasets()
     #cellPredictor.train_withGenerator(cellPredictor.train_ds, cellPredictor.val_ds)
 
-    #for Tensorflow 1
-    # training_generator = DataGenerator2022()
-    # validation_generator = DataGenerator2022(train = False)
-    # cellPredictor.train_withGenerator(training_generator,validation_generator)
-
     #for testing
     # cellPredictor.test(1000)
-    cellPredictor.testnImagesEachCell(10)
+    #cellPredictor.testnImagesEachCell(10)
