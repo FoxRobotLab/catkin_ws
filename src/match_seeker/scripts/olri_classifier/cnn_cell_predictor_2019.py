@@ -292,6 +292,7 @@ def loading_bar(start,end, size = 20):
 
 # def check_data():
 #     data = np.load(DATA + 'TRAININGDATA_100_500_heading-input_gnrs.npy')
+#     print(data.shape)
 #     np.random.shuffle(data)
 #     print(data[0])
 #     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
@@ -306,9 +307,12 @@ def loading_bar(start,end, size = 20):
 if __name__ == "__main__":
     # check_data()
     cellPredictor = CellPredictor2019(
+        #for setting up for building and training model
         # dataImg= DATA +"Img_w_head_13k.npy",
         # dataLabel = DATA + 'cell_ouput13k.npy',
-        #data_name = "testCellPredictor"
+        # data_name = "testCellPredictor"
+
+        #for testing existing model
         loaded_checkpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5"
     )
     # print("Classifier built")

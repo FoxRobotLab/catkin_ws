@@ -35,7 +35,7 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 The OlinClassifier class is also in olinClassifiers.py. They both can build and train CNN and load checkpoints/models.
 Check where OlinClassifier class is imported from because they may take different inputs.
 The OlinClassifier class in this file is mainly used to train models. It can load the model trained in 2020, 
-but we don't know how it's trained and how are the inputs preprocessed when training.
+but we don't know how it's trained and how are the inputs preprocessed when training, so the result is not good when testing the 2020 model.
 --------------------------------------------------------------------------------"""
 
 
@@ -102,13 +102,13 @@ class OlinClassifier(object):
         elif self.cellInput:
             self.model = self.cnn_cells()  #CNN
             self.loss = keras.losses.categorical_crossentropy
-        elif self.model2020 == "Cell": #no compiling for 2020 models
+        elif self.model2020 == "Cell": #no compiling for existing 2020 models
             self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
                 DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
             self.model.load_weights(DATA + "CHECKPOINTS/olin_cnn_checkpoint-0717200610/CNN_cellPred_all244Cell_20epochs-04-0.29.hdf5")
             #self.model.summary()
-        elif self.model2020 == "Heading":  # no compiling for 2020 models
+        elif self.model2020 == "Heading":  # no compiling for existing 2020 models
             self.loss = keras.losses.categorical_crossentropy
             self.model = keras.models.load_model(
                 DATA + "CHECKPOINTS/olin_cnn_checkpoint-0720202216/CNN_headPred_all244Cell-01-0.27.hdf5")
