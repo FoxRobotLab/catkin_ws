@@ -14,13 +14,13 @@ import os
 import numpy as np
 from tensorflow import keras
 import time
-# import seaborn as sns
 import matplotlib.pyplot as plt
 from paths import DATA, checkPts, frames
 from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
 from DataGenerator2022 import DataGenerator2022
 import random
+import tensorflow as tf
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -53,10 +53,6 @@ class CellPredictorRGB(object):
         self.batch_size = batch_size
         self.seed = seed
         self.num_eval = None
-        # self.train_images = None
-        # self.train_labels = None
-        # self.eval_images = None
-        # self.eval_labels = None
         self.data_name = data_name
         self.dataSize = dataSize #len of ...?
         self.loaded_checkpoint = loaded_checkpoint
@@ -74,35 +70,79 @@ class CellPredictorRGB(object):
         saving it to self.labelMap."""
         self.labelMap = FrameCellMap(dataFile=self.labelMapFile)
 
-    #not compatible with tensorflow 1
-    # def prepDatasets(self):
-    #     """Finds the cell labels associated with the files in the frames folder, and then sets up two
-    #     data generators to produce the data in batches."""
-    #     self.buidMap()
-    #     files = [f for f in os.listdir(self.frames) if f.endswith("jpg")]
-    #     cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, files)]
-    #     self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
-    #                                                              validation_split=0.2,  seed=self.seed,
-    #                                                              image_size=(self.image_size, self.image_size),
-    #                                                              batch_size=self.batch_size)
-    #     self.train_ds = self.train_ds.map(lambda x, y: (x /255., y))
-    #
-    #     self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels,subset="validation",
-    #                                                            validation_split=0.2, seed=self.seed,
-    #                                                            image_size=(self.image_size, self.image_size),
-    #                                                            batch_size=self.batch_size)
-    #     self.val_ds = self.val_ds.map(lambda x, y: (x / 255., y))
-
+    #not compatible with tensorflow 1, also seems to do different preprocessing from the next prepDatasets function
     def prepDatasets(self):
         """Finds the cell labels associated with the files in the frames folder, and then sets up two
-        data generators to preprocess data and produce the data in batches."""
-        self.train_ds = DataGenerator2022(batch_size = self.batch_size)
-        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False)
+        data generators to produce the data in batches."""
+        self.buildMap()
+        #From Tensorflow website:
+        #Labels should be sorted according to the alphanumeric order of the image file paths (obtained via os.walk(directory) in Python)
+        #given a directory, os.walk returns list of dirpaths, list of dirnames and list of filenames as tuples, the generated lists are in the same order in every run
+        files = next(os.walk("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2019data/frames/moreframes"))[2]
+        files.sort()
+        cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, files)]
+
+        self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
+                                                                 label_mode = 'int',
+                                                                 validation_split=0.2,  seed=self.seed,
+                                                                 image_size=(self.image_size, self.image_size),
+                                                                 batch_size=self.batch_size)
+        self.train_ds = self.train_ds.map(lambda x, y: (x /255., y)) #we shall use keras rescale layer instead of this line
+
+        #displays images and labels in first batch
+
+        # for images, labels in self.train_ds.take(1):
+        #     for i in range(self.batch_size):
+        #         print("Label: ", labels[i])
+        #         print("Image: ", images[i].numpy())
+        #         image = cv2.convertScaleAbs(images[i].numpy()) # cv2 cannot show floating points
+        #         cv2.imshow("Label"+str(labels[i]) , image)
+        #         cv2.waitKey(0)
+
+        self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels,subset="validation",
+                                                               label_mode='int',
+                                                               validation_split=0.2, seed=self.seed,
+                                                               image_size=(self.image_size, self.image_size),
+                                                               batch_size=self.batch_size)
+        self.val_ds = self.val_ds.map(lambda x, y: (x / 255., y)) #use keras rescale layer instead
+
+        #methods that does not work for listing filenames of images of dataset
+
+        # iterator_helper = self.val_ds.make_one_shot_iterator()
+        # with tf.Session() as sess:
+        #     filename_temp = iterator_helper.get_next()
+        #     print(filename_temp)
+        #     print(sess.run[filename_temp])
+
+        # for i, element in enumerate(self.val_ds.as_numpy_iterator()):
+        #     print(element)
+        #     if i>50:
+        #         break
+
+        # file_paths = self.val_ds.file_paths
+        # print(file_paths[0:10])
+
+        # displays images and labels in first batch
+        # for images, labels in self.val_ds.take(1):
+        #     for i in range(self.batch_size):
+        #         print("Label: ", labels[i])
+        #         print("Image: ", images[i].numpy())
+        #         image = cv2.convertScaleAbs(images[i].numpy()) # cv2 cannot show floating points
+        #         cv2.imshow("Label"+str(labels[i]) , image)
+        #         cv2.waitKey(0)
+
+
+    # def prepDatasets(self):
+    #     """Finds the cell labels associated with the files in the frames folder, and then sets up two
+    #     data generators to preprocess data and produce the data in batches."""
+    #     self.train_ds = DataGenerator2022(batch_size = self.batch_size)
+    #     self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
         if self.loaded_checkpoint:
             self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
+            #print("---Loading weights---")
             self.model.load_weights(self.loaded_checkpoint)
         else:
             self.model = self.cnn()  # CNN
@@ -112,51 +152,41 @@ class CellPredictorRGB(object):
             optimizer=keras.optimizers.SGD(lr=self.learning_rate),
             metrics=["accuracy"])
 
-    # def train(self, epochs = 20):
-    #     """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
-    #     training data is set up yet."""
-    #
-    #     print("This is the shape of the train images!!", self.train_images.shape)
-    #     if self.train_images is None:
-    #         print("No training data loaded yet.")
-    #         return 0
-    #
-    #     self.model.fit(
-    #         self.train_images, self.train_labels,
-    #         #batch_size= 1,
-    #         epochs=epochs,
-    #         verbose=1,
-    #         validation_data=(self.eval_images, self.eval_labels),
-    #         shuffle=True,
-    #         callbacks=[
-    #             keras.callbacks.History(),
-    #             keras.callbacks.ModelCheckpoint(
-    #                 self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-    #                 period=1  # save every n epoch
-    #             ),
-    #             keras.callbacks.TensorBoard(
-    #                 log_dir=self.checkpoint_dir,
-    #                 #batch_size=1,
-    #                 write_images=False,
-    #                 write_grads=True,
-    #                 histogram_freq=1,
-    #             ),
-    #             keras.callbacks.TerminateOnNaN()
-    #         ]
-    #     )
+    def train(self, epochs = 20):
+        """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
+        training data is set up yet."""
+
+        self.model.fit(
+            x = self.train_ds,
+            epochs=epochs,
+            verbose=1,
+            validation_data=self.val_ds,
+            callbacks=[
+                keras.callbacks.History(),
+                keras.callbacks.ModelCheckpoint(
+                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                    save_freq="epoch"  # save every epoch
+                ),
+                keras.callbacks.TensorBoard(
+                    log_dir=self.checkpoint_dir,
+                    write_images=False,
+                    write_grads=True
+                ),
+                keras.callbacks.TerminateOnNaN()
+            ]
+        )
 
 
-    def train_withGenerator(self, training_generator, validation_generator, epoch = 20 ):
-        self.model.fit_generator(generator=training_generator,
-                            validation_data=validation_generator,
+    def train_withGenerator(self, epochs = 20 ):
+        self.model.fit_generator(generator=self.train_ds,
+                            validation_data=self.val_ds,
                             use_multiprocessing=True,
                             workers=6,
-                            #steps_per_epoch = 6100, #Sample data ---> 6
                             callbacks=[
                                 keras.callbacks.History(),
                                 keras.callbacks.ModelCheckpoint(
                                     self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                                    period=1  # save every n epoch
+                                    save_freq="epoch"  # save every n epoch
                                 ),
                                 keras.callbacks.TensorBoard(
                                     log_dir=self.checkpoint_dir,
@@ -165,7 +195,7 @@ class CellPredictorRGB(object):
                                 ),
                                 keras.callbacks.TerminateOnNaN()
                 ],
-                            epochs= epoch)
+                            epochs= epochs)
 
 
 
@@ -176,9 +206,10 @@ class CellPredictorRGB(object):
         model = keras.models.Sequential()
 
         #rescale and resize layers not compatible with tensorflow 1, so they're done in prepDatasets function.
-        # model.add(keras.layers.Rescaling(scale = 1./255, offset=0.0, **kwargs))
         # model.add(keras.layers.Resizing(
         #         self.image_size, self.image_size, interpolation="bilinear", crop_to_aspect_ratio=False, **kwargs))
+        # model.add(keras.layers.Rescaling(scale = 1./255, offset=0.0,
+        #                                  input_shape=[self.image_size, self.image_size, self.image_depth]))
 
         model.add(keras.layers.Conv2D(
             filters=128,
@@ -186,8 +217,8 @@ class CellPredictorRGB(object):
             strides=(1, 1),
             activation="relu",
             padding="same",
-            data_format="channels_last",
-            input_shape=[self.image_size, self.image_size, self.image_depth]
+            data_format="channels_last"
+            ,input_shape=[self.image_size, self.image_size, self.image_depth]
         ))
         model.add(keras.layers.MaxPooling2D(
             pool_size=(2, 2),
@@ -265,7 +296,7 @@ class CellPredictorRGB(object):
     def test(self, n, randomChoose = True):
         """
         This runs each of the random n images in the folder of frames through the cell-output network, reporting how
-        often the correct cell was produced, and how often the correct heading was in the top 3 and top 5.
+        often the correct cell was prodplt.show()uced, and how often the correct heading was in the top 3 and top 5.
         Or when setting randomChoose to be false, it tests the model on the n-th image
         :param n: random n images or the n-th image if randomChoose is set to be False
         :param randomChoose: boolean value deciding whether we are testing on n images or the n-th image on the model
@@ -388,7 +419,7 @@ class CellPredictorRGB(object):
                 totalPred += len(perfMap[c])
             if totalPred > 0:
                 successrate = len(perfMap.get(c, 0)) / totalPred
-                if successrate is 1.0:
+                if successrate == 1.0:
                     if excludePerfect:
                         continue
                 cells.append(str(c))
@@ -497,21 +528,24 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="FullData",
+        data_name="TestNew-prepDatasetFromScratch",
         checkPointFolder=checkPts,
         imagesFolder=frames,
-        #imagesParent=DATA + "frames/",
+        imagesParent=DATA + "frames/",
         batch_size=10,
-        labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint="2022CellPredict_checkpoint-0613221711/FullData-20-0.27.hdf5",
+        labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        #loaded_checkpoint="latestCellPredictorFromPrecision5810.hdf5"
     )
 
     cellPredictor.buildNetwork()
 
     #for training
-    #cellPredictor.prepDatasets()
-    #cellPredictor.train_withGenerator(cellPredictor.train_ds, cellPredictor.val_ds)
+
+    cellPredictor.prepDatasets()
+    #cellPredictor.train_withGenerator(epochs = 1)
+    cellPredictor.train(epochs = 30)
 
     #for testing
-    # cellPredictor.test(1000)
+
+    #cellPredictor.test(1000)
     #cellPredictor.testnImagesEachCell(10)
