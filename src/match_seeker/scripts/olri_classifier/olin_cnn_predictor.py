@@ -30,7 +30,7 @@ import random
 import sys
 import os
 from tensorflow import keras
-frames
+
 sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
 from turtleControl import TurtleBot
 from OlinWorldMap import WorldMap

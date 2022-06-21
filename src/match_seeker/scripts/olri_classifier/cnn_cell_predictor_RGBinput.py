@@ -30,7 +30,7 @@ print(tf.__version__)
 
 class CellPredictor2019(object):
     def __init__(self, checkPts, eval_ratio=11.0/61.0, loaded_checkpoint=None, imagesFolder=None, imagesParent=None,
-                 labelMapFile=None, outputSize=271, image_size=100, image_depth=3, data_name=None, dataSize = 0,
+                 labelMapFile=None, outputSize=271, image_size=100, image_depth=3, data_name=None, dataSize=0,
                  testData=DATA, batch_size = 32, seed=123456):
         ### Set up paths and basic model hyperparameters
         # TODO: We need to add a comment here that describes exactly what each of these inputs means!!
