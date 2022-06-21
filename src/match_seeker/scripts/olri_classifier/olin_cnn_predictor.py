@@ -33,6 +33,8 @@ from tensorflow import keras
 
 sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
 from turtleControl import TurtleBot
+from cnn_cell_predictor_2019 import CellPredictor2019
+
 from OlinWorldMap import WorldMap
 
 # uncomment to use CPU
