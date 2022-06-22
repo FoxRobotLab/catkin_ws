@@ -78,9 +78,10 @@ class CellPredictorRGB(object):
         #From Tensorflow website:
         #Labels should be sorted according to the alphanumeric order of the image file paths (obtained via os.walk(directory) in Python)
         #given a directory, os.walk returns list of dirpaths, list of dirnames and list of filenames as tuples, the generated lists are in the same order in every run
-        files = next(os.walk("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2019data/frames/moreframes"))[2]
-        files.sort()
-        cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, files)]
+        print(self.frames, self.framesParent)
+        imageFiles = os.listdir(self.frames)
+        imageFiles.sort()
+        cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, imageFiles)]
 
         self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
                                                                  label_mode = 'int',
@@ -99,7 +100,7 @@ class CellPredictorRGB(object):
         #         cv2.imshow("Label"+str(labels[i]) , image)
         #         cv2.waitKey(0)
 
-        self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels,subset="validation",
+        self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="validation",
                                                                label_mode='int',
                                                                validation_split=0.2, seed=self.seed,
                                                                image_size=(self.image_size, self.image_size),
@@ -157,7 +158,7 @@ class CellPredictorRGB(object):
         training data is set up yet."""
 
         self.model.fit(
-            x = self.train_ds,
+            self.train_ds,
             epochs=epochs,
             verbose=1,
             validation_data=self.val_ds,
@@ -530,7 +531,7 @@ if __name__ == "__main__":
         # dataSize=95810,
         data_name="TestNew-prepDatasetFromScratch",
         checkPointFolder=checkPts,
-        imagesFolder=frames,
+        imagesFolder=frames + "/moreFrames/",
         imagesParent=DATA + "frames/",
         batch_size=10,
         labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
@@ -542,8 +543,9 @@ if __name__ == "__main__":
     #for training
 
     cellPredictor.prepDatasets()
+    print("DONE")
     #cellPredictor.train_withGenerator(epochs = 1)
-    cellPredictor.train(epochs = 30)
+    cellPredictor.train(epochs = 5)
 
     #for testing
 
