@@ -4,10 +4,18 @@ cnn_predictor_2022.py
 Authors: Bea Bautista, Shosuke Noma, Yifan Wu
 Based on olin_cnn_predictor.py
 
-Has some methods for predicting cells/headings based on robot image input.
-Requires some tweaks depending on whether it's used with matchPlanner.py or
-independently. ~~See comments below~~
+Code that allows for TurtleBot running on ROS Melodic to use cell and heading
+predictor models to predict its current location in real time. To run the models
+on Cutie, this script must be called in the terminal using:
 
+rosrun match_seeker scripts/olri_classifier/cnn_predictor_2022.py
+
+Cutie must be launched (minimal, astra, and teleop) for this code to run. To end this program,
+processes must be killed in the terminal using kill -9 <Python2.7 PID>
+
+Each time this code is run, logs are saved in new directories inside match_seeker/res/csvLogs2022.
+These new directories include the chosen frames to be logged as well as performance metrics
+of each model.
 --------------------------------------------------------------------------------"""
 # from __future__ import absolute_import
 # from __future__ import division
