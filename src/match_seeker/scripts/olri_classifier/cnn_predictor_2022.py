@@ -14,13 +14,8 @@ independently. ~~See comments below~~
 # from __future__ import print_function
 import cv2
 import time
-# import rospkg
-# import imp
-# foo = imp.load_source('rospy','/opt/ros/melodic/lib/python2.7/dist-packages/rospy/__init__.py')
-# foo.MyClass()
-# foo = imp.load_source('rospy','/opt/ros/melodic/lib/python2.7/dist-packages/rospy/__init__.pyc')
-# foo.MyClass()
 import rospy
+import csv
 # import roslibpy
 import numpy as np
 import random
@@ -39,6 +34,18 @@ from cnn_heading_predictor_RGBinput import HeadingPredictorRGB
 
 # uncomment to use CPU
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+def convertHeadingIndList(list):
+    headings = []
+    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    for i in list:
+        headings.append(potentialHeadings[i])
+    return headings
+
+def inTopX(item, list):
+    if item in list:
+        return "T"
+    return "F"
 
 if __name__ == "__main__":
     robot = TurtleBot()
@@ -66,10 +73,22 @@ if __name__ == "__main__":
     cell = input("Initial cell: ")
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
 
+    dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
+    logPath = "../../res/csvLogs2022/turtleLog-" + dirTimeStamp
+    photoPath = logPath + "/turtlePhotos-" + dirTimeStamp
+    os.mkdir(logPath)
+    os.mkdir(photoPath)
+    csvLog = open(logPath + "/turtleLog-" + dirTimeStamp + ".csv", "w")
+    filewriter = csv.writer(csvLog)
+    filewriter.writerow(
+        ["Frame", "Actual Cell", "Actual Heading", "Prob Actual Cell", "Prob Actual Heading",
+         "Pred Cell 2022", "Prob Cell 2022", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
+         "Pred Heading 2022", "Prob Heading 2022", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob",
+         "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
+         "Cell for 2019 Heading Pred", "Pred Heading 2019", "Prob Heading 2019", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob"])
+
     while (not rospy.is_shutdown()):
         turtle_image, _ = robot.getImage()
-
-
 
         # 2022 RGB Cell Predictor Model
         pred_cellRGB, output_cellRGB = cellPredictorRGB.predictSingleImageAllData(turtle_image)
@@ -96,7 +115,7 @@ if __name__ == "__main__":
         # print("heading prediction 2019 model:", potentialHeadings[pred_heading])
         # print("Top three:", topThreeHeadingID_heading, topThreePercs_heading)
         # headingnumber = potentialHeadings[pred_heading]
-        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+
         rgbCell_text = "RGB Cell: " + str(topThreeCells_cellRGB[0]) + " " + "{:.3f}".format(topThreePercs_cellRGB[0]) + "%"
         rgbHeading_text = "RGB Heading: " + str(potentialHeadings[topThreeHeadingID_headingRGB[0]]) + " " + "{:.3f}".format(topThreePercs_headingRGB[0]) + "%"
         turtle_image_text = cv2.putText(img = turtle_image, text = rgbCell_text, org = (50,50), fontScale= 1, fontFace= cv2.FONT_HERSHEY_DUPLEX, color = (0,255,255))
@@ -106,12 +125,28 @@ if __name__ == "__main__":
 
         key = cv2.waitKey(10)
         ch = chr(key & 0xFF)
-        if (ch == "q"):
+        if ch == "q":
             break
-        if (ch=="o"):
+        if ch == "o":
             headingnumber = input("new heading: ")
             cell = input("new cell: ")
+        if ch == "s":
+            frame = "turtleIm-{}.jpg".format(time.strftime("%m%d%y%H%M"))
+            cv2.imwrite(photoPath + "/" + frame, turtle_image)
+            actualCell = input("Actual Cell: ")
+            actualHeading = input("Actual Heading: ")
+            headingTop3 = convertHeadingIndList(topThreeHeadingID_headingRGB)
+            actualHeadingIndex = potentialHeadings.index(int(actualHeading))
+            filewriter.writerow(
+                [frame, actualCell, actualHeading, "{:.3f}".format(output_cellRGB[int(actualCell)]), "{:.3f}".format(output_headingRGB[int(actualHeadingIndex)]),
+                 str(topThreeCells_cellRGB[0]), "{:.3f}".format(topThreePercs_cellRGB[0]), inTopX(int(actualCell), topThreeCells_cellRGB),  str(topThreeCells_cellRGB), str(topThreePercs_cellRGB),
+                 str(potentialHeadings[topThreeHeadingID_headingRGB[0]]), "{:.3f}".format(topThreePercs_headingRGB[0]), inTopX(int(actualHeading), headingTop3), str(headingTop3), str(topThreePercs_headingRGB),
+                 "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Headings",
+                 "Top 3 Heading Prob",
+                 "Cell for 2019 Heading Pred", "Pred Heading 2019", "Prob Heading 2019", "Actual in Top 3", "Top 3 Cells",
+                 "Top 3 Cell Prob"])
         time.sleep(0.1)
     cv2.destroyAllWindows()
+    csvLog.close()
     robot.exit()
 
