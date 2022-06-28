@@ -30,10 +30,10 @@ def image_callback(data):
 def listener():
     global image_sub
     rospy.init_node('listener', anonymous=True)
-    rospy.Subscriber("Top Cell", String, callbackTopCell)
-    rospy.Subscriber("Top Heading", String, callbackTopHeading)
-    rospy.Subscriber("Top Cell Prob", String, callbackTopCellProb)
-    rospy.Subscriber("Top Heading Prob", String, callbackTopHeadingProb)
+    rospy.Subscriber("TopCell", String, callbackTopCell)
+    rospy.Subscriber("TopHeading", String, callbackTopHeading)
+    rospy.Subscriber("TopCell Prob", String, callbackTopCellProb)
+    rospy.Subscriber("TopHeading Prob", String, callbackTopHeadingProb)
     image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, image_callback)
 
 def getImage(x = 0, y = 0, width = 640, height = 480):
@@ -63,7 +63,8 @@ if __name__ == "__main__":
 
     # robot = TurtleBot()
     # robot.pauseMovement()
-    image_sub, image_array, topCell, topCellProb, topHeading, topHeadingProb = None, None, None, None, None
+    image_sub, image_array = None, None
+    topCell, topCellProb, topHeading, topHeadingProb = None, None, None, None
     listener()
 
     while (not rospy.is_shutdown()):
