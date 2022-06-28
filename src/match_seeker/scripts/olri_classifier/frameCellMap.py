@@ -262,6 +262,25 @@ class FrameCellMap(object):
 
         return chosenFrames
 
+    def selectNFramesOneCell(self, cell, n):
+        """
+        Helper function for testing to select n frames for one specific cell.
+        If there are less frames than the desired number of frames n, function will randomly
+        select n images of that cell with repetition
+        """
+        chosenFrames = []
+        cellFrames = self.cellData[cell]
+        while len(chosenFrames) < n:
+            if len(cellFrames) < n:
+                print("There are less frames than ", n, ". There are ", len(cellFrames), " frames for cell ", cell)
+                randImage = random.choice(list(cellFrames))
+                chosenFrames.append(randImage)
+            else:
+                randImage = random.choice(list(cellFrames))
+                if randImage not in chosenFrames:
+                    chosenFrames.append(randImage)
+        return chosenFrames
+
 
     # def createMoreFrames(self):
     #     """

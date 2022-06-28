@@ -20,6 +20,7 @@ from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
 from DataGenerator2022 import DataGenerator2022
 import random
+import csv
 import tensorflow as tf
 
 ### Uncomment next line to use CPU instead of GPU: ###
@@ -360,7 +361,7 @@ class CellPredictorRGB(object):
         perfMap = {}
         failedMap = {}
         frameProbability = {}
-
+        frameTop3PredProb = {}
         for cell in n_frames_map:
             cell_frames = n_frames_map.get(cell)
             for frame in cell_frames:
@@ -371,8 +372,9 @@ class CellPredictorRGB(object):
                     print(" image not found")
                     continue
                 pred, output = self.predictSingleImageAllData(image)
+                topThreePercs, topThreeCells = self.findTopX(3, output)
                 frameProbability[frame] = output
-
+                frameTop3PredProb[frame] = [topThreePercs, topThreeCells]
                 if pred == cell:
                     prevPerf = perfMap.get(cell, [])
                     prevPerf.append(frame)
@@ -386,7 +388,12 @@ class CellPredictorRGB(object):
         cells, successRates = self.calculateSuccessPerCell(perfMap, failedMap)
         self.plotSuccessRates(cells, successRates)
         self.showImagesofLeastSuccessCell(cells, successRates, n_frames_map, perfMap, failedMap, frameProbability)
+        self.logWorstCells("CellPredBottom3AllFrames", cells, successRates, n_frames_map, perfMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 3)
 
+
+    def testnImagesOneCell(self, cell, n):
+        self.buildMap()
+        cellFrames = self.labelMap.selectNFramesOneCell(cell, n)
 
 
     def cleanImage(self, image, imageSize=100):
@@ -429,7 +436,6 @@ class CellPredictorRGB(object):
                     successRates.append(-1)
                     cells.append(str(c))
                 continue
-
         print("Success rates: ", successRates)
         print("Number of cells: ", len(cells), "Number of success rates: ", len(successRates))
         return cells, successRates
@@ -496,6 +502,50 @@ class CellPredictorRGB(object):
                     cv2.imshow("Frame: " + str(frame) + "Fail, Pred cell " + str(predCell) + ", Prob: " + str(probForWrongPrediction) + ", Prob Actual: " + str(probForActualCell), image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
+
+
+    def logWorstCells(self, dirName, cells, successRates, framesMap, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 1):
+        dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
+        logPath = "../../res/csvLogs2022/CellPredictorRGBTestLogs/" + dirName + "-" + dirTimeStamp
+        os.mkdir(logPath)
+        csvLog = open(logPath + "/" + dirName + "-" + dirTimeStamp + ".csv", "w")
+        filewriter = csv.writer(csvLog)
+        filewriter.writerow(["Frame", "Actual Cell", "Predicted Cell", "Success", "Cell Success Rate", "Prob Actual", "Prob Predicted", "Top 3 Pred", "Top 3 Prob"])
+
+        bottomNRate, bottomNCellID = self.findBottomX(bottomN, successRates)
+        for i in range(bottomN):
+            worstSuccessRate = bottomNRate[i]
+            indexOfWorstCell = bottomNCellID[i]
+            worstCell = int(cells[indexOfWorstCell])
+
+            listOfList = failedMap.get(worstCell)
+            cellFailFramesMap ={list[0]:list[1] for list in listOfList}
+
+            framesList = framesMap.get(worstCell)
+            successFrames = successMap.get(worstCell)
+
+            for frame in framesList:
+                imFile = makeFilename(self.frames, frame)
+                image = cv2.imread(imFile)
+                if image is None:
+                    print(" image not found")
+                    continue
+                probForActualCell = frameProbability[frame][worstCell]
+                frameTop3Prob = frameTop3PredProb[frame][0]
+                frameTop3PredCell = frameTop3PredProb[frame][1]
+                if frame in successFrames:
+                    filewriter.writerow(
+                        [frame, str(worstCell), str(worstCell), "T", str(worstSuccessRate), str(probForActualCell),
+                         str(probForActualCell), str(frameTop3PredCell), str(frameTop3Prob)])
+                else:
+                    predCell = cellFailFramesMap.get(frame)
+                    probForWrongPrediction = frameProbability[frame][predCell]
+                    probForActualCell = frameProbability[frame][worstCell]
+                    filewriter.writerow(
+                        [frame, str(worstCell), str(predCell), "F", str(worstSuccessRate), str(probForActualCell),
+                         str(probForWrongPrediction), str(frameTop3PredCell), str(frameTop3Prob)])
+        csvLog.close()
+
 
     def graphConfusionMatrix(self, n, true_Label, predict_Label):
         """
