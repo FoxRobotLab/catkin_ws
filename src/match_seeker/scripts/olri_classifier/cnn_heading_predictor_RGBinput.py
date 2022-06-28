@@ -79,7 +79,7 @@ class HeadingPredictorRGB(object):
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
         if self.loaded_checkpoint:
-            self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
+            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             self.model.load_weights(self.loaded_checkpoint)
         else:
             self.model = self.cnn()  # CNN
@@ -207,10 +207,11 @@ class HeadingPredictorRGB(object):
         model.summary()
         return model
 
-    def predictSingleImageAllData(self, cleanImage):
-        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
-        the resulting prediction."""
-        listed = np.array([cleanImage])
+    def predictSingleImageAllData(self, image):
+        """Given an image, converts it to be suitable for the network, then runs the model and returns
+        the resulting prediction as tuples of index of prediction and list of predictions."""
+        cleanimage = self.cleanImage(image)
+        listed = np.array([cleanimage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
         print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
@@ -263,8 +264,7 @@ class HeadingPredictorRGB(object):
             headingIndex = potentialHeadings.index(heading)
             if headingIndex is 8:  # the 0th index is 0 degree and is the same as the 8th index 360 degrees
                 headingIndex = 0
-            processed = self.cleanImage(image)
-            pred, output = self.predictSingleImageAllData(processed)
+            pred, output = self.predictSingleImageAllData(image)
             topThreePercs, topThreeHeadings = self.findTopX(3, output)
             topFivePercs, topFiveHeadings = self.findTopX(5, output)
             print("heading index =", headingIndex, "   pred =", pred)
