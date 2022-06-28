@@ -28,7 +28,7 @@ import numpy
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from create_node.msg import TurtlebotSensorState
+# from create_node.msg import TurtlebotSensorState
 from kobuki_msgs.msg import SensorState
 from std_msgs.msg import Empty
 from time import time, sleep
@@ -41,7 +41,7 @@ class TurtleBot(object):
 
     def __init__(self):
         """Sets up the three threads and starts them running."""
-
+        rospy.init_node('test_movement')
         self.robotType = os.environ["TURTLEBOT_BASE"]
 
         if self.robotType == "create":
@@ -502,7 +502,7 @@ class DepthSensorThread(threading.Thread):
 
         if self.robotType == "create":
             self.depth_sub = rospy.Subscriber("/camera/depth_decompressed", Image, self.depth_callback)
-            self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", TurtlebotSensorState, self.sensor_callback)
+            # self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", TurtlebotSensorState, self.sensor_callback)
         elif self.robotType == "kobuki":
             self.depth_sub = rospy.Subscriber("/camera/depth/image_raw",Image,self.depth_callback)
             self.sensor_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.sensor_callback)
