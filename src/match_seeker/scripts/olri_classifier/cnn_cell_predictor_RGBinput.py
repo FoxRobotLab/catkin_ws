@@ -142,7 +142,7 @@ class CellPredictorRGB(object):
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
         if self.loaded_checkpoint:
-            self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
+            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             #print("---Loading weights---")
             self.model.load_weights(self.loaded_checkpoint)
         else:
@@ -250,10 +250,11 @@ class CellPredictorRGB(object):
         return model
 
 
-    def predictSingleImageAllData(self, cleanImage):
-        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
-        the resulting prediction."""
-        listed = np.array([cleanImage])
+    def predictSingleImageAllData(self, image):
+        """Given an image, converts it to be suitable for the network, then runs the model and returns
+        the resulting prediction as tuples of index of prediction and list of predictions."""
+        cleanimage = self.cleanImage(image)
+        listed = np.array([cleanimage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
         return maxIndex, modelPredict[0]
@@ -323,8 +324,7 @@ class CellPredictorRGB(object):
                 print(" image not found")
                 continue
             cell = self.labelMap.frameData[index]['cell']
-            processed = self.cleanImage(image)
-            pred, output = self.predictSingleImageAllData(processed)
+            pred, output = self.predictSingleImageAllData(image)
             topThreePercs, topThreeCells = self.findTopX(3, output)
             topFivePercs, topFiveCells = self.findTopX(5, output)
             print("cellB =", cell, "   pred =", pred)
@@ -370,8 +370,7 @@ class CellPredictorRGB(object):
                 if image is None:
                     print(" image not found")
                     continue
-                processed = self.cleanImage(image)
-                pred, output = self.predictSingleImageAllData(processed)
+                pred, output = self.predictSingleImageAllData(image)
                 frameProbability[frame] = output
 
                 if pred == cell:
