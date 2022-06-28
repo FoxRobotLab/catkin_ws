@@ -4,23 +4,26 @@ cnn_predictor_2022.py
 Authors: Bea Bautista, Shosuke Noma, Yifan Wu
 Based on olin_cnn_predictor.py
 
-Has some methods for predicting cells/headings based on robot image input.
-Requires some tweaks depending on whether it's used with matchPlanner.py or
-independently. ~~See comments below~~
+Code that allows for TurtleBot running on ROS Melodic to use cell and heading
+predictor models to predict its current location in real time. To run the models
+on Cutie, this script must be called in the terminal using:
 
+rosrun match_seeker scripts/olri_classifier/cnn_predictor_2022.py
+
+Cutie must be launched (minimal, astra, and teleop) for this code to run. To end this program,
+processes must be killed in the terminal using kill -9 <Python2.7 PID>
+
+Each time this code is run, logs are saved in new directories inside match_seeker/res/csvLogs2022.
+These new directories include the chosen frames to be logged as well as performance metrics
+of each model.
 --------------------------------------------------------------------------------"""
 # from __future__ import absolute_import
 # from __future__ import division
 # from __future__ import print_function
 import cv2
 import time
-# import rospkg
-# import imp
-# foo = imp.load_source('rospy','/opt/ros/melodic/lib/python2.7/dist-packages/rospy/__init__.py')
-# foo.MyClass()
-# foo = imp.load_source('rospy','/opt/ros/melodic/lib/python2.7/dist-packages/rospy/__init__.pyc')
-# foo.MyClass()
 import rospy
+import csv
 # import roslibpy
 import numpy as np
 import random
@@ -40,6 +43,18 @@ from std_msgs.msg import String
 
 # uncomment to use CPU
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+def convertHeadingIndList(list):
+    headings = []
+    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    for i in list:
+        headings.append(potentialHeadings[i])
+    return headings
+
+def inTopX(item, list):
+    if item in list:
+        return "T"
+    return "F"
 
 if __name__ == "__main__":
     robot = TurtleBot()
@@ -71,6 +86,20 @@ if __name__ == "__main__":
     headingnumber = input("Initial heading: ")
     cell = input("Initial cell: ")
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+
+    dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
+    logPath = "../../res/csvLogs2022/turtleLog-" + dirTimeStamp
+    photoPath = logPath + "/turtlePhotos-" + dirTimeStamp
+    os.mkdir(logPath)
+    os.mkdir(photoPath)
+    csvLog = open(logPath + "/turtleLog-" + dirTimeStamp + ".csv", "w")
+    filewriter = csv.writer(csvLog)
+    filewriter.writerow(
+        ["Frame", "Actual Cell", "Actual Heading", "Prob Actual Cell", "Prob Actual Heading",
+         "Pred Cell 2022", "Prob Cell 2022", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
+         "Pred Heading 2022", "Prob Heading 2022", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob",
+         "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
+         "Cell for 2019 Heading Pred", "Pred Heading 2019", "Prob Heading 2019", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob"])
 
     while (not rospy.is_shutdown()):
         turtle_image, _ = robot.getImage()
@@ -121,16 +150,29 @@ if __name__ == "__main__":
 
         key = cv2.waitKey(10)
         ch = chr(key & 0xFF)
-        if (ch == "q"):
+        if ch == "q":
             break
-        if (ch=="o"):
+        if ch == "o":
             headingnumber = input("new heading: ")
             cell = input("new cell: ")
-
-        #rospy.loginfo(topCell)
-
+        if ch == "s":
+            frame = "turtleIm-{}.jpg".format(time.strftime("%m%d%y%H%M"))
+            cv2.imwrite(photoPath + "/" + frame, turtle_image)
+            actualCell = input("Actual Cell: ")
+            actualHeading = input("Actual Heading: ")
+            headingTop3 = convertHeadingIndList(topThreeHeadingID_headingRGB)
+            actualHeadingIndex = potentialHeadings.index(int(actualHeading))
+            filewriter.writerow(
+                [frame, actualCell, actualHeading, "{:.3f}".format(output_cellRGB[int(actualCell)]), "{:.3f}".format(output_headingRGB[int(actualHeadingIndex)]),
+                 str(topThreeCells_cellRGB[0]), "{:.3f}".format(topThreePercs_cellRGB[0]), inTopX(int(actualCell), topThreeCells_cellRGB),  str(topThreeCells_cellRGB), str(topThreePercs_cellRGB),
+                 str(potentialHeadings[topThreeHeadingID_headingRGB[0]]), "{:.3f}".format(topThreePercs_headingRGB[0]), inTopX(int(actualHeading), headingTop3), str(headingTop3), str(topThreePercs_headingRGB),
+                 "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Headings",
+                 "Top 3 Heading Prob",
+                 "Cell for 2019 Heading Pred", "Pred Heading 2019", "Prob Heading 2019", "Actual in Top 3", "Top 3 Cells",
+                 "Top 3 Cell Prob"])
         time.sleep(0.1)
 
     cv2.destroyAllWindows()
+    csvLog.close()
     robot.exit()
 
