@@ -34,6 +34,7 @@ from cnn_cell_predictor_2019 import CellPredictor2019
 from cnn_cell_predictor_RGBinput import CellPredictorRGB
 from cnn_heading_predictor_2019 import HeadingPredictor
 from cnn_heading_predictor_RGBinput import HeadingPredictorRGB
+from std_msgs.msg import String
 
 #from OlinWorldMap import WorldMap
 
@@ -43,6 +44,11 @@ from cnn_heading_predictor_RGBinput import HeadingPredictorRGB
 if __name__ == "__main__":
     robot = TurtleBot()
     robot.pauseMovement()
+    pubTopCell = rospy.Publisher('Top Cell', String, queue_size=10)
+    pubTopCellProb = rospy.Publisher('Top Cell Prob', String, queue_size=10)
+    pubTopHeading = rospy.Publisher('Top Heading', String, queue_size=10)
+    pubTopHeadingProb = rospy.Publisher('Top Heading Prob', String, queue_size=10)
+    rospy.init_node('talker', anonymous=True)
 
     # cellPredictor = CellPredictor2019(loaded_checkpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
     #                                   testData = DATA, checkPtsDirectory = checkPts)
@@ -69,8 +75,6 @@ if __name__ == "__main__":
     while (not rospy.is_shutdown()):
         turtle_image, _ = robot.getImage()
 
-
-
         # 2022 RGB Cell Predictor Model
         pred_cellRGB, output_cellRGB = cellPredictorRGB.predictSingleImageAllData(turtle_image)
         topThreePercs_cellRGB, topThreeCells_cellRGB = cellPredictorRGB.findTopX(3, output_cellRGB)
@@ -96,9 +100,20 @@ if __name__ == "__main__":
         # print("heading prediction 2019 model:", potentialHeadings[pred_heading])
         # print("Top three:", topThreeHeadingID_heading, topThreePercs_heading)
         # headingnumber = potentialHeadings[pred_heading]
-        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        rgbCell_text = "RGB Cell: " + str(topThreeCells_cellRGB[0]) + " " + "{:.3f}".format(topThreePercs_cellRGB[0]) + "%"
-        rgbHeading_text = "RGB Heading: " + str(potentialHeadings[topThreeHeadingID_headingRGB[0]]) + " " + "{:.3f}".format(topThreePercs_headingRGB[0]) + "%"
+
+        topCell = str(topThreeCells_cellRGB[0])
+        topCellProb = "{:.3f}".format(topThreePercs_headingRGB[0])
+        topHeading = str(potentialHeadings[topThreeHeadingID_headingRGB[0]])
+        topHeadingProb = "{:.3f}".format(topThreePercs_headingRGB[0])
+        pubTopCell.publish(topCell)
+        pubTopCellProb.publish(topCellProb)
+        pubTopHeading.publish(topHeading)
+        pubTopHeadingProb.publish(topHeadingProb)
+
+        rgbCell_text = "RGB Cell: " + topCell + " " + "{:.3f}".format(
+            topCellProb) + "%"
+        rgbHeading_text = "RGB Heading: " + topHeading + " " + "{:.3f}".format(
+            topHeadingProb) + "%"
         turtle_image_text = cv2.putText(img = turtle_image, text = rgbCell_text, org = (50,50), fontScale= 1, fontFace= cv2.FONT_HERSHEY_DUPLEX, color = (0,255,255))
         turtle_image_text = cv2.putText(img = turtle_image_text, text = rgbHeading_text, org = (50,100), fontScale= 1, fontFace= cv2.FONT_HERSHEY_DUPLEX, color = (0,255,255))
 
@@ -111,7 +126,11 @@ if __name__ == "__main__":
         if (ch=="o"):
             headingnumber = input("new heading: ")
             cell = input("new cell: ")
+
+        #rospy.loginfo(topCell)
+
         time.sleep(0.1)
+
     cv2.destroyAllWindows()
     robot.exit()
 
