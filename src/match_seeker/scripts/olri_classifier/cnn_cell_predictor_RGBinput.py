@@ -371,7 +371,7 @@ class CellPredictorRGB(object):
             frameTop3PredProb.update(frameTop3PredProbCell)
         cells, successRates = self.getAllSuccessRates(successMap, failedMap)
         self.plotSuccessRates(cells, successRates)
-        self.showImagesNWorstCells(cells, successRates, n_frames_map, successMap, failedMap, frameProbability)
+        self.showImagesNWorstCells(cells, successRates, n_frames_map, successMap, failedMap, frameProbability, bottomN = 5)
         self.logNWorstCells("CellPredBottom5AllFrames", cells, successRates, n_frames_map, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 5)
 
 
@@ -480,10 +480,18 @@ class CellPredictorRGB(object):
         successRates = []
         cells = []
         for c in range(self.outputSize):
-            successrate = self.getCellSuccessRate(c, successMap, failedMap)
-            if successrate == 1.0:
-                if excludePerfect:
-                    continue
+            # successrate = self.getCellSuccessRate(c, successMap, failedMap)
+            totalPred = 0
+            if c in failedMap:
+                totalPred += len(failedMap[c])
+            if c in successMap:
+                totalPred += len(successMap[c])
+            if totalPred > 0:
+                successrate = len(successMap.get(c, 0)) / float(totalPred)
+                print('total pred', totalPred, 'successes', len(successMap.get(c, 0)), 'success rate', successrate)
+                if successrate == 1.0:
+                    if excludePerfect:
+                        continue
                 cells.append(str(c))
                 successRates.append(successrate)
             else:
@@ -538,9 +546,11 @@ class CellPredictorRGB(object):
 
             #get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
             listOfFramesFailedPred = failedMap.get(worstCell)
-
+            print('INSIDE TEST IMAGES ', listOfFramesFailedPred)
             #create new map with failed frame number as keys, failed prediction per frame as values
             cellFailFramesMap ={list[0]:list[1] for list in listOfFramesFailedPred}
+            print('INSIDE TEST IMAGES 2', cellFailFramesMap)
+
 
             print('Worst Performing Cell: ', worstCell, " Success Rate: ", worstSuccessRate)
             framesList = framesMap.get(worstCell)
@@ -708,5 +718,5 @@ if __name__ == "__main__":
     #for testing
 
     #cellPredictor.test(1000)
-    cellPredictor.testnImagesAllCells(50)
-    cellPredictor.testnImagesOneCell(27, 100)
+    cellPredictor.testnImagesAllCells(5)
+    # cellPredictor.testnImagesOneCell(27, 100)
