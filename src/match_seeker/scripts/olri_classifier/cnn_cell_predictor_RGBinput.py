@@ -387,8 +387,7 @@ class CellPredictorRGB(object):
         cellFrames = self.labelMap.selectNFramesOneCell(cell, n)
         successMap, failedMap, frameProbability, frameTop3PredProb = self.testOneCell(cell, cellFrames)
 
-        successRate = self.getCellSuccessRate(cell, successMap, failedMap)
-        print("Cell " + cell + " success rate: " + successRate)
+        totalPred, successRate = self.getCellSuccessRate(cell, successMap, failedMap)
 
         # get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
         listOfFramesFailedPred = failedMap.get(cell)
@@ -455,6 +454,14 @@ class CellPredictorRGB(object):
         return processedIm
 
     def getCellSuccessRate(self, cell, successMap, failedMap):
+        """
+        Calculates the success rate of one cell. Returns the number of total predictions for that cell and the success rate
+        using data from the success map and failed predictions map. If the cell is missing from the dataset (i.e. no predictions
+        then it returns 0 and 0.0 for totalPred and success rate.
+        :param cell: actual cell number
+        :param successMap: Map of perfectly predicted test cases, cell number as keys and list of perfectly predicted frames as values
+        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of lists containing incorrect predictions and frames as values
+        """
         totalPred = 0
         if cell in failedMap:
             totalPred += len(failedMap[cell])
@@ -462,7 +469,8 @@ class CellPredictorRGB(object):
             totalPred += len(successMap[cell])
         if totalPred > 0:
             successRate = len(successMap.get(cell, 0)) / float(totalPred)
-            return successRate
+            return totalPred, successRate
+        return totalPred, 0.0
 
     def getAllSuccessRates(self, successMap, failedMap, excludeMissing = True, excludePerfect = False):
         """
@@ -480,20 +488,15 @@ class CellPredictorRGB(object):
         successRates = []
         cells = []
         for c in range(self.outputSize):
-            # successrate = self.getCellSuccessRate(c, successMap, failedMap)
-            totalPred = 0
-            if c in failedMap:
-                totalPred += len(failedMap[c])
-            if c in successMap:
-                totalPred += len(successMap[c])
+            totalPred, successRate = self.getCellSuccessRate(c, successMap, failedMap)
             if totalPred > 0:
-                successrate = len(successMap.get(c, 0)) / float(totalPred)
-                print('total pred', totalPred, 'successes', len(successMap.get(c, 0)), 'success rate', successrate)
-                if successrate == 1.0:
+                successRate = len(successMap.get(c, 0)) / float(totalPred)
+                print('total pred', totalPred, 'successes', len(successMap.get(c, 0)), 'success rate', successRate)
+                if successRate == 1.0:
                     if excludePerfect:
                         continue
                 cells.append(str(c))
-                successRates.append(successrate)
+                successRates.append(successRate)
             else:
                 if not excludeMissing:
                     successRates.append(-1)
@@ -546,11 +549,9 @@ class CellPredictorRGB(object):
 
             #get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
             listOfFramesFailedPred = failedMap.get(worstCell)
-            print('INSIDE TEST IMAGES ', listOfFramesFailedPred)
+
             #create new map with failed frame number as keys, failed prediction per frame as values
             cellFailFramesMap ={list[0]:list[1] for list in listOfFramesFailedPred}
-            print('INSIDE TEST IMAGES 2', cellFailFramesMap)
-
 
             print('Worst Performing Cell: ', worstCell, " Success Rate: ", worstSuccessRate)
             framesList = framesMap.get(worstCell)
@@ -719,4 +720,4 @@ if __name__ == "__main__":
 
     #cellPredictor.test(1000)
     cellPredictor.testnImagesAllCells(5)
-    # cellPredictor.testnImagesOneCell(27, 100)
+    cellPredictor.testnImagesOneCell(27, 100)
