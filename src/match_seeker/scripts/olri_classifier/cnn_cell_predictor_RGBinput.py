@@ -347,7 +347,7 @@ class CellPredictorRGB(object):
         print("Count of top 5:", countTop5)
 
 
-    def testnImagesEachCell(self, n):
+    def testnImagesAllCells(self, n):
         """
         Tests the model on n randomly selected photos per cell. Calculates and plots
         the success rate per cell and then displays the images used to test the worst
@@ -364,27 +364,11 @@ class CellPredictorRGB(object):
         frameTop3PredProb = {}
         for cell in n_frames_map:
             cell_frames = n_frames_map.get(cell)
-            for frame in cell_frames:
-                imFile = makeFilename(self.frames, frame)
-                print(imFile)
-                image = cv2.imread(imFile)
-                if image is None:
-                    print(" image not found")
-                    continue
-                pred, output = self.predictSingleImageAllData(image)
-                topThreePercs, topThreeCells = self.findTopX(3, output)
-                frameProbability[frame] = output
-                frameTop3PredProb[frame] = [topThreePercs, topThreeCells]
-                if pred == cell:
-                    prevPerf = perfMap.get(cell, [])
-                    prevPerf.append(frame)
-                    perfMap[cell] = prevPerf
-                else:
-                    prevFails = failedMap.get(cell, [])
-                    prevFails.append([frame, pred])
-                    failedMap[cell] = prevFails
-        print('Perfect predictions', perfMap)
-        print('Failed predictions', failedMap)
+            perfMapCell, failedMapCell, frameProbabilityCell, frameTop3PredProbCell = self.testOneCell(cell, cell_frames)
+            perfMap.update(perfMapCell)
+            failedMap.update(failedMapCell)
+            frameProbability.update(frameProbabilityCell)
+            frameTop3PredProb.update(frameTop3PredProbCell)
         cells, successRates = self.calculateSuccessPerCell(perfMap, failedMap)
         self.plotSuccessRates(cells, successRates)
         self.showImagesofLeastSuccessCell(cells, successRates, n_frames_map, perfMap, failedMap, frameProbability)
@@ -394,6 +378,33 @@ class CellPredictorRGB(object):
     def testnImagesOneCell(self, cell, n):
         self.buildMap()
         cellFrames = self.labelMap.selectNFramesOneCell(cell, n)
+
+
+    def testOneCell(self, cell, framesList):
+        perfMap = {}
+        failedMap = {}
+        frameProbability = {}
+        frameTop3PredProb = {}
+        for frame in framesList:
+            imFile = makeFilename(self.frames, frame)
+            print(imFile)
+            image = cv2.imread(imFile)
+            if image is None:
+                print(" image not found")
+                continue
+            pred, output = self.predictSingleImageAllData(image)
+            topThreePercs, topThreeCells = self.findTopX(3, output)
+            frameProbability[frame] = output
+            frameTop3PredProb[frame] = [topThreePercs, topThreeCells]
+            if pred == cell:
+                prevPerf = perfMap.get(cell, [])
+                prevPerf.append(frame)
+                perfMap[cell] = prevPerf
+            else:
+                prevFails = failedMap.get(cell, [])
+                prevFails.append([frame, pred])
+                failedMap[cell] = prevFails
+        return perfMap, failedMap, frameProbability, frameTop3PredProb
 
 
     def cleanImage(self, image, imageSize=100):
@@ -425,14 +436,15 @@ class CellPredictorRGB(object):
             if c in perfMap:
                 totalPred += len(perfMap[c])
             if totalPred > 0:
-                successrate = len(perfMap.get(c, 0)) / totalPred
+                successrate = len(perfMap.get(c, 0)) / float(totalPred)
+                print("Success rate ", successrate, " Num Perf ", len(perfMap.get(c)), " Num pred", totalPred)
                 if successrate == 1.0:
                     if excludePerfect:
                         continue
                 cells.append(str(c))
                 successRates.append(successrate)
             else:
-                if not excludeMissing :
+                if not excludeMissing:
                     successRates.append(-1)
                     cells.append(str(c))
                 continue
@@ -506,9 +518,8 @@ class CellPredictorRGB(object):
 
     def logWorstCells(self, dirName, cells, successRates, framesMap, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 1):
         dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
-        logPath = "../../res/csvLogs2022/CellPredictorRGBTestLogs/" + dirName + "-" + dirTimeStamp
-        os.mkdir(logPath)
-        csvLog = open(logPath + "/" + dirName + "-" + dirTimeStamp + ".csv", "w")
+        logPath = "../../res/csvLogs2022/cellPredictorRGBTestLogs/"
+        csvLog = open(logPath + dirName + "-" + dirTimeStamp + ".csv", "w")
         filewriter = csv.writer(csvLog)
         filewriter.writerow(["Frame", "Actual Cell", "Predicted Cell", "Success", "Cell Success Rate", "Prob Actual", "Prob Predicted", "Top 3 Pred", "Top 3 Prob"])
 
@@ -580,23 +591,23 @@ if __name__ == "__main__":
         # dataSize=95810,
         data_name="TestNew-prepDatasetFromScratch",
         checkPointFolder=checkPts,
-        imagesFolder=frames + "/moreFrames/",
+        imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
-        labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
-        #loaded_checkpoint="latestCellPredictorFromPrecision5810.hdf5"
+        labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+        loaded_checkpoint = "cellPredictorRGB100epochs.hdf5"
     )
 
     cellPredictor.buildNetwork()
 
     #for training
 
-    cellPredictor.prepDatasets()
-    print("DONE")
+    # cellPredictor.prepDatasets()
+    # print("DONE")
     #cellPredictor.train_withGenerator(epochs = 1)
-    cellPredictor.train(epochs = 5)
+    # cellPredictor.train(epochs = 5)
 
     #for testing
 
     #cellPredictor.test(1000)
-    #cellPredictor.testnImagesEachCell(10)
+    cellPredictor.testnImagesAllCells(5)
