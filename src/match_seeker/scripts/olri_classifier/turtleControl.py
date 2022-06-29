@@ -41,7 +41,7 @@ class TurtleBot(object):
 
     def __init__(self):
         """Sets up the three threads and starts them running."""
-        rospy.init_node('test_movement')
+        # rospy.init_node('test_movement') #Codes that use TurtleBot should contain this line already
         self.robotType = os.environ["TURTLEBOT_BASE"]
 
         if self.robotType == "create":
