@@ -369,18 +369,19 @@ class CellPredictorRGB(object):
             failedMap.update(failedMapCell)
             frameProbability.update(frameProbabilityCell)
             frameTop3PredProb.update(frameTop3PredProbCell)
-        cells, successRates = self.calculateSuccessPerCell(successMap, failedMap)
+        cells, successRates = self.getAllSuccessRates(successMap, failedMap)
         self.plotSuccessRates(cells, successRates)
-        self.showImagesofLeastSuccessCell(cells, successRates, n_frames_map, successMap, failedMap, frameProbability)
-        self.logWorstCells("CellPredBottom3AllFrames", cells, successRates, n_frames_map, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 3)
+        self.showImagesNWorstCells(cells, successRates, n_frames_map, successMap, failedMap, frameProbability)
+        self.logNWorstCells("CellPredBottom5AllFrames", cells, successRates, n_frames_map, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 5)
 
 
     def testnImagesOneCell(self, cell, n):
         self.buildMap()
         cellFrames = self.labelMap.selectNFramesOneCell(cell, n)
         successMap, failedMap, frameProbability, frameTop3PredProb = self.testOneCell(cell, cellFrames)
-        cells, successRates = self.calculateSuccessPerCell(successMap, failedMap, nCells = 1)
-        self.plotSuccessRates(cells, successRates)
+
+        successRate = self.getCellSuccessRate(cell, successMap, failedMap)
+        print("Cell " + cell + " success rate: " + successRate)
 
         # get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
         listOfFramesFailedPred = failedMap.get(cell)
@@ -390,7 +391,15 @@ class CellPredictorRGB(object):
         successFrames = successMap.get(cell)
 
         self.showImagesOneCell(cell, cellFrames, frameProbability, successFrames, cellFailFramesMap)
-        # self.logWorstCells("CellPredBottom3AllFrames", cells, successRates, n_frames_map, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN=3)
+
+        logPath = "../../res/csvLogs2022/cellPredictorRGBTestLogs/"
+        csvLog = open(logPath + "testCell" + str(cell) + "-{}.csv".format(time.strftime("%m%d%y%H%M")), 'w')
+        filewriter = csv.writer(csvLog)
+        filewriter.writerow(
+            ["Frame", "Actual Cell", "Predicted Cell", "Success", "Cell Success Rate", "Prob Actual", "Prob Predicted",
+             "Top 3 Pred", "Top 3 Prob"])
+        self.logOneCell(filewriter, cell, str(successRate), cellFrames, successFrames, cellFailFramesMap, frameProbability, frameTop3PredProb)
+
 
 
     def testOneCell(self, cell, framesList):
@@ -438,14 +447,23 @@ class CellPredictorRGB(object):
         processedIm = shrunkenIm / 255.0
         return processedIm
 
+    def getCellSuccessRate(self, cell, successMap, failedMap):
+        totalPred = 0
+        if cell in failedMap:
+            totalPred += len(failedMap[cell])
+        if cell in successMap:
+            totalPred += len(successMap[cell])
+        if totalPred > 0:
+            successRate = len(successMap.get(cell, 0)) / float(totalPred)
+            return successRate
 
-    def calculateSuccessPerCell(self, perfMap, failedMap, nCells = None, excludeMissing = True, excludePerfect = False):
+    def getAllSuccessRates(self, successMap, failedMap, excludeMissing = True, excludePerfect = False):
         """
         Calculates the success rate per cell number category, with the option to
         exclude cells that have a 1.0 perfect success rate or cells that do not show up in the randomly
         generated test cases.
 
-        :param perfMap: Map of perfectly predicted test cases, cell number as keys and list of perfectly predicted frames as values
+        :param successMap: Map of perfectly predicted test cases, cell number as keys and list of perfectly predicted frames as values
         :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of lists containing incorrect predictions and frames as values
         :param nCells: Int number of cells to calculate success rates, set to output size (271 cells) by default, useful when getting metrics for one cell only
         :param excludeMissing: boolean value deciding whether to include cells not tested
@@ -454,20 +472,19 @@ class CellPredictorRGB(object):
         """
         successRates = []
         cells = []
-        if nCells == None:
-            nCells = self.outputSize
-        for c in range(nCells):
-            totalPred = 0
-            if c in failedMap:
-                totalPred += len(failedMap[c])
-            if c in perfMap:
-                totalPred += len(perfMap[c])
-            if totalPred > 0:
-                successrate = len(perfMap.get(c, 0)) / float(totalPred)
-                print("Success rate ", successrate, " Num Perf ", len(perfMap.get(c)), " Num pred", totalPred)
-                if successrate == 1.0:
-                    if excludePerfect:
-                        continue
+        for c in range(self.outputSize):
+            # totalPred = 0
+            # if c in failedMap:
+            #     totalPred += len(failedMap[c])
+            # if c in successMap:
+            #     totalPred += len(successMap[c])
+            # if totalPred > 0:
+            #     successrate = len(successMap.get(c, 0)) / float(totalPred)
+            #     print("Success rate ", successrate, " Num Perf ", len(successMap.get(c)), " Num pred", totalPred)
+            successrate = self.getCellSuccessRate(c, successMap, failedMap)
+            if successrate == 1.0:
+                if excludePerfect:
+                    continue
                 cells.append(str(c))
                 successRates.append(successrate)
             else:
@@ -493,7 +510,8 @@ class CellPredictorRGB(object):
         plt.title('Success Rate Per Cell', fontsize=18)
         plt.show()
 
-    def showImagesofLeastSuccessCell(self, cells, successRates, framesMap, successMap, failedMap, frameProbability, bottomN = 5):
+
+    def showImagesNWorstCells(self, cells, successRates, framesMap, successMap, failedMap, frameProbability, bottomN = 5):
         """
         Displays the n photos used in testnImagesEachCell of the bottomN number of cells with the lowest accuracies.
         Each image window displays whether the tested image was successfully or unsuccessfully predicted, the
@@ -565,10 +583,27 @@ class CellPredictorRGB(object):
         cv2.destroyAllWindows()
 
 
-    def logWorstCells(self, dirName, cells, successRates, framesMap, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 1):
+    def logNWorstCells(self, filename, cells, successRates, framesMap, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 1):
+        """
+        Creates a CSV Log to record testing performance metrics (frame number, predicted cell, actual cell, cell success rate, probability of actual,
+        probability of predicted, top three predicted cells, top three probabilities) inside res/csvLogs/cellPredictorRGBTestLogs.
+        Meant to be called inside testNImagesAllCells for logging purposes.
+
+        :param filename: String filename name that logs will be saved under inside res/csvLogs/cellPredictorRGBTestLogs
+        :param cells: List of cells tested, indices align with successRates
+        :param successRates: List of success rates per cell, indices align with cells
+        :param framesMap: Map of n randomly selected frames per cell with cells for keys, list of frames as values
+        :param successMap: Map of successful frames predicted per cell with cells for keys, list of frames as values
+        :param failedMap: Map of unsuccessfully predicted frames per cell, with cells for keys, list of lists containing
+        failed predicted cell and frame number
+        :param frameProbability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities
+        for each cell generated by the model as values
+        :param frameTop3PredProb: Map of top 3 predictions and prediction probabilities per frame, with frame numbers for keys and list of lists ([Top Three Probabilities, Top 3 Cells]) as values
+        :param bottomN: number of n lowest performing cells
+        """
         dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
         logPath = "../../res/csvLogs2022/cellPredictorRGBTestLogs/"
-        csvLog = open(logPath + dirName + "-" + dirTimeStamp + ".csv", "w")
+        csvLog = open(logPath + filename + "-" + dirTimeStamp + ".csv", "w")
         filewriter = csv.writer(csvLog)
         filewriter.writerow(["Frame", "Actual Cell", "Predicted Cell", "Success", "Cell Success Rate", "Prob Actual", "Prob Predicted", "Top 3 Pred", "Top 3 Prob"])
 
@@ -584,27 +619,42 @@ class CellPredictorRGB(object):
             framesList = framesMap.get(worstCell)
             successFrames = successMap.get(worstCell)
 
-            for frame in framesList:
-                imFile = makeFilename(self.frames, frame)
-                image = cv2.imread(imFile)
-                if image is None:
-                    print(" image not found")
-                    continue
-                probForActualCell = frameProbability[frame][worstCell]
-                frameTop3Prob = frameTop3PredProb[frame][0]
-                frameTop3PredCell = frameTop3PredProb[frame][1]
-                if frame in successFrames:
-                    filewriter.writerow(
-                        [frame, str(worstCell), str(worstCell), "T", str(worstSuccessRate), str(probForActualCell),
-                         str(probForActualCell), str(frameTop3PredCell), str(frameTop3Prob)])
-                else:
-                    predCell = cellFailFramesMap.get(frame)
-                    probForWrongPrediction = frameProbability[frame][predCell]
-                    probForActualCell = frameProbability[frame][worstCell]
-                    filewriter.writerow(
-                        [frame, str(worstCell), str(predCell), "F", str(worstSuccessRate), str(probForActualCell),
-                         str(probForWrongPrediction), str(frameTop3PredCell), str(frameTop3Prob)])
+            self.logOneCell(filewriter, worstCell, worstSuccessRate, framesList, successFrames, cellFailFramesMap, frameProbability, frameTop3PredProb)
         csvLog.close()
+
+
+    def logOneCell(self, filewriter, cell, cellSuccessRate, framesList, successFrames, cellFailFramesMap, frameProbability, frameTop3PredProb):
+        """
+        Takes in a csv filewriter object and logs test performance information of one cell into the csv associated with filewriter.
+        Records the frame number, actual cell, predicted cell, cell success rate, probability of prediction, top 3 predictions, and top 3 probabilties
+        for the specified cell that was tested. Meant to be called in other test functions for ease of logging. CSV must be closed outside this function
+        for logs to be successfully saved.
+
+        :param filewriter: CSV filewriter object associated with the csv log
+        :param cell: cell number of cell being tested
+        :param cellSuccessRate: success rate of the cell being tested
+        :param framesList: list of frame names used in testing that all correspond to cell
+        :param successFrames: list of successfully predicted frames belonging to cell
+        :param cellFailFramesMap Map of unsuccessfully predicted frames, with frame numbers for keys and the failed cell prediction for the frame as values
+        :param frameProbability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities for each cell generated by the model as values
+        :param frameTop3PredProb: Map of top 3 predictions and prediction probabilities per frame, with frame numbers for keys and list of lists ([Top Three Probabilities, Top 3 Cells]) as values
+        :return:
+        """
+        for frame in framesList:
+            probForActualCell = frameProbability[frame][cell]
+            frameTop3Prob = frameTop3PredProb[frame][0]
+            frameTop3PredCell = frameTop3PredProb[frame][1]
+            if frame in successFrames:
+                filewriter.writerow(
+                    [frame, str(cell), str(cell), "T", str(cellSuccessRate), str(probForActualCell),
+                     str(probForActualCell), str(frameTop3PredCell), str(frameTop3Prob)])
+            else:
+                predCell = cellFailFramesMap.get(frame)
+                probForWrongPrediction = frameProbability[frame][predCell]
+                probForActualCell = frameProbability[frame][cell]
+                filewriter.writerow(
+                    [frame, str(cell), str(predCell), "F", str(cellSuccessRate), str(probForActualCell),
+                     str(probForWrongPrediction), str(frameTop3PredCell), str(frameTop3Prob)])
 
 
     def graphConfusionMatrix(self, n, true_Label, predict_Label):
@@ -659,4 +709,5 @@ if __name__ == "__main__":
     #for testing
 
     #cellPredictor.test(1000)
-    cellPredictor.testnImagesAllCells(5)
+    # cellPredictor.testnImagesAllCells(5)
+    cellPredictor.testnImagesOneCell(27, 10)
