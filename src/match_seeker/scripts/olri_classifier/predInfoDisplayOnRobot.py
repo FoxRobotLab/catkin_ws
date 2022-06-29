@@ -1,5 +1,19 @@
 #!/usr/bin/env python2.7
 
+"""--------------------------------------------------------------------------------
+preInfoDisplayOnRobot.py
+Authors: Bea Bautista, Shosuke Noma, Yifan Wu
+
+Code that displays current predicted values (received from running the models on Precision)
+on top of live camera images on the robot.
+
+Use wget command to pull this file onto the robot's computer. As it does not depend on other files in match_seeker
+it can be in a standalone package. Cutie must be launched (minimal, astra, and teleop) for this code to run. Then
+this script should be called  \in the terminal using:
+
+rosrun <package name> predInfoDisplayOnRobot.py
+--------------------------------------------------------------------------------"""
+
 import rospy
 import cv2
 import sys
@@ -28,16 +42,17 @@ def image_callback(data):
         image_array = data
 
 def listener():
+    """Building subscribers for different ROS topics"""
     global image_sub
     rospy.init_node('listener', anonymous=True)
     rospy.Subscriber("TopCell", String, callbackTopCell)
     rospy.Subscriber("TopHeading", String, callbackTopHeading)
-    rospy.Subscriber("TopCell Prob", String, callbackTopCellProb)
-    rospy.Subscriber("TopHeading Prob", String, callbackTopHeadingProb)
+    rospy.Subscriber("TopCellProb", String, callbackTopCellProb)
+    rospy.Subscriber("TopHeadingProb", String, callbackTopHeadingProb)
     image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, image_callback)
 
 def getImage(x = 0, y = 0, width = 640, height = 480):
-    """Method typically called by other threads, gets the next image available. If no images are available yet,
+    """Gets the next image available. If no images are available yet,
     this method blocks until one becomes available."""
     global image_array
     try:
@@ -61,19 +76,15 @@ def getImage(x = 0, y = 0, width = 640, height = 480):
 
 if __name__ == "__main__":
 
-    # robot = TurtleBot()
-    # robot.pauseMovement()
     image_sub, image_array = None, None
     topCell, topCellProb, topHeading, topHeadingProb = None, None, None, None
     listener()
 
     while (not rospy.is_shutdown()):
         turtle_image = getImage()
-        if turtle_image and topCell and topCellProb and topHeading and topHeadingProb:
-            rgbCell_text = "RGB Cell: " + topCell + " " + "{:.3f}".format(
-                topCellProb)
-            rgbHeading_text = "RGB Heading: " + topHeading + " " + "{:.3f}".format(
-                topHeadingProb)
+        if turtle_image is not None and topCell and topCellProb and topHeading and topHeadingProb:
+            rgbCell_text = "RGB Cell: " + topCell + " " + topCellProb
+            rgbHeading_text = "RGB Heading: " + topHeading + " " + topHeadingProb
 
             turtle_image_text = cv2.putText(img=turtle_image, text=rgbCell_text, org=(50, 50), fontScale=1,
                                             fontFace=cv2.FONT_HERSHEY_DUPLEX, color=(0, 255, 255))
@@ -89,6 +100,3 @@ if __name__ == "__main__":
 
     cv2.destroyAllWindows()
     image_sub.unregister()
-    # robot.exit()
-
-    #rospy.spin()

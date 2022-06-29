@@ -24,7 +24,6 @@ import cv2
 import time
 import rospy
 import csv
-# import roslibpy
 import numpy as np
 import random
 import sys
@@ -59,11 +58,11 @@ def inTopX(item, list):
 if __name__ == "__main__":
     robot = TurtleBot()
     robot.pauseMovement()
-    pubTopCell = rospy.Publisher('Top Cell', String, queue_size=10)
-    pubTopCellProb = rospy.Publisher('Top Cell Prob', String, queue_size=10)
-    pubTopHeading = rospy.Publisher('Top Heading', String, queue_size=10)
-    pubTopHeadingProb = rospy.Publisher('Top Heading Prob', String, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
+    pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
+    pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
+    pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
+    pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
+    rospy.init_node('predictor', anonymous=True)
 
     # cellPredictor = CellPredictor2019(loaded_checkpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
     #                                   testData = DATA, checkPtsDirectory = checkPts)
@@ -139,10 +138,8 @@ if __name__ == "__main__":
         pubTopHeading.publish(topHeading)
         pubTopHeadingProb.publish(topHeadingProb)
 
-        rgbCell_text = "RGB Cell: " + topCell + " " + "{:.3f}".format(
-            topCellProb) + "%"
-        rgbHeading_text = "RGB Heading: " + topHeading + " " + "{:.3f}".format(
-            topHeadingProb) + "%"
+        rgbCell_text = "RGB Cell: " + topCell + " " + topCellProb
+        rgbHeading_text = "RGB Heading: " + topHeading + " " + topHeadingProb
         turtle_image_text = cv2.putText(img = turtle_image, text = rgbCell_text, org = (50,50), fontScale= 1, fontFace= cv2.FONT_HERSHEY_DUPLEX, color = (0,255,255))
         turtle_image_text = cv2.putText(img = turtle_image_text, text = rgbHeading_text, org = (50,100), fontScale= 1, fontFace= cv2.FONT_HERSHEY_DUPLEX, color = (0,255,255))
 
