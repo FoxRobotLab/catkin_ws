@@ -376,6 +376,13 @@ class CellPredictorRGB(object):
 
 
     def testnImagesOneCell(self, cell, n):
+        """
+        Tests n images belonging to one cell. Displays the n images of the cell used in testing and logs
+        performance metrics (frame number, success rate, predicted cell, probability of actual, probability of predicted,
+        top 3 predicted cells, top 3 probabilities) in a CSV file located in /res/csvLogs/cellPredictorRGBTestLogs
+        :param cell: cell number of cell to be tested alone
+        :param n: number of images of the specific cell used to test the model
+        """
         self.buildMap()
         cellFrames = self.labelMap.selectNFramesOneCell(cell, n)
         successMap, failedMap, frameProbability, frameTop3PredProb = self.testOneCell(cell, cellFrames)
@@ -473,14 +480,6 @@ class CellPredictorRGB(object):
         successRates = []
         cells = []
         for c in range(self.outputSize):
-            # totalPred = 0
-            # if c in failedMap:
-            #     totalPred += len(failedMap[c])
-            # if c in successMap:
-            #     totalPred += len(successMap[c])
-            # if totalPred > 0:
-            #     successrate = len(successMap.get(c, 0)) / float(totalPred)
-            #     print("Success rate ", successrate, " Num Perf ", len(successMap.get(c)), " Num pred", totalPred)
             successrate = self.getCellSuccessRate(c, successMap, failedMap)
             if successrate == 1.0:
                 if excludePerfect:
@@ -709,5 +708,5 @@ if __name__ == "__main__":
     #for testing
 
     #cellPredictor.test(1000)
-    # cellPredictor.testnImagesAllCells(5)
-    cellPredictor.testnImagesOneCell(27, 10)
+    cellPredictor.testnImagesAllCells(50)
+    cellPredictor.testnImagesOneCell(27, 100)
