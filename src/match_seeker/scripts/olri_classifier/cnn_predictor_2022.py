@@ -30,7 +30,7 @@ import sys
 import os
 from tensorflow import keras
 #sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
-from paths import DATA, checkPts
+from paths import DATA, checkPts, logs
 from turtleControl import TurtleBot
 from cnn_cell_predictor_2019 import CellPredictor2019
 from cnn_cell_predictor_RGBinput import CellPredictorRGB
@@ -58,11 +58,11 @@ def inTopX(item, list):
 if __name__ == "__main__":
     robot = TurtleBot()
     robot.pauseMovement()
-    pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
-    pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
-    pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
-    pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
-    rospy.init_node('predictor', anonymous=True)
+    # pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
+    # pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
+    # pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
+    # pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
+    # rospy.init_node('predictor', anonymous=True)
 
     cellPredictor = CellPredictor2019(loaded_checkpoint = checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5", testData = DATA)
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
 
     dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
-    logPath = "../../res/csvLogs2022/turtleLog-" + dirTimeStamp
+    logPath = logs + "turtleLog-" + dirTimeStamp
     photoPath = logPath + "/turtlePhotos-" + dirTimeStamp
     os.mkdir(logPath)
     os.mkdir(photoPath)
@@ -130,10 +130,10 @@ if __name__ == "__main__":
         topCellProb = "{:.3f}".format(topThreePercs_cellRGB[0])
         topHeading = str(potentialHeadings[topThreeHeadingID_headingRGB[0]])
         topHeadingProb = "{:.3f}".format(topThreePercs_headingRGB[0])
-        pubTopCell.publish(topCell)
-        pubTopCellProb.publish(topCellProb)
-        pubTopHeading.publish(topHeading)
-        pubTopHeadingProb.publish(topHeadingProb)
+        # pubTopCell.publish(topCell)
+        # pubTopCellProb.publish(topCellProb)
+        # pubTopHeading.publish(topHeading)
+        # pubTopHeadingProb.publish(topHeadingProb)
 
         rgbCell_text = "RGB Cell: " + topCell + " " + topCellProb
         rgbHeading_text = "RGB Heading: " + topHeading + " " + topHeadingProb
@@ -171,6 +171,6 @@ if __name__ == "__main__":
         time.sleep(0.1)
 
     cv2.destroyAllWindows()
-    csvLog.close()
+    # csvLog.close()
     robot.exit()
 
