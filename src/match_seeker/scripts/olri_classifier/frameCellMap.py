@@ -233,8 +233,9 @@ class FrameCellMap(object):
 
     def selectNFramesAllCells(self, n):
         """
-        Simplified version of selectEnoughFrames which randomly selects imagesPerCell number of images
-        :return: List of imagesPerCell x 271 randomly selected image numbers used for testing cell predictor models
+        Simplified version of selectEnoughFrames which randomly selects n number of images per cell
+        :param n: number of frames to be selected for each cell
+        :return chosenFrames: map of frames, with cell numbers for keys and list of frames as values
         """
         chosenFrames = {}
 
@@ -255,6 +256,9 @@ class FrameCellMap(object):
         Helper function for testing to select n frames for one specific cell.
         If there are less frames than the desired number of frames n, function will randomly
         select n images of that cell with repetition
+        :param cell: cell number to select frames for
+        :param n: number of photos to randomly select per cell
+        :return framesForCell: list of randomly selected frame numbers for the inputted cell
         """
         framesForCell = []
         cellFrames = self.cellData[cell]
@@ -269,24 +273,41 @@ class FrameCellMap(object):
                     framesForCell.append(randImage)
         return framesForCell
 
+
     def selectNFramesAllHeadings(self, n):
+        """
+        Randomly selects n number of frames for each heading.
+        :param n: number of frames to be selected for each heading
+        :return chosenFrames: map of frames, with headings for keys and list of frames as values
+        """
         chosenFrames = {}
         for heading in self.headingData.keys():
-            framesForHeading = []
-            while len(framesForHeading) < n:
-                # if there are fewer images than n, pick with repetition
-                if len(self.headingData[heading]) < n:
-                    randImage = random.choice(list(self.headingData[heading]))
-                    framesForHeading.append(randImage)
-                else:
-                    # do not pick with repetition
-                    randImage = random.choice(list(self.headingData[heading]))
-                    if randImage not in framesForHeading:
-                        framesForHeading.append(randImage)
+            framesForHeading = self.selectNFramesOneHeading(heading, n)
             chosenFrames[heading] = framesForHeading
         return chosenFrames
 
 
+    def selectNFramesOneHeading(self, heading, n):
+        """
+        Helper function for testing to select n frames for one specific heading.
+        If there are less frames than the desired number of frames n, function will randomly
+        select n images of that heading with repetition
+        :param heading: heading number to select frames for
+        :param n: number of photos to randomly select per heading
+        :return framesForHeading: list of randomly selected frame numbers for the inputted heading
+        """
+        framesForHeading = []
+        while len(framesForHeading) < n:
+            # if there are fewer images than n, pick with repetition
+            if len(self.headingData[heading]) < n:
+                randImage = random.choice(list(self.headingData[heading]))
+                framesForHeading.append(randImage)
+            else:
+                # do not pick with repetition
+                randImage = random.choice(list(self.headingData[heading]))
+                if randImage not in framesForHeading:
+                    framesForHeading.append(randImage)
+        return framesForHeading
 
     # def createMoreFrames(self):
     #     """
