@@ -356,7 +356,7 @@ class CellPredictorRGB(object):
         :return:
         """
         self.buildMap()
-        n_frames_map = self.labelMap.selectEnoughFramesForTests(n)
+        n_frames_map = self.labelMap.selectNFramesAllCells(n)
 
         successMap = {}
         failedMap = {}
@@ -548,7 +548,7 @@ class CellPredictorRGB(object):
             worstCell = int(cells[indexOfWorstCell])
 
             #get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
-            listOfFramesFailedPred = failedMap.get(worstCell)
+            listOfFramesFailedPred = failedMap.get(worstCell, [])
 
             #create new map with failed frame number as keys, failed prediction per frame as values
             cellFailFramesMap ={list[0]:list[1] for list in listOfFramesFailedPred}
@@ -720,4 +720,4 @@ if __name__ == "__main__":
 
     #cellPredictor.test(1000)
     cellPredictor.testnImagesAllCells(5)
-    cellPredictor.testnImagesOneCell(27, 100)
+    # cellPredictor.testnImagesOneCell(27, 100)

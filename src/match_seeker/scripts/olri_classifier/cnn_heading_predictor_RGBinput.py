@@ -14,11 +14,13 @@ import numpy as np
 from tensorflow import keras
 import cv2
 import time
+import matplotlib.pyplot as plt
 from paths import DATA, checkPts, frames
 from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
 from DataGenerator2022 import DataGenerator2022
 import random
+import csv
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -207,6 +209,17 @@ class HeadingPredictorRGB(object):
         model.summary()
         return model
 
+    # def predictSingleImageAllData(self, image):
+    #     """Given an image, converts it to be suitable for the network, then runs the model and returns
+    #     the resulting prediction as tuples of index of prediction and list of predictions."""
+    #     cleanimage = self.cleanImage(image)
+    #     listed = np.array([cleanimage])
+    #     modelPredict = self.model.predict(listed)
+    #     maxIndex = np.argmax(modelPredict)
+    #     # print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
+    #     # print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
+    #     return maxIndex, modelPredict[0]
+
     def predictSingleImageAllData(self, image):
         """Given an image, converts it to be suitable for the network, then runs the model and returns
         the resulting prediction as tuples of index of prediction and list of predictions."""
@@ -214,8 +227,6 @@ class HeadingPredictorRGB(object):
         listed = np.array([cleanimage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
-        print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
-        print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
         return maxIndex, modelPredict[0]
 
     def findTopX(self, x, numList):
@@ -230,6 +241,24 @@ class HeadingPredictorRGB(object):
                 if topIndex[j] is None or val > topVals[j]:
                     break
             if val > topVals[x - 1]:
+                topIndex.insert(j, i)
+                topVals.insert(j, val)
+                topIndex.pop(-1)
+                topVals.pop(-1)
+        return topVals, topIndex
+
+    def findBottomX(self, x, numList):
+        """Given a number and a list of numbers, this finds the x smallest values in the number list, and reports
+        both the values, and their positions in the numList."""
+        topVals = [1e8] * x
+        topIndex = [None] * x
+        for i in range(len(numList)):
+            val = numList[i]
+
+            for j in range(x):
+                if topIndex[j] is None or val < topVals[j]:
+                    break
+            if val < topVals[x - 1]:
                 topIndex.insert(j, i)
                 topVals.insert(j, val)
                 topIndex.pop(-1)
@@ -286,6 +315,279 @@ class HeadingPredictorRGB(object):
         print("Count of top 5:", countTop5)
 
 
+    def testnImagesAllHeadings(self, n):
+        """
+        Tests the model on n randomly selected photos per heading. Calculates and plots
+        the success rate per heading and then displays the images used to test the worst
+        performing heading
+        :param n: number of randomly selected photos to test per heading
+        :return:
+        """
+        self.buildMap()
+        n_frames_map = self.labelMap.selectNFramesAllHeadings(n)
+
+        successMap = {}
+        failedMap = {}
+        frameProbability = {}
+        frameTop3PredProb = {}
+        for heading in n_frames_map:
+            headingFrames = n_frames_map.get(heading)
+            perfMapHeading, failedMapHeading, frameProbabilityHeading, frameTop3PredProbHeading = self.testOneHeading(heading, headingFrames)
+            successMap.update(perfMapHeading)
+            failedMap.update(failedMapHeading)
+            frameProbability.update(frameProbabilityHeading)
+            frameTop3PredProb.update(frameTop3PredProbHeading)
+        headings, successRates = self.getAllSuccessRates(successMap, failedMap)
+        self.plotSuccessRates(headings, successRates)
+        self.showImagesNWorstHeadings(headings, successRates, n_frames_map, successMap, failedMap, frameProbability, bottomN = 5)
+        # self.logNWorstCells("HeadingPredBottom5AllFrames", headings, successRates, n_frames_map, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 3)
+
+
+    def testnImagesOneCell(self, heading, n):
+        """
+        Tests n images belonging to one heading. Displays the n images of the heading used in testing and logs
+        performance metrics (frame number, success rate, predicted heading, probability of actual, probability of predicted,
+        top 3 predicted headings, top 3 probabilities) in a CSV file located in /res/csvLogs/headingPredictorRGBTestLogs
+        :param heading: heading number of cell to be tested alone
+        :param n: number of images of the specific heading used to test the model
+        """
+        self.buildMap()
+        headingFrames = self.labelMap.selectNFramesOneHeading(heading, n)
+        successMap, failedMap, frameProbability, frameTop3PredProb = self.testOneHeading(heading, headingFrames)
+
+        totalPred, successRate = self.getHeadingSuccessRate(heading, successMap, failedMap)
+
+        # get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
+        listOfFramesFailedPred = failedMap.get(heading)
+
+        # create new map with failed frame number as keys, failed prediction per frame as values
+        headingFailFramesMap = {list[0]: list[1] for list in listOfFramesFailedPred}
+        successFrames = successMap.get(heading)
+
+        self.showImagesOneHeading(heading, headingFrames, frameProbability, successFrames, headingFailFramesMap)
+
+        # logPath = "../../res/csvLogs2022/cellPredictorRGBTestLogs/"
+        # csvLog = open(logPath + "testCell" + str(heading) + "-{}.csv".format(time.strftime("%m%d%y%H%M")), 'w')
+        # filewriter = csv.writer(csvLog)
+        # filewriter.writerow(
+        #     ["Frame", "Actual Cell", "Predicted Cell", "Success", "Cell Success Rate", "Prob Actual", "Prob Predicted",
+        #      "Top 3 Pred", "Top 3 Prob"])
+        # self.logOneCell(filewriter, heading, str(successRate), headingFrames, successFrames, headingFailFramesMap, frameProbability, frameTop3PredProb)
+
+    def convertIndexListtoHeading(self, list):
+        """
+        Helper function to convert a list of indices of headings into heading numbers
+        :param list: list of heading indices
+        :return headings: list of heading numbers
+        """
+        headings = []
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        for i in list:
+            i = int(i)
+            headings.append(potentialHeadings[i])
+        return headings
+
+
+    def convertHeadingListtoIndex(self, list):
+        """
+        Helper function to convert a list of heading numbers into heading indices
+        :param list: list of heading numbers
+        :return headings: list of heading indices
+        """
+        headingIndices = []
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        for i in list:
+            i = int(i)
+            headingIndices.append(potentialHeadings.index(i))
+        return headingIndices
+
+    def testOneHeading(self, heading, framesList):
+        """ Tests the performance of the RGB heading model in predicting one given heading.
+        Takes in a heading number and a list of frames corresponding to the heading, and returns
+        dictionaries recording successful and unsuccessful frames, prediction probabilities per frame,
+        and top three predictions/probabilities per frame
+        :param heading: heading number (int)
+        :param framesList: List of frames corresponding to the heading to be tested
+        :return:
+            successMap: Map of perfectly predicted test cases, heading number as keys and list of perfectly predicted frames as values
+            failedMap: Map of incorrectly predicted test cases, heading number as keys and list of lists containing incorrect predictions and frames as values
+            frameProbability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities for each heading generated by the model as values
+            frameTop3PredProd: Map of top 3 predictions and prediction probabilities per frame, with frame numbers for keys and list of lists ([Top Three Probabilities, Top 3 Headings]) as values
+        """
+        successMap = {}
+        failedMap = {}
+        frameProbability = {}
+        frameTop3PredProb = {}
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        for frame in framesList:
+            imFile = makeFilename(self.frames, frame)
+            print(imFile)
+            image = cv2.imread(imFile)
+            if image is None:
+                print(" image not found")
+                continue
+            pred, output = self.predictSingleImageAllData(image)
+            pred = potentialHeadings[int(pred)]
+            topThreePercs, topThreeHeadings = self.findTopX(3, output)
+            topThreeHeadings = self.convertIndexListtoHeading(topThreeHeadings)
+            # print(pred)
+            # print(topThreeHeadings)
+            frameProbability[frame] = output
+            frameTop3PredProb[frame] = [topThreePercs, topThreeHeadings]
+            if pred == heading:
+                prevSuccessList = successMap.get(heading, [])
+                prevSuccessList.append(frame)
+                successMap[heading] = prevSuccessList
+            else:
+                prevFails = failedMap.get(heading, [])
+                prevFails.append([frame, pred])
+                failedMap[heading] = prevFails
+        return successMap, failedMap, frameProbability, frameTop3PredProb
+
+
+    def getHeadingSuccessRate(self, heading, successMap, failedMap):
+        """
+        Calculates the success rate of one heading. Returns the number of total predictions for that heading and the success rate
+        using data from the success map and failed predictions map. If the heading is missing from the dataset (i.e. no predictions
+        then it returns 0 and 0.0 for total predictions and success rate.
+        :param heading: actual heading number
+        :param successMap: Map of perfectly predicted test cases, heading number as keys and list of perfectly predicted frames as values
+        :param failedMap: Map of incorrectly predicted test cases, heading number as keys and list of lists containing incorrect predictions and frames as values
+        """
+        totalPred = 0
+        if heading in failedMap:
+            totalPred += len(failedMap[heading])
+        if heading in successMap:
+            totalPred += len(successMap[heading])
+        if totalPred > 0:
+            successRate = len(successMap.get(heading, 0)) / float(totalPred)
+            return totalPred, successRate
+        return totalPred, 0.0
+
+
+    def getAllSuccessRates(self, successMap, failedMap, excludeMissing=True, excludePerfect=False):
+        """
+        Calculates the success rate per cell number category, with the option to
+        exclude cells that have a 1.0 perfect success rate or cells that do not show up in the randomly
+        generated test cases.
+
+        :param successMap: Map of perfectly predicted test cases, cell number as keys and list of perfectly predicted frames as values
+        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of lists containing incorrect predictions and frames as values
+        :param nCells: Int number of cells to calculate success rates, set to output size (271 cells) by default, useful when getting metrics for one cell only
+        :param excludeMissing: boolean value deciding whether to include cells not tested
+        :param excludePerfect: boolean value deciding whether to include cells with 100% accuracy of prediction
+        :return: List of cells (str) and list of success rates (float) of the cell in the same index
+        """
+        successRates = []
+        headings = []
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        for head in potentialHeadings:
+            totalPred, successRate = self.getHeadingSuccessRate(head, successMap, failedMap)
+            if totalPred > 0:
+                successRate = len(successMap.get(head, 0)) / float(totalPred)
+                print('total pred', totalPred, 'successes', len(successMap.get(head, 0)), 'success rate', successRate)
+                if successRate == 1.0:
+                    if excludePerfect:
+                        continue
+                headings.append(str(head))
+                successRates.append(successRate)
+            else:
+                if not excludeMissing:
+                    successRates.append(-1)
+                    headings.append(str(head))
+                continue
+        print("Success rates: ", successRates)
+        print("Number of headings: ", len(headings), "Number of success rates: ", len(successRates))
+        return headings, successRates
+
+    def plotSuccessRates(self, headings, successRates):
+        """
+        Plots success rates against cell number using matplotlib.
+        :param headings: List of cells, each entry MUST be a string and indices must be aligned with successRates
+        :param successRates: List of success rates per cell, indices must be aligned with cells
+        :return:
+        """
+        plt.scatter(headings, successRates)
+        plt.xlabel('Heading Number', fontsize=16)
+        plt.ylabel('Success Rate %', fontsize=16)
+        plt.title('Success Rate Per Heading', fontsize=16)
+        plt.show()
+
+    def showImagesNWorstHeadings(self, headings, successRates, framesMap, successMap, failedMap, frameProbability, bottomN = 5):
+        """
+        Displays the n photos used in testnImagesEachHeading of the bottomN number of headings with the lowest accuracies.
+        Each image window displays whether the frame was successfully or unsuccessfully predicted, the
+        predicted heading (if unsuccessful), the probability of the model predicting the actual heading from the image,
+        and the probability of the model predicting the wrong cell (if the photo was unsuccessfully predicted).
+        Method is meant to be called inside testnImagesAllHeadings
+        :param headings: List of headings tested, indices align with successRates
+        :param successRates: List of success rates per heading, indices align with headings
+        :param framesMap: Map of n randomly selected frames per heading with headings for keys, list of frames as values
+        :param successMap: Map of successful frames predicted per heading with headings for keys, list of frames as values
+        :param failedMap: Map of unsuccessfully predicted frames per heading, with headings for keys, list of lists containing
+        failed predicted heading and frame number
+        :param frameProbability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities
+        for each heading generated by the model as values
+        :param bottomN: number of n lowest performing headings
+        :return:
+        """
+        bottomNRate, bottomNCellID = self.findBottomX(bottomN, successRates)
+        print(bottomNRate)
+        print(bottomNCellID)
+        for i in range(bottomN):
+            worstSuccessRate = bottomNRate[i]
+            indexOfWorstHeading = bottomNCellID[i]
+            worstHeading = int(headings[indexOfWorstHeading])
+            print('worst heading', worstHeading)
+
+            #get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
+            listOfFramesFailedPred = failedMap.get(worstHeading, [])
+            print(listOfFramesFailedPred)
+
+            #create new map with failed frame number as keys, failed prediction per frame as values
+            headingFailFramesMap ={list[0]:list[1] for list in listOfFramesFailedPred}
+            print('heading fail frames map', headingFailFramesMap)
+
+            print('Worst Performing Heading: ', worstHeading, " Success Rate: ", worstSuccessRate)
+            framesList = framesMap.get(worstHeading)
+            successFrames = successMap.get(worstHeading)
+
+            self.showImagesOneHeading(worstHeading, framesList, frameProbability, successFrames, headingFailFramesMap)
+
+
+    def showImagesOneHeading(self, heading, framesList, frameProbability, successFrames, headingFailFramesMap):
+        """
+        Displays the frames corrensponding to one heading used in testing the RGB cell predictor. Each window
+        shows information about each frame's prediction result such as predicted heading, prob of prediction,
+        prof of actual (if failed prediction), and failed prediction
+        :param heading: heading whose corresponding photos will be shown
+        :param framesList: list of frames corresponding to the given heading, each frame will be displayed individually
+        :param frameProbability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities for each heading generated by the model as values
+        :param successFrames: List of successfully predicted frames corresponding to the heading
+        :param headingFailFramesMap: Map of unsuccessfully predicted frames, with frame numbers for keys and the failed  heading prediction for the frame as values
+        :return:
+        """
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        for frame in framesList:
+            imFile = makeFilename(self.frames, frame)
+            image = cv2.imread(imFile)
+            if image is None:
+                print(" image not found")
+                continue
+            headingInx = potentialHeadings.index(heading)
+            probActualHeading = frameProbability[frame][headingInx]
+            if frame in successFrames:
+                cv2.imshow("Frame: " + str(frame) + " Heading " + str(heading) + " Success, Prob Actual: " + str(
+                    probActualHeading), image)
+            else:
+                predHeading = headingFailFramesMap.get(frame)
+                predHeadingInd = potentialHeadings.index(predHeading)
+                probForWrongPrediction = frameProbability[frame][predHeadingInd]
+                cv2.imshow("FR: " + str(frame) + " Fail " + str(heading) + " Pred " + str(predHeading) + ", Prob: " + str(
+                    probForWrongPrediction) + ", Prob Actual: " + str(probActualHeading), image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
     def cleanImage(self, image, imageSize=100):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
@@ -304,17 +606,18 @@ if __name__ == "__main__":
         data_name="FullData",
         checkPointFolder=checkPts,
         imagesFolder=frames,
-        labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint="2022HeadingPredict_checkpoint-0615221203/FullData-09-0.43.hdf5",
+        labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+        loaded_checkpoint="headingPredictorRGB100epochs.hdf5",
     )
 
     headingPredictor.buildNetwork()
 
     #for training:
 
-    headingPredictor.prepDatasets()
-    headingPredictor.train_withGenerator(headingPredictor.train_ds, headingPredictor.val_ds, epoch = 20)
+    # headingPredictor.prepDatasets()
+    # headingPredictor.train_withGenerator(headingPredictor.train_ds, headingPredictor.val_ds, epoch = 20)
 
     #for testing:
 
-    #headingPredictor.test(1000)
+    headingPredictor.testnImagesAllHeadings(20)
+    # headingPredictor.testnImagesOneCell(0, 5)
