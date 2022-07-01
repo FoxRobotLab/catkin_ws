@@ -27,7 +27,7 @@ class CellPredictor2019(object):
                  image_size=100, image_depth=2, data_name = None, testData = DATA, testFrames = frames, checkPtsDirectory = checkPts):
         ### Set up paths and basic model hyperparameters
 
-        self.checkpoint_dir = checkPts+"olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.saving_checkpoint_dir = checkPts+"olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -47,12 +47,10 @@ class CellPredictor2019(object):
         self.frames = testFrames
         self.mean_image = self.testData + "TRAININGDATA_100_500_mean.npy"
         self.meanData = np.load(self.mean_image)
-
-        self.frameIDtext = self.frames + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        self.frameIDtext = self.testData + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         if loaded_checkpoint:
-            self.loaded_checkpoint = checkPtsDirectory + loaded_checkpoint
-        if self.loaded_checkpoint:
-            self.model = keras.models.load_model(self.loaded_checkpoint) #, compile=True)
+            self.loaded_checkpoint = loaded_checkpoint
+            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             self.model.load_weights(self.loaded_checkpoint)
         else:
             self.model = self.cnn_headings()  # CNN
@@ -120,11 +118,11 @@ class CellPredictor2019(object):
             callbacks=[
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
-                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                    self.saving_checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
                     period=1  # save every n epoch
                 ),
                 keras.callbacks.TensorBoard(
-                    log_dir=self.checkpoint_dir,
+                    log_dir=self.saving_checkpoint_dir,
                     batch_size=1,
                     write_images=False,
                     write_grads=True,
@@ -177,26 +175,25 @@ class CellPredictor2019(object):
         return model
 
     def predictSingleImageAllData(self, image, heading, randomCrop=False):
-        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
+        """Given an image converts it to be suitable for the network, runs the model and returns
         the resulting prediction."""
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        headingIndex = potentialHeadings.index(heading)  #converting from 0, 45, 90, etc. to 0, 1, 2, etc.
+        headingIndex = potentialHeadings.index(heading)  #converting from 0, 45, 90, etc. to 0, 1, 2, etc
         if randomCrop:
             smallerB, grayB, processedB = self.cleanImageRandomCrop(image, self.meanData)
         else:
             smallerB, grayB, processedB = self.cleanImage(image, self.meanData)
         headBArr = headingIndex * np.ones((100, 100, 1))
         cleanImage = np.concatenate((np.expand_dims(processedB, axis=-1), headBArr), axis=-1)
-        dispProcB = cv2.convertScaleAbs(processedB)
-        cv2.imshow("Image B", cv2.resize(image, (400, 400)))
-        cv2.moveWindow("Image B", 50, 50)
-        cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
-        cv2.moveWindow("Smaller B", 50, 500)
-        cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
-        cv2.moveWindow("Gray B", 500, 500)
-        cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
-        cv2.moveWindow("Proce B", 500, 50)
-
+        # dispProcB = cv2.convertScaleAbs(processedB)
+        # cv2.imshow("Image B", cv2.resize(image, (400, 400)))
+        # cv2.moveWindow("Image B", 50, 50)
+        # cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
+        # cv2.moveWindow("Smaller B", 50, 500)
+        # cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
+        # cv2.moveWindow("Gray B", 500, 500)
+        # cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
+        # cv2.moveWindow("Proce B", 500, 50)
         listed = np.array([cleanImage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
@@ -247,7 +244,7 @@ class CellPredictor2019(object):
                 continue
             cellB = dPreproc.frameData[index]['cell']
             headingB = dPreproc.frameData[index]['heading']
-            predB, output = self.predictSingleImageAllData(imageB, headingB)
+            predB, output = self.predictSingleImageAllData(imageB, headingB, randomCrop=randomCrop)
             topThreePercs, topThreeCells = self.findTopX(3, output)
             topFivePercs, topFiveCells = self.findTopX(5, output)
             print("cellB =", cellB, "   predB =", predB)
@@ -314,8 +311,8 @@ if __name__ == "__main__":
         # data_name = "testCellPredictor"
 
         #for testing existing model
-        loaded_checkpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-        testData=DATA,
+        loaded_checkpoint = checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+        testData = DATA, testFrames = frames
     )
     # print("Classifier built")
     # cellPredictor.loadData()
@@ -323,4 +320,4 @@ if __name__ == "__main__":
     # cellPredictor.train()
 
     print("Tests the cell predictor")
-    cellPredictor.test(1000, randomChoose = False, randomCrop = True)
+    cellPredictor.test(100)

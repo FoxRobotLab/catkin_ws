@@ -86,10 +86,11 @@ if __name__ == "__main__":
             rgbCell_text = "RGB Cell: " + topCell + " " + topCellProb
             rgbHeading_text = "RGB Heading: " + topHeading + " " + topHeadingProb
 
+
             turtle_image_text = cv2.putText(img=turtle_image, text=rgbCell_text, org=(50, 50), fontScale=1,
-                                            fontFace=cv2.FONT_HERSHEY_DUPLEX, color=(0, 255, 255))
+                                            fontFace=cv2.FONT_HERSHEY_DUPLEX, color=(255, 255, 255))
             turtle_image_text = cv2.putText(img=turtle_image_text, text=rgbHeading_text, org=(50, 100), fontScale=1,
-                                            fontFace=cv2.FONT_HERSHEY_DUPLEX, color=(0, 255, 255))
+                                            fontFace=cv2.FONT_HERSHEY_DUPLEX, color=(255, 255, 255))
             cv2.imshow("Turtle Image", turtle_image_text)
 
         turtle_image, topCell, topCellProb, topHeading, topHeadingProb = None, None, None, None, None

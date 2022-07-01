@@ -56,7 +56,6 @@ class CellPredictorRGB(object):
         self.num_eval = None
         self.data_name = data_name
         self.dataSize = dataSize #len of ...?
-        self.loaded_checkpoint = loaded_checkpoint
         self.frames = imagesFolder
         self.framesParent = imagesParent
         self.labelMapFile = labelMapFile

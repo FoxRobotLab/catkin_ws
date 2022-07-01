@@ -58,7 +58,6 @@ class HeadingPredictorRGB(object):
         # self.eval_images = None
         # self.eval_labels = None
         self.data_name = data_name
-        self.loaded_checkpoint = loaded_checkpoint
         self.frames = imagesFolder
         self.framesParent = imagesParent
         self.labelMapFile = labelMapFile

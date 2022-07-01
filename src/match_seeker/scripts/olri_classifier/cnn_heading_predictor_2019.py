@@ -31,7 +31,7 @@ import random
 
 class HeadingPredictor(object):
     def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 8,
-                 image_size=100, image_depth=2, data_name = None):
+                 image_size=100, image_depth=2, data_name = None, testData = None, testFrames = None, checkPtsDirectory = None):
         ### Set up paths and basic model hyperparameters
 
         self.checkpoint_dir = DATA + "CHECKPOINTS/olin_cnn_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
@@ -40,7 +40,6 @@ class HeadingPredictor(object):
         self.learning_rate = 0.001
         self.dataImg = dataImg
         self.dataLabel = dataLabel
-        self.dataArray = None
         self.image_size = image_size
         self.image_depth = image_depth
         self.num_eval = None
@@ -50,14 +49,19 @@ class HeadingPredictor(object):
         self.eval_labels = None
         self.data_name = data_name
         self.loss = keras.losses.categorical_crossentropy
+        self.testData = testData
         self.loaded_checkpoint = loaded_checkpoint
-        if self.loaded_checkpoint is not None:
-            self.model = keras.models.load_model(self.loaded_checkpoint, compile=True)
+        self.frames = testFrames
+        self.mean_image = self.testData + "TRAININGDATA_100_500_mean.npy"
+        self.meanData = np.load(self.mean_image)
+        self.frameIDtext = self.testData + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        if loaded_checkpoint:
+            self.loaded_checkpoint = loaded_checkpoint
+            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             self.model.load_weights(self.loaded_checkpoint)
         else:
             # Code for cell input
             self.model = self.build_cnn()  # CNN
-            self.loss = keras.losses.categorical_crossentropy
 
         self.model.compile(
             loss=self.loss,
@@ -216,64 +220,46 @@ class HeadingPredictor(object):
         meaned = np.subtract(grayed, mean)
         return cropped_image, grayed, meaned
 
-    def test(self, n, randomCrop = False):
+    def test(self, n, randomChoose = True, randomCrop = False):
         """This runs each of the first n images in the folder of frames through the heading-output network, reporting how often the correct
         heading was produced, and how often the correct heading was in the top 3 and top 5."""
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        meanFile = "TRAININGDATA_100_500_mean.npy"
-        dataPath = DATA
-
         print("Setting up preprocessor to get frames data...")
-        dPreproc = FrameCellMap(dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
-
-        print("Loading mean...")
-        mean = np.load(dataPath + meanFile)
-
+        dPreproc = FrameCellMap(dataFile=self.frameIDtext)
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
-        for i in range(n):
-            rand = random.randrange(95000)
-            print("===========", rand)
-            imFile = makeFilename(frames, rand)
+        if randomChoose:
+            iterations = n
+        else:
+            iterations = 1
+        for i in range(iterations):
+            if randomChoose:
+                index = random.randrange(95000) - 1
+            else:
+                index = n - 1
+            print("===========", index)
+            imFile = makeFilename(frames, index)
             imageB = cv2.imread(imFile)
             if imageB is None:
                 print(" image not found")
                 continue
-            cellB = dPreproc.frameData[rand]['cell']
-            headingB = dPreproc.frameData[rand]['heading']
+            cellB = dPreproc.frameData[index]['cell']
+            headingB = dPreproc.frameData[index]['heading']
             headingIndex = potentialHeadings.index(
                 headingB)  # This is what was missing. This is converting from 0, 45, 90, etc. to 0, 1, 2, etc.
-
-            if randomCrop:
-                smallerB, grayB, processedB = self.cleanImageRandomCrop(imageB, mean)
-            else:
-                smallerB, grayB, processedB = self.cleanImage(imageB, mean)
-
-            cellBArr = cellB * np.ones((100, 100, 1))
-            procBPlus = np.concatenate((np.expand_dims(processedB, axis=-1), cellBArr), axis=-1)
-            predB, output = self.predictSingleImageAllData(procBPlus)
+            predB, output = self.predictSingleImageAllData(imageB, cellB, randomCrop=randomCrop)
             topThreePercs, topThreeHeadings = self.findTopX(3, output)
             topFivePercs, topFiveHeadings = self.findTopX(5, output)
             print("headingIndex =", headingIndex, "   predB =", predB)
             print("Top three:", topThreeHeadings, topThreePercs)
             print("Top five:", topFiveHeadings, topFivePercs)
             if predB == headingIndex:
-
                 countPerfect += 1
             if headingIndex in topThreeHeadings:
                 countTop3 += 1
             if headingIndex in topFiveHeadings:
                 countTop5 += 1
-            dispProcB = cv2.convertScaleAbs(processedB)
-            cv2.imshow("Image B", cv2.resize(imageB, (400, 400)))
-            cv2.moveWindow("Image B", 50, 50)
-            cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
-            cv2.moveWindow("Smaller B", 50, 500)
-            cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
-            cv2.moveWindow("Gray B", 500, 500)
-            cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
-            cv2.moveWindow("Proce B", 500, 50)
             x = cv2.waitKey(50)
             if chr(x & 0xFF) == 'q':
                 break
@@ -301,14 +287,29 @@ class HeadingPredictor(object):
         return topVals, topIndex
 
 
-    def predictSingleImageAllData(self, cleanImage):
-        """Given a "clean" image that has been converted to be suitable for the network, this runs the model and returns
+    def predictSingleImageAllData(self, image, cell, randomCrop = False):
+        """Given an image converts it to be suitable for the network, runs the model and returns
         the resulting prediction."""
+        if randomCrop:
+            smallerB, grayB, processedB = self.cleanImageRandomCrop(image, self.meanData)
+        else:
+            smallerB, grayB, processedB = self.cleanImage(image, self.meanData)
+        cellBArr = cell * np.ones((100, 100, 1))
+        cleanImage = np.concatenate((np.expand_dims(processedB, axis=-1), cellBArr), axis=-1)
+        # dispProcB = cv2.convertScaleAbs(processedB)
+        # cv2.imshow("Image B", cv2.resize(image, (400, 400)))
+        # cv2.moveWindow("Image B", 50, 50)
+        # cv2.imshow("Smaller B", cv2.resize(smallerB, (400, 400)))
+        # cv2.moveWindow("Smaller B", 50, 500)
+        # cv2.imshow("Gray B", cv2.resize(grayB, (400, 400)))
+        # cv2.moveWindow("Gray B", 500, 500)
+        # cv2.imshow("Proce B", cv2.resize(dispProcB, (400, 400)))
+        # cv2.moveWindow("Proce B", 500, 50)
         listed = np.array([cleanImage])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
-        print("Model predicts:", modelPredict.shape, modelPredict)
-        print("predict[0]:", modelPredict[0].shape, modelPredict[0])
+        print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
+        print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
         return maxIndex, modelPredict[0]
 
 # def loading_bar(start,end, size = 20):
@@ -334,10 +335,13 @@ class HeadingPredictor(object):
 if __name__ == "__main__":
     # check_data()
     headingPredictor = HeadingPredictor(
-        loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5"
         # dataImg= DATA + 'IMG_CellInput_12K.npy',
         # dataLabel = DATA + 'Heading_CellInput12k.npy',
         # data_name = "testheadingpredictor"
+
+        #for testing
+        loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5",
+        testData = DATA, testFrames = frames
     )
 
     # print("Classifier built")
@@ -345,10 +349,10 @@ if __name__ == "__main__":
     # print("Data loaded")
     # headingPredictor.train()
 
-    print("Tests for Heading Predictor")
+    #print("Tests for Heading Predictor")
     # print("Randomly Cropped Images")
     # headingPredictor.test(1000, randomCrop=True)
 
     print("Original Test Call")
-    headingPredictor.test(1000, randomCrop=False)
+    headingPredictor.test(100, randomCrop=False)
 
