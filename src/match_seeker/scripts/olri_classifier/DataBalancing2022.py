@@ -19,7 +19,7 @@ import math
 
 class DataBalancer(object):
     def __init__(self):
-        self.dictFile = DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        self.dictFile = DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.labelMap = FrameCellMap(self.dictFile)
         self.cellCounts = self.getCellCounts()
         self.cellCountsMap = self.getCellCounts()
@@ -94,9 +94,12 @@ class DataBalancer(object):
         total = np.sum(list(self.cellCountsMap.values()))
         keys = self.cellCountsMap.keys()
         class_weight = dict()
-        for key in keys:
-            score = math.log(mu*total  / float(self.cellCountsMap.get(key, 0)))
-            class_weight[key] = score if score > 1.0 else 1.0
+        for i in range(271):
+            if i in keys:
+                score = math.log(mu * total / float(self.cellCountsMap.get(i, 0)))
+                class_weight[i] = score if score > 1.0 else 1.0
+            else:
+                class_weight[i] = 0
         return class_weight
 
     def getClassWeightHeadings(self, mu=0.15):

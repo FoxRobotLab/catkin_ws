@@ -63,8 +63,9 @@ class CellPredictorRGB(object):
         self.labelMap = None
         self.train_ds = None
         self.val_ds = None
-        if loaded_checkpoint:
+        if loaded_checkpoint is not None:
             self.loaded_checkpoint = checkPointFolder + loaded_checkpoint
+        else: self.loaded_checkpoint = loaded_checkpoint
 
     def buildMap(self):
         """Builds dictionaries containing the corresponding cell, heading, and location information for each frame,
@@ -142,7 +143,7 @@ class CellPredictorRGB(object):
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
-        if self.loaded_checkpoint:
+        if self.loaded_checkpoint is not None:
             self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             #print("---Loading weights---")
             self.model.load_weights(self.loaded_checkpoint)
@@ -157,12 +158,14 @@ class CellPredictorRGB(object):
     def train(self, epochs = 20):
         """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
         training data is set up yet."""
-
+        balancer = DataBalancer()
+        weights = balancer.getClassWeightCells()
         self.model.fit(
             self.train_ds,
             epochs=epochs,
             verbose=1,
             validation_data=self.val_ds,
+            class_weight = weights,
             callbacks=[
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
@@ -711,13 +714,13 @@ if __name__ == "__main__":
 
     #for training
 
-    # cellPredictor.prepDatasets()
+    cellPredictor.prepDatasets()
     # print("DONE")
     #cellPredictor.train_withGenerator(epochs = 1)
-    # cellPredictor.train(epochs = 5)
+    cellPredictor.train(epochs = 5)
 
     #for testing
 
     #cellPredictor.test(1000)
-    cellPredictor.testnImagesAllCells(5)
+    #cellPredictor.testnImagesAllCells(5)
     # cellPredictor.testnImagesOneCell(27, 100)
