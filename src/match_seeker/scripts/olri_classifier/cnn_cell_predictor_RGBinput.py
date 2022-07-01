@@ -19,6 +19,7 @@ from paths import DATA, checkPts, frames
 from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
 from DataGenerator2022 import DataGenerator2022
+from DataBalancing2022 import DataBalancer
 import random
 import csv
 import tensorflow as tf
@@ -697,13 +698,13 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="TestNew-prepDatasetFromScratch",
+        data_name="TestCellPredictorWithWeights",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
         labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint = "cellPredictorRGB100epochs.hdf5"
+        # loaded_checkpoint = "cellPredictorRGB100epochs.hdf5"
     )
 
     cellPredictor.buildNetwork()
