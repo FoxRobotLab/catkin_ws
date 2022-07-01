@@ -14,6 +14,7 @@ is for diagnostic purposes to guide data balancing/weighting of certain cells or
 from frameCellMap import FrameCellMap
 from paths import DATA
 import numpy as np
+import math
 
 
 class DataBalancer(object):
@@ -88,6 +89,16 @@ class DataBalancer(object):
         return underRepHeadings
 
 
+    def getClassWeightCells(self, mu=0.15):
+        total = np.sum(list(self.cellCountsMap.values()))
+        keys = self.cellCountsMap.keys()
+        class_weight = dict()
+        for key in keys:
+            score = math.log(mu*total  / float(self.cellCountsMap.get(key, 0)))
+            class_weight[key] = score if score > 1.0 else 1.0
+        return class_weight
+
+
 
 if __name__ == '__main__':
     balancer = DataBalancer()
@@ -98,4 +109,5 @@ if __name__ == '__main__':
     print(balancer.getUnderRepHeadings(10000))
     print(balancer.getOverRepCells(500))
     print(balancer.getOverRepHeadings(10000))
+    print(balancer.getClassWeightCells())
 
