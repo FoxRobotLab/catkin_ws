@@ -235,7 +235,7 @@ class FrameCellMap(object):
         """
         Simplified version of selectEnoughFrames which randomly selects n number of images per cell
         :param n: number of frames to be selected for each cell
-        :return chosenFrames: map of frames, with cell numbers for keys and list of frames as values
+        :return chosenFrames: map of frames per cell, with cell numbers for keys and list of frames as values
         """
         chosenFrames = {}
 
@@ -278,7 +278,7 @@ class FrameCellMap(object):
         """
         Randomly selects n number of frames for each heading.
         :param n: number of frames to be selected for each heading
-        :return chosenFrames: map of frames, with headings for keys and list of frames as values
+        :return chosenFrames: map of frames per heading, with headings for keys and list of frames as values
         """
         chosenFrames = {}
         for heading in self.headingData.keys():

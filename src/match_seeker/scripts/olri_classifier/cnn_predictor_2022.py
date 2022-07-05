@@ -56,27 +56,27 @@ def inTopX(item, list):
     return "F"
 
 if __name__ == "__main__":
+    rospy.init_node('olripredictor-new', anonymous=False, disable_signals = True)
     robot = TurtleBot()
     robot.pauseMovement()
-    # pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
-    # pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
-    # pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
-    # pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
-    # rospy.init_node('predictor', anonymous=True)
+
+    pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
+    pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
+    pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
+    pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
 
     cellPredictor = CellPredictor2019(loaded_checkpoint = checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5", testData = DATA)
-
     headingPredictor = HeadingPredictor(loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5", testData = DATA)
 
     cellPredictorRGB = CellPredictorRGB(
         checkPointFolder=checkPts,
-        loaded_checkpoint="latestCellPredictorFromPrecision5810.hdf5"
+        loaded_checkpoint="cellPredictorRGB100epochs.hdf5"
     )
     cellPredictorRGB.buildNetwork()
 
     headingPredictorRGB = HeadingPredictorRGB(
         checkPointFolder=checkPts,
-        loaded_checkpoint="latestHeadingPredictorFromPrecision5810.hdf5",
+        loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
     )
     headingPredictorRGB.buildNetwork()
 
@@ -101,7 +101,6 @@ if __name__ == "__main__":
 
     while (not rospy.is_shutdown()):
         turtle_image, _ = robot.getImage()
-
         # 2022 RGB Cell Predictor Model
         pred_cellRGB, output_cellRGB = cellPredictorRGB.predictSingleImageAllData(turtle_image)
         topThreePercs_cellRGB, topThreeCells_cellRGB = cellPredictorRGB.findTopX(3, output_cellRGB)
@@ -145,7 +144,13 @@ if __name__ == "__main__":
         key = cv2.waitKey(10)
         ch = chr(key & 0xFF)
         if ch == "q":
-            break
+            #break
+
+            cv2.destroyAllWindows()
+            print"Robot shutdown start"
+            # robot.exit()
+            rospy.signal_shutdown("End")
+            print "Robot shutdown complete"
         if ch == "o":
             headingnumber = input("new heading: ")
             cell = input("new cell: ")
@@ -171,6 +176,9 @@ if __name__ == "__main__":
         time.sleep(0.1)
 
     cv2.destroyAllWindows()
-    # csvLog.close()
-    robot.exit()
+    print"out of loop"
+
+
+
+
 

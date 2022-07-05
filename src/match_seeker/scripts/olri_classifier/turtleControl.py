@@ -41,7 +41,7 @@ class TurtleBot(object):
 
     def __init__(self):
         """Sets up the three threads and starts them running."""
-        # rospy.init_node('test_movement') #Codes that use TurtleBot should contain this line already
+        #rospy.init_node('test_movement') #Should be commented out, because codes that use TurtleBot should contain this line already
         self.robotType = os.environ["TURTLEBOT_BASE"]
 
         if self.robotType == "create":
@@ -283,13 +283,18 @@ class TurtleBot(object):
         """A method that shuts down the three threads of the robot."""
         print("************** RECEIVED SHUTDOWN **************")
         self.moveControl.haltRun()
-        self.moveControl.join()
+        print("Halted")
+        #self.moveControl.join()
+        #print("Joined")
         self.depthControl.exit()
-        self.depthControl.join()
+        print("Depth control exited")
+        #self.depthControl.join()
         self.imageControl.exit()
-        self.imageControl.join()
+        print("Image control exited")
+        #self.imageControl.join()
         self.odom.exit()
-        self.odom.join()
+        #self.odom.join()
+        print("Last exit")
 
 
 
@@ -338,6 +343,7 @@ class MovementControlThread(threading.Thread):
         finally:
             twist = Twist()  # default to no motion
             self.move_pub.publish(twist)
+            return
 
     def setRotate(self, amount):
         """Method typically called by other threads, to set the rotation amount."""
@@ -433,7 +439,10 @@ class ImageSensorThread(threading.Thread):
             rospy.sleep(0.2)
             with self.lock:
                 runFlag = self.runFlag
+            #print "still running"
         self.image_sub.unregister()
+        print "stopped running"
+        return
 
     def image_callback(self, data):
         """Callback function connected to ROS camera data, gets called whenever the camera object
@@ -523,6 +532,7 @@ class DepthSensorThread(threading.Thread):
                 runFlag = self.runFlag
         self.sensor_sub.unregister()
         self.depth_sub.unregister()
+        return
 
     def sensor_callback(self, data):
         """Callback function triggered when sensor data is available. Just copies to instance variable."""
@@ -638,6 +648,7 @@ class OdometryListener(threading.Thread):
             rospy.sleep(0.2)
             with self.lock:
                 runFlag = self.runFlag
+        return
 
 
     def _odomCallback(self, data):
