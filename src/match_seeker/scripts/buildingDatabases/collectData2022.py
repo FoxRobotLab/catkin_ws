@@ -58,7 +58,8 @@ def getImage(x = 0, y = 0, width = 640, height = 480):
     return retval
 
 def saveToFolder(img, folderName, frameNum):
-    fName = nextFilename(frameNum)
+    # fName = nextFilename(frameNum)
+    fName = "frame{}".format(time.strftime("%Y%m%d-%H:%M:%S"))
     pathAndName = folderName + fName
     try:
         cv2.imwrite(pathAndName, img)
@@ -66,10 +67,10 @@ def saveToFolder(img, folderName, frameNum):
         print("Error writing file", frameNum, pathAndName)
 
 
-def nextFilename(num):
-    fTempl = "frames{0:04d}.jpg"
-    fileName = fTempl.format(num)
-    return fileName
+# def nextFilename(num):
+#     fTempl = "frames{0:04d}.jpg"
+#     fileName = fTempl.format(num)
+#     return fileName
 
 def saveVideo(destDir, hgt=480, wid=640):
     rospy.init_node('datacollector', anonymous=True, disable_signals = True)

@@ -225,7 +225,8 @@ class RealTimeLocs(object):
         # time1 = time.localtime()
         # self.currTime = time.strftime("%H:%M:%S", time1)
         time1 = datetime.datetime.now()
-        self.currTime = datetime.datetime.strftime(time1, "%H:%M:%S:%f")
+        # self.currTime = datetime.datetime.strftime(time1, "%H:%M:%S:%f")
+        self.currTime = "{}".format(time.strftime("%Y%m%d-%H:%M:%S"))
         self.info[self.clickNum] = [self.currTime, self.currLoc[0], self.currLoc[1], self.currHeading]
 
     def _getOlinMap(self):
