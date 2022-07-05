@@ -18,7 +18,8 @@ import cv2
 import numpy as np
 
 from src.match_seeker.scripts.olri_classifier.OlinWorldMap import WorldMap
-from src.match_seeker.scripts.olri_classifier.paths import DATA
+# from src.match_seeker.scripts.olri_classifier.paths import DATA
+from src.match_seeker.scripts.olri_classifier.DataPaths import basePath
 
 
 class RealTimeLocs(object):
@@ -291,6 +292,7 @@ class RealTimeLocs(object):
 
 
 if __name__ == "__main__":
-    realTimer = RealTimeLocs(outputFilePath= DATA + "testWalkandTimestamp/")
+    # realTimer = RealTimeLocs(outputFilePath= DATA + "testWalkandTimestamp/")
+    realTimer = RealTimeLocs(outputFilePath= basePath + "res/locdata2022/")
     realTimer.go()
 
