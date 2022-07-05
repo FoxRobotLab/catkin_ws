@@ -1,13 +1,13 @@
 #!/usr/bin/env python2.7
 """--------------------------------------------------------------------------------
-collectData.py
+collectData2022.py
 Authors: Bea Bautista, Yifan Wu
 
 This program reads frames from the robot camera and saves and timestamps selected frames while saving all frames to videos
 
 To run this file:
 1.Cutie must be launched (minimal, astra, and teleop)
-2. In terminal run command: rosrun match_seeker scripts/buildingDatabases/collectData.py
+2. In terminal run command: rosrun match_seeker scripts/buildingDatabases/collectData2022.py
 
 To end this program (if it does not end as expected),
 processes must be killed in the terminal using kill -9 <Python2.7 PID>
@@ -75,7 +75,7 @@ def saveVideo(destDir, hgt=480, wid=640):
     rospy.init_node('datacollector', anonymous=True, disable_signals = True)
     image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, image_callback)
     #timestamp = datetime.now().strftime("%Y%m%d-%H:%M")
-    timestamp = "{}".format(time.strftime("%m%d-%H:%M"))
+    timestamp = "{}".format(time.strftime("%Y%m%d-%H:%M"))
     videoName = destDir + '/' + timestamp + ".avi"
     frameFolder = destDir + '/' + timestamp + 'frames/'
     os.mkdir(frameFolder)
