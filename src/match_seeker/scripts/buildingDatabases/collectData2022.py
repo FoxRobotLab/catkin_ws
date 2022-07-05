@@ -59,7 +59,7 @@ def getImage(x = 0, y = 0, width = 640, height = 480):
 
 def saveToFolder(img, folderName, frameNum):
     # fName = nextFilename(frameNum)
-    fName = "frame{}".format(time.strftime("%Y%m%d-%H:%M:%S"))
+    fName = "frame{}.jpg".format(time.strftime("%Y%m%d-%H:%M:%S"))
     pathAndName = folderName + fName
     try:
         cv2.imwrite(pathAndName, img)
