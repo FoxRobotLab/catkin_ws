@@ -106,10 +106,12 @@ class RealTimeLocs(object):
 
         for clickNum in self.info:
             [curTime, x, y, h] = self.info[clickNum]
-            dataStr = str(clickNum) + " " + str(curTime) + " " +str(x) + " " + str(y) + " " + str(h) + "\n"
+            currCell = self.olinMap.convertLocToCell([x, y])
+            dataStr = str(clickNum) + " " + str(curTime) + " " +str(x) + " " + str(y) + " " + str(h) + " " + str(currCell) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
             print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
+            print("Cell ", currCell)
         logFile.close()
 
 
@@ -231,8 +233,6 @@ class RealTimeLocs(object):
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
         perhaps."""
         origMap = self.olinMap.currentMapImg
-        # map2 = np.flipud(origMap)
-        # olinMap = np.rot90(map2)
         return origMap
 
 
@@ -290,5 +290,6 @@ class RealTimeLocs(object):
 
 
 if __name__ == "__main__":
-    realTimer = RealTimeLocs(outputFilePath= DATA + "testWalkandTimestamp")
+    realTimer = RealTimeLocs(outputFilePath= DATA + "testWalkandTimestamp/")
     realTimer.go()
+
