@@ -30,7 +30,7 @@ import sys
 import os
 from tensorflow import keras
 #sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
-from paths import DATA, checkPts
+from paths import DATA, checkPts, logs
 from turtleControl import TurtleBot
 from cnn_cell_predictor_2019 import CellPredictor2019
 from cnn_cell_predictor_RGBinput import CellPredictorRGB
@@ -58,17 +58,15 @@ def inTopX(item, list):
 if __name__ == "__main__":
     robot = TurtleBot()
     robot.pauseMovement()
-    pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
-    pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
-    pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
-    pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
-    rospy.init_node('predictor', anonymous=True)
+    # pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
+    # pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
+    # pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
+    # pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
+    # rospy.init_node('predictor', anonymous=True)
 
-    # cellPredictor = CellPredictor2019(loaded_checkpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-    #                                   testData = DATA, checkPtsDirectory = checkPts)
-    #
-    # headingPredictor = HeadingPredictor(loaded_checkpoint="heading_acc9517_cellInput_250epochs_95k_NEW.hdf5",
-    #                                     testData = DATA, checkPtsDirectory = checkPts)
+    cellPredictor = CellPredictor2019(loaded_checkpoint = checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5", testData = DATA)
+
+    headingPredictor = HeadingPredictor(loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5", testData = DATA)
 
     cellPredictorRGB = CellPredictorRGB(
         checkPointFolder=checkPts,
@@ -87,14 +85,15 @@ if __name__ == "__main__":
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
 
     dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
-    logPath = "../../res/csvLogs2022/turtleLog-" + dirTimeStamp
+    logPath = logs + "turtleLog-" + dirTimeStamp
     photoPath = logPath + "/turtlePhotos-" + dirTimeStamp
     os.mkdir(logPath)
     os.mkdir(photoPath)
     csvLog = open(logPath + "/turtleLog-" + dirTimeStamp + ".csv", "w")
     filewriter = csv.writer(csvLog)
     filewriter.writerow(
-        ["Frame", "Actual Cell", "Actual Heading", "Prob Actual Cell", "Prob Actual Heading",
+        ["Frame", "Actual Cell", "Actual Heading",
+         "Prob Actual Cell RGB", "Prob Actual Heading RGB", "Prob Actual Cell 2019", "Prob Actual Cell 2019",
          "Pred Cell 2022", "Prob Cell 2022", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
          "Pred Heading 2022", "Prob Heading 2022", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob",
          "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
@@ -115,28 +114,26 @@ if __name__ == "__main__":
         print("heading prediction RGB model:", potentialHeadings[pred_headingRGB])
         print("Top three:", topThreeHeadingID_headingRGB, topThreePercs_headingRGB)
 
-        # # 2019 Cell Predictor Model
-        # pred_cell, output_cell = cellPredictor.predictSingleImageAllData(turtle_image, headingnumber)
-        # topThreePercs_cell, topThreeCells_cell = cellPredictorRGB.findTopX(3, output_cell)
-        # print("cell prediction 2019 model:", pred_cell)
-        # print("Top three:", topThreeCells_cell, topThreePercs_cell)
-        # cell = pred_cell
-        #
-        # # 2019 Heading Predictor Model
-        # pred_heading, output_heading = headingPredictor.predictSingleImageAllData(turtle_image, cell)
-        # topThreePercs_heading, topThreeHeadingID_heading = cellPredictorRGB.findTopX(3, output_heading)
-        # print("heading prediction 2019 model:", potentialHeadings[pred_heading])
-        # print("Top three:", topThreeHeadingID_heading, topThreePercs_heading)
-        # headingnumber = potentialHeadings[pred_heading]
+        # 2019 Cell Predictor Model
+        pred_cell, output_cell = cellPredictor.predictSingleImageAllData(turtle_image, headingnumber)
+        topThreePercs_cell, topThreeCells_cell = cellPredictorRGB.findTopX(3, output_cell)
+        print("cell prediction 2019 model:", pred_cell)
+        print("Top three:", topThreeCells_cell, topThreePercs_cell)
+
+        # 2019 Heading Predictor Model
+        pred_heading, output_heading = headingPredictor.predictSingleImageAllData(turtle_image, cell)
+        topThreePercs_heading, topThreeHeadingID_heading = cellPredictorRGB.findTopX(3, output_heading)
+        print("heading prediction 2019 model:", potentialHeadings[pred_heading])
+        print("Top three:", topThreeHeadingID_heading, topThreePercs_heading)
 
         topCell = str(topThreeCells_cellRGB[0])
-        topCellProb = "{:.3f}".format(topThreePercs_headingRGB[0])
+        topCellProb = "{:.3f}".format(topThreePercs_cellRGB[0])
         topHeading = str(potentialHeadings[topThreeHeadingID_headingRGB[0]])
         topHeadingProb = "{:.3f}".format(topThreePercs_headingRGB[0])
-        pubTopCell.publish(topCell)
-        pubTopCellProb.publish(topCellProb)
-        pubTopHeading.publish(topHeading)
-        pubTopHeadingProb.publish(topHeadingProb)
+        # pubTopCell.publish(topCell)
+        # pubTopCellProb.publish(topCellProb)
+        # pubTopHeading.publish(topHeading)
+        # pubTopHeadingProb.publish(topHeadingProb)
 
         rgbCell_text = "RGB Cell: " + topCell + " " + topCellProb
         rgbHeading_text = "RGB Heading: " + topHeading + " " + topHeadingProb
@@ -157,19 +154,23 @@ if __name__ == "__main__":
             cv2.imwrite(photoPath + "/" + frame, turtle_image)
             actualCell = input("Actual Cell: ")
             actualHeading = input("Actual Heading: ")
-            headingTop3 = convertHeadingIndList(topThreeHeadingID_headingRGB)
+            headingTop3RGB = convertHeadingIndList(topThreeHeadingID_headingRGB)
+            headingTop3 = convertHeadingIndList(topThreeHeadingID_heading)
             actualHeadingIndex = potentialHeadings.index(int(actualHeading))
             filewriter.writerow(
-                [frame, actualCell, actualHeading, "{:.3f}".format(output_cellRGB[int(actualCell)]), "{:.3f}".format(output_headingRGB[int(actualHeadingIndex)]),
-                 str(topThreeCells_cellRGB[0]), "{:.3f}".format(topThreePercs_cellRGB[0]), inTopX(int(actualCell), topThreeCells_cellRGB),  str(topThreeCells_cellRGB), str(topThreePercs_cellRGB),
-                 str(potentialHeadings[topThreeHeadingID_headingRGB[0]]), "{:.3f}".format(topThreePercs_headingRGB[0]), inTopX(int(actualHeading), headingTop3), str(headingTop3), str(topThreePercs_headingRGB),
-                 "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Headings",
-                 "Top 3 Heading Prob",
-                 "Cell for 2019 Heading Pred", "Pred Heading 2019", "Prob Heading 2019", "Actual in Top 3", "Top 3 Cells",
-                 "Top 3 Cell Prob"])
+                [frame, actualCell, actualHeading,
+                 "{:.3f}".format(output_cellRGB[int(actualCell)]), "{:.3f}".format(output_headingRGB[int(actualHeadingIndex)]),
+                 "{:.3f}".format(output_cell[int(actualCell)]), "{:.3f}".format(output_heading[int(actualHeadingIndex)]),
+                 topCell, topCellProb, inTopX(int(actualCell), topThreeCells_cellRGB),  str(topThreeCells_cellRGB), str(topThreePercs_cellRGB),
+                 topHeading, topHeadingProb, inTopX(int(actualHeading), headingTop3RGB), str(headingTop3RGB), str(topThreePercs_headingRGB),
+                headingnumber, str(topThreeCells_cell[0]), "{:.3f}".format(topThreePercs_cell[0]), inTopX(int(actualCell), topThreeCells_cell), str(topThreeCells_cell), str(topThreePercs_cell),
+                cell, str(potentialHeadings[topThreeHeadingID_heading[0]]), "{:.3f}".format(topThreePercs_heading[0]), inTopX(int(actualHeading), headingTop3), str(headingTop3), str(topThreePercs_heading)])
+
+        cell = pred_cell
+        headingnumber = potentialHeadings[pred_heading]
         time.sleep(0.1)
 
     cv2.destroyAllWindows()
-    csvLog.close()
+    # csvLog.close()
     robot.exit()
 
