@@ -18,6 +18,7 @@ import cv2
 import numpy as np
 
 from src.match_seeker.scripts.olri_classifier.OlinWorldMap import WorldMap
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 
 
 class RealTimeLocs(object):
@@ -229,11 +230,10 @@ class RealTimeLocs(object):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
         perhaps."""
-        # origMap = readMap.createMapImage(self.mapFilename, 20)
         origMap = self.olinMap.currentMapImg
-        map2 = np.flipud(origMap)
-        olinMap = np.rot90(map2)
-        return olinMap
+        # map2 = np.flipud(origMap)
+        # olinMap = np.rot90(map2)
+        return origMap
 
 
     def _mouseSetLoc(self, event, x, y, flags, param):
@@ -290,5 +290,5 @@ class RealTimeLocs(object):
 
 
 if __name__ == "__main__":
-    realTimer = RealTimeLocs(outputFilePath= "/Users/johnpellegrini/Desktop/")
+    realTimer = RealTimeLocs(outputFilePath= DATA + "testWalkandTimestamp")
     realTimer.go()
