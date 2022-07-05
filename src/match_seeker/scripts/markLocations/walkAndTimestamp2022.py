@@ -7,6 +7,7 @@ to record location, and the other is a GUI that shows the x-coordinate, y-coordi
 user is on.
 
 Author: Malini Sharma
+Updated July 2022 by Bea Bautista, Yifan Wu
 --------------------------------------------------------------------------------------------------------------------"""
 
 import os
@@ -16,13 +17,13 @@ import datetime
 import cv2
 import numpy as np
 
-# import readMap
-import src.match_seeker.scripts.markLocations.readMap as readMap
+from src.match_seeker.scripts.olri_classifier.OlinWorldMap import WorldMap
+from src.match_seeker.scripts.olri_classifier.paths import DATA
 
 
 class RealTimeLocs(object):
 
-    def __init__(self, mapFile, outputFilePath):
+    def __init__(self, outputFilePath):
         """Set up data to be held, including displayed and stored maps, current labeling location
         and heading, and dictionary mapping click numbers to times, locations, and headings."""
         self.currLoc = (0, 0)
@@ -30,8 +31,10 @@ class RealTimeLocs(object):
 
         # variables for managing data source
         self.clickNum = 1
-        self.mapFilename = mapFile
         self.outputFilePath = outputFilePath
+
+        # Olin Map
+        self.olinMap = WorldMap()
 
         # instance variables to hold displayed images
         self.locGui = None
@@ -227,10 +230,10 @@ class RealTimeLocs(object):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
         perhaps."""
-        origMap = readMap.createMapImage(self.mapFilename, 20)
-        map2 = np.flipud(origMap)
-        olinMap = np.rot90(map2)
-        return olinMap
+        origMap = self.olinMap.currentMapImg
+        # map2 = np.flipud(origMap)
+        # olinMap = np.rot90(map2)
+        return origMap
 
 
     def _mouseSetLoc(self, event, x, y, flags, param):
@@ -239,7 +242,7 @@ class RealTimeLocs(object):
 
         if event == cv2.EVENT_LBUTTONDOWN:
             self.currLoc = self._convertMapToWorld(x, y)
-            print "mouseSetLoc self.currLoc =", self.currLoc
+            print("mouseSetLoc self.currLoc =", self.currLoc)
             self._updateMap( (x, y) )
 
 
@@ -287,12 +290,5 @@ class RealTimeLocs(object):
 
 
 if __name__ == "__main__":
-    #catkinPath = "/home/macalester/"
-    catkinPath = "/Users/johnpellegrini/"
-    # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
-    basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
-    print(time)
-    realTimer = RealTimeLocs(mapFile= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
-                             outputFilePath= "/Users/johnpellegrini/Desktop/")
-
+    realTimer = RealTimeLocs(outputFilePath= DATA + "testWalkandTimestamp")
     realTimer.go()
