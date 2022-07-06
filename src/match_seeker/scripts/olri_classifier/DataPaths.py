@@ -17,7 +17,7 @@ import os
 # basePath = "/Users/susan/PycharmProjects/catkin_ws/src/match_seeker/"
 
 #base path on Bea's computer
-basePath = "/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/match_seeker/"
+# basePath = "/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/match_seeker/"
 
 # base path on Enterprise
 # basePath = "/home/macalester/catkin_ws/src/match_seeker/"
@@ -27,7 +27,7 @@ basePath = "/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/m
 # basePath = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/"
 
 # base path on Precision
-# basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
+basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
 #
 turtleBase = 'kobuki' # os.environ["TURTLEBOT_BASE"]
 #
