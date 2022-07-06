@@ -132,7 +132,7 @@ class DataLabeller():
 
 
 if __name__ == '__main__':
-    dataJoin = DataLabeller(locLogFile= 'Data-Jul05Tue-16:35:53.txt', framesFolder= '20220705-16:16frames', outputFileName= 'FrameData-20220705-16:16frames')
+    dataJoin = DataLabeller(locLogFile= 'Data-Jul06Wed-15:29:08.txt', framesFolder= '20220706-15:18frames', outputFileName= 'FrameData-20220706-15:18frames')
     dataJoin.buildDicts()
     dataJoin.writeData()
 
