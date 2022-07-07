@@ -93,6 +93,46 @@ class FrameCellMap(object):
                     self.frameData[frame]['loc'] = self.badLocDict[cell]
 
 
+    def buildDataDictsOneRun(self):
+        """
+        Modified version of buildDataDicts that reads in the data in the self.dataFile file, and fills in
+        various dictionaries. This function is for reading in new FrameData text files from individual runs
+        on Cutie.
+
+        self.frameData uses the frames name as the key and contains a dictionary with keys 'cell', 'heading', 'timestamp', 'loc', 'xval', 'yval'
+        self.cellData uses the cell number as the key, and a list of frames names as the value
+        self.headingData uses the heading number as the key, and a list of the frames names as the value
+        :return: nothing
+        """
+
+        with open(self.dataFile) as frameData:
+            for line in frameData:
+                splitList = line.split()
+                frameName = splitList[0]
+                xVal = float(splitList[1])
+                yVal = float(splitList[2])
+                cellNum = int(splitList[3])
+                headingNum = int(splitList[4])
+                timeStamp = splitList[5]
+                loc = (xVal, yVal)
+                self.frameData[frameName] = {'cell': cellNum, 'heading': headingNum, 'timestamp': timeStamp, 'loc': loc, 'xval': xVal, 'yval': yVal }
+
+                if cellNum not in self.cellData:
+                    self.cellData[cellNum] = {frameName}
+                else:
+                    self.cellData[cellNum].add(frameName)
+
+                if headingNum not in self.headingData:
+                    self.headingData[headingNum] = {frameName}
+                else:
+                    self.headingData[headingNum].add(frameName)
+
+                if loc not in self.locData:
+                    self.locData[loc] = {frameName}
+                else:
+                    self.locData[loc].add(frameName)
+
+
     # def generateTrainingData(self):
     #     """
     #     Fills in three instance variables with lists: self.allImages, which contains actual image files for the data,
