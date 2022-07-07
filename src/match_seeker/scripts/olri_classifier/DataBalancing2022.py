@@ -1,34 +1,48 @@
 """--------------------------------------------------------------------------------
 DataBalancing2022.py
 
-Created: Summer 2022
+Created: June 2022
 Authors: Bea Bautista, Yifan Wu
+Updated July 2022
 
-This file reads in the master dictionary file of the old dataset of 95k frames and can provide
-counts of underrepresented and overrepresented cells or headings. The purpose of this
-is for diagnostic purposes to guide data balancing/weighting of certain cells or headings.
+DataBalancer counts the number of frames per cell and number of frames per heading by taking in a
+text file of raw frame information, with the option to merge the counts from another frame count text
+file passed in as mergeFrameCountFile. DataBalancer can save the frame counts or the merged frame counts
+into a new text file inside classifier2022data.
 
-Updated in July 2022 to read in text files of ongoing data collection
+If a text file is not passed into the constructor, DataBalancer by default uses the previous master file
+of the old 95k frame dataset located inside the classifier2019data folder.
+
+DataBalancer also has methods for returning a dictionary of weights per cell or heading if the data is unbalanced.
+These weight dictionaries can be passed into the 2022 RGB heading or cell classification models inside the train method.
+
+The purpose of this class is for diagnostic purposes to guide data balancing/weighting of certain cells or headings,
+and data collection in 2022 to ensure that we collect enough frames per heading or cell.
 
 --------------------------------------------------------------------------------"""
-import re
 
 from frameCellMap import FrameCellMap
 from paths import DATA, data2022
 import numpy as np
 import math
+import re
 import time
 
 
 class DataBalancer(object):
     def __init__(self, dictFileName = None, mergeFrameCountFile = None):
+        #File names and file paths for the text files to be read and counted, and text file for counts to merge
         self.dictFileName = dictFileName
         self.dictFile = data2022 + dictFileName
+        self.mergeFrameCountFileName = mergeFrameCountFile
         self.mergeFrameCountFile = data2022 + mergeFrameCountFile
+
+        #Dictionaries for holding cell and heading counts from self.dictFileName
         self.headingData = {}
         self.cellData = {}
 
-        if dictFileName == None or mergeFrameCountFile == None:
+        #If no text files are passed in, count the old 95k dataset by default
+        if dictFileName == None and mergeFrameCountFile == None:
             self.oldDataset95k = DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
             self.labelMap = FrameCellMap(self.oldDataset95k)
 
@@ -41,6 +55,11 @@ class DataBalancer(object):
 
 
     def _readNewDict(self):
+        """
+        Reads the raw frame information file (self.dictFile) and initializes
+        self.cellData and self.headingData which hold cell/heading numbers as keys
+        and a list of frames as values.
+        """
         try:
             with open(self.dictFile) as frameData:
                 for line in frameData:
@@ -245,4 +264,3 @@ if __name__ == '__main__':
     balancerNew = DataBalancer(dictFileName="FrameData-20220705-16:16frames.txt", mergeFrameCountFile="NewFrameCount-20220706-15:18.txt")
     print(balancerNew.cellCountsMap)
     print(balancerNew.headingCountsMap)
-    balancerNew.mergeCounts()
