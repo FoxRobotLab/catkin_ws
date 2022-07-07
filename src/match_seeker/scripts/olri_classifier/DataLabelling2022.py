@@ -115,9 +115,9 @@ class DataLabeller():
             frameData = self.allFrameData.get(frame, -1)
             cellNum = frameData.get('cell', -1)
             headingNum = frameData.get('heading', -1)
-            loc = frameData.get('loc', (-1,-1))
+            loc = frameData.get('loc', "-1 -1")
             timestamp = frameData.get('timestamp', -1)
-            dataStr = frame + " " + str(loc) + " " + str(cellNum) + " " + str(headingNum) + " " + timestamp + "\n"
+            dataStr = frame + " " + str(loc[0]) + " " + str(loc[1]) + " " + str(cellNum) + " " + str(headingNum) + " " + timestamp + "\n"
             if fileOpen:
                 logFile.write(dataStr)
         logFile.close()
@@ -131,10 +131,27 @@ class DataLabeller():
         self.mapLogsandFrames()
 
 
+def removeParenthesis(readFilePath, writeFilePath):
+        logFile = open(readFilePath, 'r')
+        writeFile = open(writeFilePath, 'w')
+
+        for line in logFile:
+            copyLine = line
+            copyLine = copyLine.replace("(", "").replace(")", "").replace(",", "")
+            print(copyLine)
+            print(line)
+            writeFile.write(copyLine)
+        writeFile.close()
+        logFile.close()
+
 if __name__ == '__main__':
-    dataJoin = DataLabeller(locLogFile= 'Data-Jul06Wed-15:29:08.txt', framesFolder= '20220706-15:18frames', outputFileName= 'FrameData-20220706-15:18frames')
-    dataJoin.buildDicts()
-    dataJoin.writeData()
+    # dataJoin = DataLabeller(locLogFile= 'Data-Jul06Wed-15:29:08.txt', framesFolder= '20220706-15:18frames', outputFileName= 'FrameData-20220706-15:18frames')
+    # dataJoin.buildDicts()
+    # dataJoin.writeData()
+
+    removeParenthesis('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16frames.txt', '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16framesClean.txt')
+
+
 
 
 
