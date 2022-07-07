@@ -10,7 +10,7 @@ recorded during the same single data collection run on Cutie. Saves the informat
 """
 from paths import dataLocLogs, data2022
 import os
-import time
+import datetime
 
 class DataLabeller():
 
@@ -50,7 +50,7 @@ class DataLabeller():
             for line in frameData:
                 splitList = line.split()
                 timeStamp = splitList[1]
-                formatTime = time.strptime(timeStamp, "%Y%m%d-%H:%M:%S")
+                formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H:%M:%S")
                 xVal = float(splitList[2])
                 yVal = float(splitList[3])
                 headingNum = int(splitList[4])
@@ -68,7 +68,7 @@ class DataLabeller():
         frameNames = os.listdir(self.framesPath)
         for frame in frameNames:
             timeStamp = frame.replace(".jpg", "").replace("frame", "")
-            formatTime = time.strptime(timeStamp, "%Y%m%d-%H:%M:%S")
+            formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H:%M:%S")
             self.frameTimes[formatTime] = frame
 
 
@@ -85,11 +85,20 @@ class DataLabeller():
 
         logIndx = 0
         for frameTime in frameTimestamps:
-            logTime = logTimestamps[logIndx]
-            if frameTime > logTime:
-                if logIndx >= len(logTimestamps) - 1:
-                    break
-                logIndx += 1
+            prevLogTime = logTimestamps[logIndx]
+            nextLogTime = logTimestamps[logIndx + 1]
+            midpointPrevNext = nextLogTime - prevLogTime
+            diffPrevTime = abs(frameTime - prevLogTime)
+            diffNextTime = abs(frameTime - nextLogTime)
+            if frameTime > prevLogTime + midpointPrevNext:
+                if logIndx + 1 < len(logTimestamps) - 1:
+                    logIndx += 1
+
+            if diffPrevTime < diffNextTime:
+                logTime = prevLogTime
+            else:
+                logTime = nextLogTime
+
             frameName = self.frameTimes.get(frameTime, -1)
             logInfo = self.logData.get(logTime, -1)
             self.allFrameData[frameName] = logInfo
@@ -149,7 +158,16 @@ if __name__ == '__main__':
     # dataJoin.buildDicts()
     # dataJoin.writeData()
 
-    removeParenthesis('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16frames.txt', '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16framesClean.txt')
+    # dataJoin = DataLabeller(locLogFile= 'Data-Jul05Tue-16:35:53.txt', framesFolder= '20220705-16:16frames', outputFileName= 'FrameDataTESTMIDPOINT-20220705-16:16frames')
+    # dataJoin.buildDicts()
+    # dataJoin.writeData()
+
+    dataJoin = DataLabeller(locLogFile= 'Data-Jul06Wed-15:29:08.txt', framesFolder= '20220706-15:18frames', outputFileName= 'FrameDataTESTMIDPOINT-20220706-15:18frames')
+    dataJoin.buildDicts()
+    dataJoin.writeData()
+
+
+    # removeParenthesis('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16frames.txt', '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16framesClean.txt')
 
 
 
