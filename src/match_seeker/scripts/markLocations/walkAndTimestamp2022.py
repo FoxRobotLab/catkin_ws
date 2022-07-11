@@ -230,6 +230,9 @@ class RealTimeLocs(object):
         self.currTime = "{}".format(time.strftime("%Y%m%d-%H:%M:%S"))
         self.info[self.clickNum] = [self.currTime, self.currLoc[0], self.currLoc[1], self.currHeading]
 
+        currCell = self.olinMap.convertLocToCell([self.currLoc[0], self.currLoc[1]])
+        print("Cell ", currCell)
+
     def _getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
