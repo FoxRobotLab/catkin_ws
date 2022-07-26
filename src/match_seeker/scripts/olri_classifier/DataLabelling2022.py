@@ -28,8 +28,8 @@ class DataLabeller():
         self.framesPath = data2022 + framesFolder
 
         #Output txt file information
-        self.outputFileName = outputFileName
-        self.outputFilePath = data2022 + outputFileName
+        self.outputFileName = outputFileName + ".txt"
+        self.outputFilePath = '/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/match_seeker/res/classifier2022Data/' + outputFileName
 
         #Dicts with time objects for keys, used to compare the log and frame time order
         self.logData = {}
@@ -50,7 +50,7 @@ class DataLabeller():
             for line in frameData:
                 splitList = line.split()
                 timeStamp = splitList[1]
-                formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H:%M:%S")
+                formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H%M%S")
                 xVal = float(splitList[2])
                 yVal = float(splitList[3])
                 headingNum = int(splitList[4])
@@ -68,7 +68,7 @@ class DataLabeller():
         frameNames = os.listdir(self.framesPath)
         for frame in frameNames:
             timeStamp = frame.replace(".jpg", "").replace("frame", "")
-            formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H:%M:%S")
+            formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H%M%S")
             self.frameTimes[formatTime] = frame
 
 
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     # dataJoin.buildDicts()
     # dataJoin.writeData()
 
-    dataJoin = DataLabeller(locLogFile= 'Data-Jul06Wed-15:29:08.txt', framesFolder= '20220706-15:18frames', outputFileName= 'FrameDataTESTMIDPOINT-20220706-15:18frames')
+    dataJoin = DataLabeller(locLogFile= 'Data-Jul112022-145824.txt', framesFolder= '20220711-1407frames', outputFileName= 'FrameData20220711-1407frames')
     dataJoin.buildDicts()
     dataJoin.writeData()
 
