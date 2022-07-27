@@ -29,7 +29,7 @@ class DataLabeller():
 
         #Output txt file information
         self.outputFileName = outputFileName + ".txt"
-        self.outputFilePath = '/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/match_seeker/res/classifier2022Data/' + outputFileName
+        self.outputFilePath = '/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/match_seeker/res/classifier2022Data/' + self.outputFileName
 
         #Dicts with time objects for keys, used to compare the log and frame time order
         self.logData = {}
@@ -50,7 +50,7 @@ class DataLabeller():
             for line in frameData:
                 splitList = line.split()
                 timeStamp = splitList[1]
-                formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H%M%S")
+                formatTime = datetime.datetime.strptime(timeStamp, "%Y%m%d-%H:%M:%S")
                 xVal = float(splitList[2])
                 yVal = float(splitList[3])
                 headingNum = int(splitList[4])
@@ -153,6 +153,15 @@ def removeParenthesis(readFilePath, writeFilePath):
         writeFile.close()
         logFile.close()
 
+def removeColonDash(dir):
+    dir = dir + "/"
+    for file in os.listdir(dir):
+        fileName, fileExt = os.path.splitext(file)
+        if ':' in fileName or '/' in fileName:
+            fileName = fileName.replace(':', '').replace('/','')
+            newName = fileName + fileExt
+            os.rename(dir + file, dir + newName)
+
 if __name__ == '__main__':
     # dataJoin = DataLabeller(locLogFile= 'Data-Jul06Wed-15:29:08.txt', framesFolder= '20220706-15:18frames', outputFileName= 'FrameData-20220706-15:18frames')
     # dataJoin.buildDicts()
@@ -162,11 +171,11 @@ if __name__ == '__main__':
     # dataJoin.buildDicts()
     # dataJoin.writeData()
 
-    dataJoin = DataLabeller(locLogFile= 'Data-Jul112022-145824.txt', framesFolder= '20220711-1407frames', outputFileName= 'FrameData20220711-1407frames')
+    dataJoin = DataLabeller(locLogFile= 'Data-Jul152022-141957.txt', framesFolder= '20220715-1322frames', outputFileName= 'FrameData20220715-1322frames')
     dataJoin.buildDicts()
     dataJoin.writeData()
 
-
+    # removeColonDash('/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/match_seeker/res/locdata2022')
     # removeParenthesis('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16frames.txt', '/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/FrameData-20220705-16:16framesClean.txt')
 
 
