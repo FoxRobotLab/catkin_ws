@@ -57,15 +57,15 @@ class CellPredictorRGB(object):
         self.num_eval = None
         self.data_name = data_name
         self.dataSize = dataSize #len of ...?
-        self.loaded_checkpoint = loaded_checkpoint
         self.frames = imagesFolder
         self.framesParent = imagesParent
         self.labelMapFile = labelMapFile
         self.labelMap = None
         self.train_ds = None
         self.val_ds = None
-        if loaded_checkpoint:
+        if loaded_checkpoint is not None:
             self.loaded_checkpoint = checkPointFolder + loaded_checkpoint
+        else: self.loaded_checkpoint = loaded_checkpoint
 
     def buildMap(self):
         """Builds dictionaries containing the corresponding cell, heading, and location information for each frame,
@@ -73,77 +73,77 @@ class CellPredictorRGB(object):
         self.labelMap = FrameCellMap(dataFile=self.labelMapFile)
 
     #not compatible with tensorflow 1, also seems to do different preprocessing from the next prepDatasets function
-    def prepDatasets(self):
-        """Finds the cell labels associated with the files in the frames folder, and then sets up two
-        data generators to produce the data in batches."""
-        self.buildMap()
-        #From Tensorflow website:
-        #Labels should be sorted according to the alphanumeric order of the image file paths (obtained via os.walk(directory) in Python)
-        #given a directory, os.walk returns list of dirpaths, list of dirnames and list of filenames as tuples, the generated lists are in the same order in every run
-        print(self.frames, self.framesParent)
-        imageFiles = os.listdir(self.frames)
-        imageFiles.sort()
-        cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, imageFiles)]
-
-        self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
-                                                                 label_mode = 'int',
-                                                                 validation_split=0.2,  seed=self.seed,
-                                                                 image_size=(self.image_size, self.image_size),
-                                                                 batch_size=self.batch_size)
-        self.train_ds = self.train_ds.map(lambda x, y: (x /255., y)) #we shall use keras rescale layer instead of this line
-
-        #displays images and labels in first batch
-
-        # for images, labels in self.train_ds.take(1):
-        #     for i in range(self.batch_size):
-        #         print("Label: ", labels[i])
-        #         print("Image: ", images[i].numpy())
-        #         image = cv2.convertScaleAbs(images[i].numpy()) # cv2 cannot show floating points
-        #         cv2.imshow("Label"+str(labels[i]) , image)
-        #         cv2.waitKey(0)
-
-        self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="validation",
-                                                               label_mode='int',
-                                                               validation_split=0.2, seed=self.seed,
-                                                               image_size=(self.image_size, self.image_size),
-                                                               batch_size=self.batch_size)
-        self.val_ds = self.val_ds.map(lambda x, y: (x / 255., y)) #use keras rescale layer instead
-
-        #methods that does not work for listing filenames of images of dataset
-
-        # iterator_helper = self.val_ds.make_one_shot_iterator()
-        # with tf.Session() as sess:
-        #     filename_temp = iterator_helper.get_next()
-        #     print(filename_temp)
-        #     print(sess.run[filename_temp])
-
-        # for i, element in enumerate(self.val_ds.as_numpy_iterator()):
-        #     print(element)
-        #     if i>50:
-        #         break
-
-        # file_paths = self.val_ds.file_paths
-        # print(file_paths[0:10])
-
-        # displays images and labels in first batch
-        # for images, labels in self.val_ds.take(1):
-        #     for i in range(self.batch_size):
-        #         print("Label: ", labels[i])
-        #         print("Image: ", images[i].numpy())
-        #         image = cv2.convertScaleAbs(images[i].numpy()) # cv2 cannot show floating points
-        #         cv2.imshow("Label"+str(labels[i]) , image)
-        #         cv2.waitKey(0)
-
-
     # def prepDatasets(self):
     #     """Finds the cell labels associated with the files in the frames folder, and then sets up two
-    #     data generators to preprocess data and produce the data in batches."""
-    #     self.train_ds = DataGenerator2022(batch_size = self.batch_size)
-    #     self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False)
+    #     data generators to produce the data in batches."""
+    #     self.buildMap()
+    #     #From Tensorflow website:
+    #     #Labels should be sorted according to the alphanumeric order of the image file paths (obtained via os.walk(directory) in Python)
+    #     #given a directory, os.walk returns list of dirpaths, list of dirnames and list of filenames as tuples, the generated lists are in the same order in every run
+    #     print(self.frames, self.framesParent)
+    #     imageFiles = os.listdir(self.frames)
+    #     imageFiles.sort()
+    #     cellLabels = [self.labelMap.frameData[fNum]['cell'] for fNum in map(extractNum, imageFiles)]
+    #
+    #     self.train_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="training",
+    #                                                              label_mode = 'int',
+    #                                                              validation_split=0.2,  seed=self.seed,
+    #                                                              image_size=(self.image_size, self.image_size),
+    #                                                              batch_size=self.batch_size)
+    #     self.train_ds = self.train_ds.map(lambda x, y: (x /255., y)) #we shall use keras rescale layer instead of this line
+    #
+    #     #displays images and labels in first batch
+    #
+    #     # for images, labels in self.train_ds.take(1):
+    #     #     for i in range(self.batch_size):
+    #     #         print("Label: ", labels[i])
+    #     #         print("Image: ", images[i].numpy())
+    #     #         image = cv2.convertScaleAbs(images[i].numpy()) # cv2 cannot show floating points
+    #     #         cv2.imshow("Label"+str(labels[i]) , image)
+    #     #         cv2.waitKey(0)
+    #
+    #     self.val_ds = keras.utils.image_dataset_from_directory(self.framesParent, labels=cellLabels, subset="validation",
+    #                                                            label_mode='int',
+    #                                                            validation_split=0.2, seed=self.seed,
+    #                                                            image_size=(self.image_size, self.image_size),
+    #                                                            batch_size=self.batch_size)
+    #     self.val_ds = self.val_ds.map(lambda x, y: (x / 255., y)) #use keras rescale layer instead
+    #
+    #     #methods that does not work for listing filenames of images of dataset
+    #
+    #     # iterator_helper = self.val_ds.make_one_shot_iterator()
+    #     # with tf.Session() as sess:
+    #     #     filename_temp = iterator_helper.get_next()
+    #     #     print(filename_temp)
+    #     #     print(sess.run[filename_temp])
+    #
+    #     # for i, element in enumerate(self.val_ds.as_numpy_iterator()):
+    #     #     print(element)
+    #     #     if i>50:
+    #     #         break
+    #
+    #     # file_paths = self.val_ds.file_paths
+    #     # print(file_paths[0:10])
+    #
+    #     # displays images and labels in first batch
+    #     # for images, labels in self.val_ds.take(1):
+    #     #     for i in range(self.batch_size):
+    #     #         print("Label: ", labels[i])
+    #     #         print("Image: ", images[i].numpy())
+    #     #         image = cv2.convertScaleAbs(images[i].numpy()) # cv2 cannot show floating points
+    #     #         cv2.imshow("Label"+str(labels[i]) , image)
+    #     #         cv2.waitKey(0)
+
+
+    def prepDatasets(self):
+        """Finds the cell labels associated with the files in the frames folder, and then sets up two
+        data generators to preprocess data and produce the data in batches."""
+        self.train_ds = DataGenerator2022(batch_size = self.batch_size)
+        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
-        if self.loaded_checkpoint:
+        if self.loaded_checkpoint is not None:
             self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             #print("---Loading weights---")
             self.model.load_weights(self.loaded_checkpoint)
@@ -158,12 +158,14 @@ class CellPredictorRGB(object):
     def train(self, epochs = 20):
         """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
         training data is set up yet."""
-
+        balancer = DataBalancer()
+        weights = balancer.getClassWeightCells()
         self.model.fit(
             self.train_ds,
             epochs=epochs,
             verbose=1,
             validation_data=self.val_ds,
+            class_weight = weights,
             callbacks=[
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
@@ -699,26 +701,24 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="TestCellPredictorWithWeights",
+        data_name="TestCellPredictorWithWeightsDataGenerator",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
         labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        # loaded_checkpoint = "cellPredictorRGB100epochs.hdf5"
+        loaded_checkpoint = "2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
     )
 
     cellPredictor.buildNetwork()
 
     #for training
 
-    # cellPredictor.prepDatasets()
-    # print("DONE")
-    #cellPredictor.train_withGenerator(epochs = 1)
-    # cellPredictor.train(epochs = 5)
+    #cellPredictor.prepDatasets()
+    #cellPredictor.train(epochs = 100)
 
     #for testing
 
     #cellPredictor.test(1000)
-    cellPredictor.testnImagesAllCells(5)
-    # cellPredictor.testnImagesOneCell(27, 100)
+    cellPredictor.testnImagesAllCells(100)
+    #cellPredictor.testnImagesOneCell(27, 100)

@@ -6,7 +6,7 @@ import os
 from imageFileUtils import makeFilename, extractNum
 from frameCellMap import FrameCellMap
 
-""" 
+"""
 Updated Data Generator that preprocesses images into desired input form
 and constructs batches of tuples of images and corresponding labels that allows the model to
 not load in the entire .npy file or the whold dataset for training or validation
@@ -22,7 +22,7 @@ class DataGenerator2022(keras.utils.Sequence):
                  train = True, eval_ratio=11.0/61.0, generateForCellPred = True):
 
         self.batch_size = batch_size
-        self.frameIDtext = testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        self.frameIDtext = testData + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.shuffle = shuffle
         self.img_size = img_size
         self.image_path = frames
@@ -69,9 +69,9 @@ class DataGenerator2022(keras.utils.Sequence):
       X, Y = self.__data_generation(list_frame_temp)
       return X, Y
 
-    def cleanImage(self, image, imageSize=100):
+    def cleanImage(self, image):
         """Preprocessing the images into the correct input form."""
-        shrunkenIm = cv2.resize(image, (imageSize, imageSize))
+        shrunkenIm = cv2.resize(image, (self.img_size, self.img_size))
         processedIm = shrunkenIm / 255.0
         return processedIm
 

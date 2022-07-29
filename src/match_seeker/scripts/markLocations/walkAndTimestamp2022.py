@@ -7,6 +7,7 @@ to record location, and the other is a GUI that shows the x-coordinate, y-coordi
 user is on.
 
 Author: Malini Sharma
+Updated July 2022 by Bea Bautista, Yifan Wu
 --------------------------------------------------------------------------------------------------------------------"""
 
 import os
@@ -16,13 +17,14 @@ import datetime
 import cv2
 import numpy as np
 
-# import readMap
-import src.match_seeker.scripts.markLocations.readMap as readMap
+from src.match_seeker.scripts.olri_classifier.OlinWorldMap import WorldMap
+# from src.match_seeker.scripts.olri_classifier.paths import DATA
+from src.match_seeker.scripts.olri_classifier.DataPaths import basePath
 
 
 class RealTimeLocs(object):
 
-    def __init__(self, mapFile, outputFilePath):
+    def __init__(self, outputFilePath):
         """Set up data to be held, including displayed and stored maps, current labeling location
         and heading, and dictionary mapping click numbers to times, locations, and headings."""
         self.currLoc = (0, 0)
@@ -30,8 +32,10 @@ class RealTimeLocs(object):
 
         # variables for managing data source
         self.clickNum = 1
-        self.mapFilename = mapFile
         self.outputFilePath = outputFilePath
+
+        # Olin Map
+        self.olinMap = WorldMap()
 
         # instance variables to hold displayed images
         self.locGui = None
@@ -91,7 +95,7 @@ class RealTimeLocs(object):
             os.makedirs(self.outputFilePath)
         except:
             pass
-        logName = time.strftime("Data-%b%d%a-%H:%M:%S.txt")
+        logName = time.strftime("Data-%b%d%Y-%H%M%S.txt")
         print(logName)
         fileOpen = False
         logFile = None
@@ -103,10 +107,13 @@ class RealTimeLocs(object):
 
         for clickNum in self.info:
             [curTime, x, y, h] = self.info[clickNum]
-            dataStr = str(clickNum) + " " + str(curTime) + " " +str(x) + " " + str(y) + " " + str(h) + "\n"
+            currCell = self.olinMap.convertLocToCell([x, y])
+            dataStr = str(clickNum) + " " + str(curTime) + " " +str(x) + " " + str(y) + " " + str(h) + " " + str(currCell) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
-            print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
+            # print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
+            # print("Cell ", currCell)
+            print(dataStr)
         logFile.close()
 
 
@@ -220,17 +227,19 @@ class RealTimeLocs(object):
         # time1 = time.localtime()
         # self.currTime = time.strftime("%H:%M:%S", time1)
         time1 = datetime.datetime.now()
-        self.currTime = datetime.datetime.strftime(time1, "%H:%M:%S:%f")
+        # self.currTime = datetime.datetime.strftime(time1, "%H:%M:%S:%f")
+        self.currTime = "{}".format(time.strftime("%Y%m%d-%H:%M:%S"))
         self.info[self.clickNum] = [self.currTime, self.currLoc[0], self.currLoc[1], self.currHeading]
+
+        currCell = self.olinMap.convertLocToCell([self.currLoc[0], self.currLoc[1]])
+        print("Cell ", currCell)
 
     def _getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
         perhaps."""
-        origMap = readMap.createMapImage(self.mapFilename, 20)
-        map2 = np.flipud(origMap)
-        olinMap = np.rot90(map2)
-        return olinMap
+        origMap = self.olinMap.currentMapImg
+        return origMap
 
 
     def _mouseSetLoc(self, event, x, y, flags, param):
@@ -239,7 +248,7 @@ class RealTimeLocs(object):
 
         if event == cv2.EVENT_LBUTTONDOWN:
             self.currLoc = self._convertMapToWorld(x, y)
-            print "mouseSetLoc self.currLoc =", self.currLoc
+            print("mouseSetLoc self.currLoc =", self.currLoc)
             self._updateMap( (x, y) )
 
 
@@ -287,12 +296,7 @@ class RealTimeLocs(object):
 
 
 if __name__ == "__main__":
-    #catkinPath = "/home/macalester/"
-    catkinPath = "/Users/johnpellegrini/"
-    # catkinPath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/"
-    basePath = "PycharmProjects/catkin_ws/src/match_seeker/"
-    print(time)
-    realTimer = RealTimeLocs(mapFile= "/Users/johnpellegrini/PycharmProjects/catkin_ws/src/match_seeker/res/map/olinNewMap.txt",
-                             outputFilePath= "/Users/johnpellegrini/Desktop/")
-
+    # realTimer = RealTimeLocs(outputFilePath= DATA + "testWalkandTimestamp/")
+    realTimer = RealTimeLocs(outputFilePath= basePath + "res/locdata2022/")
     realTimer.go()
+

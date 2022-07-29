@@ -37,11 +37,39 @@ from cnn_cell_predictor_RGBinput import CellPredictorRGB
 from cnn_heading_predictor_2019 import HeadingPredictor
 from cnn_heading_predictor_RGBinput import HeadingPredictorRGB
 from std_msgs.msg import String
+from sensor_msgs.msg import Image
 
 #from OlinWorldMap import WorldMap
 
 # uncomment to use CPU
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+def image_callback(data):
+    global image_array
+    image_array = data
+
+def getImage(x = 0, y = 0, width = 640, height = 480):
+    """Gets the next image available. If no images are available yet,
+    this method blocks until one becomes available."""
+    global image_array
+    try:
+        if image_array is None:
+            sys.stdout.write("Waiting for camera image_array")
+            while image_array is None:
+                sys.stdout.write(".")
+                sys.stdout.flush()
+                rospy.sleep(0.2)
+                if rospy.is_shutdown():
+                    return
+            print " Done!"
+        bridge = CvBridge()
+        cv_image = bridge.imgmsg_to_cv2(image_array, "passthrough")
+    except CvBridgeError, e:
+        print e
+    retval = cv_image[y:y + height, x:x + width]
+    r, g, b = cv2.split(retval)
+    retval = cv2.merge((b,g,r))
+    return retval
 
 def convertHeadingIndList(list):
     headings = []
@@ -56,27 +84,27 @@ def inTopX(item, list):
     return "F"
 
 if __name__ == "__main__":
-    robot = TurtleBot()
-    robot.pauseMovement()
-    # pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
-    # pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
-    # pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
-    # pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
-    # rospy.init_node('predictor', anonymous=True)
+    image_array = None
+    rospy.init_node('predictor', anonymous=True, disable_signals=True)
+    image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, image_callback)
+
+    pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
+    pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
+    pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
+    pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
 
     cellPredictor = CellPredictor2019(loaded_checkpoint = checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5", testData = DATA)
-
     headingPredictor = HeadingPredictor(loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5", testData = DATA)
 
     cellPredictorRGB = CellPredictorRGB(
         checkPointFolder=checkPts,
-        loaded_checkpoint="latestCellPredictorFromPrecision5810.hdf5"
+        loaded_checkpoint="2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
     )
     cellPredictorRGB.buildNetwork()
 
     headingPredictorRGB = HeadingPredictorRGB(
         checkPointFolder=checkPts,
-        loaded_checkpoint="latestHeadingPredictorFromPrecision5810.hdf5",
+        loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
     )
     headingPredictorRGB.buildNetwork()
 
@@ -93,15 +121,14 @@ if __name__ == "__main__":
     filewriter = csv.writer(csvLog)
     filewriter.writerow(
         ["Frame", "Actual Cell", "Actual Heading",
-         "Prob Actual Cell RGB", "Prob Actual Heading RGB", "Prob Actual Cell 2019", "Prob Actual Cell 2019",
+         "Prob Actual Cell RGB", "Prob Actual Heading RGB", "Prob Actual Cell 2019", "Prob Actual Heading 2019",
          "Pred Cell 2022", "Prob Cell 2022", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
          "Pred Heading 2022", "Prob Heading 2022", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob",
          "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
          "Cell for 2019 Heading Pred", "Pred Heading 2019", "Prob Heading 2019", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob"])
 
     while (not rospy.is_shutdown()):
-        turtle_image, _ = robot.getImage()
-
+        turtle_image = getImage()
         # 2022 RGB Cell Predictor Model
         pred_cellRGB, output_cellRGB = cellPredictorRGB.predictSingleImageAllData(turtle_image)
         topThreePercs_cellRGB, topThreeCells_cellRGB = cellPredictorRGB.findTopX(3, output_cellRGB)
@@ -130,10 +157,10 @@ if __name__ == "__main__":
         topCellProb = "{:.3f}".format(topThreePercs_cellRGB[0])
         topHeading = str(potentialHeadings[topThreeHeadingID_headingRGB[0]])
         topHeadingProb = "{:.3f}".format(topThreePercs_headingRGB[0])
-        # pubTopCell.publish(topCell)
-        # pubTopCellProb.publish(topCellProb)
-        # pubTopHeading.publish(topHeading)
-        # pubTopHeadingProb.publish(topHeadingProb)
+        pubTopCell.publish(topCell)
+        pubTopCellProb.publish(topCellProb)
+        pubTopHeading.publish(topHeading)
+        pubTopHeadingProb.publish(topHeadingProb)
 
         rgbCell_text = "RGB Cell: " + topCell + " " + topCellProb
         rgbHeading_text = "RGB Heading: " + topHeading + " " + topHeadingProb
@@ -145,7 +172,14 @@ if __name__ == "__main__":
         key = cv2.waitKey(10)
         ch = chr(key & 0xFF)
         if ch == "q":
-            break
+            #break
+
+            cv2.destroyAllWindows()
+            image_sub.unregister()
+            print("Robot shutdown start")
+            # robot.exit()
+            rospy.signal_shutdown("End")
+            print("Robot shutdown complete")
         if ch == "o":
             headingnumber = input("new heading: ")
             cell = input("new cell: ")
@@ -170,7 +204,9 @@ if __name__ == "__main__":
         headingnumber = potentialHeadings[pred_heading]
         time.sleep(0.1)
 
-    cv2.destroyAllWindows()
-    # csvLog.close()
-    robot.exit()
+    print("out of loop")
+
+
+
+
 

@@ -21,10 +21,10 @@ import numpy as np
 from src.match_seeker.scripts.olri_classifier.DataManipulations.FoxQueue import PriorityQueue
 import src.match_seeker.scripts.olri_classifier.DataManipulations.Graphs
 from src.match_seeker.scripts.olri_classifier.DataPaths import basePath, graphMapData, mapLineData, cellMapData
-from src.match_seeker.scripts.olri_classifier.paths import DATA
+# from src.match_seeker.scripts.olri_classifier.paths import DATA
 # from Particle import Particle
 import src.match_seeker.scripts.olri_classifier.DataManipulations.MapGraph
-import src.match_seeker.scripts.olri_classifier.frameCellMap as pd
+# import src.match_seeker.scripts.olri_classifier.frameCellMap as pd
 
 
 class WorldMap(object):
@@ -680,35 +680,35 @@ class WorldMap(object):
 
 if __name__ == '__main__':
     # Uncomment to run matchPlanner
-    data = pd.FrameCellMap(imageDir=DATA + "frames/moreframes/",
-                           dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-                           imagesPerCell=100)
+    # data = pd.FrameCellMap(imageDir=DATA + "frames/moreframes/",
+    #                        dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+    #                        imagesPerCell=100)
     mapper = WorldMap()
 
 
-    data.buildDataDicts()
-
-    frameData = data.frameData
-
-    count = 0
-    frames = 0
-
-    badFrames = []
-    cellCount = {}
-    for frame in frameData.keys():
-        loc = frameData[frame]['loc']
-        cell = frameData[frame]['cell']
-        x, y = loc
-        pose = [x, y]
-        if int(mapper.convertLocToCell(pose)) != int(cell):
-            badFrames.append(frameData[frame])
-
-            if cell not in cellCount:
-                cellCount[cell] = 1
-            else:
-                cellCount[cell] += 1
-
-    print(cellCount)
+    # data.buildDataDicts()
+    #
+    # frameData = data.frameData
+    #
+    # count = 0
+    # frames = 0
+    #
+    # badFrames = []
+    # cellCount = {}
+    # for frame in frameData.keys():
+    #     loc = frameData[frame]['loc']
+    #     cell = frameData[frame]['cell']
+    #     x, y = loc
+    #     pose = [x, y]
+    #     if int(mapper.convertLocToCell(pose)) != int(cell):
+    #         badFrames.append(frameData[frame])
+    #
+    #         if cell not in cellCount:
+    #             cellCount[cell] = 1
+    #         else:
+    #             cellCount[cell] += 1
+    #
+    # print(cellCount)
 
 
 
