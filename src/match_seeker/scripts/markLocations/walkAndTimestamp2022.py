@@ -113,7 +113,8 @@ class RealTimeLocs(object):
                 logFile.write(dataStr)
             # print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
             # print("Cell ", currCell)
-            print(dataStr)
+            # print(dataStr)
+            print("Cell ", currCell)
         logFile.close()
 
 
