@@ -21,8 +21,9 @@ and data collection in 2022 to ensure that we collect enough frames per heading 
 
 --------------------------------------------------------------------------------"""
 
-from frameCellMap import FrameCellMap
-from paths import DATA, data2022
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
+from src.match_seeker.scripts.olri_classifier.paths import DATA, data2022
+# from paths import DATA, data2022
 import numpy as np
 import math
 import re
@@ -33,9 +34,9 @@ class DataBalancer(object):
     def __init__(self, dictFileName = None, mergeFrameCountFile = None):
         #File names and file paths for the text files to be read and counted, and text file for counts to merge
         self.dictFileName = dictFileName
-        self.dictFile = data2022 + dictFileName
+        self.dictFile = data2022 + str(dictFileName)
         self.mergeFrameCountFileName = mergeFrameCountFile
-        self.mergeFrameCountFile = data2022 + mergeFrameCountFile
+        self.mergeFrameCountFile = data2022 + str(mergeFrameCountFile)
 
         #Dictionaries for holding cell and heading counts from self.dictFileName
         self.headingData = {}
@@ -43,7 +44,7 @@ class DataBalancer(object):
 
         #If no text files are passed in, count the old 95k dataset by default
         if dictFileName == None and mergeFrameCountFile == None:
-            self.oldDataset95k = DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+            self.oldDataset95k = DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
             self.labelMap = FrameCellMap(self.oldDataset95k)
 
             self.cellCountsMap = self._countCells(self.labelMap.cellData)

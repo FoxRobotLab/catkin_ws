@@ -38,7 +38,7 @@ class FrameCellMap(object):
         self.cellData = {}
         self.locData = {}
         self.headingData = {}
-        self.cellBorders = self._readCells(DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
+        self.cellBorders = self._readCells(DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
         self.buildDataDicts(locBool=False)
 
         self.dumbNum = 0

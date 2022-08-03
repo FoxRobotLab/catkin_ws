@@ -18,11 +18,11 @@ Authors: Bea Bautista, Yifan Wu, Shosuke Noma
 
 class DataGenerator2022(keras.utils.Sequence):
     def __init__(self, frames = frames, batch_size=20, shuffle=True,
-                 img_size = 100, testData = DATA, seed = 25,
+                 img_size = 224, testData = DATA, seed = 25,
                  train = True, eval_ratio=11.0/61.0, generateForCellPred = True):
 
         self.batch_size = batch_size
-        self.frameIDtext = testData + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        self.frameIDtext = testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.shuffle = shuffle
         self.img_size = img_size
         self.image_path = frames

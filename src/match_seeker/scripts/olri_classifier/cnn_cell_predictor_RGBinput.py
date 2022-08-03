@@ -25,11 +25,11 @@ import csv
 import tensorflow as tf
 
 ### Uncomment next line to use CPU instead of GPU: ###
-#os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
-                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=100, image_depth=3, dataSize = 0, batch_size = 32, seed=123456):
+                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=3, dataSize = 0, batch_size = 10, seed=123456):
         """
         :param checkPointFolder: Destination path where checkpoints should be saved
         :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
@@ -170,7 +170,7 @@ class CellPredictorRGB(object):
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
                     self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    save_freq="epoch"  # save every epoch
+                    save_freq= "epoch"  # save every epoch
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
@@ -183,15 +183,18 @@ class CellPredictorRGB(object):
 
 
     def train_withGenerator(self, epochs = 20 ):
+        balancer = DataBalancer()
+        weights = balancer.getClassWeightCells()
         self.model.fit_generator(generator=self.train_ds,
                             validation_data=self.val_ds,
                             use_multiprocessing=True,
                             workers=6,
+                            class_weight=weights,
                             callbacks=[
                                 keras.callbacks.History(),
                                 keras.callbacks.ModelCheckpoint(
                                     self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                                    save_freq="epoch"  # save every n epoch
+                                    # save_freq="epoch"  # save every n epoch
                                 ),
                                 keras.callbacks.TensorBoard(
                                     log_dir=self.checkpoint_dir,
@@ -450,7 +453,7 @@ class CellPredictorRGB(object):
         return successMap, failedMap, frameProbability, frameTop3PredProb
 
 
-    def cleanImage(self, image, imageSize=100):
+    def cleanImage(self, image, imageSize=224):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
         processedIm = shrunkenIm / 255.0
@@ -701,24 +704,24 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="TestCellPredictorWithWeightsDataGenerator",
+        data_name="Test224CellPredictorWithWeightsGenerator",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
-        labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint = "2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+        labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        # loaded_checkpoint = "2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
     )
 
     cellPredictor.buildNetwork()
 
     #for training
 
-    #cellPredictor.prepDatasets()
-    #cellPredictor.train(epochs = 100)
+    cellPredictor.prepDatasets()
+    cellPredictor.train_withGenerator(epochs = 50)
 
     #for testing
 
     #cellPredictor.test(1000)
-    cellPredictor.testnImagesAllCells(100)
+    # cellPredictor.testnImagesAllCells(100)
     #cellPredictor.testnImagesOneCell(27, 100)

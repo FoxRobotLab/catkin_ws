@@ -6,7 +6,8 @@ import os
 from src.match_seeker.scripts.olri_classifier.paths import data2022rename
 
 
-def removeColons(folderPath):
+def removeColons(folderPath)\
+    :
     folderPath = folderPath + '/'
     for file in os.listdir(folderPath):
         fileName, fileExt = os.path.splitext(file)
