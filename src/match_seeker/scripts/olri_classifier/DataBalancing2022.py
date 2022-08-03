@@ -44,7 +44,7 @@ class DataBalancer(object):
 
         #If no text files are passed in, count the old 95k dataset by default
         if dictFileName == None and mergeFrameCountFile == None:
-            self.oldDataset95k = DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+            self.oldDataset95k = DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
             self.labelMap = FrameCellMap(self.oldDataset95k)
 
             self.cellCountsMap = self._countCells(self.labelMap.cellData)
