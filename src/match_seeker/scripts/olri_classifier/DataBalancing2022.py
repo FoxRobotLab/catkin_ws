@@ -21,8 +21,8 @@ and data collection in 2022 to ensure that we collect enough frames per heading 
 
 --------------------------------------------------------------------------------"""
 
-from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
-from src.match_seeker.scripts.olri_classifier.paths import DATA, data2022
+from frameCellMap import FrameCellMap
+from paths import DATA, data2022
 # from paths import DATA, data2022
 import numpy as np
 import math
