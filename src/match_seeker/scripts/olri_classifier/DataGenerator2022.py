@@ -109,7 +109,7 @@ class DataGenerator2022(keras.utils.Sequence):
                 X[i] = self.cleanImage(raw)
                 heading = self.labelMap.frameData[frameNum]['heading']
                 headingIndex = self.potentialHeadings.index(heading)
-                if headingIndex is 8: #the 0th index is 0 degree and is the same as the 8th index 360 degrees
+                if headingIndex == 8: #the 0th index is 0 degree and is the same as the 8th index 360 degrees
                     headingIndex = 0
                 Y[i] = headingIndex
         return np.array(X), np.array(Y) #Array of labels
