@@ -254,6 +254,7 @@ class CellPredictorRGB(object):
         model.add(keras.layers.Dropout(0.2))
         model.add(keras.layers.Dense(units=self.outputSize, activation="softmax"))
         model.summary()
+        print(model.input.shape)
         return model
 
 
