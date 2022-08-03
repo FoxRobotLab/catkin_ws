@@ -96,6 +96,10 @@ def saveVideo(destDir, hgt=480, wid=640):
             counter = 0
         if ch == "q":
             cv2.destroyAllWindows()
+
+
+
+
             vidWriter.release()
             image_sub.unregister()
             print("Robot shutdown start")
