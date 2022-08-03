@@ -152,7 +152,7 @@ class CellPredictorRGB(object):
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            optimizer=keras.optimizers.Adam(lr=self.learning_rate),
             metrics=["accuracy"])
 
     def train(self, epochs = 20):
