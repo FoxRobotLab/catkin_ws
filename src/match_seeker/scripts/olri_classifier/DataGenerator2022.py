@@ -22,7 +22,7 @@ class DataGenerator2022(keras.utils.Sequence):
                  train = True, eval_ratio=11.0/61.0, generateForCellPred = True, cellPredWithHeadingIn = False):
 
         self.batch_size = batch_size
-        self.frameIDtext = testData + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
+        self.frameIDtext = testData + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
         self.shuffle = shuffle
         self.img_size = img_size
         self.image_path = frames
