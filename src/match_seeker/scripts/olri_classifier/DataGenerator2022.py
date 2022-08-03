@@ -78,7 +78,7 @@ class DataGenerator2022(keras.utils.Sequence):
     def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
 
-        self.labelMap = FrameCellMap(dataFile=self.frameIDtext)
+        self.labelMap = FrameCellMap(dataFile = self.frameIDtext)
 
         # # Initialization
         # X = np.empty((self.batch_size)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)

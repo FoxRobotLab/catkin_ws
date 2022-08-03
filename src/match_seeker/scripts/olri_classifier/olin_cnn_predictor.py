@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.7
 """--------------------------------------------------------------------------------
 olin_cnn_predictor.py
 Authors: Avik Bosshardt, Angel Sylvester and Maddie AlQatami
@@ -36,7 +37,7 @@ from paths import DATA, frames, checkPts
 from turtleControl import TurtleBot
 from cnn_cell_predictor_2019 import CellPredictor2019
 
-from OlinWorldMap import WorldMap
+# from OlinWorldMap import WorldMap
 
 # uncomment to use CPU
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''

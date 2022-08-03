@@ -70,8 +70,7 @@ class CollectRotation:
 
             key = cv2.waitKey(10)
             ch = chr(key & 0xFF)
-            if ch =="s" \
-                    "":
+            if ch =="s":
                 self.turnOffFlags()
 
             if angle > 0:

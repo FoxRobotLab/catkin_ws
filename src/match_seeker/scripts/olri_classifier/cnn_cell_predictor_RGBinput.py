@@ -25,7 +25,7 @@ import csv
 import tensorflow as tf
 
 ### Uncomment next line to use CPU instead of GPU: ###
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+#os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
@@ -170,7 +170,7 @@ class CellPredictorRGB(object):
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
                     self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                    save_freq= "epoch"  # save every epoch
+                    save_freq="epoch"  # save every epoch
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
@@ -704,13 +704,13 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="Test224CellPredictorWithWeightsGenerator",
+        data_name="Test224GlobalPoolingCellPredictorThird39Epoch",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
-        labelMapFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
-        # loaded_checkpoint = "2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+        labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+        loaded_checkpoint = "2022CellPredict_checkpoint-0728221645/Test224GlobalPoolingCellPredictorSecond100Epoch-61-1.71.hdf5"
     )
 
     cellPredictor.buildNetwork()
@@ -718,7 +718,7 @@ if __name__ == "__main__":
     #for training
 
     cellPredictor.prepDatasets()
-    cellPredictor.train_withGenerator(epochs = 50)
+    cellPredictor.train(epochs = 39)
 
     #for testing
 

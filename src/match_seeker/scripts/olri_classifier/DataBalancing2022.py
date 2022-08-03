@@ -157,45 +157,57 @@ class DataBalancer(object):
             prevFile = open(self.mergeFrameCountFile, 'r')
         except:
             print("FAILED TO OPEN PREV DATA FILE FOR MERGE")
+
         prevCellCounts = {}
         prevHeadingCounts = {}
         prevTotalFrames = 0
+
+        sourceFiles = ""
+        cellStartLine, headingStartLine = 1e8, 1e8
+
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        numCells = 271
+
         for i, line in enumerate(prevFile):
-            if "!" in line:
-                continue
+            if i == 0 or "," in line:
+                sourceFiles += line
+            if "! CELL COUNTS" in line:
+                cellStartLine = i
+            elif "! HEADING COUNTS" in line:
+                headingStartLine = i
             if "*" in line:
                 splitList = line.split()
                 prevTotalFrames = int(splitList[2])
             #Save cell counts
-            if i > 2 and i < 274:
+            if i > cellStartLine and i < (cellStartLine + numCells -1):
                 splitList = line.split()
                 cellNum = int(splitList[0])
                 frameCount = int(splitList[1])
                 prevCellCounts[cellNum] = frameCount
             #Save heading counts
-            elif i >= 274:
+            elif i > headingStartLine:
                 splitList = line.split()
                 headingNum = int(splitList[0])
                 frameCount = int(splitList[1])
                 prevHeadingCounts[headingNum] = frameCount
 
         srcDictTimeStamp = re.sub('[a-zA-Z]', '', self.dictFileName)
-
         logName = "NewFrameCountMerged" + srcDictTimeStamp + "txt"
-        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        numCells = 271
+
         try:
             logFile = open(data2022 + logName, 'w')
         except:
             print("FAILED TO OPEN DATA FILE")
 
-        logFile.write("! Counts from " + self.dictFileName + " merged with " + self.mergeFrameCountFile + "\n")
-        logFile.write("* NumFrames " + str(self.getTotalCount() + prevTotalFrames) + "\n")
+        logFile.write(str(sourceFiles) + "\n")
+        logFile.write("Latest file merged: " + self.dictFileName + "\n")
+        logFile.write("* CumulativeNumFrames " + str(self.getTotalCount() + prevTotalFrames) + "\n \n")
 
         logFile.write("! CELL COUNTS \n" )
         for i in range(numCells):
             logFile.write(str(i) + " " + str(self.cellCountsMap.get(i, 0) + prevCellCounts.get(i, 0)) + "\n")
 
+        logFile.write("\n")
         logFile.write("! HEADING COUNTS \n")
         for heading in potentialHeadings:
             logFile.write(str(heading) + " " + str(self.headingCountsMap.get(heading, 0) + prevHeadingCounts.get(heading, 0)) + "\n")
@@ -262,6 +274,7 @@ if __name__ == '__main__':
     # print(balancer.cellCountsMap)
     # print(balancer.headingCountsMap)
 
-    balancerNew = DataBalancer(dictFileName="FrameData-20220705-16:16frames.txt", mergeFrameCountFile="NewFrameCount-20220706-15:18.txt")
-    print(balancerNew.cellCountsMap)
-    print(balancerNew.headingCountsMap)
+    balancerNew = DataBalancer(dictFileName="FrameDataReviewed-20220708-15:36frames", mergeFrameCountFile="FrameCountMerged-20220708-11:06txt")
+    balancerNew.mergeCounts()
+    # print(balancerNew.cellCountsMap)
+    # print(balancerNew.headingCountsMap)

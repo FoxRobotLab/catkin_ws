@@ -59,7 +59,7 @@ def getImage(x = 0, y = 0, width = 640, height = 480):
 
 def saveToFolder(img, folderName, frameNum):
     # fName = nextFilename(frameNum)
-    fName = "frame{}.jpg".format(time.strftime("%Y%m%d-%H:%M:%S"))
+    fName = "frame{}.jpg".format(time.strftime("%Y%m%d-%H%M%S"))
     pathAndName = folderName + fName
     try:
         cv2.imwrite(pathAndName, img)
@@ -75,8 +75,7 @@ def saveToFolder(img, folderName, frameNum):
 def saveVideo(destDir, hgt=480, wid=640):
     rospy.init_node('datacollector', anonymous=True, disable_signals = True)
     image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, image_callback)
-    #timestamp = datetime.now().strftime("%Y%m%d-%H:%M")
-    timestamp = "{}".format(time.strftime("%Y%m%d-%H:%M"))
+    timestamp = "{}".format(time.strftime("%Y%m%d-%H%M"))
     videoName = destDir + '/' + timestamp + ".avi"
     frameFolder = destDir + '/' + timestamp + 'frames/'
     os.mkdir(frameFolder)
@@ -91,12 +90,16 @@ def saveVideo(destDir, hgt=480, wid=640):
         key = cv2.waitKey(10)
         ch = chr(key & 0xFF)
         counter += 1
-        if counter == 10:
+        if counter == 5:
             saveToFolder(frame, frameFolder, frameNum)
             frameNum += 1
             counter = 0
         if ch == "q":
             cv2.destroyAllWindows()
+
+
+
+
             vidWriter.release()
             image_sub.unregister()
             print("Robot shutdown start")
