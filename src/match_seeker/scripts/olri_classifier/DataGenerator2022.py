@@ -98,7 +98,7 @@ class DataGenerator2022(keras.utils.Sequence):
                 if self.cellPredWithHeadingIn:
                     im = self.cleanImage(raw)
                     cell_arr = cell * np.ones((im.shape[0], im.shape[1], 1))
-                    X[i] = np.concatenate((np.expand_dims(im, axis=-1), cell_arr), axis=-1)
+                    X[i] = np.concatenate((im, cell_arr), axis=2)
                 else:
                     X[i] = self.cleanImage(raw)
                 Y[i] = cell
