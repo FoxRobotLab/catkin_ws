@@ -29,7 +29,7 @@ import tensorflow as tf
 
 class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
-                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=100, image_depth=3, dataSize = 0, batch_size = 32, seed=123456):
+                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=3, dataSize = 0, batch_size = 32, seed=123456):
         """
         :param checkPointFolder: Destination path where checkpoints should be saved
         :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
@@ -245,9 +245,10 @@ class CellPredictorRGB(object):
             padding="same"
         ))
         model.add(keras.layers.Dropout(0.4))
-        model.add(keras.layers.Flatten())
-        model.add(keras.layers.Dense(units=256, activation="relu"))
-        model.add(keras.layers.Dense(units=256, activation="relu"))
+        # model.add(keras.layers.Flatten())
+        # model.add(keras.layers.Dense(units=256, activation="relu"))
+        # model.add(keras.layers.Dense(units=256, activation="relu"))
+        model.add(keras.layers.GlobalAveragePooling2D())
         model.add(keras.layers.Dropout(0.2))
         model.add(keras.layers.Dense(units=self.outputSize, activation="softmax"))
         model.summary()
@@ -450,7 +451,7 @@ class CellPredictorRGB(object):
         return successMap, failedMap, frameProbability, frameTop3PredProb
 
 
-    def cleanImage(self, image, imageSize=100):
+    def cleanImage(self, image, imageSize=224):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
         processedIm = shrunkenIm / 255.0
@@ -701,24 +702,24 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="TestCellPredictorWithWeightsDataGenerator",
+        data_name="Test224GlobalPoolingCellPredictorThird39Epoch",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
         labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint = "2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+        loaded_checkpoint = "2022CellPredict_checkpoint-0728221645/Test224GlobalPoolingCellPredictorSecond100Epoch-61-1.71.hdf5"
     )
 
     cellPredictor.buildNetwork()
 
     #for training
 
-    #cellPredictor.prepDatasets()
-    #cellPredictor.train(epochs = 100)
+    cellPredictor.prepDatasets()
+    cellPredictor.train(epochs = 39)
 
     #for testing
 
     #cellPredictor.test(1000)
-    cellPredictor.testnImagesAllCells(100)
+    # cellPredictor.testnImagesAllCells(100)
     #cellPredictor.testnImagesOneCell(27, 100)
