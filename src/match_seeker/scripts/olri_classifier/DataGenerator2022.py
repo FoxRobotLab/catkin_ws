@@ -102,7 +102,6 @@ class DataGenerator2022(keras.utils.Sequence):
                 else:
                     X[i] = self.cleanImage(raw)
                 Y[i] = cell
-                print(X[i].shape)
         else:
             for i, filename in enumerate(list_frame_temp):
                 frameNum = extractNum(filename)
