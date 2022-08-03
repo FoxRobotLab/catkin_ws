@@ -95,7 +95,7 @@ class RealTimeLocs(object):
             os.makedirs(self.outputFilePath)
         except:
             pass
-        logName = time.strftime("Data-%b%d%Y-%H:%M:%S.txt")
+        logName = time.strftime("Data-%b%d%Y-%H%M%S.txt")
         print(logName)
         fileOpen = False
         logFile = None
@@ -111,7 +111,9 @@ class RealTimeLocs(object):
             dataStr = str(clickNum) + " " + str(curTime) + " " +str(x) + " " + str(y) + " " + str(h) + " " + str(currCell) + "\n"
             if fileOpen:
                 logFile.write(dataStr)
-            print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
+            # print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
+            # print("Cell ", currCell)
+            # print(dataStr)
             print("Cell ", currCell)
         logFile.close()
 
