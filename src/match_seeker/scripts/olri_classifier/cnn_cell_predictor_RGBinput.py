@@ -138,8 +138,8 @@ class CellPredictorRGB(object):
     def prepDatasets(self):
         """Finds the cell labels associated with the files in the frames folder, and then sets up two
         data generators to preprocess data and produce the data in batches."""
-        self.train_ds = DataGenerator2022(batch_size = self.batch_size)
-        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False)
+        self.train_ds = DataGenerator2022(batch_size = self.batch_size, cellPredWithHeadingIn = True)
+        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False, cellPredWithHeadingIn = True)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
@@ -254,7 +254,7 @@ class CellPredictorRGB(object):
         model.add(keras.layers.Dropout(0.2))
         model.add(keras.layers.Dense(units=self.outputSize, activation="softmax"))
         model.summary()
-        print(model.input.shape)
+        # print(model.input.shape)
         return model
 
 
