@@ -162,7 +162,7 @@ if __name__ == '__main__':
     # dataJoin.buildDicts()
     # dataJoin.writeData()
 
-    dataJoin = DataLabeller(locLogFile= 'Data-Jul06Wed-15:29:08.txt', framesFolder= '20220706-15:18frames', outputFileName= 'FrameDataTESTMIDPOINT-20220706-15:18frames')
+    dataJoin = DataLabeller(locLogFile= 'Data-Jul112022-11:55:09.txt', framesFolder= '20220711-11:16frames', outputFileName= 'FrameData-20220711-11:16frames')
     dataJoin.buildDicts()
     dataJoin.writeData()
 

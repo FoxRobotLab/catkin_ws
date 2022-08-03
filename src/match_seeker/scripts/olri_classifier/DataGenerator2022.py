@@ -18,7 +18,7 @@ Authors: Bea Bautista, Yifan Wu, Shosuke Noma
 
 class DataGenerator2022(keras.utils.Sequence):
     def __init__(self, frames = frames, batch_size=20, shuffle=True,
-                 img_size = 100, testData = DATA, seed = 25,
+                 img_size = 224, testData = DATA, seed = 25,
                  train = True, eval_ratio=11.0/61.0, generateForCellPred = True):
 
         self.batch_size = batch_size
@@ -78,7 +78,7 @@ class DataGenerator2022(keras.utils.Sequence):
     def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
 
-        self.labelMap = FrameCellMap(dataFile=self.frameIDtext)
+        self.labelMap = FrameCellMap(dataFile = self.frameIDtext)
 
         # # Initialization
         # X = np.empty((self.batch_size)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
