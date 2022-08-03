@@ -29,7 +29,7 @@ import tensorflow as tf
 
 class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
-                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=3, dataSize = 0, batch_size = 10, seed=123456):
+                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=4, dataSize = 0, batch_size = 10, seed=123456):
         """
         :param checkPointFolder: Destination path where checkpoints should be saved
         :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
@@ -704,13 +704,13 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="Test224GlobalPoolingCellPredictorThird39Epoch",
+        data_name="Test224HeadingInputRGBCellPred",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
         labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint = "2022CellPredict_checkpoint-0728221645/Test224GlobalPoolingCellPredictorSecond100Epoch-61-1.71.hdf5"
+        # loaded_checkpoint = "2022CellPredict_checkpoint-0728221645/Test224GlobalPoolingCellPredictorSecond100Epoch-61-1.71.hdf5"
     )
 
     cellPredictor.buildNetwork()
@@ -718,7 +718,7 @@ if __name__ == "__main__":
     #for training
 
     cellPredictor.prepDatasets()
-    cellPredictor.train(epochs = 39)
+    cellPredictor.train(epochs = 100)
 
     #for testing
 
