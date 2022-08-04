@@ -29,7 +29,7 @@ import tensorflow as tf
 
 class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
-                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=4, dataSize = 0, batch_size = 10, seed=123456):
+                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=4, dataSize = 0, batch_size = 10, seed=4359):
         """
         :param checkPointFolder: Destination path where checkpoints should be saved
         :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
@@ -152,7 +152,7 @@ class CellPredictorRGB(object):
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            optimizer=keras.optimizers.Adam(lr=self.learning_rate),
             metrics=["accuracy"])
 
     def train(self, epochs = 20):
