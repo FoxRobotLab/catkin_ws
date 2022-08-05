@@ -99,6 +99,7 @@ class DataGenerator2022(keras.utils.Sequence):
                     im = self.cleanImage(raw)
                     cell_arr = cell * np.ones((im.shape[0], im.shape[1], 1))
                     X[i] = np.concatenate((im, cell_arr), axis=2)
+                    print(cell_arr.dtype)
                 else:
                     X[i] = self.cleanImage(raw)
                 Y[i] = cell
