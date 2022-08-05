@@ -705,7 +705,7 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="Test224HeadingInputRGBCellPred",
+        data_name="TestHeadingInCellPredAdam224",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",

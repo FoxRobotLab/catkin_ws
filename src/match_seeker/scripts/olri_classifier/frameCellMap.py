@@ -15,7 +15,7 @@ import numpy as np
 import os
 import random
 from datetime import datetime
-from paths import DATA
+from paths import DATA, DATA2022, pathToMatchSeeker
 from imageFileUtils import makeFilename
 
 # from DataPaths import cellMapData, basePath
@@ -24,9 +24,10 @@ from paths import DATA
 
 class FrameCellMap(object):
 
-
-    def __init__(self, dataFile=""):
+    def __init__(self, dataFile, cellFile, format="old"):
         self.dataFile = dataFile
+        self.cellFile = cellFile
+        self.format = format
         self.allFrames = []
         self.allImages = []
         self.allCellOutput = []
@@ -38,99 +39,172 @@ class FrameCellMap(object):
         self.cellData = {}
         self.locData = {}
         self.headingData = {}
-        self.cellBorders = self._readCells(DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt")
-        self.buildDataDicts(locBool=False)
+        self.readCells()
+        if format == "old":
+            self.buildDataDictsOlder(locBool=False)
+        else:
+            self.buildDataDictsNewer(locBool=False)
 
         self.dumbNum = 0
         # TODO: Figure out what the badLocDict is all about
         self.badLocDict = {140: (30, 57), 141: (32, 57), 185: (10, 89), 186: (10, 87), 187: (10, 85), 188: (10, 83),
                            189: (10, 81), 190: (10, 79), 215: (6, 85), 216: (6, 87), 217: (6, 89)}
 
-    def buildDataDicts(self, locBool=True, cell=True, heading=True):
+
+    def readCells(self):
+        """Reads in cell data, building a dictionary to hold it."""
+        cellDict = dict()
+        try:
+            with open(self.cellFile, 'r') as cellF:
+                for line in cellF:
+                    if line[0] == '#' or line.isspace():
+                        continue
+                    parts = line.split()
+                    cellNum = parts[0]
+                    locList = [float(v) for v in parts[1:]]
+                    # print("Cell " + cellNum + ": ", locList)
+                    cellDict[cellNum] = locList
+        except:
+            print("Error reading cell data file:", self.cellData)
+        self.cellBorders = cellDict
+
+
+    def buildDataDictsOlder(self, locBool=True, cell=True, heading=True):
         """
         Reads in the data in the self.dataFile file, and fills in various dictionaries.
         self.frameData uses the frames number as the key and contains a dictionary with keys 'cell', 'heading', 'loc'
-        self.cellData uses the cell number as the key, and the frames number as the value
+        self.cellFile uses the cell number as the key, and the frames number as the value
         self.headingData uses the heading number as the key, and the frames number as the value
         :return: nothing
         """
+        try:
+            with open(self.dataFile) as frameData:
+                for line in frameData:
+                    splitList = line.split()
+                    frameNum = int(splitList[0])
+                    cellNum = int(splitList[1])
+                    xVal = float(splitList[2])
+                    yVal = float(splitList[3])
+                    headingNum = int(splitList[4])
+                    loc = (xVal, yVal)
+                    self.frameData[frameNum] = {'loc': loc, 'cell': cellNum, 'heading': headingNum, 'frameNum': frameNum}
 
-        with open(self.dataFile) as frameData:
-            for line in frameData:
-                splitList = line.split()
-                frameNum = int(splitList[0])
-                cellNum = int(splitList[1])
-                xVal = float(splitList[2])
-                yVal = float(splitList[3])
-                headingNum = int(splitList[4])
-                loc = (xVal, yVal)
-                self.frameData[frameNum] = {'loc': loc, 'cell': cellNum, 'heading': headingNum, 'frameNum': frameNum}
+                    if cellNum not in self.cellData:
+                        self.cellData[cellNum] = {frameNum}
+                    else:
+                        self.cellData[cellNum].add(frameNum)
 
-                if cellNum not in self.cellData:
-                    self.cellData[cellNum] = {frameNum}
-                else:
-                    self.cellData[cellNum].add(frameNum)
+                    if headingNum not in self.headingData:
+                        self.headingData[headingNum] = {frameNum}
+                    else:
+                        self.headingData[headingNum].add(frameNum)
 
-                if headingNum not in self.headingData:
-                    self.headingData[headingNum] = {frameNum}
-                else:
-                    self.headingData[headingNum].add(frameNum)
+                    if loc not in self.locData:
+                        self.locData[loc] = {frameNum}
+                    else:
+                        self.locData[loc].add(frameNum)
 
-                if loc not in self.locData:
-                    self.locData[loc] = {frameNum}
-                else:
-                    self.locData[loc].add(frameNum)
+            if locBool:
+                for frame in self.frameData:
+                    loc = self.frameData[frame]['loc']
+                    cell = self.frameData[frame]['cell']
+                    calcCell = self.convertLocToCell(loc)
+                    # If (x, y) coordinate doesn't match the assigned cell from the data file, then change the (x, y)
+                    # to be the one associated with this cell in the badLocDict dictionary
+                    if int(calcCell) != int(cell):
+                        # print(calcCell, cell)
+                        self.frameData[frame]['loc'] = self.badLocDict[cell]
+        except:
+            print("Failed to open and read dictionary file:", self.dataFile)
 
-        if locBool:
-            for frame in self.frameData:
-                loc = self.frameData[frame]['loc']
-                cell = self.frameData[frame]['cell']
-                calcCell = self.convertLocToCell(loc)
-                # If (x, y) coordinate doesn't match the assigned cell from the data file, then change the (x, y)
-                # to be the one associated with this cell in the badLocDict dictionary
-                if int(calcCell) != int(cell):
-                    # print(calcCell, cell)
-                    self.frameData[frame]['loc'] = self.badLocDict[cell]
-
-
-    def buildDataDictsOneRun(self):
+    def buildDataDictsNewer(self, locBool=True, cell=True, heading=True):
         """
-        Modified version of buildDataDicts that reads in the data in the self.dataFile file, and fills in
-        various dictionaries. This function is for reading in new FrameData text files from individual runs
-        on Cutie.
-
-        self.frameData uses the frames name as the key and contains a dictionary with keys 'cell', 'heading', 'timestamp', 'loc', 'xval', 'yval'
-        self.cellData uses the cell number as the key, and a list of frames names as the value
-        self.headingData uses the heading number as the key, and a list of the frames names as the value
+        Reads in the data in the self.dataFile file, and fills in various dictionaries.
+        self.frameData uses the frames number as the key and contains a dictionary with keys 'cell', 'heading', 'loc'
+        self.cellFile uses the cell number as the key, and the frames number as the value
+        self.headingData uses the heading number as the key, and the frames number as the value
         :return: nothing
         """
+        try:
+            with open(self.dataFile) as frameData:
+                for line in frameData:
+                    splitList = line.split()
+                    frameName = splitList[0]
+                    xVal = float(splitList[1])
+                    yVal = float(splitList[2])
+                    cellNum = int(splitList[3])
+                    headingNum = int(splitList[4])
+                    timeStamp = splitList[5]
+                    loc = (xVal, yVal)
+                    self.frameData[frameName] = {'loc': loc, 'cell': cellNum, 'heading': headingNum, 'frameName': frameName}
 
-        with open(self.dataFile) as frameData:
-            for line in frameData:
-                splitList = line.split()
-                frameName = splitList[0]
-                xVal = float(splitList[1])
-                yVal = float(splitList[2])
-                cellNum = int(splitList[3])
-                headingNum = int(splitList[4])
-                timeStamp = splitList[5]
-                loc = (xVal, yVal)
-                self.frameData[frameName] = {'cell': cellNum, 'heading': headingNum, 'timestamp': timeStamp, 'loc': loc, 'xval': xVal, 'yval': yVal }
+                    if cellNum not in self.cellData:
+                        self.cellData[cellNum] = {frameName}
+                    else:
+                        self.cellData[cellNum].add(frameName)
 
-                if cellNum not in self.cellData:
-                    self.cellData[cellNum] = {frameName}
-                else:
-                    self.cellData[cellNum].add(frameName)
+                    if headingNum not in self.headingData:
+                        self.headingData[headingNum] = {frameName}
+                    else:
+                        self.headingData[headingNum].add(frameName)
 
-                if headingNum not in self.headingData:
-                    self.headingData[headingNum] = {frameName}
-                else:
-                    self.headingData[headingNum].add(frameName)
+                    if loc not in self.locData:
+                        self.locData[loc] = {frameName}
+                    else:
+                        self.locData[loc].add(frameName)
 
-                if loc not in self.locData:
-                    self.locData[loc] = {frameName}
-                else:
-                    self.locData[loc].add(frameName)
+            if locBool:
+                for frame in self.frameData:
+                    loc = self.frameData[frame]['loc']
+                    cell = self.frameData[frame]['cell']
+                    calcCell = self.convertLocToCell(loc)
+                    # If (x, y) coordinate doesn't match the assigned cell from the data file, then change the (x, y)
+                    # to be the one associated with this cell in the badLocDict dictionary
+                    if int(calcCell) != int(cell):
+                        # print(calcCell, cell)
+                        self.frameData[frame]['loc'] = self.badLocDict[cell]
+        except:
+            print("Failed to open and read dictionary file:", self.dataFile)
+
+
+    # def buildDataDictsOneRun(self):
+    #     """
+    #     Modified version of buildDataDicts that reads in the data in the self.dataFile file, and fills in
+    #     various dictionaries. This function is for reading in new FrameData text files from individual runs
+    #     on Cutie.
+    #
+    #     self.frameData uses the frames name as the key and contains a dictionary with keys 'cell', 'heading', 'timestamp', 'loc', 'xval', 'yval'
+    #     self.cellFile uses the cell number as the key, and a list of frames names as the value
+    #     self.headingData uses the heading number as the key, and a list of the frames names as the value
+    #     :return: nothing
+    #     """
+    #
+    #     with open(self.dataFile) as frameData:
+    #         for line in frameData:
+    #             splitList = line.split()
+    #             frameName = splitList[0]
+    #             xVal = float(splitList[1])
+    #             yVal = float(splitList[2])
+    #             cellNum = int(splitList[3])
+    #             headingNum = int(splitList[4])
+    #             timeStamp = splitList[5]
+    #             loc = (xVal, yVal)
+    #             self.frameData[frameName] = {'cell': cellNum, 'heading': headingNum, 'timestamp': timeStamp, 'loc': loc, 'xval': xVal, 'yval': yVal }
+    #
+    #             if cellNum not in self.cellData:
+    #                 self.cellData[cellNum] = {frameName}
+    #             else:
+    #                 self.cellData[cellNum].add(frameName)
+    #
+    #             if headingNum not in self.headingData:
+    #                 self.headingData[headingNum] = {frameName}
+    #             else:
+    #                 self.headingData[headingNum].add(frameName)
+    #
+    #             if loc not in self.locData:
+    #                 self.locData[loc] = {frameName}
+    #             else:
+    #                 self.locData[loc].add(frameName)
 
 
     # def generateTrainingData(self):
@@ -226,8 +300,8 @@ class FrameCellMap(object):
     #     tooFew = []
     #     enough = []
     #
-    #     for cell in self.cellData:
-    #         numFrames = len(self.cellData[cell])
+    #     for cell in self.cellFile:
+    #         numFrames = len(self.cellFile[cell])
     #         if numFrames <= self.imagesPerCell:
     #             tooFew.append(cell)
     #         else:
@@ -250,7 +324,7 @@ class FrameCellMap(object):
     #         framesEachHeading = {}
     #
     #         # Build a list for each heading of all frames for this cell that are for this heading
-    #         for fr in self.cellData[cell]:
+    #         for fr in self.cellFile[cell]:
     #             frHead = self.frameData[fr]['heading']
     #             if frHead in framesEachHeading:
     #                 framesEachHeading[frHead].append(fr)
@@ -281,7 +355,7 @@ class FrameCellMap(object):
 
         # missingCells = []
         # for i in range(271):
-        #     if i not in self.cellData.keys():
+        #     if i not in self.cellFile.keys():
         #         missingCells.append(i)
         # print('MISSING', missingCells)
         # print('--------')
@@ -365,7 +439,7 @@ class FrameCellMap(object):
     #         framesEachHeading = {}
     #
     #         # Build a list for each heading of all frames for this cell that are for this heading
-    #         for fr in self.cellData[cell]:
+    #         for fr in self.cellFile[cell]:
     #             oldFramesForCell.append(fr)
     #             frHead = self.frameData[fr]['heading']
     #             if frHead in framesEachHeading:
@@ -513,19 +587,6 @@ class FrameCellMap(object):
 
         return -1 #TODO: It should not think it is outside the map
 
-    def _readCells(self, cellFile):
-        """Reads in cell data, building a dictionary to hold it."""
-        cellF = open(cellFile, 'r')
-        cellDict = dict()
-        for line in cellF:
-            if line[0] == '#' or line.isspace():
-                continue
-            parts = line.split()
-            cellNum = parts[0]
-            locList = [float(v) for v in parts[1:]]
-            # print("Cell " + cellNum + ": ", locList)
-            cellDict[cellNum] = locList
-        return cellDict
 
 
 
@@ -535,11 +596,16 @@ def main():
     :return: Nothing
     """
     print("FrameCellMap loading")
-    preProc = FrameCellMap(imageDir=DATA + "moreframes/",
-                           dataFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-                           imagesPerCell=100)
+    # dataMap = FrameCellMap(dataFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+    #                        cellFile=pathToMatchSeeker + "res/map/mapToCells.txt")
+                            # imageDir=DATA + "moreframes/",
+    dataPath = DATA2022 + "FrameDataReviewed-20220708-11:06frames.txt"
+    print("  dataPath:", dataPath)
+    cellPath = pathToMatchSeeker + "res/map/mapToCells.txt"
+    print("   cellPath:", cellPath)
+    dataMap = FrameCellMap(dataFile=dataPath, cellFile=cellPath, format="new")
 
-    print("Done loading")
+print("Done loading")
 
     # preProc.generateTrainingData()
     # preProc.saveDataset(DATA + "regressionTestSet")

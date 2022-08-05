@@ -162,7 +162,7 @@ def testingSusanData():
     mean = npzfile['mean']
     frameData = npzfile['frameNums']
     # imageData = np.load(dataPath +  cellOutputImg, allow_pickle=True, encoding='latin1')
-    # cellData = np.load(dataPath +  cellOutputData, allow_pickle=True, encoding='latin1')
+    # cellFile = np.load(dataPath +  cellOutputData, allow_pickle=True, encoding='latin1')
 
     imDims = imageData.shape
     cellDims = cellData.shape
