@@ -3,7 +3,7 @@
 
 def locsToCells(locFile, cellFile, cellData, append = False):
     """Takes in two filenames, data mapping locations to cells, and an optional boolean input. It reads the lines
-    from the first file and converts their locations to the corresponding cell, based on the cellData. If the optional
+    from the first file and converts their locations to the corresponding cell, based on the cellFile. If the optional
     input is True, then the new data is appended to the second file, otherwise it overwrites the second file."""
     locF = open(locFile, 'r')
     if append:
