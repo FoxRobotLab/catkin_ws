@@ -29,7 +29,7 @@ import tensorflow as tf
 
 class CellPredictorRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
-                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=100, image_depth=3, dataSize = 0, batch_size = 32, seed=123456):
+                 eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=4, dataSize = 0, batch_size = 10, seed=4359):
         """
         :param checkPointFolder: Destination path where checkpoints should be saved
         :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
@@ -138,8 +138,8 @@ class CellPredictorRGB(object):
     def prepDatasets(self):
         """Finds the cell labels associated with the files in the frames folder, and then sets up two
         data generators to preprocess data and produce the data in batches."""
-        self.train_ds = DataGenerator2022(batch_size = self.batch_size)
-        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False)
+        self.train_ds = DataGenerator2022(batch_size = self.batch_size, cellPredWithHeadingIn = True)
+        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False, cellPredWithHeadingIn = True)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
@@ -152,7 +152,7 @@ class CellPredictorRGB(object):
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            optimizer=keras.optimizers.Adam(lr=self.learning_rate),
             metrics=["accuracy"])
 
     def train(self, epochs = 20):
@@ -183,15 +183,18 @@ class CellPredictorRGB(object):
 
 
     def train_withGenerator(self, epochs = 20 ):
+        balancer = DataBalancer()
+        weights = balancer.getClassWeightCells()
         self.model.fit_generator(generator=self.train_ds,
                             validation_data=self.val_ds,
                             use_multiprocessing=True,
                             workers=6,
+                            class_weight=weights,
                             callbacks=[
                                 keras.callbacks.History(),
                                 keras.callbacks.ModelCheckpoint(
                                     self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-                                    save_freq="epoch"  # save every n epoch
+                                    # save_freq="epoch"  # save every n epoch
                                 ),
                                 keras.callbacks.TensorBoard(
                                     log_dir=self.checkpoint_dir,
@@ -251,6 +254,7 @@ class CellPredictorRGB(object):
         model.add(keras.layers.Dropout(0.2))
         model.add(keras.layers.Dense(units=self.outputSize, activation="softmax"))
         model.summary()
+        # print(model.input.shape)
         return model
 
 
@@ -450,7 +454,7 @@ class CellPredictorRGB(object):
         return successMap, failedMap, frameProbability, frameTop3PredProb
 
 
-    def cleanImage(self, image, imageSize=100):
+    def cleanImage(self, image, imageSize=224):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
         processedIm = shrunkenIm / 255.0
@@ -701,24 +705,24 @@ class CellPredictorRGB(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictorRGB(
         # dataSize=95810,
-        data_name="TestCellPredictorWithWeightsDataGenerator",
+        data_name="TestHeadingInCellPredAdam224",
         checkPointFolder=checkPts,
         imagesFolder=frames,
         imagesParent=DATA + "frames/",
         batch_size=10,
         labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint = "2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+        # loaded_checkpoint = "2022CellPredict_checkpoint-0728221645/Test224GlobalPoolingCellPredictorSecond100Epoch-61-1.71.hdf5"
     )
 
     cellPredictor.buildNetwork()
 
     #for training
 
-    #cellPredictor.prepDatasets()
-    #cellPredictor.train(epochs = 100)
+    cellPredictor.prepDatasets()
+    cellPredictor.train(epochs = 100)
 
     #for testing
 
     #cellPredictor.test(1000)
-    cellPredictor.testnImagesAllCells(100)
+    # cellPredictor.testnImagesAllCells(100)
     #cellPredictor.testnImagesOneCell(27, 100)

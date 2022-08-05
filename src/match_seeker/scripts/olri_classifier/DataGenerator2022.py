@@ -18,8 +18,8 @@ Authors: Bea Bautista, Yifan Wu, Shosuke Noma
 
 class DataGenerator2022(keras.utils.Sequence):
     def __init__(self, frames = frames, batch_size=20, shuffle=True,
-                 img_size = 100, testData = DATA, seed = 25,
-                 train = True, eval_ratio=11.0/61.0, generateForCellPred = True):
+                 img_size = 224, testData = DATA, seed = 25,
+                 train = True, eval_ratio=11.0/61.0, generateForCellPred = True, cellPredWithHeadingIn = False):
 
         self.batch_size = batch_size
         self.frameIDtext = testData + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
@@ -32,6 +32,7 @@ class DataGenerator2022(keras.utils.Sequence):
         self.allImages, self.valImages = self.traintestsplit(self.allImages, self.eval_ratio)
         self.labelMap = None
         self.generateForCellPred = generateForCellPred
+        self.cellPredWithHeadingIn = cellPredWithHeadingIn
         self.potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
         if not train:
             self.allImages = self.valImages
@@ -78,7 +79,7 @@ class DataGenerator2022(keras.utils.Sequence):
     def __data_generation(self, list_frame_temp):
         'Generates data containing batch_size images'
 
-        self.labelMap = FrameCellMap(dataFile=self.frameIDtext)
+        self.labelMap = FrameCellMap(dataFile = self.frameIDtext)
 
         # # Initialization
         # X = np.empty((self.batch_size)) #IS AN ARRAY WITHOUT INITIALIZING THE ENTRIES OF SHAPE (20, 100, 100, 1, 1)
@@ -92,8 +93,16 @@ class DataGenerator2022(keras.utils.Sequence):
             for i, filename in enumerate(list_frame_temp):
                 frameNum = extractNum(filename)
                 raw = cv2.imread(self.image_path + filename)
-                X[i] = self.cleanImage(raw)
-                Y[i] = self.labelMap.frameData[frameNum]['cell']
+                cell = self.labelMap.frameData[frameNum]['cell']
+
+                if self.cellPredWithHeadingIn:
+                    im = self.cleanImage(raw)
+                    cell_float = cell / 270
+                    cell_arr = cell_float * np.ones((im.shape[0], im.shape[1], 1))
+                    X[i] = np.concatenate((im, cell_arr), axis=2)
+                else:
+                    X[i] = self.cleanImage(raw)
+                Y[i] = cell
         else:
             for i, filename in enumerate(list_frame_temp):
                 frameNum = extractNum(filename)
@@ -101,7 +110,7 @@ class DataGenerator2022(keras.utils.Sequence):
                 X[i] = self.cleanImage(raw)
                 heading = self.labelMap.frameData[frameNum]['heading']
                 headingIndex = self.potentialHeadings.index(heading)
-                if headingIndex is 8: #the 0th index is 0 degree and is the same as the 8th index 360 degrees
+                if headingIndex == 8: #the 0th index is 0 degree and is the same as the 8th index 360 degrees
                     headingIndex = 0
                 Y[i] = headingIndex
         return np.array(X), np.array(Y) #Array of labels
