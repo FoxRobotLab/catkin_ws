@@ -22,7 +22,7 @@ and data collection in 2022 to ensure that we collect enough frames per heading 
 --------------------------------------------------------------------------------"""
 
 from frameCellMap import FrameCellMap
-from paths import DATA, data2022
+from paths import DATA, DATA2022
 import numpy as np
 import math
 import re
@@ -33,9 +33,9 @@ class DataBalancer(object):
     def __init__(self, dictFileName = None, mergeFrameCountFile = None):
         #File names and file paths for the text files to be read and counted, and text file for counts to merge
         self.dictFileName = dictFileName
-        self.dictFile = data2022 + dictFileName
+        self.dictFile = DATA2022 + dictFileName
         self.mergeFrameCountFileName = mergeFrameCountFile
-        self.mergeFrameCountFile = data2022 + mergeFrameCountFile
+        self.mergeFrameCountFile = DATA2022 + mergeFrameCountFile
 
         #Dictionaries for holding cell and heading counts from self.dictFileName
         self.headingData = {}
@@ -57,7 +57,7 @@ class DataBalancer(object):
     def _readNewDict(self):
         """
         Reads the raw frame information file (self.dictFile) and initializes
-        self.cellData and self.headingData which hold cell/heading numbers as keys
+        self.cellFile and self.headingData which hold cell/heading numbers as keys
         and a list of frames as values.
         """
         try:
