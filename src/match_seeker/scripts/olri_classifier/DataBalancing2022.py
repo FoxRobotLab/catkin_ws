@@ -22,7 +22,7 @@ and data collection in 2022 to ensure that we collect enough frames per heading 
 --------------------------------------------------------------------------------"""
 
 from frameCellMap import FrameCellMap
-from paths import DATA, data2022
+from paths import DATA, data2022, pathToMatchSeeker
 # from paths import DATA, data2022
 import numpy as np
 import math
@@ -45,7 +45,7 @@ class DataBalancer(object):
         #If no text files are passed in, count the old 95k dataset by default
         if dictFileName == None and mergeFrameCountFile == None:
             self.oldDataset95k = DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt"
-            self.labelMap = FrameCellMap(self.oldDataset95k)
+            self.labelMap = FrameCellMap(dataFile=self.oldDataset95k, cellFile = pathToMatchSeeker + "res/map/mapToCells.txt")
 
             self.cellCountsMap = self._countCells(self.labelMap.cellData)
             self.headingCountsMap = self._countHeadings(self.labelMap.headingData)

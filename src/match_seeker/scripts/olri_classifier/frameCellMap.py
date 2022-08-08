@@ -15,7 +15,13 @@ import numpy as np
 import os
 import random
 from datetime import datetime
-from paths import DATA, DATA2022, pathToMatchSeeker
+
+#import paths from Susan's Machine
+# from paths import DATA, DATA2022, pathToMatchSeeker
+
+#import paths from Precision 5820
+from paths import DATA, data2022
+
 from imageFileUtils import makeFilename
 
 # from DataPaths import cellMapData, basePath
