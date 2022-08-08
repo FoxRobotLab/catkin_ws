@@ -59,7 +59,7 @@ def precision(y_true, y_pred):
     precision = true_positives / (predicted_positives + keras.backend.epsilon())
     return precision
 
-def get_prediction(self, image, mapGraph,odomLoc):
+def get_prediction(self, image, mapGraph, odomLoc):
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
     # cv2.imshow('turtle view', image)
     # cv2.waitKey(10)
