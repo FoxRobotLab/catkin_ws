@@ -1,5 +1,5 @@
 """--------------------------------------------------------------------------------
-cnn_cell_predictor_RGBinput.py
+cnn_cell_model_RGBinput.py
 
 Updated: Summer 2022
 
@@ -27,7 +27,7 @@ import tensorflow as tf
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-class CellPredictorRGB(object):
+class CellPredictModelRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
                  eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=4, dataSize = 0, batch_size = 10, seed=4359):
         """
@@ -703,7 +703,7 @@ class CellPredictorRGB(object):
 
 
 if __name__ == "__main__":
-    cellPredictor = CellPredictorRGB(
+    cellPredictor = CellPredictModelRGB(
         # dataSize=95810,
         data_name="TestHeadingInCellPredAdam224Corrected",
         checkPointFolder=checkPts,

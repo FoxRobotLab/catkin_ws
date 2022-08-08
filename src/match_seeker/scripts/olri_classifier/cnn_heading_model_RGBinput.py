@@ -1,5 +1,5 @@
 """--------------------------------------------------------------------------------
-cnn_heading_predictor_RGBinput.py
+cnn_heading_model_RGBinput.py
 
 Updated: Summer 2022
 
@@ -25,7 +25,7 @@ import csv
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-class HeadingPredictorRGB(object):
+class HeadingPredictModelRGB(object):
     def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
                  eval_ratio = 11.0 / 61.0, outputSize = 8, image_size=100, image_depth=3, dataSize = 0, seed=123456, batch_size = 20): #batch #epoch
         """
@@ -672,7 +672,7 @@ class HeadingPredictorRGB(object):
 
 if __name__ == "__main__":
     #check_data()
-    headingPredictor = HeadingPredictorRGB(
+    headingPredictor = HeadingPredictModelRGB(
         data_name="FullData",
         checkPointFolder=checkPts,
         imagesFolder=frames,
