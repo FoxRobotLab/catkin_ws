@@ -20,7 +20,7 @@ from DataPaths import basePath, imageDirectory, locData
 import ImageDataset
 import MonteCarloLocalize
 import math
-from olri_classifier.olin_cnn_predictor import OlinTest
+from olri_classifier.cnnRunModel import ModelRun2019
 import LocalizerStringConstants as loc_const
 import cv2
 
@@ -46,7 +46,7 @@ class Localizer(object):
         clean_imageself.mcl.initializeParticles(250, point=(xyTuple[0], xyTuple[1], float(self.gui.inputStartYaw())))
 
         self.odomScore = 100.0
-        self.olin_tester = OlinTest()
+        self.olin_tester = ModelRun2019()
 
     def findLocation(self, cameraIm):
         """Given the current camera image, update the robot's estimated current location, the confidence associated
@@ -68,7 +68,7 @@ class Localizer(object):
             self.logger.log(lklSt.format(x, y, h, self.confidence))
             self.gui.updateLastKnownList([x, y, h, self.confidence])
 
-        scores, matchLocs = self.olin_tester.get_prediction(cameraIm, self.olin,odomLoc)
+        scores, matchLocs = self.olin_tester.getPrediction(cameraIm, self.olin, odomLoc)
 
         # Handles out of range error
         while len(matchLocs) < 3:

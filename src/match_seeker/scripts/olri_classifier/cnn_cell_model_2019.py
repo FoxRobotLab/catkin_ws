@@ -199,11 +199,11 @@ class CellPredictModel2019(object):
         maxIndex = np.argmax(modelPredict)
         print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
         print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
-        return maxIndex, modelPredict[0]
+        return maxIndex, modelPredict # [0]  # TODO: Temporary change here to return all that model.predict returns
 
     def findTopX(self, x, numList):
         """Given a number and a list of numbers, this finds the x largest values in the number list, and reports
-        both the values, and their positions in the numList."""
+        both the values, and their positions in the numList, sorted by topVals."""
         topVals = [0.0] * x
         topIndex = [None] * x
         for i in range(len(numList)):

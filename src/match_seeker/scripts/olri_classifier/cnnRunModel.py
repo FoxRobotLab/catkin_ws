@@ -1,212 +1,107 @@
 #!/usr/bin/env python2.7
 """--------------------------------------------------------------------------------
-cnn_predictor_2022.py
-Authors: Bea Bautista, Shosuke Noma, Yifan Wu
+cnnRunModel.py
+Authors: Susan Fox, Bea Bautista, Shosuke Noma, Yifan Wu
 Based on olin_cnn_predictor.py
 
-Code that allows for TurtleBot running on ROS Melodic to use cell and heading
-predictor models to predict its current location in real time. To run the models
-on Cutie, this script must be called in the terminal using:
-
-rosrun match_seeker scripts/olri_classifier/cnn_predictor_2022.py
-
-Cutie must be launched (minimal, astra, and teleop) for this code to run. To end this program,
-processes must be killed in the terminal using kill -9 <Python2.7 PID>
-
-Each time this code is run, logs are saved in new directories inside match_seeker/res/csvLogs2022.
-These new directories include the chosen frames to be logged as well as performance metrics
-of each model.
+This provides a couple simple classes that match_seeker can use to run the models
+that have been trained. It runs both the cell prediction model and the heading prediction
+model, and combines the results, providing the top three cell predictions.
 --------------------------------------------------------------------------------"""
-# from __future__ import absolute_import
-# from __future__ import division
-# from __future__ import print_function
+
 import cv2
-import time
-import rospy
-import csv
-import numpy as np
-import random
-import sys
-import os
-from tensorflow import keras
 #sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
-from paths import DATA, checkPts, logs
-from turtleControl import TurtleBot
+from paths import DATA, checkPts, frames
 from cnn_cell_model_2019 import CellPredictModel2019
 from cnn_cell_model_RGBinput import CellPredictModelRGB
 from cnn_heading_model_2019 import HeadingPredictModel
 from cnn_heading_model_RGBinput import HeadingPredictModelRGB
-from std_msgs.msg import String
-from sensor_msgs.msg import Image
 
-#from OlinWorldMap import WorldMap
 
 # uncomment to use CPU
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-def image_callback(data):
-    global image_array
-    image_array = data
+class ModelRun2019(object):
+    """This builds the 2019 style of model, where the cell prediction model takes in the current heading
+    as input, and vice versa"""
 
-def getImage(x = 0, y = 0, width = 640, height = 480):
-    """Gets the next image available. If no images are available yet,
-    this method blocks until one becomes available."""
-    global image_array
-    try:
-        if image_array is None:
-            sys.stdout.write("Waiting for camera image_array")
-            while image_array is None:
-                sys.stdout.write(".")
-                sys.stdout.flush()
-                rospy.sleep(0.2)
-                if rospy.is_shutdown():
-                    return
-            print " Done!"
-        bridge = CvBridge()
-        cv_image = bridge.imgmsg_to_cv2(image_array, "passthrough")
-    except CvBridgeError, e:
-        print e
-    retval = cv_image[y:y + height, x:x + width]
-    r, g, b = cv2.split(retval)
-    retval = cv2.merge((b,g,r))
-    return retval
+    def __init__(self):
+        self.cellModel =  CellPredictModel2019(
+            loaded_checkpoint =checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+            testData = DATA)
+        self.headingModel = HeadingPredictModel(
+            loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5",
+            testData = DATA)
 
-def convertHeadingIndList(list):
-    headings = []
-    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-    for i in list:
-        headings.append(potentialHeadings[i])
-    return headings
+    def getPrediction(self, image, mapGraph, odomLoc):
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
 
-def inTopX(item, list):
-    if item in list:
-        return "T"
-    return "F"
+        lastCell = mapGraph.convertLocToCell(odomLoc)
+
+        lastHeading, headOutputPercs = self.headingModel.predictSingleImageAllData(image, lastCell)
+        bestHead = potentialHeadings[lastHeading]
+
+        newCell, cellOutPercs = self.cellModel.predictSingleImageAllData(image, bestHead)
+        bestThreeInd, bestThreePercs = self.cellModel.findTopX(3, cellOutPercs)
+
+        best_cells_xy = []
+        for i, pred_cell in enumerate(bestThreeInd):
+            if bestThreePercs[i] >= 0.20:
+                predXY = mapGraph.getLocation(pred_cell)
+                pred_xyh = (predXY[0], predXY[1], bestHead)
+                best_cells_xy.append(pred_xyh)
+
+        best_scores = [s * 100 for s in bestThreePercs]
+
+        # cell = mapGraph.convertLocToCell(best_cells_xy[0])
+
+        return best_scores, best_cells_xy
+
+
+
+class ModelRunRGB(object):
+    """This builds the 2022 RGB style of model, where the input is just the image"""
+
+    def __init__(self):
+        self.cellModel = CellPredictModelRGB(
+            checkPointFolder=checkPts,
+            loaded_checkpoint="2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+        )
+        self.cellModel.buildNetwork()
+
+        self.headingModel = HeadingPredictModelRGB(
+            checkPointFolder=checkPts,
+            loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
+        )
+        self.headingModel.buildNetwork()
+
+
+    def getPrediction(self, image, mapGraph, odomLoc):
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+
+
+        lastHeading, headOutputPercs = self.headingModel.predictSingleImageAllData(image)
+        bestHead = potentialHeadings[lastHeading]
+
+        newCell, cellOutPercs = self.cellModel.predictSingleIMageAllData(image)
+        bestThreeInd, bestThreePercs = self.cellModel.findTopX(3, cellOutPercs)
+
+        best_cells_xy = []
+        for i, pred_cell in enumerate(bestThreeInd):
+            if bestThreePercs[i] >= 0.20:
+                predXY = mapGraph.getLocation(pred_cell)
+                pred_xyh = (predXY[0], predXY[1], bestHead)
+                best_cells_xy.append(pred_xyh)
+
+        best_scores = [s * 100 for s in bestThreePercs]
+
+        # cell = mapGraph.convertLocToCell(best_cells_xy[0])
+
+        return best_scores, best_cells_xy
+
+
 
 if __name__ == "__main__":
-    image_array = None
-    rospy.init_node('predictor', anonymous=True, disable_signals=True)
-    image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, image_callback)
-
-    pubTopCell = rospy.Publisher('TopCell', String, queue_size=10)
-    pubTopCellProb = rospy.Publisher('TopCellProb', String, queue_size=10)
-    pubTopHeading = rospy.Publisher('TopHeading', String, queue_size=10)
-    pubTopHeadingProb = rospy.Publisher('TopHeadingProb', String, queue_size=10)
-
-    cellPredictor = CellPredictModel2019(loaded_checkpoint =checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5", testData = DATA)
-    headingPredictor = HeadingPredictModel(loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5", testData = DATA)
-
-    cellPredictorRGB = CellPredictModelRGB(
-        checkPointFolder=checkPts,
-        loaded_checkpoint="2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
-    )
-    cellPredictorRGB.buildNetwork()
-
-    headingPredictorRGB = HeadingPredictModelRGB(
-        checkPointFolder=checkPts,
-        loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
-    )
-    headingPredictorRGB.buildNetwork()
-
-    headingnumber = input("Initial heading: ")
-    cell = input("Initial cell: ")
-    potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-
-    dirTimeStamp = "{}".format(time.strftime("%m%d%y%H%M"))
-    logPath = logs + "turtleLog-" + dirTimeStamp
-    photoPath = logPath + "/turtlePhotos-" + dirTimeStamp
-    os.mkdir(logPath)
-    os.mkdir(photoPath)
-    csvLog = open(logPath + "/turtleLog-" + dirTimeStamp + ".csv", "w")
-    filewriter = csv.writer(csvLog)
-    filewriter.writerow(
-        ["Frame", "Actual Cell", "Actual Heading",
-         "Prob Actual Cell RGB", "Prob Actual Heading RGB", "Prob Actual Cell 2019", "Prob Actual Heading 2019",
-         "Pred Cell 2022", "Prob Cell 2022", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
-         "Pred Heading 2022", "Prob Heading 2022", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob",
-         "Heading for 2019 Cell Pred", "Pred Cell 2019", "Prob Cell 2019", "Actual in Top 3", "Top 3 Cells", "Top 3 Cell Prob",
-         "Cell for 2019 Heading Pred", "Pred Heading 2019", "Prob Heading 2019", "Actual in Top 3", "Top 3 Headings", "Top 3 Heading Prob"])
-
-    while (not rospy.is_shutdown()):
-        turtle_image = getImage()
-        # 2022 RGB Cell Predictor Model
-        pred_cellRGB, output_cellRGB = cellPredictorRGB.predictSingleImageAllData(turtle_image)
-        topThreePercs_cellRGB, topThreeCells_cellRGB = cellPredictorRGB.findTopX(3, output_cellRGB)
-        print("cell prediction RGB model:", pred_cellRGB)
-        print("Top three:", topThreeCells_cellRGB, topThreePercs_cellRGB)
-
-        # 2022 RGB Heading Predictor Model
-        pred_headingRGB, output_headingRGB = headingPredictorRGB.predictSingleImageAllData(turtle_image)
-        topThreePercs_headingRGB, topThreeHeadingID_headingRGB = cellPredictorRGB.findTopX(3, output_headingRGB)
-        print("heading prediction RGB model:", potentialHeadings[pred_headingRGB])
-        print("Top three:", topThreeHeadingID_headingRGB, topThreePercs_headingRGB)
-
-        # 2019 Cell Predictor Model
-        pred_cell, output_cell = cellPredictor.predictSingleImageAllData(turtle_image, headingnumber)
-        topThreePercs_cell, topThreeCells_cell = cellPredictorRGB.findTopX(3, output_cell)
-        print("cell prediction 2019 model:", pred_cell)
-        print("Top three:", topThreeCells_cell, topThreePercs_cell)
-
-        # 2019 Heading Predictor Model
-        pred_heading, output_heading = headingPredictor.predictSingleImageAllData(turtle_image, cell)
-        topThreePercs_heading, topThreeHeadingID_heading = cellPredictorRGB.findTopX(3, output_heading)
-        print("heading prediction 2019 model:", potentialHeadings[pred_heading])
-        print("Top three:", topThreeHeadingID_heading, topThreePercs_heading)
-
-        topCell = str(topThreeCells_cellRGB[0])
-        topCellProb = "{:.3f}".format(topThreePercs_cellRGB[0])
-        topHeading = str(potentialHeadings[topThreeHeadingID_headingRGB[0]])
-        topHeadingProb = "{:.3f}".format(topThreePercs_headingRGB[0])
-        pubTopCell.publish(topCell)
-        pubTopCellProb.publish(topCellProb)
-        pubTopHeading.publish(topHeading)
-        pubTopHeadingProb.publish(topHeadingProb)
-
-        rgbCell_text = "RGB Cell: " + topCell + " " + topCellProb
-        rgbHeading_text = "RGB Heading: " + topHeading + " " + topHeadingProb
-        turtle_image_text = cv2.putText(img = turtle_image, text = rgbCell_text, org = (50,50), fontScale= 1, fontFace= cv2.FONT_HERSHEY_DUPLEX, color = (0,255,255))
-        turtle_image_text = cv2.putText(img = turtle_image_text, text = rgbHeading_text, org = (50,100), fontScale= 1, fontFace= cv2.FONT_HERSHEY_DUPLEX, color = (0,255,255))
-
-        cv2.imshow("Turtle Image", turtle_image_text)
-
-        key = cv2.waitKey(10)
-        ch = chr(key & 0xFF)
-        if ch == "q":
-            #break
-
-            cv2.destroyAllWindows()
-            image_sub.unregister()
-            print("Robot shutdown start")
-            # robot.exit()
-            rospy.signal_shutdown("End")
-            print("Robot shutdown complete")
-        if ch == "o":
-            headingnumber = input("new heading: ")
-            cell = input("new cell: ")
-        if ch == "s":
-            frame = "turtleIm-{}.jpg".format(time.strftime("%m%d%y%H%M"))
-            cv2.imwrite(photoPath + "/" + frame, turtle_image)
-            actualCell = input("Actual Cell: ")
-            actualHeading = input("Actual Heading: ")
-            headingTop3RGB = convertHeadingIndList(topThreeHeadingID_headingRGB)
-            headingTop3 = convertHeadingIndList(topThreeHeadingID_heading)
-            actualHeadingIndex = potentialHeadings.index(int(actualHeading))
-            filewriter.writerow(
-                [frame, actualCell, actualHeading,
-                 "{:.3f}".format(output_cellRGB[int(actualCell)]), "{:.3f}".format(output_headingRGB[int(actualHeadingIndex)]),
-                 "{:.3f}".format(output_cell[int(actualCell)]), "{:.3f}".format(output_heading[int(actualHeadingIndex)]),
-                 topCell, topCellProb, inTopX(int(actualCell), topThreeCells_cellRGB),  str(topThreeCells_cellRGB), str(topThreePercs_cellRGB),
-                 topHeading, topHeadingProb, inTopX(int(actualHeading), headingTop3RGB), str(headingTop3RGB), str(topThreePercs_headingRGB),
-                headingnumber, str(topThreeCells_cell[0]), "{:.3f}".format(topThreePercs_cell[0]), inTopX(int(actualCell), topThreeCells_cell), str(topThreeCells_cell), str(topThreePercs_cell),
-                cell, str(potentialHeadings[topThreeHeadingID_heading[0]]), "{:.3f}".format(topThreePercs_heading[0]), inTopX(int(actualHeading), headingTop3), str(headingTop3), str(topThreePercs_heading)])
-
-        cell = pred_cell
-        headingnumber = potentialHeadings[pred_heading]
-        time.sleep(0.1)
-
-    print("out of loop")
-
-
-
-
+    modelRunner2019 = ModelRun2019()
+    modelRunner2022 = ModelRunRGB()
 
