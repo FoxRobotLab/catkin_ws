@@ -11,7 +11,7 @@ model, and combines the results, providing the top three cell predictions.
 
 import cv2
 #sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
-from paths import DATA, checkPts, frames
+from paths import DATA, checkPts
 from cnn_cell_model_2019 import CellPredictModel2019
 from cnn_cell_model_RGBinput import CellPredictModelRGB
 from cnn_heading_model_2019 import HeadingPredictModel
@@ -83,7 +83,7 @@ class ModelRunRGB(object):
         lastHeading, headOutputPercs = self.headingModel.predictSingleImageAllData(image)
         bestHead = potentialHeadings[lastHeading]
 
-        newCell, cellOutPercs = self.cellModel.predictSingleIMageAllData(image)
+        newCell, cellOutPercs = self.cellModel.predictSingleImageAllData(image)
         bestThreeInd, bestThreePercs = self.cellModel.findTopX(3, cellOutPercs)
 
         best_cells_xy = []
