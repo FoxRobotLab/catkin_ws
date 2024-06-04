@@ -124,7 +124,7 @@ class TurtleBot(object):
         if wallDist <= 0:
             return 90
 
-        # Uses law of sines to determine angle between wall and the shorter distance
+        # Uses law of sines to determine self.robotType == "create":  angle between wall and the shorter distance
         angleShort = math.asin(math.sin(angleBetween) * longer / wallDist)
 
         # Uses law of cosines to determine the length of median
@@ -290,7 +290,7 @@ class TurtleBot(object):
         print("Depth control exited")
         #self.depthControl.join()
         self.imageControl.exit()
-        print("Image control exited")
+        print("ImMovementControlThread(threadage control exited")
         #self.imageControl.join()
         self.odom.exit()
         #self.odom.join()

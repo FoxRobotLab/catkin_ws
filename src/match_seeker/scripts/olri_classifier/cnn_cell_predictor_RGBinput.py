@@ -76,7 +76,7 @@ class CellPredictorRGB(object):
     # def prepDatasets(self):
     #     """Finds the cell labels associated with the files in the frames folder, and then sets up two
     #     data generators to produce the data in batches."""
-    #     self.buildMap()
+    #     self.buildMap()rosrun match_seeker scripts/olri_classifier/cnn_predictor_2022.py
     #     #From Tensorflow website:
     #     #Labels should be sorted according to the alphanumeric order of the image file paths (obtained via os.walk(directory) in Python)
     #     #given a directory, os.walk returns list of dirpaths, list of dirnames and list of filenames as tuples, the generated lists are in the same order in every run
