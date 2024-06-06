@@ -8,10 +8,10 @@ import csv
 import os
 #sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
 from paths import DATA, checkPts, logs
-from cnn_cell_predictor_2019 import CellPredictor2019
-from cnn_cell_predictor_RGBinput import CellPredictorRGB
-from cnn_heading_predictor_2019 import HeadingPredictor
-from cnn_heading_predictor_RGBinput import HeadingPredictorRGB
+from cnn_cell_model_2019 import CellPredictModel2019
+from cnn_cell_model_RGBinput import CellPredictModelRGB
+from cnn_heading_model_2019 import HeadingPredictModel
+from cnn_heading_model_RGBinput import HeadingPredictModelRGB
 from frameCellMap import FrameCellMap
 
 # uncomment to use CPU
@@ -31,16 +31,16 @@ def inTopX(item, list):
 
 if __name__ == "__main__":
 
-    cellPredictor = CellPredictor2019(loaded_checkpoint = checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5", testData = DATA)
-    headingPredictor = HeadingPredictor(loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5", testData = DATA)
+    cellPredictor = CellPredictModel2019(loaded_checkpoint =checkPts + "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5", testData = DATA)
+    headingPredictor = HeadingPredictModel(loaded_checkpoint=checkPts + "heading_acc9517_cellInput_250epochs_95k_NEW.hdf5", testData = DATA)
 
-    cellPredictorRGB = CellPredictorRGB(
+    cellPredictorRGB = CellPredictModelRGB(
         checkPointFolder=checkPts,
         loaded_checkpoint="2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
     )
     cellPredictorRGB.buildNetwork()
 
-    headingPredictorRGB = HeadingPredictorRGB(
+    headingPredictorRGB = HeadingPredictModelRGB(
         checkPointFolder=checkPts,
         loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
     )

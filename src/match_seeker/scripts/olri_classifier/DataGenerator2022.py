@@ -9,7 +9,7 @@ from frameCellMap import FrameCellMap
 """
 Updated Data Generator that preprocesses images into desired input form
 and constructs batches of tuples of images and corresponding labels that allows the model to
-not load in the entire .npy file or the whold dataset for training or validation
+not load in the entire .npy file or the whole dataset for training or validation
 
 Created Summer 2022
 Authors: Bea Bautista, Yifan Wu, Shosuke Noma

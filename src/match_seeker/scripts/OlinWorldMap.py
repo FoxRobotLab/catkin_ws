@@ -109,7 +109,7 @@ class WorldMap(object):
 
     def highlightCell(self, cellNum, color=(113, 179, 60)):
         """Takes in a cell number and draws a box around it to highlight it."""
-        [x1, y1, x2, y2] = self.cellData[str(cellNum)]
+        [x1, y1, x2, y2] = self.cellData[cellNum]
         self.drawBox((x1, y1), (x2, y2), color, 2)
 
     def drawCells(self, drawCellNum=False):
@@ -258,7 +258,9 @@ class WorldMap(object):
             if (x1 <= x < x2) and (y1 <= y < y2):
                 return cell
         else:
-            return None #TODO: It should not think it is outside the map
+            print("WARNING: convertLocToCell, pose matches no cell:", pose)
+            (node, newx, newy, dist) = self.findClosestNode(pose) #TODO: It should not think it is outside the map
+            return node
 
 
     def isAllowedLocation(self, pose):
@@ -341,7 +343,8 @@ class WorldMap(object):
     def findClosestNode(self, location):
         """uses the location of a matched image and the distance formula to determine the node on the olingraph
         closest to each match/guess"""
-        x, y, head = location
+        x = location[0]
+        y = location[1]
         closestNode = None
         closestX = None
         closestY = None
@@ -624,7 +627,7 @@ class WorldMap(object):
             if line[0] == '#' or line.isspace():
                 continue
             parts = line.split()
-            cellNum = parts[0]
+            cellNum = int(parts[0])
             locList = [float(v) for v in parts[1:]]
             # print("Cell " + cellNum + ": ", locList)
             cellDict[cellNum] = locList

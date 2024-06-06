@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.5
 
 """--------------------------------------------------------------------------------
-cnn_heading_predictor_2019.py
+cnn_heading_model_2019.py
 
 Author: Jinyoung Lim, Avik Bosshardt, Angel Sylvester and Maddie AlQatami
 
@@ -29,7 +29,7 @@ import random
 ### Uncomment next line to use CPU instead of GPU: ###
 # os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-class HeadingPredictor(object):
+class HeadingPredictModel(object):
     def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 8,
                  image_size=100, image_depth=2, data_name = None, testData = None, testFrames = None, checkPtsDirectory = None):
         ### Set up paths and basic model hyperparameters
@@ -334,7 +334,7 @@ class HeadingPredictor(object):
 
 if __name__ == "__main__":
     # check_data()
-    headingPredictor = HeadingPredictor(
+    headingPredictor = HeadingPredictModel(
         # dataImg= DATA + 'IMG_CellInput_12K.npy',
         # dataLabel = DATA + 'Heading_CellInput12k.npy',
         # data_name = "testheadingpredictor"

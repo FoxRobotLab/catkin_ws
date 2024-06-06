@@ -35,7 +35,7 @@ from paths import DATA, frames, checkPts
 # sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
 
 from turtleControl import TurtleBot
-from cnn_cell_predictor_2019 import CellPredictor2019
+from cnn_cell_model_2019 import CellPredictModel2019
 
 # from OlinWorldMap import WorldMap
 
@@ -59,7 +59,7 @@ def precision(y_true, y_pred):
     precision = true_positives / (predicted_positives + keras.backend.epsilon())
     return precision
 
-def get_prediction(self, image, mapGraph,odomLoc):
+def get_prediction(self, image, mapGraph, odomLoc):
     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
     # cv2.imshow('turtle view', image)
     # cv2.waitKey(10)
@@ -114,8 +114,8 @@ if __name__ == "__main__":
     lastCell = -1
     lastHeading = -1
 
-    cellPredictor = CellPredictor2019(loaded_checkpoint = "cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
-                                      testData=DATA)
+    cellPredictor = CellPredictModel2019(loaded_checkpoint ="cell_acc9705_headingInput_155epochs_95k_NEW.hdf5",
+                                         testData=DATA)
 
     lastpreds = []
     predValues = []

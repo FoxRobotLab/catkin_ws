@@ -1,5 +1,5 @@
 """--------------------------------------------------------------------------------
-cnn_cell_predictor_2019.py
+cnn_cell_model_2019.py
 
 Updated: Summer 2022
 
@@ -22,7 +22,7 @@ from frameCellMap import FrameCellMap
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-class CellPredictor2019(object):
+class CellPredictModel2019(object):
     def __init__(self, eval_ratio=11.0/61.0, loaded_checkpoint=None, dataImg=None, dataLabel= None, outputSize= 271,
                  image_size=100, image_depth=2, data_name = None, testData = DATA, testFrames = frames, checkPtsDirectory = checkPts):
         ### Set up paths and basic model hyperparameters
@@ -199,11 +199,11 @@ class CellPredictor2019(object):
         maxIndex = np.argmax(modelPredict)
         print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
         print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
-        return maxIndex, modelPredict[0]
+        return maxIndex, modelPredict # [0]  # TODO: Temporary change here to return all that model.predict returns
 
     def findTopX(self, x, numList):
         """Given a number and a list of numbers, this finds the x largest values in the number list, and reports
-        both the values, and their positions in the numList."""
+        both the values, and their positions in the numList, sorted by topVals."""
         topVals = [0.0] * x
         topIndex = [None] * x
         for i in range(len(numList)):
@@ -217,7 +217,7 @@ class CellPredictor2019(object):
                 topVals.insert(j, val)
                 topIndex.pop(-1)
                 topVals.pop(-1)
-        return topVals, topIndex
+        return topIndex, topVals
 
     def test(self, n, randomChoose = True, randomCrop = False):
         """This runs each of the random n images in the folder of frames through the cell-output network, reporting how
@@ -304,7 +304,7 @@ def loading_bar(start,end, size = 20):
 
 if __name__ == "__main__":
     # check_data()
-    cellPredictor = CellPredictor2019(
+    cellPredictor = CellPredictModel2019(
         #for setting up for building and training model
         # dataImg= DATA +"Img_w_head_13k.npy",
         # dataLabel = DATA + 'cell_ouput13k.npy',
