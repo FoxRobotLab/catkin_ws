@@ -42,12 +42,13 @@ class ModelRun2019(object):
         bestHead = potentialHeadings[lastHeading]
 
         newCell, cellOutPercs = self.cellModel.predictSingleImageAllData(image, bestHead)
-        bestThreeInd, bestThreePercs = self.cellModel.findTopX(3, cellOutPercs)
+        bestThreeInd, bestThreePercs = self.cellModel.findTopX(3, cellOutPercs[0])
 
         best_cells_xy = []
         for i, pred_cell in enumerate(bestThreeInd):
             if bestThreePercs[i] >= 0.20:
                 predXY = mapGraph.getLocation(pred_cell)
+                print pred_cell
                 pred_xyh = (predXY[0], predXY[1], bestHead)
                 best_cells_xy.append(pred_xyh)
 
@@ -65,12 +66,14 @@ class ModelRunRGB(object):
     def __init__(self):
         self.cellModel = CellPredictModelRGB(
             checkPointFolder=checkPts,
-            loaded_checkpoint="2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+            # loaded_checkpoint="2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+            loaded_checkpoint="2022CellPredict_checkpoint-0624221612/FullData-30-0.21.hdf5"
         )
         self.cellModel.buildNetwork()
 
         self.headingModel = HeadingPredictModelRGB(
             checkPointFolder=checkPts,
+            # loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
             loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
         )
         self.headingModel.buildNetwork()
@@ -82,9 +85,9 @@ class ModelRunRGB(object):
 
         lastHeading, headOutputPercs = self.headingModel.predictSingleImageAllData(image)
         bestHead = potentialHeadings[lastHeading]
-
         newCell, cellOutPercs = self.cellModel.predictSingleImageAllData(image)
-        bestThreeInd, bestThreePercs = self.cellModel.findTopX(3, cellOutPercs)
+        bestThreePercs, bestThreeInd = self.cellModel.findTopX(3, cellOutPercs)
+
 
         best_cells_xy = []
         for i, pred_cell in enumerate(bestThreeInd):
@@ -102,6 +105,6 @@ class ModelRunRGB(object):
 
 
 if __name__ == "__main__":
-    modelRunner2019 = ModelRun2019()
+    # modelRunner2019 = ModelRun2019()
     modelRunner2022 = ModelRunRGB()
 

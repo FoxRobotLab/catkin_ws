@@ -217,7 +217,7 @@ class CellPredictModel2019(object):
                 topVals.insert(j, val)
                 topIndex.pop(-1)
                 topVals.pop(-1)
-        return topVals, topIndex
+        return topIndex, topVals
 
     def test(self, n, randomChoose = True, randomCrop = False):
         """This runs each of the random n images in the folder of frames through the cell-output network, reporting how

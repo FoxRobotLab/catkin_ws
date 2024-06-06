@@ -82,7 +82,8 @@ class HeadingPredictModelRGB(object):
         """Builds the network, saving it to self.model."""
         if self.loaded_checkpoint:
             self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
-            self.model.load_weights(self.loaded_checkpoint)
+            self.model.summary()
+            # self.model.load_weights(self.loaded_checkpoint)
         else:
             self.model = self.cnn()  # CNN
 

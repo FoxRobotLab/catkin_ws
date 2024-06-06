@@ -22,7 +22,7 @@ import cv2
 import ImageFeatures
 #sys.path.insert(0, "/home/macalester/PycharmProjects/src/deep_learning/olri_classifier/olin_factory")
 #from olin_factory import paths, cell
-from src.match_seeker.scripts.olri_classifier.DataManipulations import olin_factory
+# import src.match_seeker.scripts.olri_classifier.DataManipulations.olin_factory
 
 
 class ImageDataset(object):
@@ -48,7 +48,7 @@ class ImageDataset(object):
         self.xyArray = None
 
         # TODO: redundant w/ OlinWorldMap._readGraphMap --> merge
-        cellCenterF = open(olin_factory.paths.cell_graph_path, "r")
+        cellCenterF = open("/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/cellGraph.txt", "r")
         cellCenterDict = dict()
         for line in cellCenterF:
             if line.startswith("Markers"):

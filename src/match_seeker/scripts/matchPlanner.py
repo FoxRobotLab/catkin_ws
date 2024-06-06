@@ -22,7 +22,7 @@ import math
 
 import cv2
 import rospy
-from espeak import espeak
+# from espeak import espeak
 import numpy as np
 import turtleControl
 # import MovementHandler
@@ -117,10 +117,10 @@ class MatchPlanner(object):
             """------------------------------------------------------------------------------------------------
             Team Summer 2019 more or less made no changes here and now the behavior in this while loop is out
             of date. Start here to make changes to reactionary behavior.
-            
+
             lookAround() is currently not utilized. However in some cases it may be helpful i.e. when the
-            robot has decided to stare at a wall and not move because it doesn't know where it is. 
-            
+            robot has decided to stare at a wall and not move because it doesn't know where it is.
+
             Perhaps experiment with ways to reincorporate this behavior.
             ---------------------------------------------------------------------------------------------------"""
             if self.whichBrain == "loc":
@@ -138,7 +138,7 @@ class MatchPlanner(object):
                 # self.logger.log("======Goal seeker off")
             elif status == loc_const.keep_going:  # LookAround found a match
                 if self.whichBrain != "nav":
-                    self.speak("Navigating...")
+                    # self.speak("Navigating...")
                     self.gui.navigatingMode()
                     # self.robot.turnByAngle(35)  # turn back 35 degrees bc the behavior is faster than the matching
                     self.brain.unpause()
@@ -146,7 +146,7 @@ class MatchPlanner(object):
                     self.whichBrain = "nav"
             elif status == loc_const.look:  # enter LookAround behavior
                 if self.whichBrain != "loc":
-                    self.speak("Localizing...")
+                    # self.speak("Localizing...")
                     self.gui.localizingMode()
                     self.brain.pause()
                     self.whichBrain = "loc"
@@ -155,7 +155,7 @@ class MatchPlanner(object):
             else:  # found a node
                 if self.whichBrain == "loc":
                     self.whichBrain = "nav"
-                    self.speak("Navigating...")
+                    # self.speak("Navigating...")
                     self.gui.navigatingMode()
                     self.brain.unpause()
                 if status == loc_const.at_node:
@@ -164,7 +164,7 @@ class MatchPlanner(object):
 
                     if self.pathLoc.atDestination(nodeAndPose[0]):
                         # reached destination. ask for new destination again. returns false if you're not at the final node
-                        self.speak("Destination reached")
+                        # self.speak("Destination reached")
                         self.robot.stop()
                         self.robot.updateOdomLocation(nodeAndPose[1][0], nodeAndPose[1][1], nodeAndPose[1][2])
                         self.locator.odomScore = 100
@@ -211,7 +211,7 @@ class MatchPlanner(object):
         if self.destinationNode == -1:
             return False
         self.pathLoc.beginJourney(self.destinationNode)
-        self.speak("Heading to " + str(self.destinationNode))
+        # self.speak("Heading to " + str(self.destinationNode))
         self.brain.unpause()
         return True
 
@@ -263,7 +263,7 @@ class MatchPlanner(object):
         KeepMoving, BumperReact, and CliffReact behaviors, along with ObstacleForce behaviors for six regions
         of the depth data. TODO: Figure out how to add a positive pull toward the next location?"""
         self.whichBrain = "nav"
-        self.speak("matchPlanner.setupNavBrain: Navigating Brain Activated")
+        # self.speak("matchPlanner.setupNavBrain: Navigating Brain Activated")
         self.brain = PotentialFieldThread.PotentialFieldBrain(self.robot)
         self.brain.pause()
         self.brain.add(FieldBehaviors.KeepMoving())
@@ -308,8 +308,8 @@ class MatchPlanner(object):
             self.ignoreLocationCount = 0
             self.pathLoc.continueJourney(nearNode)
 
-            speakStr = "At node " + str(nearNode)
-            self.speak(speakStr)
+            # speakStr = "At node " + str(nearNode)
+            # self.speak(speakStr)
 
     def checkCoordinates(self, localizePose):
         """Check the current match information to see if we should change headings. If node that is
@@ -370,7 +370,7 @@ class MatchPlanner(object):
 
         if min(angle1, angle2) >= 90:
             self.gui.updateTurnState("Turning to node " + str(node))
-            self.speak("Adjusting heading to node " + str(node))
+            # self.speak("Adjusting heading to node " + str(node))
             self.turnToNextTarget(heading, targetHeading)
             self.goalSeeker.setGoal(None, None, None)
             self.gui.endTurn()
@@ -416,13 +416,13 @@ class MatchPlanner(object):
         self.robot.turnByAngle(angleToTurn)
         self.brain.unpause()
 
-    def speak(self, speakStr):
-        """Takes in a string and "speaks" it to the base station and also to the  robot's computer."""
-        espeak.set_voice("english-us", gender=2, age=60)
-        espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
-        self.pub.publish(speakStr)
-        self.gui.updateMessageText(speakStr)
-        self.logger.log(speakStr)
+    # def speak(self, speakStr):
+    #     """Takes in a string and "speaks" it to the base station and also to the  robot's computer."""
+    #     espeak.set_voice("english-us", gender=2, age=60)
+    #     espeak.synth(speakStr)  # nodeNum, nodeCoord, heading = matchInfo
+    #     self.pub.publish(speakStr)
+    #     self.gui.updateMessageText(speakStr)
+    #     self.logger.log(speakStr)
 
     def shutdown(self):
         # TODO: This doesn't actually shut down all the way

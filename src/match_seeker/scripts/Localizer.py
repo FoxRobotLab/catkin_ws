@@ -20,7 +20,7 @@ from DataPaths import basePath, imageDirectory, locData
 import ImageDataset
 import MonteCarloLocalize
 import math
-from olri_classifier.cnnRunModel import ModelRun2019
+from olri_classifier.cnnRunModel import ModelRunRGB
 import LocalizerStringConstants as loc_const
 import cv2
 
@@ -40,13 +40,13 @@ class Localizer(object):
         self.confidence = 0
         self.navType = "CNN"
 
-        clean_imagexyTuple = self.olin._nodeToCoord(int(self.gui.inputStartLoc()))
+        xyTuple = self.olin._nodeToCoord(int(self.gui.inputStartLoc()))
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
-        clean_imageself.mcl.initializeParticles(250, point=(xyTuple[0], xyTuple[1], float(self.gui.inputStartYaw())))
+        self.mcl.initializeParticles(250, point=(xyTuple[0], xyTuple[1], float(self.gui.inputStartYaw())))
 
         self.odomScore = 100.0
-        self.olin_tester = ModelRun2019()
+        self.olin_tester = ModelRunRGB()
 
     def findLocation(self, cameraIm):
         """Given the current camera image, update the robot's estimated current location, the confidence associated
@@ -264,7 +264,7 @@ class Localizer(object):
     def closest_bound_pt(self, cell, robot_x, robot_y):
         print "Out of bounds!"
 
-        cornerpts = self.olin.cellData[str(cell)]
+        cornerpts = self.olin.cellData[cell]
         #add/subtract 0.2 to nudge the robot back in bounds
         x1 = cornerpts[0] + 0.2
         x2 = cornerpts[2] - 0.2
