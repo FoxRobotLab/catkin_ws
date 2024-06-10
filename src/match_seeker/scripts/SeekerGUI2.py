@@ -3,7 +3,7 @@ import Tkinter as tk
 from matchPlanner import MatchPlanner
 from turtleControl import TurtleBot
 
-class SeekerGUI2():
+class SeekerGUI2(object):
 
     def __init__(self, matchPlannerObj, turtleObj):
 
