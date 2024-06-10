@@ -64,8 +64,13 @@ class TurtleBot(object):
         self.odom.start()
         self.odom.resetOdometer()
 
+        self.coreSensor = CoreSensorThread(self.robotType)
+        self.coreSensor.start()
+
         rospy.on_shutdown(self.exit)
 
+    def getBatteryLevel(self):
+        return self.coreSensor.getBatteryLevel()
 
     def turnByAngle(self, angle):
         """Turns the robot by the given angle, where negative is left and positive is right"""
@@ -278,6 +283,8 @@ class TurtleBot(object):
         else:
             return state.cliff_left + state.cliff_right + state.cliff_front_left + state.cliff_front_right
 
+    def getCoreSensorData(self):
+        return self.coreSensor.getCoreData()
 
     def exit(self):
         """A method that shuts down the three threads of the robot."""
@@ -290,6 +297,8 @@ class TurtleBot(object):
         self.imageControl.join()
         self.odom.exit()
         self.odom.join()
+        self.coreSensor.exit()
+        self.coreSensor.join()
 
 
 
@@ -596,6 +605,51 @@ class DepthSensorThread(threading.Thread):
         with self.lock:
             self.runFlag = False
 
+class CoreSensorThread(threading.Thread):
+    """This thread communicates with the core sensor data from ROS, providing updated sensor information upon request."""
+
+    def __init__(self, robotType):
+        """Creates the connections to ROS, and initializes the thread."""
+        threading.Thread.__init__(self)
+        self.lock = threading.Lock()
+        self.robotType = robotType
+        self.battery_level = None
+
+        if self.robotType == "create":
+            self.core_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.core_callback)
+        elif self.robotType == "kobuki":
+            self.core_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.core_callback)
+
+        self.runFlag = True
+
+    def run(self):
+        """The thread's run method. Does nothing, as the work is done either by callbacks being triggered or by other threads requesting data."""
+        with self.lock:
+            self.runFlag = True
+        runFlag = True
+        while runFlag:
+            rospy.sleep(0.1)
+            with self.lock:
+                runFlag = self.runFlag
+        self.core_sub.unregister()
+
+    def core_callback(self, data):
+        """Callback function triggered when core sensor data is available. Just copies data to instance variable."""
+        with self.lock:
+            self.battery_level = data.battery
+
+    def getBatteryLevel(self):
+        """Method typically called by other threads, it returns the latest battery level."""
+        with self.lock:
+            battery_level = self.battery_level
+        return battery_level
+
+    def exit(self):
+        """Method typically called by other threads, to shut down this thread."""
+        print("Core sensor shutdown received")
+        with self.lock:
+            self.runFlag = False
+
 
 
 class OdometryListener(threading.Thread):
@@ -739,4 +793,3 @@ if __name__ == "__main__":
     rospy.on_shutdown(controller.exit)
     controller.turnByAngle(180)
     rospy.spin()
-

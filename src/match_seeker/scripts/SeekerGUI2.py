@@ -1,9 +1,8 @@
 import Tkinter as tk
-import Tkinter as tk
 from matchPlanner import MatchPlanner
 from turtleControl import TurtleBot
 
-class SeekerGUI2(object):
+class SeekerGUI2():
 
     def __init__(self, matchPlannerObj, turtleObj):
 
@@ -13,6 +12,12 @@ class SeekerGUI2(object):
         self.mainWindow = tk.Tk()
         self.mainWindow.title("Seeker GUI")
         self.mainWindow.geometry("+550+650")
+
+        self.batteryLevel = tk.StringVar()
+        self.batteryLevel.set("Battery Level: Unknown")
+
+        self.setUpBatteryDisplay()
+        self.update_battery_level()
 
         self.mode = tk.StringVar()
         self.mode.set("Navigating")
@@ -41,8 +46,6 @@ class SeekerGUI2(object):
         self.secondPicList = []
         self.thirdPicList = []
 
-
-
         self.setupLocLists()
 
         self.messageText = "Booting up..."
@@ -68,13 +71,13 @@ class SeekerGUI2(object):
 
         self.frame1 = tk.Frame(self.mainWindow, width=700, height=100)
         self.frame1.config(bg="gray22")
-        self.frame1.grid(row=0, column=0)
+        self.frame1.grid(row=1, column=0)
         self.canvas = tk.Canvas(self.mainWindow, width=700, height=700)
         self.canvas.config(bg="gray22")
-        self.canvas.grid(row=1, column=0)
+        self.canvas.grid(row=2, column=0)
         self.frame2 = tk.Frame(self.mainWindow, width=700, height=300)
         self.frame2.config(bg="gray22")
-        self.frame2.grid(row=2, column=0)
+        self.frame2.grid(row=3, column=0)
 
         self.button1 = tk.Button(self.frame1)
 
@@ -87,6 +90,28 @@ class SeekerGUI2(object):
 
         self.confirmClickedQuit = False
         self.confirmClickedMotors = False
+
+    def setUpBatteryDisplay(self):
+        battery_label = tk.Label(self.mainWindow, textvariable=self.batteryLevel, font="MSSansSerif 14", bg="gray22", fg="dark orange")
+        battery_label.grid(row=0, column=0)
+
+    def update_battery_level(self):
+        battery_level = self.turtleBot.getBatteryLevel()
+        if battery_level is not None:
+            self.batteryLevel.set("Battery Level: {}".format(battery_level))
+
+        self.mainWindow.after(1000, self.update_battery_level)
+
+    def updateMessageText(self, text):
+        if self.oddMessColor:
+            self.messages.configure(bg="light goldenrod yellow")
+            self.oddMessColor = False
+        else:
+            self.messages.configure(bg="light goldenrod")
+            self.oddMessColor = True
+        self.messages.insert('1.0', text + "\n")
+        self.messages.update_idletasks()
+        self.messages.update()
 
     def nodeButtonPopUp(self):
         def destroy_callback(e):
