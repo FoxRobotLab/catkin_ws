@@ -41,12 +41,15 @@ class Localizer(object):
         self.navType = "CNN"
 
         xyTuple = self.olin._nodeToCoord(int(self.gui.inputStartLoc()))
+        heading = self.gui.inputStarYaw()
+        initPose = (xyTuple[0], xyTuple[1], float(heading))
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
-        self.mcl.initializeParticles(250, point=(xyTuple[0], xyTuple[1], float(self.gui.inputStartYaw())))
+        self.mcl.initializeParticles(250, point=initPose)
 
         self.odomScore = 100.0
         self.olin_tester = ModelRunRGB()
+
 
     def findLocation(self, cameraIm):
         """Given the current camera image, update the robot's estimated current location, the confidence associated
@@ -136,6 +139,7 @@ class Localizer(object):
 
         return response
 
+
     def mclResponse(self, comPose, var):
         """
         :param comPose: location information
@@ -165,6 +169,7 @@ class Localizer(object):
             return loc_const.at_node, mclInfo
         else:
             return loc_const.close, mclInfo
+
 
     def matchResponse(self, matchLocs, scores):
         """a messy if statement chain that takes in match scores and locations and spits out arbitrary information that
@@ -208,11 +213,13 @@ class Localizer(object):
                 # Guessing but not close...
                 return loc_const.keep_going, matchInfo
 
+
     def isClose(self, odomLoc, bestLoc):
         odomX, odomY, _ = odomLoc
         bestX, bestY, _ = bestLoc
         dist = math.hypot(odomX - bestX, odomY - bestY)
         return dist <= 1 #was 5
+
 
     def _guessLocation(self, bestScore, bestLoc, matchLocs):
         """
@@ -242,6 +249,7 @@ class Localizer(object):
                 # TODO: figure out if bestHead is the right result, but for now it's probably ignored anyway
                 return nodes, loc_const.conf_none
 
+
     def setLocation(self, conf, loc):
         """
         :param conf: a string indicating the confidence level of a guess location
@@ -258,8 +266,17 @@ class Localizer(object):
         elif conf == loc_const.conf_none:
             self.lastKnownLoc = None
             self.confidence = 0.0
+
+
+
+
+
+
+
+
         else:
             self.confidence = 0.0
+
 
     def closest_bound_pt(self, cell, robot_x, robot_y):
         print "Out of bounds!"

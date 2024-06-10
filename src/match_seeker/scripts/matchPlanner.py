@@ -141,7 +141,7 @@ class MatchPlanner(object):
                     # self.speak("Navigating...")
                     self.gui.navigatingMode()
                     # self.robot.turnByAngle(35)  # turn back 35 degrees bc the behavior is faster than the matching
-                    self.brain.unpause()
+                    self.brailoc_constn.unpause()
                     self.checkCoordinates(nodeAndPose)  # react to the location data of the match
                     self.whichBrain = "nav"
             elif status == loc_const.look:  # enter LookAround behavior
@@ -200,7 +200,7 @@ class MatchPlanner(object):
         if self.startYaw == -1 or self.startYaw is None:
             return False, None
         self.robot.updateOdomLocation(x=self.startX, y=self.startY, yaw=self.startYaw)
-        # self.brain.unpause()
+
         return True, loc_const.at_node
 
     def getNextGoalDestination(self):

@@ -1,5 +1,6 @@
 
-# In the past, strings were passed around to represent robot status and confidence. The strings have been replaced by these variables.
+# In the past, strings were passed around to represent robot status and confidence.
+# The strings have been replaced by these variables.
 
 # Robot statuses
 at_node = 'at node'
