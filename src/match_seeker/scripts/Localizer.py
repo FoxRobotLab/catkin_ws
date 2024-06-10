@@ -38,7 +38,7 @@ class Localizer(object):
         self.closeEnough = 0.7  # was 0.6
         self.lastKnownLoc = None # Will always duplicate one row of the odom table, not super useful right now
         self.confidence = 0
-        self.navType = "CNN"
+        self.navType = "ODOM"
 
         xyTuple = self.olin._nodeToCoord(int(self.gui.inputStartLoc()))
 
@@ -102,12 +102,13 @@ class Localizer(object):
         if self.odomScore > 70:
             try:
                 cell, x, y, bestDist = self.olin.findClosestNode(self.robot.getOdomData())
-                if bestDist <= self.closeEnough and self.isClose(self.robot.getOdomData(), (x, y, 0)):
+                if bestDist <= self.closeEnough and self.isClose(self.robot.getOdomData(), (x, y, 0)):   # TODO: Both parts seem to be calculating the same thing, maybe simplifyt!
                     response = loc_const.at_node, (int(self.olin.convertLocToCell(self.robot.getOdomData())), self.robot.getOdomData())
                 else:
                     response = loc_const.close, (int(self.olin.convertLocToCell(self.robot.getOdomData())), self.robot.getOdomData())
             except TypeError: #robot is not in a valid location, so reset odometry to center of nearest cell
                 cell, x,  y, _ = self.olin.findClosestNode(self.robot.getOdomData())
+                # TODO: Update the confidence value for the odometry
                 inbounds_loc = self.closest_bound_pt(cell, self.robot.getOdomData()[0], self.robot.getOdomData()[1])
                 self.robot.updateOdomLocation(inbounds_loc[0], inbounds_loc[1], self.robot.getOdomData()[2])
                 response = loc_const.close, (cell, (inbounds_loc[0], inbounds_loc[1], self.robot.getOdomData()[2]))
@@ -128,6 +129,7 @@ class Localizer(object):
                 self.gui.updateMessageText("Updating Odometry with CNN")
                 self.odomScore = bestScore
                 self.robot.updateOdomLocation(bestX, bestY, bestHead)
+
             # response determines behavior
             if var < 5.0:
                 response = self.mclResponse(comPose, var)
@@ -138,6 +140,7 @@ class Localizer(object):
 
     def mclResponse(self, comPose, var):
         """
+        Called when odometry is bad to generate a response location
         :param comPose: location information
         :param var: variance of mcl
         :return: a string indicating its confidence level and a tuple with mclInfo
@@ -155,13 +158,13 @@ class Localizer(object):
             self.confidence = 50
             conf = loc_const.conf_far_guessing
         else:
-            self.confidence = max(0.0, self.confidence - 05)
+            self.confidence = max(0.0, self.confidence - 5)
             conf = loc_const.conf_none
 
         self.gui.updateCNode(bestNodeNum)
         self.gui.updateMatchStatus(conf)
 
-        if bestDist <= self.closeEnough and self.isClose(self.robot.getOdomData(), (nodeX, nodeY, 0)):
+        if bestDist <= self.closeEnough and self.isClose(self.robot.getOdomData(), (nodeX, nodeY, 0)): # TODO: Check this
             return loc_const.at_node, mclInfo
         else:
             return loc_const.close, mclInfo
@@ -177,7 +180,7 @@ class Localizer(object):
         bestScore = scores[0]
         bestLoc = matchLocs[0]
 
-        if bestScore < 5:  # changed from >90
+        if bestScore < 5:  # TODO: What is the scale of the scores? I thought they were 0.0 to 1.0
             self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
             self.gui.updateMatchStatus("no idea. Lost Count = " + str(self.lostCount))
             self.lostCount += 1
@@ -234,7 +237,7 @@ class Localizer(object):
                 (nodeNum, x, y, dist) = self.olin.findClosestNode(matchLocs[j])
                 if nodeNum not in guessNodes:
                     guessNodes.append(nodeNum)
-
+            # TODO: Fix weird code below, really needs to be simplified, is this ever used??
             else:
                 nodes = str(guessNodes[0])
                 for i in range(1, len(guessNodes)):
