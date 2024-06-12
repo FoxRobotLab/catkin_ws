@@ -6,7 +6,6 @@ import re
 def extractSpecificNumbers(line):
     # Find all sequences of 1 to 3 digits in the line
     numbers = re.findall(r'\b\d{1,3}\b', line)
-    # Extract the 4th and 5th numbers specifically
     if len(numbers) >= 6:
         return numbers[4], numbers[5]
     return None, None
