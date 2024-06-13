@@ -41,7 +41,7 @@ class Localizer(object):
         self.navType = "ODOM"
 
         xyTuple = self.olin._nodeToCoord(int(self.gui.inputStartLoc()))
-        heading = self.gui.inputStarYaw()
+        heading = self.gui.inputStartYaw()
         initPose = (xyTuple[0], xyTuple[1], float(heading))
 
         self.mcl = MonteCarloLocalize.monteCarloLoc(self.olin)
