@@ -18,14 +18,10 @@ from src.match_seeker.scripts.olri_classifier.DataPaths import basePath
 
 class ImageReview(object):
 
-    def __init__(self, output_file_path):
+    def __init__(self):
         """Set up data to be held."""
         self.currLoc = (0, 0)
         self.currHeading = 0
-
-        # variables for managing data source
-        self.clickNum = 1
-        self.outputFilePath = output_file_path
 
         # Olin Map
         self.olinMap = WorldMap()
@@ -65,37 +61,7 @@ class ImageReview(object):
             ch = chr(x & 0xFF)
 
         # close things down nicely
-        self._writeData()
         cv2.destroyAllWindows()
-
-    def _writeData(self):
-        """Write the data collected to a timestamped file."""
-        try:
-            os.makedirs(self.outputFilePath)
-        except:
-            pass
-        logName = time.strftime("Data-%b%d%Y-%H%M%S.txt")
-        print(logName)
-        fileOpen = False
-        logFile = None
-        try:
-            logFile = open(self.outputFilePath + logName, 'w')
-            fileOpen = True
-        except:
-            print("FAILED TO OPEN DATA FILE")
-
-        for clickNum in self.info:
-            [curTime, x, y, h] = self.info[clickNum]
-            currCell = self.olinMap.convertLocToCell([x, y])
-            dataStr = str(clickNum) + " " + str(curTime) + " " + str(x) + " " + str(y) + " " + str(h) + " " + str(
-                currCell) + "\n"
-            if fileOpen:
-                logFile.write(dataStr)
-            # print("Frame", clickNum, "with location", (x, y, h), "and time", curTime)
-            # print("Cell ", currCell)
-            # print(dataStr)
-            print("Cell ", currCell)
-        logFile.close()
 
     def _setupWindows(self):
         "Creates two windows and moves them to the right places on screen."
@@ -221,5 +187,5 @@ class ImageReview(object):
 
 
 if __name__ == "__main__":
-    reviewer = ImageReview(output_file_path=basePath + "res/locdata2022/")
+    reviewer = ImageReview()
     reviewer.go()

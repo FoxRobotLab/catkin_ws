@@ -1,11 +1,11 @@
 import cv2
 import os
 
-folderPath = "../../../../../../../../FrameData2022"        # will need to be changed
-folderList = os.listdir(folderPath)
+folderPath = "../../res/classifier2022Data/DATA/FrameData/"
+folderList = sorted(os.listdir(folderPath))
 
-textFolder = folderPath + "/TxtFiles"                       # will need to be changed
-textFolderList = os.listdir(textFolder)
+textFolder = "../../res/locdata2022/"
+textFolderList = sorted(os.listdir(textFolder))
 
 associatedTxtDict = {"20220705-1446frames": "Data-Jul05Tue-160449.txt"}     # TODO: add entries for the remaining folders that need to be reviewed
 
@@ -22,15 +22,25 @@ def FrameReview(imgTxtDict):
         else:
             if folder.endswith("frames"):
                 print('folder: ' + folder)
-                currentPath = folderPath + "/" + folder
-                currentFolderList = os.listdir(currentPath)
+                currentPath = folderPath + folder + "/"
+                currentFolderList = sorted(os.listdir(currentPath))
                 reviewFile = open(folder + "Reviewed.txt", "w")
+                # for i in range(0, len(currentFolderList)):
+                #     file = currentFolderList[i]
+                #     if file.endswith(".jpg"):
+                #         image = cv2.imread(currentPath + file)
+                #         print('showing: ' + file)
+                #         cv2.imshow('next image', image)
+                #         cv2.waitKey(60)
+                #         if folder in associatedTxtDict.keys():
+                #             TextFileIteration(associatedTxtDict[folder], reviewFile)
+                # reviewFile.close()
                 for file in currentFolderList:
                     if file.endswith(".jpg"):
-                        image = cv2.imread(currentPath + "/" + file)
+                        image = cv2.imread(currentPath + file)
                         print('showing: ' + file)
                         cv2.imshow('next image', image)
-                        cv2.waitKey(30)
+                        cv2.waitKey(60)
                         if folder in associatedTxtDict.keys():
                             TextFileIteration(associatedTxtDict[folder], reviewFile)
                 reviewFile.close()
@@ -41,7 +51,7 @@ def FrameReview(imgTxtDict):
 When the image currently being looked at corresponds to the current line in the text file (which can be changed with user
 input), the function adds a new line to a new text file returns to FrameReview. """
 def TextFileIteration(txtFile, newFile):
-    currentTextPath = textFolder + "/" + txtFile
+    currentTextPath = textFolder + txtFile
     if txtFile.endswith(".txt"):
         currIndex = 0
         with open(currentTextPath) as textFile:
