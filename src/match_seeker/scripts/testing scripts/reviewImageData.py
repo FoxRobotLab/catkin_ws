@@ -26,21 +26,44 @@ class ImageReview(object):
         # Olin Map
         self.olinMap = WorldMap()
 
+        # Instance variables to hold outcome data
+        self.info = dict()
+        self.associatedTxtDict = {
+            "20220705-1616frames": "Data-Jul05Tue-163553.txt", "20220713-1136frames": "Data-Jul132022-121251.txt",
+            "20220713-1411frames": "Data-Jul132022-150813.txt", "20220713-1548frames": "Data-Jul132022-155717.txt",
+            "20220715-1322frames": "Data-Jul152022-141957.txt", "20220715-1613frames": "Data-Jul152022-171324.txt",
+            "20220718-1438frames": "Data-Jul182022-154748.txt", "20220721-1408frames": "Data-Jul212022-145111.txt",
+            "20220722-1357frames": "Data-Jul222022-150123.txt", "20220727-1510frames": "Data-Jul272022-160031.txt",
+            "20220728-1423frames": "Data-Jul282022-143009.txt", "20220728-1445frames": "Data-Jul282022-160348.txt",
+            "20220729-1620frames": "Data-Jul292022-165958.txt", "20220801-1422frames": "Data-Aug012022-151709.txt",
+            "20220802-1043frames": "Data-Aug022022-115236.txt", "20220802-1521frames": "Data-Aug022022-164951.txt",
+            "20220803-1047frames": "Data-Aug032022-113709.txt", "20220803-1135frames": "Data-Aug032022-115005.txt"
+        }
+        self.currWritingFileName = ""
+        self.currWritingFile = ""
+
         # instance variables to hold displayed images
         self.locGui = None
         self.origMap = None
         self.currMap = None
-        self.currFrameIndex = 0
-        self.fileList = self._getDataFileList()
-        self.currFrame = self.fileList[self.currFrameIndex]
-        self.currTime = 0
+        self.currImage = None
 
-        # Instance variables to hold outcome data
-        self.info = dict()
+        self.dictionaryKeys = list(self.associatedTxtDict.keys())
+        self.currImageFolder = ""
+        self.currImageFolderLength = 0
+        self.currImageIndex = 0
+        self.currLineIndex = 0
+        self.LinesList = []
+        self.currLine = []
 
     def go(self):
         """Run the program, setting up windows and all."""
         self._setupWindows()
+
+        # let user select folder
+        self.currImageFolder = self._selectFolder()
+        self.LinesList = self._getDataLinesList(self.associatedTxtDict[self.currImageFolder])
+        self.currLine = self.LinesList[self.currLineIndex]
 
         # set up gui window and callback
         self.locGui = self._buildMainImage()
@@ -55,7 +78,8 @@ class ImageReview(object):
         cv2.imshow("Map", self.currMap)
 
         # set up frame window
-        self._FrameReview()
+        self.currImage = self._getCurrentImage(self.currImageFolder)
+        cv2.imshow('next image', cv2.imread("../../res/classifier2022Data/DATA/FrameData/" + self.currImageFolder + "/" + self.currImage))
 
         # run main loop until user quits or run out of frames
         ch = ' '
@@ -78,10 +102,10 @@ class ImageReview(object):
         It also has a button to write the image data onto a txt file."""
 
         babyPink = (218, 195, 240)
-        components = ("(" + self.currFrame[0] + ", " + self.currFrame[1] + ")  heading: " + self.currFrame[2] +
-                      "  cell: " + self.currFrame[3])
+        components = ("(" + self.currLine[1] + ", " + self.currLine[2] + ")  heading: " + self.currLine[3] +
+                      "  cell: " + self.currLine[4] + " " + self.currLine[0])
 
-        newMain = np.zeros((200, 480, 3), np.uint8)
+        newMain = np.zeros((200, 780, 3), np.uint8)
 
         cv2.rectangle(newMain, (50, 100), (150, 150), babyPink, -1)
         cv2.putText(newMain, "Previous", (60, 130), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
@@ -102,18 +126,25 @@ class ImageReview(object):
         if event == cv2.EVENT_LBUTTONDOWN:
             if (50 <= x < 150) and (100 <= y < 150):
                 # click was in "previous" button
-                if self.currFrameIndex != 0:
-                    self.currFrameIndex -= 1
+                if self.currLineIndex != 0:
+                    self.currLineIndex -= 1
                 self._updateGui()
                 self._updateMap()
             elif (170 <= x < 270) and (100 <= y < 150):
                 # click was in "next" button
-                self.currFrameIndex += 1
+                self.currLineIndex += 1
                 self._updateGui()
                 self._updateMap()
             elif (290 <= x < 430) and (100 <= y < 150):
-                # click was in "Write Image Data" button
-                print("Not implemented yet")
+                self._writeInFile()
+                if self.currImageIndex < self.currImageFolderLength - 1:
+                    self.currImageIndex += 1
+                else:
+                    print("This was the last image of this folder")
+                    print("Please restart the program to review a different folder")
+                self.currImage = self._getCurrentImage(self.currImageFolder)
+                cv2.imshow('next image', cv2.imread(
+                    "../../res/classifier2022Data/DATA/FrameData/" + self.currImageFolder + "/" + self.currImage))
 
     def _getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
@@ -126,14 +157,14 @@ class ImageReview(object):
 
     def _updateMap(self):
         """Updates the Olin Map to highlight the location of the current frame"""
-        newLoc = self._convertWorldToMap(float(self.currFrame[0]), float(self.currFrame[1]))
+        newLoc = self._convertWorldToMap(float(self.currLine[1]), float(self.currLine[2]))
         self.currMap = self._highlightLocation(newLoc, "pixels")
         cv2.imshow("Map", self.currMap)
 
     def _updateGui(self):
         """Updates the main GUI to match the values of the current frame"""
-        self.currFrame = self.fileList[self.currFrameIndex]
-        print(self.currFrame)
+        self.currLine = self.LinesList[self.currLineIndex]
+        print(self.currLine)
         self.locGui = self._buildMainImage()
         cv2.imshow("Main", self.locGui)
 
@@ -171,33 +202,24 @@ class ImageReview(object):
         mapY = self.mapHgt - 1 - pixelX
         return (int(mapX), int(mapY))
 
-    def _getDataFileList(self):
+    def _getDataLinesList(self, textFile):
         """ Returns a list of lists. Each of these lists represent a frame and every element is a component of
         every file name, that is, timestamp, x-coordinate, y-coordinate, heading, and cell."""
-        folder_path = "../../res/locdata2022/"
-        input_path = os.listdir(folder_path)
+        folder_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/locdata2022/"
         fileList = []
-        for text_file in input_path:
-            with open(folder_path + text_file) as textFile:
-                for line in textFile:
-                    lineWords = []
-                    words = line.split(" ")
-                    words[5] = words[5].replace("\n", "")
-                    for i in range(2, 6):
-                        lineWords.append(words[i])
-                    fileList.append(lineWords)
+        with open(folder_path + textFile) as textFile:
+            for line in textFile:
+                lineWords = []
+                words = line.split(" ")
+                words[5] = words[5].replace("\n", "")
+                for i in range(1, 6):
+                    lineWords.append(words[i])
+                fileList.append(lineWords)
         return fileList
 
-    def _FrameReview(self):
-        """ This function contains a dictionary, with frame folders as keys and txt files as values, and iterates through each folder.
-        For each frame displayed, it calls TextFileIteration to find the associated line in the txt file. When finished with the txt file,
-        it closes the newly written in txt file and moves on to the next image. """
-
+    def _selectFolder(self):
         folderPath = "../../res/classifier2022Data/DATA/FrameData/"
         folderList = sorted(os.listdir(folderPath))
-
-        associatedTxtDict = {
-            "20220705-1446frames": "Data-Jul05Tue-160449.txt"}  # TODO: add entries for the remaining folders that need to be reviewed
 
         for folder in folderList:
             # prints file name and asks if user wants to iterate through the folder. If no, pass.
@@ -207,47 +229,30 @@ class ImageReview(object):
             else:
                 if folder.endswith("frames"):
                     print('folder: ' + folder)
-                    currentPath = folderPath + folder + "/"
-                    currentFolderList = sorted(os.listdir(currentPath))
-                    reviewFile = open(folder + "Reviewed.txt", "w")
-                    for file in currentFolderList:
-                        if file.endswith(".jpg"):
-                            image = cv2.imread(currentPath + file)
-                            print('showing: ' + file)
-                            cv2.imshow('next image', image)
-                            cv2.waitKey(60)
-                            if folder in associatedTxtDict.keys():
-                                self._TextFileIteration(associatedTxtDict[folder], reviewFile)
-                    reviewFile.close()
-        cv2.destroyAllWindows()
+                    # creates file for writing the new lines
 
-    def _TextFileIteration(self, txtFile, newFile):
-        """ Takes in the text file associated with the current frame data folder that is being iterated through by FrameReview.
-        When the image currently being looked at corresponds to the current line in the text file (which can be changed with user
-        input), the function adds a new line to a new text file returns to FrameReview. """
+                    self.currWritingFileName = "FrameDataReviewed" + folder + ".txt"
+                    writingFile = open(self.currWritingFileName, "w")
+                    writingFile.close()
+                    return folder
 
-        textFolder = "../../res/locdata2022/"
+    def _getCurrentImage(self, folder):
+        folderPath = "../../res/classifier2022Data/DATA/FrameData/" + folder + "/"
+        imageList = sorted(os.listdir(folderPath))
+        image = imageList[self.currImageIndex]
+        self.currImageFolderLength = len(folder)
+        return image
 
-        currentTextPath = textFolder + txtFile
-        if txtFile.endswith(".txt"):
-            currIndex = 0
-            with open(currentTextPath) as textFile:
-                lines = textFile.readlines()  # potential issue: each entry ends with \n and begins with a line number -- does it need to be removed?? (might mess with writing the new file)
-                while True:
-                    print(lines[currIndex])
-                    ch = input(
-                        "\nEnter a letter: a = backwards a line     d = forwards a line      k = correct text for frame (move to next image) \n")
-                    ch = ch.lower()
-                    if ch == "a" and (currIndex - 1 >= 0):
-                        currIndex -= 1
-                    elif ch == "d" and (currIndex + 1 <= (len(lines) - 1)):
-                        currIndex += 1
-                    elif ch == "k":
-                        print('okay')
-                        # assign frame to current line of txt file
-                        newFile.write(
-                            "put info here")  # TODO: fill this to have the correct info we want from txt file and frame name
-                        return
+    def _writeInFile(self):
+        print('okay')
+        # assign frame to current line of txt file
+
+        currFile = open(self.currWritingFileName, "a")
+        # TODO: Check if we do not want files to start blank every time
+        currFile.write(
+            self.currImage + " " + self.currLine[1] + " " + self.currLine[2] + " " + self.currLine[4] + " "
+            + self.currLine[3] + " " + self.currLine[0] + "\n")
+        currFile.close()
 
 
 if __name__ == "__main__":
