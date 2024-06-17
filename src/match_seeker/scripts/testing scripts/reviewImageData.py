@@ -18,11 +18,13 @@ from src.match_seeker.scripts.olri_classifier.DataPaths import basePath
 
 class ImageReview(object):
 
-    def __init__(self):
+    def __init__(self, folderPath, dataFilePath):
         """Set up data to be held."""
         self.currLoc = (0, 0)
         self.currHeading = 0
 
+        self.folderPath = folderPath
+        self.dataFilePath = dataFilePath
         # Olin Map
         self.olinMap = WorldMap()
 
@@ -79,7 +81,7 @@ class ImageReview(object):
 
         # set up frame window
         self.currImage = self._getCurrentImage(self.currImageFolder)
-        cv2.imshow('next image', cv2.imread("../../res/classifier2022Data/DATA/FrameData/" + self.currImageFolder + "/" + self.currImage))
+        cv2.imshow('next image', cv2.imread(self.folderPath + self.currImageFolder + "/" + self.currImage))
 
         # run main loop until user quits or run out of frames
         ch = ' '
@@ -205,9 +207,8 @@ class ImageReview(object):
     def _getDataLinesList(self, textFile):
         """ Returns a list of lists. Each of these lists represent a frame and every element is a component of
         every file name, that is, timestamp, x-coordinate, y-coordinate, heading, and cell."""
-        folder_path = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/locdata2022/"
         fileList = []
-        with open(folder_path + textFile) as textFile:
+        with open(self.dataFilePath + textFile) as textFile:
             for line in textFile:
                 lineWords = []
                 words = line.split(" ")
@@ -220,8 +221,7 @@ class ImageReview(object):
     def _selectFolder(self):
         """ Returns a string of the folder name that was selected by user input. This method loops over all image folders
         in FrameData and once the user inputs y, then a new writing file is created which will stored the reviewed data. """
-        folderPath = "../../res/classifier2022Data/DATA/FrameData/"
-        folderList = sorted(os.listdir(folderPath))
+        folderList = sorted(os.listdir(self.folderPath))
 
         for folder in folderList:
             # prints file name and asks if user wants to iterate through the folder. If no, pass.
@@ -241,7 +241,7 @@ class ImageReview(object):
     def _getCurrentImage(self, folder):
         """ Returns the string name of the current image being looked at by the program. It sorts the folder so that frames
         will be in numerical order. It reassigns image to be the element at the currImageIndex index and updates currImageFolderLength. """
-        folderPath = "../../res/classifier2022Data/DATA/FrameData/" + folder + "/"
+        folderPath = self.folderPath + folder + "/"
         imageList = sorted(os.listdir(folderPath))
         image = imageList[self.currImageIndex]
         self.currImageFolderLength = len(imageList)
@@ -262,5 +262,6 @@ class ImageReview(object):
 
 
 if __name__ == "__main__":
-    reviewer = ImageReview()
+    reviewer = ImageReview(folderPath=basePath + "res/classifier2022Data/DATA/FrameData/",
+                           dataFilePath=basePath + "res/locdata2022/")
     reviewer.go()
