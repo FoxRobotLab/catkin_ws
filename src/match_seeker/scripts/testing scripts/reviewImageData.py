@@ -256,15 +256,11 @@ class ImageReview(object):
         # assign frame to current line of txt file
 
         currFile = open(self.currWritingFileName, "a")
-        # checks if the file being written to is empty
-        first_char = currFile.read(1)
-        if not first_char:
-            currFile.write(
-                self.currImage + " " + self.currLine[1] + " " + self.currLine[2] + " " + self.currLine[4] + " "
-                + self.currLine[3] + " " + self.currLine[0] + "\n")
-            currFile.close()
-        else:
-            print("File already has text in it. Please change its location.")
+        # TODO: Check if we do not want files to start blank every time
+        currFile.write(
+            self.currImage + " " + self.currLine[1] + " " + self.currLine[2] + " " + self.currLine[4] + " "
+            + self.currLine[3] + " " + self.currLine[0] + "\n")
+        currFile.close()
 
 
 if __name__ == "__main__":
