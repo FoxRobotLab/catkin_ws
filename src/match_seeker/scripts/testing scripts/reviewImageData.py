@@ -53,6 +53,7 @@ class ImageReview(object):
         self.dictionaryKeys = list(self.associatedTxtDict.keys())
         self.currImageFolder = ""
         self.currImageFolderLength = 0
+        self.currImageList = []
         self.currImageIndex = 0
         self.currLineIndex = 0
         self.LinesList = []
@@ -64,6 +65,9 @@ class ImageReview(object):
 
         # let user select folder
         self.currImageFolder = self._selectFolder()
+        fullFolderPath = self.folderPath + self.currImageFolder + "/"
+        self.currImageList = sorted(os.listdir(fullFolderPath))
+        self.currImageFolderLength = len(self.currImageList)
         self.LinesList = self._getDataLinesList(self.associatedTxtDict[self.currImageFolder])
         self.currLine = self.LinesList[self.currLineIndex]
 
@@ -80,7 +84,7 @@ class ImageReview(object):
         cv2.imshow("Map", self.currMap)
 
         # set up frame window
-        self.currImage = self._getCurrentImage(self.currImageFolder)
+        self.currImage = self.currImageList[self.currImageIndex]
         cv2.imshow('next image', cv2.imread(self.folderPath + self.currImageFolder + "/" + self.currImage))
 
         # run main loop until user quits or run out of frames
@@ -104,8 +108,8 @@ class ImageReview(object):
         It also has a button to write the image data onto a txt file."""
 
         babyPink = (218, 195, 240)
-        components = ("(" + self.currLine[1] + ", " + self.currLine[2] + ")  heading: " + self.currLine[3] +
-                      "  cell: " + self.currLine[4] + " " + self.currLine[0])
+        components =  self.folderPath + + "\n(" + self.currLine[1] + ", " + self.currLine[2] + ")  heading: " + self.currLine[3] +
+                      "  cell: " + self.currLine[4] + " " + self.currLine[0]
 
         newMain = np.zeros((200, 780, 3), np.uint8)
 
@@ -144,7 +148,7 @@ class ImageReview(object):
                 else:
                     print("This was the last image of this folder")
                     print("Please restart the program to review a different folder")
-                self.currImage = self._getCurrentImage(self.currImageFolder)
+                self.currImage = self.currImageList[self.currImageIndex]
                 cv2.imshow('next image', cv2.imread(
                     "../../res/classifier2022Data/DATA/FrameData/" + self.currImageFolder + "/" + self.currImage))
 
@@ -238,14 +242,12 @@ class ImageReview(object):
                     writingFile.close()
                     return folder
 
-    def _getCurrentImage(self, folder):
-        """ Returns the string name of the current image being looked at by the program. It sorts the folder so that frames
-        will be in numerical order. It reassigns image to be the element at the currImageIndex index and updates currImageFolderLength. """
-        folderPath = self.folderPath + folder + "/"
-        imageList = sorted(os.listdir(folderPath))
-        image = imageList[self.currImageIndex]
-        self.currImageFolderLength = len(folder)
-        return image
+    # def _getCurrentImage(self, folder):
+    #     """ Returns the string name of the current image being looked at by the program. It sorts the folder so that frames
+    #     will be in numerical order. It reassigns image to be the element at the currImageIndex index and updates currImageFolderLength. """
+    #     image = imageList[self.currImageIndex]
+    #
+    #     return image
 
     def _writeInFile(self):
         """ Responsible for writing into the new reviewed data file. It writes the hour:minute the images were taken as
