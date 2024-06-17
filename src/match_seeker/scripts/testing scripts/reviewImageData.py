@@ -218,6 +218,8 @@ class ImageReview(object):
         return fileList
 
     def _selectFolder(self):
+        """ Returns a string of the folder name that was selected by user input. This method loops over all image folders
+        in FrameData and once the user inputs y, then a new writing file is created which will stored the reviewed data. """
         folderPath = "../../res/classifier2022Data/DATA/FrameData/"
         folderList = sorted(os.listdir(folderPath))
 
@@ -237,6 +239,8 @@ class ImageReview(object):
                     return folder
 
     def _getCurrentImage(self, folder):
+        """ Returns the string name of the current image being looked at by the program. It sorts the folder so that frames
+        will be in numerical order. It reassigns image to be the element at the currImageIndex index and updates currImageFolderLength. """
         folderPath = "../../res/classifier2022Data/DATA/FrameData/" + folder + "/"
         imageList = sorted(os.listdir(folderPath))
         image = imageList[self.currImageIndex]
@@ -244,15 +248,21 @@ class ImageReview(object):
         return image
 
     def _writeInFile(self):
+        """ Responsible for writing into the new reviewed data file. It writes the hour:minute the images were taken as
+        well as the x, y, heading, and cell of the image. """
         print('okay')
         # assign frame to current line of txt file
 
         currFile = open(self.currWritingFileName, "a")
-        # TODO: Check if we do not want files to start blank every time
-        currFile.write(
-            self.currImage + " " + self.currLine[1] + " " + self.currLine[2] + " " + self.currLine[4] + " "
-            + self.currLine[3] + " " + self.currLine[0] + "\n")
-        currFile.close()
+        # checks if the file being written to is empty
+        first_char = currFile.read(1)
+        if not first_char:
+            currFile.write(
+                self.currImage + " " + self.currLine[1] + " " + self.currLine[2] + " " + self.currLine[4] + " "
+                + self.currLine[3] + " " + self.currLine[0] + "\n")
+            currFile.close()
+        else:
+            print("File already has text in it. Please change its location.")
 
 
 if __name__ == "__main__":
