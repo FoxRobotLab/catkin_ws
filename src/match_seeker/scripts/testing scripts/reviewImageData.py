@@ -71,6 +71,10 @@ class ImageReview(object):
         self.LinesList = self._getDataLinesList(self.associatedTxtDict[self.currImageFolder])
         self.currLine = self.LinesList[self.currLineIndex]
 
+        # set up frame window
+        self.currImage = self.currImageList[self.currImageIndex]
+        cv2.imshow('next image', cv2.imread(self.folderPath + self.currImageFolder + "/" + self.currImage))
+
         # set up gui window and callback
         self.locGui = self._buildMainImage()
         cv2.imshow("Main", self.locGui)
@@ -83,9 +87,6 @@ class ImageReview(object):
         self._updateMap()  # to update the map position of the first frame
         cv2.imshow("Map", self.currMap)
 
-        # set up frame window
-        self.currImage = self.currImageList[self.currImageIndex]
-        cv2.imshow('next image', cv2.imread(self.folderPath + self.currImageFolder + "/" + self.currImage))
 
         # run main loop until user quits or run out of frames
         ch = ' '
@@ -108,7 +109,16 @@ class ImageReview(object):
         It also has a button to write the image data onto a txt file."""
 
         babyPink = (218, 195, 240)
-        components =  self.folderPath + + "\n(" + self.currLine[1] + ", " + self.currLine[2] + ")  heading: " + self.currLine[3] +
+
+        if self.currImageFolder is not None:
+            folderLine = self.currImageFolder
+        else:
+            folderLine = ""
+        if self.currImage is not None:
+            imageLine = self.currImage
+        else:
+            imageLine = ""
+        components =  "(" + self.currLine[1] + ", " + self.currLine[2] + ")  heading: " + self.currLine[3] +\
                       "  cell: " + self.currLine[4] + " " + self.currLine[0]
 
         newMain = np.zeros((200, 780, 3), np.uint8)
@@ -122,7 +132,9 @@ class ImageReview(object):
         cv2.rectangle(newMain, (290, 100), (430, 150), babyPink, -1)
         cv2.putText(newMain, "Write Image Data", (300, 130), cv2.FONT_HERSHEY_PLAIN, 0.8, (0, 0, 0))
 
-        cv2.putText(newMain, "%s" % components, (70, 90), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255))
+        cv2.putText(newMain, folderLine, (70, 50), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255))
+        cv2.putText(newMain, imageLine, (70, 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255))
+        cv2.putText(newMain, components, (70, 90), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255))
         return newMain
 
     def _mouseMainResponse(self, event, x, y, flags, param):
@@ -143,14 +155,16 @@ class ImageReview(object):
                 self._updateMap()
             elif (290 <= x < 430) and (100 <= y < 150):
                 self._writeInFile()
+                print("-----", self.currImageIndex, self.currImageFolderLength)
                 if self.currImageIndex < self.currImageFolderLength - 1:
                     self.currImageIndex += 1
                 else:
                     print("This was the last image of this folder")
                     print("Please restart the program to review a different folder")
                 self.currImage = self.currImageList[self.currImageIndex]
-                cv2.imshow('next image', cv2.imread(
-                    "../../res/classifier2022Data/DATA/FrameData/" + self.currImageFolder + "/" + self.currImage))
+                img = cv2.imread(self.folderPath + self.currImageFolder + "/" + self.currImage)
+                cv2.imshow('next image', img)
+                self._updateGui()
 
     def _getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
