@@ -425,10 +425,12 @@ class ImageSensorThread(threading.Thread):
 
         self.robotType = robotType
 
+        #TODO: Change create and kobuki as both bots have a kobuki base
+
         if self.robotType == "create":
             self.image_sub = rospy.Subscriber("/camera/image_decompressed", Image, self.image_callback)
         elif self.robotType == "kobuki":
-            self.image_sub = rospy.Subscriber("/camera/color/image_raw",Image,self.image_callback)
+            self.image_sub = rospy.Subscriber("/camera/rgb/image_rect_color",Image,self.image_callback)
 
         self.runFlag = True
 
