@@ -44,7 +44,7 @@ class CellPredictModelLSTM(object):
         :param seed: Random seed to ensure that random splitting remains the same between training and validation
         """
         ### Set up paths and basic model hyperparameters
-        self.checkpoint_dir = checkPointFolder + "2024CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        # self.checkpoint_dir = checkPointFolder + "2024CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -89,7 +89,7 @@ class CellPredictModelLSTM(object):
             # self.model.load_weights(self.loaded_checkpoint)
             print "Got past the weight loading"
         else:
-            self.model = self.cnn()  # CNN
+            self.model = self.CNN_LSTM()  # CNN
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,

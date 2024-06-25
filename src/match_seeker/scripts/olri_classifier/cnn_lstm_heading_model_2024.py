@@ -85,7 +85,7 @@ class HeadingPredictModelLSTM(object):
             self.model.summary()
             # self.model.load_weights(self.loaded_checkpoint)
         else:
-            self.model = self.cnn()  # CNN
+            self.model = self.CNN_LSTM()  # CNN
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,
