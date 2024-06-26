@@ -5,7 +5,7 @@ considering the heading of the robot when the picture was taken.
 import os
 
 # Define the path and read the files
-currentPath = "../catkin_ws/src/match_seeker/res/classifier2022Data/"
+currentPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/"
 filepath = os.listdir(currentPath)
 
 cells, headings = (271, 9)
@@ -22,10 +22,14 @@ def counter():
       with open(currentPath + file) as textFile:
         for line in textFile:
           words = line.split(" ")
-          cell = int(words[3])
-          heading = int(words[4])
-          if cell < cells and heading in headingValues:
-            arr[cell][headingValues.index(heading)] += 1
+          if len(words) > 1:
+            cell = int(words[3])
+            heading = int(words[4])
+            if cell < cells and heading in headingValues:
+              arr[cell][headingValues.index(heading)] += 1
+            # Looks for the txt filename that contains a heading-cell combination that is over-represented
+            if cell == 246 and heading == 90:
+                print(line)
   return arr
 
 
@@ -53,5 +57,7 @@ print("")
 for i in range(0, cells):
   if count[i] == [0, 0, 0, 0, 0, 0, 0, 0, 0]:
     zeroCount.append(i)
+
 print("Cells with no image: " + str(zeroCount))
 print("Count: " + str(len(zeroCount)))
+
