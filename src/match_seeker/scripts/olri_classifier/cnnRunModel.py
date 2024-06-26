@@ -16,6 +16,8 @@ from cnn_cell_model_2019 import CellPredictModel2019
 from cnn_cell_model_RGBinput import CellPredictModelRGB
 from cnn_heading_model_2019 import HeadingPredictModel
 from cnn_heading_model_RGBinput import HeadingPredictModelRGB
+from cnn_lstm_cell_model_2024 import CellPredictModelLSTM
+from cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
 
 
 # uncomment to use CPU
@@ -102,9 +104,52 @@ class ModelRunRGB(object):
 
         return best_scores, best_cells_xy
 
+class ModelRunLSTM(object):
+    """This builds the 2024 Lstm style of model"""
+
+    def __init__(self):
+        self.cellModel = CellPredictModelLSTM(
+            checkPointFolder=checkPts,
+            # loaded_checkpoint="2022CellPredict_checkpoint-0701221638/TestCellPredictorWithWeightsDataGenerator-49-0.21.hdf5"
+            loaded_checkpoint="2022CellPredict_checkpoint-0624221612/FullData-30-0.21.hdf5"     #TODO: change checkpoint
+        )
+        self.cellModel.buildNetwork()
+
+        self.headingModel = HeadingPredictModelLSTM(
+            checkPointFolder=checkPts,
+            # loaded_checkpoint="headingPredictorRGB100epochs.hdf5"
+            loaded_checkpoint="headingPredictorRGB100epochs.hdf5"        #TODO: change checkpoint
+        )
+        self.headingModel.buildNetwork()
+
+
+    def getPrediction(self, image, mapGraph, odomLoc):
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+
+
+        lastHeading, headOutputPercs = self.headingModel.predictSingleImageAllData(image)
+        bestHead = potentialHeadings[lastHeading]
+        newCell, cellOutPercs = self.cellModel.predictSingleImageAllData(image)
+        bestThreePercs, bestThreeInd = self.cellModel.findTopX(3, cellOutPercs)
+
+
+        best_cells_xy = []
+        for i, pred_cell in enumerate(bestThreeInd):
+            if bestThreePercs[i] >= 0.20:
+                predXY = mapGraph.getLocation(pred_cell)
+                pred_xyh = (predXY[0], predXY[1], bestHead)
+                best_cells_xy.append(pred_xyh)
+
+        best_scores = [s * 100 for s in bestThreePercs]
+
+        # cell = mapGraph.convertLocToCell(best_cells_xy[0])
+
+        return best_scores, best_cells_xy
+
 
 
 if __name__ == "__main__":
     # modelRunner2019 = ModelRun2019()
-    modelRunner2022 = ModelRunRGB()
+    # modelRunner2022 = ModelRunRGB()
+    modelRunner2024 = ModelRunLSTM()
 
