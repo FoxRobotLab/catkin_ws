@@ -239,6 +239,7 @@ class RealTimeLocs(object):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
         Olin map we have, which might not be great, but I don't feel like making it more general. Future improvement
         perhaps."""
+        self.olinMap.cleanMapImage(cells=True, drawCellNum=True)
         origMap = self.olinMap.currentMapImg
         return origMap
 
@@ -268,7 +269,7 @@ class RealTimeLocs(object):
             (mapX, mapY) = self._convertWorldToMap(currX, currY)
         else:
             (mapX, mapY) = currPos
-        cv2.circle(newMap, (mapX, mapY), 6, (0, 0, 255))
+        cv2.circle(newMap, (mapX, mapY), 7, (0, 140, 0), -1)
         return newMap
 
 
