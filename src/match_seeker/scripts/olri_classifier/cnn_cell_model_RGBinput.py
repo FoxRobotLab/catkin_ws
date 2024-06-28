@@ -81,15 +81,9 @@ class CellPredictModelRGB(object):
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
-        print tf.__version__
-        print "Calling buildNetwork", self.loaded_checkpoint
         if self.loaded_checkpoint is not None:
             self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
-            #print("---Loading weights---")
-            print "Got past the model loading"
             self.model.summary()
-            # self.model.load_weights(self.loaded_checkpoint)
-            print "Got past the weight loading"
         else:
             self.model = self.cnn()  # CNN
 

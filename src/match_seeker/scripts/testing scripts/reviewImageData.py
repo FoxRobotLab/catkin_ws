@@ -31,6 +31,7 @@ class ImageReview(object):
         # Instance variables to hold outcome data
         self.info = dict()
         self.associatedTxtDict = {
+            "20220808-1135frames": "Data-Aug082022-121900.txt",
             "20220705-1616frames": "Data-Jul05Tue-163553.txt", "20220713-1136frames": "Data-Jul132022-121251.txt",
             "20220713-1411frames": "Data-Jul132022-150813.txt", "20220713-1548frames": "Data-Jul132022-155717.txt",
             "20220715-1322frames": "Data-Jul152022-141957.txt", "20220715-1613frames": "Data-Jul152022-171324.txt",
@@ -66,7 +67,7 @@ class ImageReview(object):
         # let user select folder
         self.currImageFolder = self._selectFolder()
         fullFolderPath = self.folderPath + self.currImageFolder + "/"
-        self.currImageList = sorted(os.listdir(fullFolderPath))
+        self.currImageList = self._getCurrImages(fullFolderPath)
         self.currImageFolderLength = len(self.currImageList)
         self.LinesList = self._getDataLinesList(self.associatedTxtDict[self.currImageFolder])
         self.currLine = self.LinesList[self.currLineIndex]
@@ -165,6 +166,11 @@ class ImageReview(object):
                 img = cv2.imread(self.folderPath + self.currImageFolder + "/" + self.currImage)
                 cv2.imshow('next image', img)
                 self._updateGui()
+
+    def _getCurrImages(self, folder):
+        """Given the folder, read in all the files, remove non-image files, and sort them, returning the list."""
+        files = [file for file in os.listdir(folder) if (file.endswith("jpg") and not file.startswith("."))]
+        return sorted(files)
 
     def _getOlinMap(self):
         """Read in the Olin Map and return it. Note: this has hard-coded the orientation flip of the particular
