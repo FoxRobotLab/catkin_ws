@@ -7,7 +7,6 @@ Authors: Oscar Reza and Elisa Avalos
 --------------------------------------------------------------------------------------------------------------------"""
 
 import os
-import time
 
 import cv2
 import numpy as np
@@ -62,7 +61,6 @@ class ImageReview(object):
 
     def go(self):
         """Run the program, setting up windows and all."""
-        self._setupWindows()
 
         # let user select folder
         self.currImageFolder = self._selectFolder()
@@ -89,7 +87,7 @@ class ImageReview(object):
         cv2.imshow("Map", self.currMap)
 
 
-        # run main loop until user quits or run out of frames
+        # run main loop until user quits
         ch = ' '
         while ch != 'q':
             x = cv2.waitKey(20)
@@ -97,13 +95,6 @@ class ImageReview(object):
 
         # close things down nicely
         cv2.destroyAllWindows()
-
-    def _setupWindows(self):
-        "Creates two windows and moves them to the right places on screen."
-        cv2.namedWindow("Main")
-        cv2.namedWindow("Map")
-        cv2.moveWindow("Main", 0, 500)
-        cv2.moveWindow("Map", 200, 0)
 
     def _buildMainImage(self):
         """Builds the gui window that displays the current frame values and has buttons for next and previous file.
@@ -195,7 +186,7 @@ class ImageReview(object):
         cv2.imshow("Main", self.locGui)
 
     def _highlightLocation(self, currPos, units="meters"):
-        """Hightlight the robot's current location based on the input.
+        """Highlight the robot's current location based on the input.
         currPos is given in meters, so need to convert: 20 pixels per meter."""
         newMap = self.origMap.copy()
         if units == "meters":
