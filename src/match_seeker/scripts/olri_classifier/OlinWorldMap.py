@@ -684,7 +684,8 @@ if __name__ == '__main__':
     #                        dataFile=DATA + "frames/MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
     #                        imagesPerCell=100)
     mapper = WorldMap()
-
+    ypos = float(input("Enter y pos: "))
+    print(ypos, mapper.convertLocToCell((58.6, ypos)))
 
     # data.buildDataDicts()
     #
