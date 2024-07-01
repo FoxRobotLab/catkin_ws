@@ -170,12 +170,13 @@ class VideoRunData(object):
         self.annotData = {}
         for line in rawLines:
             parts = line.split()
-            imgName = parts[0]
-            x = float(parts[1])
-            y = float(parts[2])
-            cell = int(parts[3])
-            head = int(parts[4])
-            self.annotData[imgName] = {'x': x, 'y': y, 'cell': cell, 'head': head}
+            if len(parts) > 1:  # Checks if the line is not empty
+                imgName = parts[0]
+                x = float(parts[1])
+                y = float(parts[2])
+                cell = int(parts[3])
+                head = int(parts[4])
+                self.annotData[imgName] = {'x': x, 'y': y, 'cell': cell, 'head': head}
     def getFrameCount(self):
         """Returns the number of frames in this run"""
         return self.frameCount
