@@ -1,20 +1,25 @@
-"""
-This script looks for any frames that do not have a text line in a .txt file with their annotated location and heading.
+"""--------------------------------------------------------------------------------------------------------------------
+Looks for any frames that do not have a text line in a .txt file with their annotated location and heading by creating
+two big lists, one for the .txt files and one for the frame folders, and comparing them.
 It outputs a print statement for every frame folder and, if any, its frames missing a line in a .txt file.
+Made to work with the dataset format of 2022 and 2024.
 
 Created: Summer 2024
 Author: Oscar Reza B
-"""
+--------------------------------------------------------------------------------------------------------------------"""
 import os
 
-# Define the data Path
+# Define the data Path for the Precision Towers
 dataPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/"
 imagesPath = dataPath + "DATA/FrameData/"
 
+
 def getFrameNamesAndTimestamps():
   """
-  @:returns A list containing the filenames of ALL the annotated frames in ALL the text files in the datasets.
+  Returns a list containing the filenames of ALL the annotated frames in ALL the text files in the datasets.
   """
+
+  # Read the dataPath directory and initialize frameNames to an empty list
   filepath = os.listdir(dataPath)
   frameNames = []
 
@@ -50,15 +55,21 @@ def getMissingFrames():
   """
   Prints the name of every frame folder and, if any, the frames missing an annotation line in a .txt file.
   """
+  # Get the two big lists
   frameNames = getFrameNamesAndTimestamps()
   foldersList = lookAtFolderPath()
+  # Iterate through all the frame folders
   for i in range(0, len(foldersList)):
       framesInFolder = os.listdir(imagesPath + foldersList[i])
+      # Print the current folder being checked
       print("------ Going through " + str(foldersList[i]))
+      # Put frames in order
       framesInFolder.sort()
       for frame in framesInFolder:
+        # Check if a given frame does not have a corresponding annotation line
         if frame not in frameNames and frame.startswith("frame202"):
           print(frame)
 
-# Call the main function
-getMissingFrames()
+
+if __name__ == "__main__":
+  getMissingFrames()

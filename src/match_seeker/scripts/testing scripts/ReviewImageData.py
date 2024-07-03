@@ -1,8 +1,10 @@
 """--------------------------------------------------------------------------------------------------------------------
-This program was built off of the walkAndTimestamp2022 program by Malini Sharma. It allows a user to view simultaneously
-video frames and data files to write a new text file that correctly assigns the timestamp, coordinates, heading, and
-cell number to a given image.
+Built off of the walkAndTimestamp2022 program by Malini Sharma. It allows a user to view video frames and data files
+simultaneously to write a new text file that correctly assigns the timestamp, coordinates, heading, and cell number
+annotations to a given image.
+Made to work with the dataset format of 2022 and 2024.
 
+Created: Summer 2024
 Authors: Oscar Reza and Elisa Avalos
 --------------------------------------------------------------------------------------------------------------------"""
 
@@ -253,13 +255,6 @@ class ImageReview(object):
                     writingFile.close()
                     return folder
 
-    # def _getCurrentImage(self, folder):
-    #     """ Returns the string name of the current image being looked at by the program. It sorts the folder so that frames
-    #     will be in numerical order. It reassigns image to be the element at the currImageIndex index and updates currImageFolderLength. """
-    #     image = imageList[self.currImageIndex]
-    #
-    #     return image
-
     def _writeInFile(self):
         """ Responsible for writing into the new reviewed data file. It writes the hour:minute the images were taken as
         well as the x, y, heading, and cell of the image. """
@@ -275,6 +270,8 @@ class ImageReview(object):
 
 
 if __name__ == "__main__":
+    # Declare paths with reference to /match_seeker/scripts/olri_classifier/DataPaths.py
     reviewer = ImageReview(folderPath=basePath + "res/classifier2022Data/DATA/FrameData/",
                            dataFilePath=basePath + "res/locdata2022/")
+    # Run the program
     reviewer.go()
