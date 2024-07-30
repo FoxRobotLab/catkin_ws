@@ -15,10 +15,10 @@ from tensorflow import keras
 import cv2
 import time
 import matplotlib.pyplot as plt
-from paths import DATA, checkPts, frames, logs
-from imageFileUtils import makeFilename, extractNum
-from frameCellMap import FrameCellMap
-from DataGenerator2022 import DataGenerator2022
+from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts, frames, logs
+from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename, extractNum
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
+from src.match_seeker.scripts.olri_classifier.DataGenerator2022 import DataGenerator2022
 import random
 import csv
 
@@ -274,19 +274,23 @@ class HeadingPredictModelLSTM(object):
     #     # print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
     #     return maxIndex, modelPredict[0]
 
-    def predictSingleImageAllData(self, image):
+    def predictSingleImageBatchAllData(self, images):
         """Given an image, converts it to be suitable for the network, then runs the model and returns
         the resulting prediction as tuples of index of prediction and list of predictions."""
-        cleanimage = self.cleanImage(image)
-        listed = np.array([cleanimage])
+        cleanImages = []
+        for image in images:
+            cleanImage = self.cleanImage(image, 224)
+            cleanImages.append(cleanImage)
+        listed = np.asarray([cleanImages])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
         return maxIndex, modelPredict[0]
 
-    def cleanImage(self, image, imageSize=100):
+    def cleanImage(self, image, imageSize=224):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))
-        processedIm = shrunkenIm / 255.0
+        recoloredIm = cv2.cvtColor(shrunkenIm, cv2.COLOR_BGR2RGB)
+        processedIm = recoloredIm / 255.0
         return processedIm
 
     def findTopX(self, x, numList):
