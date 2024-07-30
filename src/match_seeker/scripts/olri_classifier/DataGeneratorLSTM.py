@@ -6,23 +6,25 @@ Created Summer 2024
 Authors: Susan Fox, Marcus Wallace, Elisa Avalos, Oscar Reza Bautista
 """
 
+import os
 import numpy as np
-from paths import DATA2022, frames
 from tensorflow import keras
 import cv2
-import os
+
 import math
 import re
 
-# from imageFileUtils import makeFilename, extractNum
-# from frameCellMap import FrameCellMap
+# Store the long path to access the data folders
+myPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/DATA/"
+textDataPath = myPath + "AnnotData/"
+framesDataPath = myPath + "FrameData/classifier2022Data/DATA/FrameData/"
+checkPts = myPath + "CHECKPOINTS/"
 
 
 class DataGeneratorLSTM(keras.utils.Sequence):
-    def __init__(self, framePath, annotPath, skipSize = 1, seqLength = 5,
+    def __init__(self, framePath, annotPath, skipSize = 3, seqLength = 5,
                  batch_size=20, shuffle=True, randSeed=12342, train_perc=0.2,
-                 img_size=224, train=True, generateForCellPred = True,
-                 cellPredWithHeadingIn = False, headingPredWithCellIn = False):
+                 img_size=224, train=True, generateForCellPred = True):
 
         self.batch_size = batch_size
         self.framePath = framePath
@@ -32,7 +34,7 @@ class DataGeneratorLSTM(keras.utils.Sequence):
 
         self.shuffle = shuffle
         self.img_size = img_size
-        self.image_path = frames
+        self.image_path = framesDataPath
 
         self.runData = self._collectRunData()
         self.allSequences = self._enumerateSequences()
@@ -45,16 +47,17 @@ class DataGeneratorLSTM(keras.utils.Sequence):
         print(self.train_perc, len(self.trainSequences) / len(self.allSequences), len(self.valSequences) / len(self.allSequences))
 
         self.generateForCellPred = generateForCellPred
-        self.cellPredWithHeadingIn = cellPredWithHeadingIn
-        self.headingPredWithCellIn = headingPredWithCellIn
+
 
         self.potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315]
-        if not train:
-            self.allSequences = self.valSequences
+        if train:
+            self.usedSequences = self.trainSequences
+        else:
+            self.usedSequences = self.valSequences
 
     def __len__(self):
       'Denotes the number of batches per epoch'
-      return int(np.floor(len(self.trainSequences) / self.batch_size))
+      return int(np.floor(len(self.usedSequences) / self.batch_size))
 
     def _collectRunData(self):
         """Iterates over the annotation files in the input folder, and builds a run data object for each."""
@@ -81,7 +84,7 @@ class DataGeneratorLSTM(keras.utils.Sequence):
     def on_epoch_end(self):
         'Reshuffles after each epoch'
         if self.shuffle:
-            np.random.shuffle(self.trainSequences)
+            np.random.shuffle(self.usedSequences)
 
     def __getitem__(self, index):
       """Generate one batch of data"""
@@ -102,7 +105,6 @@ class DataGeneratorLSTM(keras.utils.Sequence):
         Note the shape of the data here: one row for each sequence, and the second dimension is the length
         of the sequence (each element is an image), and the third, fourth, and fifth dimensions are the image size
         (height, width, channels)."""
-        # TODO: Need to determine here if we have one output per sequence? I think that is so, will write the code that way
 
         # # Initialization
         X = np.zeros((self.batch_size, self.seqLength, self.img_size, self.img_size, 3), dtype=float)
@@ -110,7 +112,7 @@ class DataGeneratorLSTM(keras.utils.Sequence):
 
         for bInd in range(self.batch_size):
             actInd = startIndex + bInd
-            [runInd, seqInd] = self.trainSequences[actInd]
+            [runInd, seqInd] = self.usedSequences[actInd]
             runObj = self.runData[runInd]
             frameList, annotList = runObj.retrieveSequence(seqInd)
             for (i, imgName) in enumerate(frameList):
@@ -138,7 +140,7 @@ class VideoRunData(object):
     """Represents the data for one "run" (essentially one video) including the annotations and the frames themselves,
     without reading in the image data. It can be used to retrieve a sequence of image names and their annotations
     of a given length and starting point."""
-    def __init__(self, annotFile, annotPath, dataPath, skipSize=1, seqLength=10):
+    def __init__(self, annotFile, annotPath, dataPath, skipSize, seqLength):
         """Sets up the data for a single run, given the annotation filename and the path to the folder of images.
         It also takes optionally the number of frames to skip between starts of sequences, and the length of the
         sequence to produce."""
@@ -154,9 +156,11 @@ class VideoRunData(object):
 
         # Set up information about images and their filenames
         self.folderPath = dataPath + str(date) + "-" + str(recTime) + "frames"
+
         if not os.path.exists(self.folderPath):
+            print( "THERE IS NO " + self.folderPath + ("!!!"))
             raise FileNotFoundError
-        self.imageNames = [f for f in os.listdir(self.folderPath) if f.endswith(".jpg")]
+        self.imageNames = [f for f in os.listdir(self.folderPath) if (f.endswith(".jpg") and f.startswith("frame202"))]  # Added the 'and' operator to prevent ._ files to get selected
         self.imageNames.sort()
         self.frameCount = len(self.imageNames)
         self.numSequences = math.ceil((self.frameCount - self.seqLength + 1) / self.skipSize)
@@ -177,6 +181,7 @@ class VideoRunData(object):
                 cell = int(parts[3])
                 head = int(parts[4])
                 self.annotData[imgName] = {'x': x, 'y': y, 'cell': cell, 'head': head}
+
     def getFrameCount(self):
         """Returns the number of frames in this run"""
         return self.frameCount
@@ -225,7 +230,7 @@ def testingCalcOfSeqs():
 if __name__ == "__main__":
     # print(DATA2022)
     # print(DATA2022 + "DATA/FrameData/")
-    dataGen = DataGeneratorLSTM(DATA2022 + "DATA/FrameData/", DATA2022, skipSize=3, seqLength=10)
+    dataGen = DataGeneratorLSTM(framesDataPath, textDataPath, skipSize=3, seqLength=5)
     X, Y = dataGen[0]
     (b, s, h, w, d) = X.shape
     print(X.shape, Y.shape)
