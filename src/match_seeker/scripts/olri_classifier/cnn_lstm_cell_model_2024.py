@@ -13,11 +13,11 @@ import numpy as np
 from tensorflow import keras
 import time
 import matplotlib.pyplot as plt
-from paths import DATA, checkPts, frames
-from imageFileUtils import makeFilename, extractNum
-from frameCellMap import FrameCellMap
-from DataGenerator2022 import DataGenerator2022
-from DataBalancing2022 import DataBalancer
+from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts, frames
+from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename, extractNum
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
+from src.match_seeker.scripts.olri_classifier.DataGenerator2022 import DataGenerator2022
+from src.match_seeker.scripts.olri_classifier.DataBalancing2022 import DataBalancer
 import random
 import csv
 import tensorflow as tf
@@ -79,15 +79,15 @@ class CellPredictModelLSTM(object):
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
-        print tf.__version__
-        print "Calling buildNetwork", self.loaded_checkpoint
+        print (tf.__version__)
+        print ("Calling buildNetwork", self.loaded_checkpoint)
         if self.loaded_checkpoint is not None:
-            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)         #TODO: change what checkpoint is being loaded
+            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             #print("---Loading weights---")
-            print "Got past the model loading"
+            print ("Got past the model loading")
             self.model.summary()
             # self.model.load_weights(self.loaded_checkpoint)
-            print "Got past the weight loading"
+            print ("Got past the weight loading")
         else:
             self.model = self.CNN_LSTM()  # CNN
 
@@ -146,9 +146,6 @@ class CellPredictModelLSTM(object):
                 ],
                             epochs= epochs)
 
-
-
-
     def CNN_LSTM(self):
         """Builds a CNN + LSTM model with image as input and produces the cell number."""
 
@@ -157,13 +154,13 @@ class CellPredictModelLSTM(object):
         # modified cnn lstm code
         cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
             filters=128,
-            kernel_size=(5, 5),         #TODO: Change kernel size? 3 x 3?
+            kernel_size=(5, 5),
             strides=(1, 1),
             activation="relu",
             padding="same",
             data_format="channels_last",
 
-        ), input_shape=[self.batch_size, self.image_size, self.image_size, 1]))            #arbitrary shape? # imgs, img h, img w, # channels
+        ), input_shape=[self.batch_size, self.image_size, self.image_size, 1]))
         cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
             pool_size=(2, 2),
             strides=(2, 2),
@@ -209,7 +206,7 @@ class CellPredictModelLSTM(object):
         # ---OR--- (new cnn lstm method based on bleed ai example)
         # cnnLSTM.add(keras.layers.ConvLSTM2D(
         #     filters=128,
-        #     kernel_size=(3, 3),         #TODO: Change kernel size?
+        #     kernel_size=(3, 3),
         #     strides=(1, 1),
         #     activation="relu",
         #     padding="same",
@@ -262,11 +259,14 @@ class CellPredictModelLSTM(object):
 
         return cnnLSTM
 
-    def predictSingleImageAllData(self, image):     #TODO: modify? for lstm and sequential data
-        """Given an image, converts it to be suitable for the network, then runs the model and returns
+    def predictSingleImageBatchAllData(self, images):
+        """Given a batch of images, converts it to be suitable for the network, then runs the model and returns
         the resulting prediction as tuples of index of prediction and list of predictions."""
-        cleanimage = self.cleanImage(image, 224)
-        listed = np.array([cleanimage])
+        cleanImages = []
+        for image in images:
+            cleanImage = self.cleanImage(image, 224)
+            cleanImages.append(cleanImage)
+        listed = np.asarray([cleanImages])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
         return maxIndex, modelPredict[0]
@@ -357,7 +357,6 @@ class CellPredictModelLSTM(object):
         print("Count of top 3:", countTop3)
         print("Count of top 5:", countTop5)
 
-
     def testnImagesAllCells(self, n):
         """
         Tests the model on n randomly selected photos per cell. Calculates and plots
@@ -384,7 +383,6 @@ class CellPredictModelLSTM(object):
         self.plotSuccessRates(cells, successRates)
         self.showImagesNWorstCells(cells, successRates, n_frames_map, successMap, failedMap, frameProbability, bottomN = 5)
         self.logNWorstCells("CellPredBottom5AllFrames", cells, successRates, n_frames_map, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 5)
-
 
     def testnImagesOneCell(self, cell, n):
         """
@@ -416,8 +414,6 @@ class CellPredictModelLSTM(object):
             ["Frame", "Actual Cell", "Predicted Cell", "Success", "Cell Success Rate", "Prob Actual", "Prob Predicted",
              "Top 3 Pred", "Top 3 Prob"])
         self.logOneCell(filewriter, cell, str(successRate), cellFrames, successFrames, cellFailFramesMap, frameProbability, frameTop3PredProb)
-
-
 
     def testOneCell(self, cell, framesList):
         """ Tests the performance of the RGB cell model in predicting one given cell.
@@ -457,11 +453,11 @@ class CellPredictModelLSTM(object):
                 failedMap[cell] = prevFails
         return successMap, failedMap, frameProbability, frameTop3PredProb
 
-
     def cleanImage(self, image, imageSize= 224):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))      #line not needed? -- did not have the images at size 100 x 100
-        processedIm = shrunkenIm / 255.0
+        recoloredIm = cv2.cvtColor(shrunkenIm, cv2.COLOR_BGR2RGB)
+        processedIm = recoloredIm / 255.0
         return processedIm
 
     def getCellSuccessRate(self, cell, successMap, failedMap):
