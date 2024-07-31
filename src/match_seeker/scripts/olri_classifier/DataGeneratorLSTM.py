@@ -1,10 +1,10 @@
-"""
+"""--------------------------------------------------------------------------------------------------------------------
 Data generator based on DataGenerator2022.py that produces data suitable for use by a CNN-LSTM model. It
 produces sequences of a fixed length, made from overlapping segments of each video/run frames.
 
 Created Summer 2024
 Authors: Susan Fox, Marcus Wallace, Elisa Avalos, Oscar Reza Bautista
-"""
+--------------------------------------------------------------------------------------------------------------------"""
 
 import numpy as np
 from paths import DATA2022, frames
@@ -21,7 +21,7 @@ import re
 class DataGeneratorLSTM(keras.utils.Sequence):
     def __init__(self, framePath, annotPath, skipSize = 1, seqLength = 5,
                  batch_size=20, shuffle=True, randSeed=12342, train_perc=0.2,
-                 img_size=224, train=True, generateForCellPred = True,
+                 img_size=100, train=True, generateForCellPred = True,
                  cellPredWithHeadingIn = False, headingPredWithCellIn = False):
 
         self.batch_size = batch_size
@@ -73,7 +73,7 @@ class DataGeneratorLSTM(keras.utils.Sequence):
         possible sequences, which can be reordered to produce sequences in random orders."""
         allSequences = []
         for (runIndex, rData) in enumerate(self.runData):
-            numSeqs = rData.getNumSequences()
+            numSeqs = int(rData.getNumSequences())
             for seqInd in range(numSeqs):
                 allSequences.append([runIndex, seqInd])
         return allSequences
@@ -123,6 +123,7 @@ class DataGeneratorLSTM(keras.utils.Sequence):
                 headVal = annotList[-1]['head']
                 headInd = self.potentialHeadings.index(headVal)
                 Y[bInd] = headInd
+        # Y = keras.utils.to_categorical(Y)
         return X, Y
     def traintestsplit(self, sequences, train_perc):
         '''Split the data passed in based on the evaluation ratio into
@@ -138,7 +139,7 @@ class VideoRunData(object):
     """Represents the data for one "run" (essentially one video) including the annotations and the frames themselves,
     without reading in the image data. It can be used to retrieve a sequence of image names and their annotations
     of a given length and starting point."""
-    def __init__(self, annotFile, annotPath, dataPath, skipSize=1, seqLength=10):
+    def __init__(self, annotFile, annotPath, dataPath, skipSize=3, seqLength=10):
         """Sets up the data for a single run, given the annotation filename and the path to the folder of images.
         It also takes optionally the number of frames to skip between starts of sequences, and the length of the
         sequence to produce."""
@@ -225,12 +226,12 @@ def testingCalcOfSeqs():
 if __name__ == "__main__":
     # print(DATA2022)
     # print(DATA2022 + "DATA/FrameData/")
-    dataGen = DataGeneratorLSTM(DATA2022 + "DATA/FrameData/", DATA2022, skipSize=3, seqLength=10)
+    dataGen = DataGeneratorLSTM(DATA2022 + "DATA/FrameData/", DATA2022, skipSize=3, seqLength=10, generateForCellPred=False)
     X, Y = dataGen[0]
     (b, s, h, w, d) = X.shape
     print(X.shape, Y.shape)
     for i in range(b):
         for j in range(s):
-            print("seq = ", i, 'frame =', j)
+            print("seq = ", i, 'frame =', j, "heading:", str(Y[i]))
             cv2.imshow("Test", X[i,j])
             cv2.waitKey(0)

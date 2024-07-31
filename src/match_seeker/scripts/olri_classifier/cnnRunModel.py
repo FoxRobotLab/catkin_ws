@@ -135,7 +135,7 @@ class ModelRunLSTM(object):
 
         best_cells_xy = []
         for i, pred_cell in enumerate(bestThreeInd):
-            if bestThreePercs[i] >= 0.20:
+            if bestThreePercs[i] >= 0.20:  # TODO: Why 0.20?
                 predXY = mapGraph.getLocation(pred_cell)
                 pred_xyh = (predXY[0], predXY[1], bestHead)
                 best_cells_xy.append(pred_xyh)
