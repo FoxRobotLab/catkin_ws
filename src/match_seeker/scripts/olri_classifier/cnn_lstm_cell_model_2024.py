@@ -12,9 +12,11 @@ import numpy as np
 from tensorflow import keras
 import time
 import matplotlib.pyplot as plt
-from paths import DATA2022, checkPts, frames
-from imageFileUtils import makeFilename
-from DataGeneratorLSTM import DataGeneratorLSTM
+from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts, frames
+from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename, extractNum
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
+from src.match_seeker.scripts.olri_classifier.DataGenerator2022 import DataGenerator2022
+from src.match_seeker.scripts.olri_classifier.DataBalancing2022 import DataBalancer
 import random
 import csv
 import tensorflow as tf
@@ -23,7 +25,7 @@ import tensorflow as tf
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 class CellPredictModelLSTM(object):
-    def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, data_name=None, sequence_length=10,
+    def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
                  eval_ratio=11.0 / 61.0, outputSize=271, image_size=224, image_depth=4, dataSize = 0, batch_size = 10, seed=4359):
         """
         :param checkPointFolder: Destination path where checkpoints should be saved
@@ -39,7 +41,7 @@ class CellPredictModelLSTM(object):
         :param seed: Random seed to ensure that random splitting remains the same between training and validation
         """
         ### Set up paths and basic model hyperparameters
-        self.checkpoint_dir = checkPointFolder + "2024CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        # self.checkpoint_dir = checkPointFolder + "2024CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
         self.outputSize = outputSize
         self.eval_ratio = eval_ratio
         self.learning_rate = 0.001
@@ -58,21 +60,24 @@ class CellPredictModelLSTM(object):
             self.loaded_checkpoint = checkPointFolder + loaded_checkpoint
         else: self.loaded_checkpoint = loaded_checkpoint
 
-        self.sequence_length = sequence_length
+    def buildMap(self):
+        """Builds dictionaries containing the corresponding cell, heading, and location information for each frame,
+        saving it to self.labelMap."""
+        self.labelMap = FrameCellMap(dataFile=self.labelMapFile)
 
 
     def prepDatasets(self):
         """Finds the cell labels associated with the files in the frames folder, and then sets up two
         data generators to preprocess data and produce the data in batches."""
-        self.train_ds = DataGeneratorLSTM(DATA2022 + "DATA/FrameData/", DATA2022, skipSize=3, seqLength=10)
-        self.val_ds = DataGeneratorLSTM(DATA2022 + "DATA/FrameData/", DATA2022, skipSize=3, seqLength=10, train=False)
+        self.train_ds = DataGenerator2022(batch_size = self.batch_size, cellPredWithHeadingIn = True)
+        self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False, cellPredWithHeadingIn = True)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
         print (tf.__version__)
         print ("Calling buildNetwork", self.loaded_checkpoint)
         if self.loaded_checkpoint is not None:
-            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)         #TODO: change what checkpoint is being loaded
+            self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
             #print("---Loading weights---")
             print ("Got past the model loading")
             self.model.summary()
@@ -80,7 +85,6 @@ class CellPredictModelLSTM(object):
             print ("Got past the weight loading")
         else:
             self.model = self.CNN_LSTM()  # CNN
-
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,
@@ -90,135 +94,174 @@ class CellPredictModelLSTM(object):
     def train(self, epochs = 20):
         """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
         training data is set up yet."""
-        # balancer = DataBalancer()
-        # weights = balancer.getClassWeightCells()
+        balancer = DataBalancer()
+        weights = balancer.getClassWeightCells()
         self.model.fit(
             self.train_ds,
+            epochs=epochs,
             verbose=1,
             validation_data=self.val_ds,
-            # class_weight = weights,
-            epochs=epochs,
+            class_weight = weights,
             callbacks=[
                 keras.callbacks.History(),
                 keras.callbacks.ModelCheckpoint(
-                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.keras",
-                    # save_freq="epoch"  # save every epoch
+                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                    save_freq="epoch"  # save every epoch
                 ),
                 keras.callbacks.TensorBoard(
                     log_dir=self.checkpoint_dir,
-                    write_images=False
-                    # write_grads=True
+                    write_images=False,
+                    write_grads=True
                 ),
                 keras.callbacks.TerminateOnNaN()
             ]
         )
 
 
+    def train_withGenerator(self, epochs = 20 ):
+        balancer = DataBalancer()
+        weights = balancer.getClassWeightCells()
+        self.model.fit_generator(generator=self.train_ds,
+                            validation_data=self.val_ds,
+                            use_multiprocessing=True,
+                            workers=6,
+                            class_weight=weights,
+                            callbacks=[
+                                keras.callbacks.History(),
+                                keras.callbacks.ModelCheckpoint(
+                                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
+                                    # save_freq="epoch"  # save every n epoch
+                                ),
+                                keras.callbacks.TensorBoard(
+                                    log_dir=self.checkpoint_dir,
+                                    write_images=False,
+                                    write_grads=True
+                                ),
+                                keras.callbacks.TerminateOnNaN()
+                ],
+                            epochs= epochs)
+
     def CNN_LSTM(self):
         """Builds a CNN + LSTM model with image as input and produces the cell number."""
 
-        # cnnLSTM = keras.models.Sequential()
-        #
-        # cnnLSTM.add(keras.layers.InputLayer(input_shape=(self.sequence_length, self.image_size, self.image_size, 3), batch_size=self.batch_size))
+        cnnLSTM = keras.models.Sequential()
 
-        # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+        # modified cnn lstm code
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+            filters=128,
+            kernel_size=(5, 5),
+            strides=(1, 1),
+            activation="relu",
+            padding="same",
+            data_format="channels_last",
+
+        ), input_shape=[self.batch_size, self.image_size, self.image_size, 1]))
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+            pool_size=(2, 2),
+            strides=(2, 2),
+            padding="same"
+        )))
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+            filters=64,
+            kernel_size=(5, 5),
+            strides=(1, 1),
+            activation="relu",
+            padding="same"
+        )))
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+            pool_size=(2, 2),
+            strides=(2, 2),
+            padding="same"
+        )))
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+            filters=32,
+            kernel_size=(5, 5),
+            strides=(1, 1),
+            activation="relu",
+            padding="same",
+            data_format="channels_last"
+        )))
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+            pool_size=(2, 2),
+            strides=(2, 2),
+            padding="same",
+        )))
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
+        cnnLSTM.add(keras.layers.LSTM(5, activation="relu"))          # change 10? what should memory be
+        cnnLSTM.add(keras.layers.Dense(units=self.outputSize, activation='sigmoid'))
+        cnnLSTM.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        cnnLSTM.summary()
+
+        # ---OR--- (new cnn lstm method based on bleed ai example)
+        # cnnLSTM.add(keras.layers.ConvLSTM2D(
         #     filters=128,
-        #     kernel_size=(5, 5),         #TODO: Change kernel size? 3 x 3?
+        #     kernel_size=(3, 3),         #TODO: Change kernel size?
         #     strides=(1, 1),
         #     activation="relu",
         #     padding="same",
         #     data_format="channels_last",
         #
-        # )))
-        # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+        # ), input_shape=[self.batch_size, self.image_size, self.image_size, 1])
+        # cnnLSTM.add(keras.layers.MaxPooling3D(
         #     pool_size=(2, 2),
         #     strides=(2, 2),
         #     padding="same"
-        # )))
+        # ))
         # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
         #
-        # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+        # cnnLSTM.add(keras.layers.ConvLSTM2D(
         #     filters=64,
-        #     kernel_size=(5, 5),
+        #     kernel_size=(3, 3),
         #     strides=(1, 1),
         #     activation="relu",
-        #     padding="same"
-        # )))
-        # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+        #     padding="same",
+        #     data_format="channels_last",
+        #
+        # ), input_shape=[self.batch_size, self.image_size, self.image_size, 1])
+        # cnnLSTM.add(keras.layers.MaxPooling3D(
         #     pool_size=(2, 2),
         #     strides=(2, 2),
         #     padding="same"
-        # )))
+        # ))
         # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
         #
-        # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
+        # cnnLSTM.add(keras.layers.ConvLSTM2D(
         #     filters=32,
-        #     kernel_size=(5, 5),
+        #     kernel_size=(3, 3),
         #     strides=(1, 1),
         #     activation="relu",
         #     padding="same",
-        #     data_format="channels_last"
-        # )))
-        # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
+        #     data_format="channels_last",
+        #
+        # ), input_shape=[self.batch_size, self.image_size, self.image_size, 1])
+        # cnnLSTM.add(keras.layers.MaxPooling3D(
         #     pool_size=(2, 2),
         #     strides=(2, 2),
-        #     padding="same",
-        # )))
+        #     padding="same"
+        # ))
         # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
         #
-        # cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
-        # cnnLSTM.add(keras.layers.LSTM(5, activation="relu"))          # change 10? what should memory be
+        # cnnLSTM.add(keras.layers.Flatten())
         # cnnLSTM.add(keras.layers.Dense(units=self.outputSize, activation='sigmoid'))
         # cnnLSTM.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         # cnnLSTM.summary()
 
-        # ---OR--- (new cnn lstm method based on bleed ai example)
-        model = tf.keras.models.Sequential()
+        return cnnLSTM
 
-        model.add(tf.keras.layers.ConvLSTM2D(filters=4, kernel_size=(3, 3), activation='tanh', data_format="channels_last",
-                             recurrent_dropout=0.2, return_sequences=True, input_shape=(self.sequence_length,
-                                                                                        self.image_size, self.image_size, 3)))
-
-        model.add(tf.keras.layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
-        model.add(tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.2)))
-
-        model.add(tf.keras.layers.ConvLSTM2D(filters=8, kernel_size=(3, 3), activation='tanh', data_format="channels_last",
-                             recurrent_dropout=0.2, return_sequences=True))
-
-        model.add(tf.keras.layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
-        model.add(tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.2)))
-
-        model.add(tf.keras.layers.ConvLSTM2D(filters=14, kernel_size=(3, 3), activation='tanh', data_format="channels_last",
-                             recurrent_dropout=0.2, return_sequences=True))
-
-        model.add(tf.keras.layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
-        model.add(tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.2)))
-
-        model.add(tf.keras.layers.ConvLSTM2D(filters=16, kernel_size=(3, 3), activation='tanh', data_format="channels_last",
-                             recurrent_dropout=0.2, return_sequences=True))
-
-        model.add(tf.keras.layers.MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
-        # model.add(TimeDistributed(Dropout(0.2)))
-
-        model.add(tf.keras.layers.Flatten())
-
-        model.add(tf.keras.layers.Dense(self.outputSize, activation="softmax"))
-
-        ########################################################################################################################
-
-        # Display the models summary.
-        model.summary()
-
-
-        # cnnLSTM.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-        return model
-
-    def predictSingleImageAllData(self, image):     #TODO: modify? for lstm and sequential data
-        """Given an image, converts it to be suitable for the network, then runs the model and returns
+    def predictSingleImageBatchAllData(self, images):
+        """Given a batch of images, converts it to be suitable for the network, then runs the model and returns
         the resulting prediction as tuples of index of prediction and list of predictions."""
-        cleanimage = self.cleanImage(image, 224)
-        listed = np.array([cleanimage])
+        cleanImages = []
+        for image in images:
+            cleanImage = self.cleanImage(image, 224)
+            cleanImages.append(cleanImage)
+        listed = np.asarray([cleanImages])
         modelPredict = self.model.predict(listed)
         maxIndex = np.argmax(modelPredict)
         return maxIndex, modelPredict[0]
@@ -269,6 +312,7 @@ class CellPredictModelLSTM(object):
         :return:
         """
 
+        self.buildMap()
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
@@ -287,7 +331,7 @@ class CellPredictModelLSTM(object):
                 print(" image not found")
                 continue
             cell = self.labelMap.frameData[index]['cell']
-            pred, output = self.predictSingleImageAllData(image)
+            pred, output = self.predictSingleImageBatchAllData(image)
             topThreePercs, topThreeCells = self.findTopX(3, output)
             topFivePercs, topFiveCells = self.findTopX(5, output)
             print("cellB =", cell, "   pred =", pred)
@@ -308,7 +352,6 @@ class CellPredictModelLSTM(object):
         print("Count of top 3:", countTop3)
         print("Count of top 5:", countTop5)
 
-
     def testnImagesAllCells(self, n):
         """
         Tests the model on n randomly selected photos per cell. Calculates and plots
@@ -317,6 +360,7 @@ class CellPredictModelLSTM(object):
         :param n: number of randomly selected photos to test per cell
         :return:
         """
+        self.buildMap()
         n_frames_map = self.labelMap.selectNFramesAllCells(n)
 
         successMap = {}
@@ -344,6 +388,7 @@ class CellPredictModelLSTM(object):
         :param cell: cell number of cell to be tested alone
         :param n: number of images of the specific cell used to test the model
         """
+        self.buildMap()
         cellFrames = self.labelMap.selectNFramesOneCell(cell, n)
         successMap, failedMap, frameProbability, frameTop3PredProb = self.testOneCell(cell, cellFrames)
 
@@ -391,7 +436,7 @@ class CellPredictModelLSTM(object):
             if image is None:
                 print(" image not found")
                 continue
-            pred, output = self.predictSingleImageAllData(image)
+            pred, output = self.predictSingleImageBatchAllData(image)
             topThreePercs, topThreeCells = self.findTopX(3, output)
             frameProbability[frame] = output
             frameTop3PredProb[frame] = [topThreePercs, topThreeCells]
@@ -405,11 +450,11 @@ class CellPredictModelLSTM(object):
                 failedMap[cell] = prevFails
         return successMap, failedMap, frameProbability, frameTop3PredProb
 
-
     def cleanImage(self, image, imageSize= 224):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
         shrunkenIm = cv2.resize(image, (imageSize, imageSize))      #line not needed? -- did not have the images at size 100 x 100
-        processedIm = shrunkenIm / 255.0
+        recoloredIm = cv2.cvtColor(shrunkenIm, cv2.COLOR_BGR2RGB)
+        processedIm = recoloredIm / 255.0
         return processedIm
 
     def getCellSuccessRate(self, cell, successMap, failedMap):
@@ -657,8 +702,8 @@ class CellPredictModelLSTM(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictModelLSTM(
         # dataSize=95810,
-        data_name="TestCNNLSTMCellModel2024",
-        checkPointFolder=checkPts,
+        data_name="TestHeadingInCellPredAdam224Corrected",
+        # checkPointFolder=checkPts,
         imagesFolder=frames,
         batch_size=10
         # NOT CORRECTED FOR 2024    # loaded_checkpoint = "2022CellPredict_checkpoint-0728221645/Test224GlobalPoolingCellPredictorSecond100Epoch-61-1.71.hdf5"
