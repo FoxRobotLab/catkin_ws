@@ -17,13 +17,15 @@ import math
 
 import cv2
 import numpy as np
+import sys 
 
-from src.match_seeker.scripts.olri_classifier.DataManipulations.FoxQueue import PriorityQueue
-import src.match_seeker.scripts.olri_classifier.DataManipulations.Graphs
-from src.match_seeker.scripts.olri_classifier.DataPaths import basePath, graphMapData, mapLineData, cellMapData
+sys.path.append('src/match_seeker/scripts/olri_classifier/') # handles weird import errors
+from DataManipulations.FoxQueue import PriorityQueue
+# import DataManipulations.Graphs
+from DataPaths import basePath, graphMapData, mapLineData, cellMapData
 # from src.match_seeker.scripts.olri_classifier.paths import DATA
 # from Particle import Particle
-import src.match_seeker.scripts.olri_classifier.DataManipulations.MapGraph
+from DataManipulations.MapGraph import MapGraph
 # import src.match_seeker.scripts.olri_classifier.frameCellMap as pd
 
 
@@ -432,7 +434,7 @@ class WorldMap(object):
                 if row == numNodes:
                     # If reading nodes, and should be done, then go on
                     readingNodes = False
-                    graph = src.match_seeker.scripts.olri_classifier.DataManipulations.MapGraph.MapGraph(numNodes, allData)
+                    graph = MapGraph(numNodes, allData)
             elif (not readingNodes) and lowerLine.startswith('markers:'):
                 # If there are markers, then start reading them
                 readingMarkers = True

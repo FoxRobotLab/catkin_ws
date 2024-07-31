@@ -14,10 +14,10 @@ Update 2019: only correct/necessary for map paths
 import os
 
 # base path on Susan's computer
-basePath = "/Users/susan/PycharmProjects/catkin_ws/src/match_seeker/"
+# basePath = "/Users/susan/PycharmProjects/catkin_ws/src/match_seeker/"
 
 #base path on Bea's computer
-# basePath = "/Users/beabautista/Desktop/dump/MAC/RoboticsResearch/catkin_ws/src/match_seeker/"
+basePath = "/Users/oscarrezab/PycharmProjects/catkin_ws/src/match_seeker/"
 
 # base path on Enterprise
 # basePath = "/home/macalester/catkin_ws/src/match_seeker/"
