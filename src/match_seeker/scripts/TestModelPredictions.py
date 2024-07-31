@@ -16,6 +16,8 @@ import OlinWorldMap
 
 # Set data path for Precision 5820  # TODO: Consider adding option to set path for other devices
 mainPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/DATA/"
+# Path for the T7 drive on a Mac
+# mainPath = "/Volumes/T7/macalester/classifier2022Data-220722/"
 framesDataPath = mainPath + "FrameData/"
 
 # Load the model
