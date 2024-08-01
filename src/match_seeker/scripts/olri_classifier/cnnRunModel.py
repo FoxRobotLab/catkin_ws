@@ -11,22 +11,22 @@ model, and combines the results, providing the top three cell predictions.
 
 import cv2
 import sys
-# sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
-from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts
-from src.match_seeker.scripts.olri_classifier.cnn_cell_model_2019 import CellPredictModel2019
-from src.match_seeker.scripts.olri_classifier.cnn_cell_model_RGBinput import CellPredictModelRGB
-from src.match_seeker.scripts.olri_classifier.cnn_heading_model_2019 import HeadingPredictModel
-from src.match_seeker.scripts.olri_classifier.cnn_heading_model_RGBinput import HeadingPredictModelRGB
-from src.match_seeker.scripts.olri_classifier.cnn_lstm_cell_model_2024 import CellPredictModelLSTM
-from src.match_seeker.scripts.olri_classifier.cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
+sys.path.append('src/match_seeker/scripts/olri_classifier/') # handles weird import errors
+# from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts
+# from src.match_seeker.scripts.olri_classifier.cnn_cell_model_2019 import CellPredictModel2019
+# from src.match_seeker.scripts.olri_classifier.cnn_cell_model_RGBinput import CellPredictModelRGB
+# from src.match_seeker.scripts.olri_classifier.cnn_heading_model_2019 import HeadingPredictModel
+# from src.match_seeker.scripts.olri_classifier.cnn_heading_model_RGBinput import HeadingPredictModelRGB
+# from src.match_seeker.scripts.olri_classifier.cnn_lstm_cell_model_2024 import CellPredictModelLSTM
+# from src.match_seeker.scripts.olri_classifier.cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
 # Comment above and uncomment below if needed
-# from paths import *
-# from cnn_cell_model_2019 import CellPredictModel2019
-# from cnn_cell_model_RGBinput import CellPredictModelRGB
-# from cnn_heading_model_2019 import HeadingPredictModel
-# from cnn_heading_model_RGBinput import HeadingPredictModelRGB
-# from cnn_lstm_cell_model_2024 import CellPredictModelLSTM
-# from cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
+from paths import *
+from cnn_cell_model_2019 import CellPredictModel2019
+from cnn_cell_model_RGBinput import CellPredictModelRGB
+from cnn_heading_model_2019 import HeadingPredictModel
+from cnn_heading_model_RGBinput import HeadingPredictModelRGB
+from cnn_lstm_cell_model_2024 import CellPredictModelLSTM
+from cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
 
 # uncomment to use CPU
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -118,14 +118,14 @@ class ModelRunLSTM(object):
         self.cellModel = CellPredictModelLSTM(
             checkPointFolder=checkPts,
             # Change this as needed
-            loaded_checkpoint="2024CellPredict_checkpoint-0730241004/CellPredAdam224-01-3.62.keras"
+            loaded_checkpoint="CellPredAdam224-15-1.55.keras"
         )
         self.cellModel.buildNetwork()
 
         self.headingModel = HeadingPredictModelLSTM(
             checkPointFolder=checkPts,
             # Change this as needed
-            loaded_checkpoint="2024HeadingPredict_checkpoint-0717241135/TestHeadingInCellPredAdam224Corrected-61-0.07.keras"
+            loaded_checkpoint="HeadingPredAdam224-61-0.07.keras"
         )
         self.headingModel.buildNetwork()
 

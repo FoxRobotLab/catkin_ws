@@ -3,7 +3,9 @@
 # Susan Fox
 # Spring 2008
 
-from src.match_seeker.scripts.olri_classifier.DataManipulations.Graphs import WeightedListGraph
+import sys
+sys.path.append('src/match_seeker/scripts/olri_classifier/') # handles weird import errors
+from DataManipulations.Graphs import WeightedListGraph
 import math
 
 class MapGraph(WeightedListGraph):
