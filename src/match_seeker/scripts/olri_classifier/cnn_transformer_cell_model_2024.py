@@ -3,32 +3,128 @@ A transformer model that takes as input feature vectors from DataGeneratorCNNTra
 CNN for feature extraction.
 The code was adapted from the Keras code example: https://keras.io/examples/vision/video_transformers/, with slight
 modifications made to fit our data generator.
-TODO: Write this file in the same format as the other cnn models (structure, methods...)
 
 Created: Summer 2024
 ---------------------------------------------------------------------------------------------------------------------"""
+import os.path
+
 import keras
 from keras import layers
 import tensorflow as tf
+import time
 
 from DataGeneratorCNNTransformer import DataGenerator
-from paths import framesDataPath, textDataPath
+from paths import *
 
-# Define hyperparameters
-MAX_SEQ_LENGTH = 10
-NUM_FEATURES = 1024
-IMG_SIZE = 100
-EPOCHS = 5
+class CellPredictModelCNNTransformer(object):
+  def __init__(self, checkpoint_folder=None, loaded_checkpoint=None, images_folder=None, data_name=None,
+               annot_path=None, output_size=271, image_size=100, seq_length=10, num_features = 1024):
+    """
+    :param checkpoint_folder: Destination path for the checkpoints to be saved
+    :param loaded_checkpoint: Name of the last checkpoint saved inside checkpoint_folder. To continue training or test
+    :param images_folder: Path of the folder containing the 54 folders with frames
+    :param data_name: Name for every saved checkpoint
+    :param output_size: The number of output categories, 271 cells
+    :param image_size: Target dimensions of images after resizing
+    :param seq_length: Length of every sequence(batch) of images
+    :param num_features: Number of features to extract in the frames
+    """
 
-# Prepare the dataset
-train_ds = DataGenerator(generateForCellPred=True, framePath=framesDataPath, annotPath=textDataPath)
-val_ds = DataGenerator(generateForCellPred=True, framePath=framesDataPath, annotPath=textDataPath, train=False)
-print(f"Total video batches for training: {len(train_ds)}")
-print(f"Total video batches for testing: {len(val_ds)}")
+    self.images_folder = images_folder
+    self.data_name = data_name
+    self.output_size = output_size
+    self.image_size = image_size
+    self.seq_length = seq_length
+    self.num_features = num_features
+    self.annot_path = annot_path
+
+    self.train_ds = None
+    self.val_ds = None
+
+    self.checkpoint_dir = checkpoint_folder + "2024CellPredictCNNTransf_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+
+    if loaded_checkpoint is not None:
+      self.loaded_checkpoint = os.path.join(checkpoint_folder, loaded_checkpoint)
+    else:
+      self.loaded_checkpoint = loaded_checkpoint
+
+  def prepDatasets(self):
+    self.train_ds = DataGenerator(generateForCellPred=True, framePath=self.images_folder, annotPath=self.annot_path)
+    self.val_ds = DataGenerator(generateForCellPred=True, framePath=self.images_folder, annotPath=self.annot_path, train=False)
+    print(f"Total frame batches for training: {len(self.train_ds)}")
+    print(f"Total frame batches for testing: {len(self.val_ds)}")
+
+  def buildNetwork(self):
+    """Builds the network"""
+    if self.loaded_checkpoint is not None:
+      print(f"Checkpoint name: {str(self.loaded_checkpoint)}")
+      if str(self.loaded_checkpoint).endswith(".weights.h5"):
+        self.model = self.CNN_Transformer(shape=(10, 1024))
+        print("Got past the model compiling")
+        self.model.load_weights(self.loaded_checkpoint)
+        print("Got past the weight loading")
+      else:
+        self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
+        print("Got past the model loading")
+        self.model.summary()
+        self.model.load_weights(self.loaded_checkpoint)
+        print("Got past the weight loading")
+    else:
+      self.model = self.CNN_Transformer(shape=(10, 1024))
+
+      self.model.compile(
+        optimizer="adam",
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"],
+      )
+
+  def CNN_Transformer(self, shape):
+    sequence_length = self.seq_length
+    embed_dim = self.num_features
+    dense_dim = 4
+    num_heads = 1
+    classes = self.output_size
+
+    inputs = keras.Input(shape=shape)
+    x = PositionalEmbedding(
+      sequence_length, embed_dim, name="frame_position_embedding"
+    )(inputs)
+    x = TransformerEncoder(embed_dim, dense_dim, num_heads, name="transformer_layer")(x)
+    x = layers.GlobalAveragePooling1D()(x)
+    x = layers.Dropout(0.5)(x)
+    outputs = layers.Dense(classes, activation="softmax")(x)
+    model = keras.Model(inputs, outputs)
+
+    model.compile(
+      optimizer="adam",
+      loss="sparse_categorical_crossentropy",
+      metrics=["accuracy"],
+    )
+    model.summary()
+    return model
+
+  def train(self, epochs=5):
+    save_path = os.path.join(self.checkpoint_dir, self.data_name)
+    checkpoint = keras.callbacks.ModelCheckpoint(
+      filepath=save_path + "-{epoch:02d}-{val_loss:.2f}.keras",
+      save_freq="epoch"
+    )
+
+    model = self.CNN_Transformer(shape=(10, 1024))  # TODO: Make this be read shape from the DataGenerator
+    history = model.fit(
+      self.train_ds,
+      validation_data=self.val_ds,
+      epochs=epochs,
+      callbacks=[checkpoint],
+    )
+
+    model.load_weights(save_path)
+    _, accuracy = model.evaluate(self.val_ds)
+    print(f"Test accuracy: {round(accuracy * 100, 2)}%")
 
 
-# Build the Transformer Model
-class PostiionalEmbedding(layers.Layer):
+@tf.keras.utils.register_keras_serializable()
+class PositionalEmbedding(layers.Layer):
   def __init__(self, sequence_length, output_dim, **kwargs):
     super().__init__(**kwargs)
     self.position_embeddings = layers.Embedding(
@@ -57,7 +153,11 @@ class PostiionalEmbedding(layers.Layer):
     return inputs + embedded_positions
 
 
+@tf.keras.utils.register_keras_serializable()
 class TransformerEncoder(layers.Layer):
+  """
+  Creates the Encoding Layers of the Transformer model.
+  """
   def __init__(self, embed_dim, dense_dim, num_heads, **kwargs):
     super().__init__(**kwargs)
     self.embed_dim = embed_dim
@@ -72,8 +172,8 @@ class TransformerEncoder(layers.Layer):
         layers.Dense(embed_dim),
       ]
     )
-    self.layernorm_1 = layers.LayerNormalization(epsilon=1e-7)
-    self.layernorm_2 = layers.LayerNormalization(epsilon=1e-7)
+    self.layernorm_1 = layers.LayerNormalization(epsilon=1e-7)  # Modifying epsilon value removes training error
+    self.layernorm_2 = layers.LayerNormalization(epsilon=1e-7)  # Modifying epsilon value removes training error
 
   def call(self, inputs, mask=None):
     attention_output = self.attention(inputs, inputs, attention_mask=mask)
@@ -82,53 +182,17 @@ class TransformerEncoder(layers.Layer):
     return self.layernorm_2(proj_input + proj_output)
 
 
-# Utility functions for training
-def get_compiled_model(shape):
-  sequence_length = MAX_SEQ_LENGTH
-  embed_dim = NUM_FEATURES
-  dense_dim = 4
-  num_heads = 1
-  classes = 271  # Change to 8 for heading
-
-  inputs = keras.Input(shape=shape)
-  x = PostiionalEmbedding(
-    sequence_length, embed_dim, name="frame_position_embedding"
-  )(inputs)
-  x = TransformerEncoder(embed_dim, dense_dim, num_heads, name="transformer_layer")(x)
-  x = layers.GlobalAveragePooling1D()(x)
-  x = layers.Dropout(0.5)(x)
-  outputs = layers.Dense(classes, activation="softmax")(x)
-  model = keras.Model(inputs, outputs)
-
-  model.compile(
-    optimizer="adam",
-    loss="sparse_categorical_crossentropy",
-    metrics=["accuracy"],
-  )
-  model.summary()
-  return model
-
-
-def run_experiment():
-  filepath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/DATA/CHECKPOINTS/cnn_transformer.weights.h5"
-  checkpoint = keras.callbacks.ModelCheckpoint(
-    filepath, save_weights_only=True, save_best_only=True, verbose=1
+if __name__ == "__main__":
+  cellPredictor = CellPredictModelCNNTransformer(
+    data_name="CellPredAdam100",
+    images_folder=framesDataPath,
+    loaded_checkpoint=None,
+    checkpoint_folder=checkPts,
+    annot_path=textDataPath
   )
 
-  model = get_compiled_model(shape=(10, 1024))  # TODO: Make this be read from the DataGenerator
-  history = model.fit(
-    train_ds,
-    validation_data=val_ds,
-    epochs=EPOCHS,
-    callbacks=[checkpoint],
-  )
+  # Prepare datasets
+  cellPredictor.prepDatasets()
 
-  model.load_weights(filepath)
-  _, accuracy = model.evaluate(val_ds)
-  print(f"Test accuracy: {round(accuracy * 100, 2)}%")
-
-  return model
-
-
-# Model training
-trained_model = run_experiment()
+  # Start training
+  cellPredictor.train(epochs=1)
