@@ -7,29 +7,37 @@ Based on olin_cnn_predictor.py
 This provides a couple simple classes that match_seeker can use to run the models
 that have been trained. It runs both the cell prediction model and the heading prediction
 model, and combines the results, providing the top three cell predictions.
---------------------------------------------------------------------------------"""
 
-import cv2
-import sys
-sys.path.append('src/match_seeker/scripts/olri_classifier/') # handles weird import errors
-# from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts
-# from src.match_seeker.scripts.olri_classifier.cnn_cell_model_2019 import CellPredictModel2019
-# from src.match_seeker.scripts.olri_classifier.cnn_cell_model_RGBinput import CellPredictModelRGB
-# from src.match_seeker.scripts.olri_classifier.cnn_heading_model_2019 import HeadingPredictModel
-# from src.match_seeker.scripts.olri_classifier.cnn_heading_model_RGBinput import HeadingPredictModelRGB
-# from src.match_seeker.scripts.olri_classifier.cnn_lstm_cell_model_2024 import CellPredictModelLSTM
-# from src.match_seeker.scripts.olri_classifier.cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
+Updated: 2024. Added the CNN-LSTM and CNN-Transformer models
+--------------------------------------------------------------------------------"""
+from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts, textDataPath
+
+from src.match_seeker.scripts.olri_classifier.cnn_cell_model_2019 import CellPredictModel2019
+from src.match_seeker.scripts.olri_classifier.cnn_heading_model_2019 import HeadingPredictModel
+
+from src.match_seeker.scripts.olri_classifier.cnn_cell_model_RGBinput import CellPredictModelRGB
+from src.match_seeker.scripts.olri_classifier.cnn_heading_model_RGBinput import HeadingPredictModelRGB
+
+from src.match_seeker.scripts.olri_classifier.cnn_lstm_cell_model_2024 import CellPredictModelLSTM
+from src.match_seeker.scripts.olri_classifier.cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
+
+from src.match_seeker.scripts.olri_classifier.cnn_transformer_cell_model_2024 import CellPredictModelCNNTransformer
+from src.match_seeker.scripts.olri_classifier.cnn_transformer_heading_model_2024 import HeadingPredictModelCNNTransformer
+
+
 # Comment above and uncomment below if needed
-from paths import *
-from cnn_cell_model_2019 import CellPredictModel2019
-from cnn_cell_model_RGBinput import CellPredictModelRGB
-from cnn_heading_model_2019 import HeadingPredictModel
-from cnn_heading_model_RGBinput import HeadingPredictModelRGB
-from cnn_lstm_cell_model_2024 import CellPredictModelLSTM
-from cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
+# sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts') # handles weird import errors
+# from paths import *
+# from cnn_cell_model_2019 import CellPredictModel2019
+# from cnn_cell_model_RGBinput import CellPredictModelRGB
+# from cnn_heading_model_2019 import HeadingPredictModel
+# from cnn_heading_model_RGBinput import HeadingPredictModelRGB
+# from cnn_lstm_cell_model_2024 import CellPredictModelLSTM
+# from cnn_lstm_heading_model_2024 import HeadingPredictModelLSTM
 
 # uncomment to use CPU
-#os.environ['CUDA_VISIBLE_DEVICES'] = ''
+# os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
 
 class ModelRun2019(object):
     """This builds the 2019 style of model, where the cell prediction model takes in the current heading
@@ -67,7 +75,6 @@ class ModelRun2019(object):
         # cell = mapGraph.convertLocToCell(best_cells_xy[0])
 
         return best_scores, best_cells_xy
-
 
 
 class ModelRunRGB(object):
@@ -111,21 +118,22 @@ class ModelRunRGB(object):
 
         return best_scores, best_cells_xy
 
+
 class ModelRunLSTM(object):
     """This builds the 2024 Lstm style of model"""
 
     def __init__(self):
         self.cellModel = CellPredictModelLSTM(
-            checkPointFolder=checkPts,
+            check_point_folder=checkPts,
             # Change this as needed
-            loaded_checkpoint="CellPredAdam224-15-1.55.keras"
+            loaded_checkpoint="2024CellPredictLSTM_checkpoint-0802241319/CellPredAdam224-74-1.26.keras"
         )
         self.cellModel.buildNetwork()
 
         self.headingModel = HeadingPredictModelLSTM(
-            checkPointFolder=checkPts,
+            checkpoint_folder=checkPts,
             # Change this as needed
-            loaded_checkpoint="HeadingPredAdam224-61-0.07.keras"
+            loaded_checkpoint="2024HeadingPredict_checkpoint-0717241135/TestHeadingInCellPredAdam224Corrected-61-0.07.keras"
         )
         self.headingModel.buildNetwork()
 
@@ -157,9 +165,55 @@ class ModelRunLSTM(object):
         return best_scores, best_cells_xy
 
 
+class ModelRunCNNTransformer(object):
+    """This builds the 2024 CNN-Transformer style of model"""
+
+    def __init__(self):
+        self.cellModel = CellPredictModelCNNTransformer(
+            checkpoint_folder=checkPts,
+            annot_path=textDataPath,
+            # Change this as needed
+            # loaded_checkpoint="cnn_transformer.weights.h5"
+        )
+        self.cellModel.buildNetwork()
+
+        self.headingModel = HeadingPredictModelCNNTransformer(
+            checkpoint_folder=checkPts,
+            # Change this as needed
+            loaded_checkpoint="2024HeadingPredict_checkpoint-0717241135/TestHeadingInCellPredAdam224Corrected-61-0.07.keras"
+        )
+        self.headingModel.buildNetwork()
+
+    # TODO: Implement the getPrediction method
+    # def getPrediction(self, images, mapGraph):
+    #     potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    #
+    #
+    #     lastHeading, headOutputPercs = self.headingModel.predictSingleImageBatchAllData(images)
+    #     bestHead = potentialHeadings[lastHeading]
+    #     newCell, cellOutPercs = self.cellModel.predictSingleImageBatchAllData(images)
+    #     # print(f"New cell: {newCell}")
+    #     # print(f"Last heading: {lastHeading}")
+    #
+    #     bestThreePercs, bestThreeInd = self.cellModel.findTopX(3, cellOutPercs)
+    #
+    #
+    #     best_cells_xy = []
+    #     for i, pred_cell in enumerate(bestThreeInd):
+    #         if bestThreePercs[i] >= 0.00:
+    #             predXY = mapGraph.getLocation(pred_cell)
+    #             pred_xyh = (predXY[0], predXY[1], bestHead)
+    #             best_cells_xy.append(pred_xyh)
+    #
+    #     best_scores = [s * 100 for s in bestThreePercs]
+    #
+    #     # cell = mapGraph.convertLocToCell(best_cells_xy[0])
+    #
+    #     return best_scores, best_cells_xy
+
 
 if __name__ == "__main__":
     # modelRunner2019 = ModelRun2019()
     # modelRunner2022 = ModelRunRGB()
     modelRunner2024 = ModelRunLSTM()
-
+    # modelRunnerCNNTransformer = ModelRunCNNTransformer()
