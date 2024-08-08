@@ -118,14 +118,14 @@ class ModelRunLSTM(object):
         self.cellModel = CellPredictModelLSTM(
             checkPointFolder=checkPts,
             # Change this as needed
-            loaded_checkpoint="CellPredAdam224-15-1.55.keras"
+            loaded_checkpoint="2024CellPredict_checkpoint-0730241004/CellPredAdam224-71-2.34.keras"
         )
         self.cellModel.buildNetwork()
 
         self.headingModel = HeadingPredictModelLSTM(
             checkPointFolder=checkPts,
             # Change this as needed
-            loaded_checkpoint="HeadingPredAdam224-61-0.07.keras"
+            loaded_checkpoint="2024HeadingPredict_checkpoint-0717241135/TestHeadingInCellPredAdam224Corrected-61-0.07.keras"
         )
         self.headingModel.buildNetwork()
 

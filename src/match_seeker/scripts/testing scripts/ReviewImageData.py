@@ -9,13 +9,15 @@ Authors: Oscar Reza and Elisa Avalos
 --------------------------------------------------------------------------------------------------------------------"""
 
 import os
+import sys
 
 import cv2
 import numpy as np
 
-from src.match_seeker.scripts.olri_classifier.OlinWorldMap import WorldMap
-from src.match_seeker.scripts.olri_classifier.DataPaths import basePath
-
+sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts/olri_classifier/')
+from ..OlinWorldMap import WorldMap
+from ..DataPaths import *
+from src.match_seeker.scripts.olri_classifier.paths import *
 
 class ImageReview(object):
 
@@ -32,16 +34,17 @@ class ImageReview(object):
         # Instance variables to hold outcome data
         self.info = dict()
         self.associatedTxtDict = {
-            "20220808-1135frames": "Data-Aug082022-121900.txt",
-            "20220705-1616frames": "Data-Jul05Tue-163553.txt", "20220713-1136frames": "Data-Jul132022-121251.txt",
-            "20220713-1411frames": "Data-Jul132022-150813.txt", "20220713-1548frames": "Data-Jul132022-155717.txt",
-            "20220715-1322frames": "Data-Jul152022-141957.txt", "20220715-1613frames": "Data-Jul152022-171324.txt",
-            "20220718-1438frames": "Data-Jul182022-154748.txt", "20220721-1408frames": "Data-Jul212022-145111.txt",
-            "20220722-1357frames": "Data-Jul222022-150123.txt", "20220727-1510frames": "Data-Jul272022-160031.txt",
-            "20220728-1423frames": "Data-Jul282022-143009.txt", "20220728-1445frames": "Data-Jul282022-160348.txt",
-            "20220729-1620frames": "Data-Jul292022-165958.txt", "20220801-1422frames": "Data-Aug012022-151709.txt",
-            "20220802-1043frames": "Data-Aug022022-115236.txt", "20220802-1521frames": "Data-Aug022022-164951.txt",
-            "20220803-1047frames": "Data-Aug032022-113709.txt", "20220803-1135frames": "Data-Aug032022-115005.txt"
+            "20240731-1438frames": "Data-Jul312024-145224.txt", "20240731-1544frames": "Data-Jul312024-161117.txt",
+            # "20220808-1135frames": "Data-Aug082022-121900.txt",
+            # "20220705-1616frames": "Data-Jul05Tue-163553.txt", "20220713-1136frames": "Data-Jul132022-121251.txt",
+            # "20220713-1411frames": "Data-Jul132022-150813.txt", "20220713-1548frames": "Data-Jul132022-155717.txt",
+            # "20220715-1322frames": "Data-Jul152022-141957.txt", "20220715-1613frames": "Data-Jul152022-171324.txt",
+            # "20220718-1438frames": "Data-Jul182022-154748.txt", "20220721-1408frames": "Data-Jul212022-145111.txt",
+            # "20220722-1357frames": "Data-Jul222022-150123.txt", "20220727-1510frames": "Data-Jul272022-160031Data-Aug082022-121900.txt.txt",
+            # "20220728-1423frames": "Data-Jul282022-143009.txt", "20220728-1445frames": "Data-Jul282022-160348.txt",
+            # "20220729-1620frames": "Data-Jul292022-165958.txt", "20220801-1422frames": "Data-Aug012022-151709.txt",
+            # "20220802-1043frames": "Data-Aug022022-115236.txt", "20220802-1521frames": "Data-Aug022022-164951.txt",
+            # "20220803-1047frames": "Data-Aug032022-113709.txt", "20220803-1135frames": "Data-Aug032022-115005.txt"
         }
         self.currWritingFileName = ""
         self.currWritingFile = ""
@@ -270,8 +273,14 @@ class ImageReview(object):
 
 
 if __name__ == "__main__":
-    # Declare paths with reference to /match_seeker/scripts/olri_classifier/DataPaths.py
-    reviewer = ImageReview(folderPath=basePath + "res/classifier2022Data/DATA/FrameData/",
-                           dataFilePath=basePath + "res/locdata2022/")
+    # For data review for data collection
+    reviewer = ImageReview(folderPath=framesDataPath,
+                           dataFilePath=textDataPath)
+
+    # For data review for model prediction evaluation
+    # reviewer = ImageReview(
+    #   folderPath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/Evaluation2024Data/FrameData/",
+    #   dataFilePath="/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/locdata2024/")
+
     # Run the program
     reviewer.go()

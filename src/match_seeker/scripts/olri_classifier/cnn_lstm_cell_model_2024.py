@@ -143,7 +143,6 @@ class CellPredictModelLSTM(object):
 
     def CNN_LSTM(self):
         """Builds a CNN + LSTM model with image as input and produces the cell number."""
-
         cnnLSTM = keras.models.Sequential()
 
         # modified cnn lstm code
@@ -201,7 +200,7 @@ class CellPredictModelLSTM(object):
         # ---OR--- (new cnn lstm method based on bleed ai example)
         # cnnLSTM.add(keras.layers.ConvLSTM2D(
         #     filters=128,
-        #     kernel_size=(3, 3),         #TODO: Change kernel size?
+        #     kernel_size=(3, 3),
         #     strides=(1, 1),
         #     activation="relu",
         #     padding="same",
@@ -702,7 +701,7 @@ class CellPredictModelLSTM(object):
 if __name__ == "__main__":
     cellPredictor = CellPredictModelLSTM(
         # dataSize=95810,
-        data_name="TestHeadingInCellPredAdam224Corrected",
+        data_name="CellPredAdam224",
         # checkPointFolder=checkPts,
         imagesFolder=frames,
         batch_size=10
@@ -711,14 +710,11 @@ if __name__ == "__main__":
 
     cellPredictor.buildNetwork()
 
-
-    #for training
-
+    # for training
     cellPredictor.prepDatasets()
     cellPredictor.train(epochs = 100)
 
-    #for testing
-
-    #cellPredictor.test(1000)
+    # for testing
+    # cellPredictor.test(1000)
     # cellPredictor.testnImagesAllCells(100)
-    #cellPredictor.testnImagesOneCell(27, 100)
+    # cellPredictor.testnImagesOneCell(27, 100)

@@ -74,7 +74,7 @@ def saveToFolder(img, folderName, frameNum):
 
 def saveVideo(destDir, hgt=480, wid=640):
     rospy.init_node('datacollector', anonymous=True, disable_signals = True)
-    image_sub = rospy.Subscriber("/camera/rgb/image_rect_color", Image, image_callback)
+    image_sub = rospy.Subscriber("/camera/color/image_raw", Image, image_callback)
     timestamp = "{}".format(time.strftime("%Y%m%d-%H%M"))
     videoName = destDir + '/' + timestamp + ".avi"
     frameFolder = destDir + '/' + timestamp + 'frames/'
@@ -109,6 +109,9 @@ def saveVideo(destDir, hgt=480, wid=640):
 if __name__ == "__main__":
     try:
         image_array = None
-        saveVideo('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data')
+        # This path for data collection
+        # saveVideo('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data')
+        # This path for model prediction evaluation
+        saveVideo('/media/macalester/Data/match_seeker/res/Evaluation2024Data/FrameData/')
     except rospy.ROSInterruptException:
         pass

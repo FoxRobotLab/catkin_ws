@@ -18,7 +18,7 @@ import os
 # basePath = "/Users/oscarrezab/PycharmProjects/catkin_ws/src/match_seeker/"
 
 # base path on Enterprise
-basePath = "/home/macalester/catkin_ws/src/match_seeker/"
+basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
 
 
 # base path on FoxVoyager (aka Speedy)

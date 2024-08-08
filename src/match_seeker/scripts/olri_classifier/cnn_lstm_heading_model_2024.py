@@ -741,11 +741,9 @@ if __name__ == "__main__":
     headingPredictor.buildNetwork()
 
     #for training:
-
     # headingPredictor.prepDatasets()
     # headingPredictor.train_withGenerator(headingPredictor.train_ds, headingPredictor.val_ds, epoch = 20)
 
     #for testing:
-
     headingPredictor.testnImagesAllHeadings(100)
     headingPredictor.testnImagesOneCell(315, 50)

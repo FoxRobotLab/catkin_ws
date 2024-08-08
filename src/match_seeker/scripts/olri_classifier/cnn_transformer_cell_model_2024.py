@@ -7,12 +7,16 @@ modifications made to fit our data generator.
 Created: Summer 2024
 ---------------------------------------------------------------------------------------------------------------------"""
 import os.path
+import sys
 
 import keras
 from keras import layers
 import tensorflow as tf
 import time
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts')
 from DataGeneratorCNNTransformer import DataGenerator
 from paths import *
 
@@ -195,4 +199,4 @@ if __name__ == "__main__":
   cellPredictor.prepDatasets()
 
   # Start training
-  cellPredictor.train(epochs=1)
+  cellPredictor.train(epochs=100)
