@@ -6,6 +6,7 @@ from tensorflow.keras.layers import Dense, Input, MultiHeadAttention, Dropout
 import cv2
 import time
 import tensorflow as tf
+from paths import checkPts, textDataPath, framesDataPath
 from paths import checkPts2022, DATA2022, FRAMES2022
 from DataGeneratorLSTM import DataGeneratorLSTM
 
@@ -88,7 +89,7 @@ class CellPredictModelTransformer(object):
                labelMapFile=None, data_name=None,
                eval_ratio=11.0 / 61.0, outputSize=8, image_size=100, image_depth=3, dataSize=0, seed=123456,
                batch_size=20, sequence_length=10):
-    self.checkpoint_dir = checkPointFolder + "2022HeadingPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+    self.checkpoint_dir = checkPointFolder + "2024CellPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
     self.outputSize = outputSize
     self.eval_ratio = eval_ratio
     self.learning_rate = 0.001
@@ -142,9 +143,8 @@ class CellPredictModelTransformer(object):
     input_layer = Input(shape=(self.sequence_length, self.image_size, self.image_size, 3))
     patches = PatchEmbedding(patch_size, embed_dim)(input_layer)
 
-
     patches = ReshapeAndCombine()(patches)
-    patches = ClassificationToken(embed_dim)(patches)  #
+    patches = ClassificationToken(embed_dim)(patches)
     patches = PositionalEmbedding(sequence_length + 1, embed_dim)(
       patches)  # positional embedding after adding cls token
 

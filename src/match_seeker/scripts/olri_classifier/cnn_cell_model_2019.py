@@ -14,10 +14,14 @@ import numpy as np
 from tensorflow import keras
 import cv2
 import time
-from paths import DATA, frames, checkPts
-from imageFileUtils import makeFilename
 import random
-from frameCellMap import FrameCellMap
+
+from src.match_seeker.scripts.olri_classifier.paths import DATA, frames, checkPts
+from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
+# from paths import *
+# from imageFileUtils import makeFilename
+# from frameCellMap import FrameCellMap
 
 ### Uncomment next line to use CPU instead of GPU: ###
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''

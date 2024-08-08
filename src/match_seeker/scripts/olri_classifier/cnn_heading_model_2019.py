@@ -21,9 +21,9 @@ import numpy as np
 from tensorflow import keras
 import cv2
 import time
-from paths import DATA, frames, checkPts
-from imageFileUtils import makeFilename
-from frameCellMap import FrameCellMap
+from src.match_seeker.scripts.olri_classifier.paths import DATA, frames, checkPts
+from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
 import random
 
 ### Uncomment next line to use CPU instead of GPU: ###

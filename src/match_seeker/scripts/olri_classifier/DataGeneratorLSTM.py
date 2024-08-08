@@ -14,7 +14,7 @@ import cv2
 import math
 import re
 
-from paths import *
+from src.match_seeker.scripts.olri_classifier.paths import *
 
 
 class DataGeneratorLSTM(keras.utils.Sequence):
