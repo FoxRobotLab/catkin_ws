@@ -10,16 +10,15 @@ FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/more
 --------------------------------------------------------------------------------"""
 
 import cv2
-import os
 import numpy as np
 from tensorflow import keras
 import time
 import matplotlib.pyplot as plt
-from paths import DATA, checkPts, frames
-from imageFileUtils import makeFilename, extractNum
-from frameCellMap import FrameCellMap
-from DataGenerator2022 import DataGenerator2022
-from DataBalancing2022 import DataBalancer
+from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts, frames
+from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename, extractNum
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
+from src.match_seeker.scripts.olri_classifier.DataGenerator2022 import DataGenerator2022
+from src.match_seeker.scripts.olri_classifier.DataBalancing2022 import DataBalancer
 import random
 import csv
 import tensorflow as tf
@@ -80,9 +79,11 @@ class CellPredictModelRGB(object):
         self.val_ds = DataGenerator2022(batch_size = self.batch_size, train = False, cellPredWithHeadingIn = True)
 
     def buildNetwork(self):
+        print(self.loaded_checkpoint)
         """Builds the network, saving it to self.model."""
         if self.loaded_checkpoint is not None:
             self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
+
             self.model.summary()
         else:
             self.model = self.cnn()  # CNN

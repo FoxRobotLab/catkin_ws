@@ -71,7 +71,7 @@ class Localizer(object):
             self.logger.log(lklSt.format(x, y, h, self.confidence))
             self.gui.updateLastKnownList([x, y, h, self.confidence])
 
-        scores, matchLocs = self.olin_tester.getPrediction(cameraIm, self.olin, odomLoc)
+        scores, matchLocs = self.olin_tester.getPrediction(cameraIm, self.olin)
 
         # Handles out of range error
         while len(matchLocs) < 3:
