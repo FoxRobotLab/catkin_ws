@@ -1,132 +1,123 @@
 """--------------------------------------------------------------------------------
-cnn_heading_model_RGBinput.py
+cnn_lstm_heading_model_2024.py
 
-Updated: Summer 2022
+Created: Summer 2024
 
-This file can build and train CNN and load checkpoints/models for predicting headings.
-The model was originally created in 2019 that takes a picture and its cell number as input to predict its cell heading.
-
-FULL TRAINING IMAGES LOCATED IN match_seeker/scripts/olri_classifier/frames/moreframes
+This script can generate and train a heading prediction model with the 2024 style of dataset, using DataGeneratorLSTM.
+It was built off of the cnn_heading_model_RGBinput.py from 2022, some of the methods still remain unchanged and
+untested, so they might need some tweaking for them to work with this new model.
 --------------------------------------------------------------------------------"""
 
-import os
+import cv2
 import numpy as np
 from tensorflow import keras
-import cv2
-import time
 import matplotlib.pyplot as plt
-from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts, frames, logs
-from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename, extractNum
+
+from src.match_seeker.scripts.olri_classifier.paths import *
+from src.match_seeker.scripts.olri_classifier.DataGeneratorLSTM import DataGeneratorLSTM
+from src.match_seeker.scripts.olri_classifier.imageFileUtils import makeFilename
 from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
-from src.match_seeker.scripts.olri_classifier.DataGenerator2022 import DataGenerator2022
+
+import time
 import random
 import csv
 
 ### Uncomment next line to use CPU instead of GPU: ###
-#os.environ['CUDA_VISIBLE_DEVICES'] = ''
+# os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
 
 class HeadingPredictModelLSTM(object):
-    def __init__(self, checkPointFolder = None, loaded_checkpoint = None, imagesFolder = None, imagesParent = None, labelMapFile = None, data_name=None,
-                 eval_ratio = 11.0 / 61.0, outputSize = 8, image_size=100, image_depth=3, dataSize = 0, seed=123456, batch_size = 20): #batch #epoch
+    def __init__(self, checkpoint_folder=None, loaded_checkpoint=None, images_folder=None, label_map_file=None, data_name=None,
+                 output_size=8, image_size=224, seed=123456, batch_size=20):
         """
-        :param checkPointFolder: Destination path where checkpoints should be saved
+        :param checkpoint_folder: Destination path where checkpoints should be saved
         :param loaded_checkpoint: Name of the last saved checkpoint file inside checkPointFolder; used to continue training or conduct tests
-        :param imagesFolder: Path of the folder containing all 95k image files
-        :param imagesParent: Path of the parent folder of the imagesFolder, required by prepDatasets which isn't yet working
-        :param labelMapFile: Path of the txt file that contains the cell/heading/x y coordinate information for each of the 95k images
+        :param images_folder: Path of the folder containing all 95k image files
+        :param label_map_file: Path of the txt file that contains the cell/heading/x y coordinate information for each of the 95k images
         :param data_name: Name that each checkpoint is saved under, indicates whether model is trained on all images or just a subset
-        :param eval_ratio: Ratio of validation data as a proportion of the entire data, used for splitting testing and validation data
-        :param outputSize: Number of output categories, 271 cells
+        :param output_size: Number of output categories, 8 headings
         :param image_size: Target length of images after resizing, typically 100x100 pixels
-        :param image_depth: Number of channels in the input images; 3 for RGB color images, 1 for black and white
         :param batch_size: Number of images in each batch fed into the model via Data Generator pipeline
         :param seed: Random seed to ensure that random splitting remains the same between training and validation
         """
-        ### Set up paths and basic model hyperparameters
-        self.checkpoint_dir = checkPointFolder + "2022HeadingPredict_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
-        self.outputSize = outputSize
-        self.eval_ratio = eval_ratio
+        ### Set up paths
+        self.checkpoint_dir = checkpoint_folder + "2024HeadingPredictLSTM_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+        self.data_name = data_name
+        self.frames = images_folder
+        self.labelMapFile = label_map_file
+
+        # Set up basic model hyperparameters
+        self.outputSize = output_size
         self.learning_rate = 0.001
         self.image_size = image_size
-        self.image_depth = image_depth
         self.seed = seed
         self.batch_size = batch_size
         self.num_eval = None
         self.potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-        # self.train_images = None
-        # self.train_labels = None
-        # self.eval_images = None
-        # self.eval_labels = None
-        self.data_name = data_name
-        self.frames = imagesFolder
-        self.framesParent = imagesParent
-        self.labelMapFile = labelMapFile
+
         self.labelMap = None
         self.train_ds = None
         self.val_ds = None
+        self.model = None
+
         if loaded_checkpoint:
-            self.loaded_checkpoint = checkPointFolder + loaded_checkpoint
+            self.loaded_checkpoint = checkpoint_folder + loaded_checkpoint
+        else:
+            self.loaded_checkpoint = loaded_checkpoint
 
     def buildMap(self):
         """Builds dictionaries containing the corresponding cell, heading, and location information for each frame,
-        saving it to self.labelMap."""
+        saving it to self.labelMap. Untested in 2024"""
         self.labelMap = FrameCellMap(dataFile=self.labelMapFile)
 
     def prepDatasets(self):
-        """Finds the cell labels associated with the files in the frames folder, and then sets up two
-        data generators to preprocess data and produce the data in batches."""
-        self.train_ds = DataGenerator2022(generateForCellPred = False, batch_size = self.batch_size)
-        self.val_ds = DataGenerator2022(train=False, generateForCellPred = False, batch_size = self.batch_size)
+        """Calls the Data Generator to create training and validation datasets for the model."""
+        self.train_ds = DataGeneratorLSTM(framePath=framesDataPath, annotPath=textDataPath, seqLength=10,
+                                          batch_size=self.batch_size, generateForCellPred=False)
+        self.val_ds = DataGeneratorLSTM(framePath=framesDataPath, annotPath=textDataPath, seqLength=10,
+                                        batch_size=self.batch_size, train=False, generateForCellPred=False)
 
     def buildNetwork(self):
         """Builds the network, saving it to self.model."""
+        print (f"Tensorflow version: {tf.__version__}")
+        print ("Calling buildNetwork", self.loaded_checkpoint)
         if self.loaded_checkpoint:
             self.model = keras.models.load_model(self.loaded_checkpoint, compile=False)
+            print ("Got past the model loading")
             self.model.summary()
-            # self.model.load_weights(self.loaded_checkpoint)
         else:
-            self.model = self.CNN_LSTM()  # CNN
+            self.model = self.CNN_LSTM()
 
         self.model.compile(
             loss= keras.losses.sparse_categorical_crossentropy,
-            optimizer=keras.optimizers.SGD(lr=self.learning_rate),
+            optimizer=keras.optimizers.Adam(learning_rate=self.learning_rate),
             metrics=["accuracy"])
 
-    # def train(self, epochs = 20):
-    #     """Sets up the loss function and optimizer, and then trains the model on the current training data. Quits if no
-    #     training data is set up yet."""
-    #
-    #     print("This is the shape of the train images!!", self.train_images.shape)
-    #     if self.train_images is None:
-    #         print("No training data loaded yet.")
-    #         return 0
-    #
-    #     self.model.fit(
-    #         self.train_images, self.train_labels,
-    #         #batch_size= 1,
-    #         epochs=epochs,
-    #         verbose=1,
-    #         validation_data=(self.eval_images, self.eval_labels),
-    #         shuffle=True,
-    #         callbacks=[
-    #             keras.callbacks.History(),
-    #             keras.callbacks.ModelCheckpoint(
-    #                 self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.hdf5",
-    #                 period=1  # save every n epoch
-    #             ),
-    #             keras.callbacks.TensorBoard(
-    #                 log_dir=self.checkpoint_dir,
-    #                 #batch_size=1,
-    #                 write_images=False,
-    #                 write_grads=True,
-    #                 histogram_freq=1,
-    #             ),
-    #             keras.callbacks.TerminateOnNaN()
-    #         ]
-    #     )
-
+    def train(self, epochs = 20):
+        """Begins training of the model. Defaults to 20 epochs"""
+        self.model.fit(
+            self.train_ds,
+            epochs=epochs,
+            verbose=1,
+            validation_data=self.val_ds,
+            callbacks=[
+                keras.callbacks.History(),
+                keras.callbacks.ModelCheckpoint(
+                    self.checkpoint_dir + self.data_name + "-{epoch:02d}-{val_loss:.2f}.keras",  # Name for checkpoint
+                    save_freq="epoch"  # save every epoch
+                ),
+                keras.callbacks.TensorBoard(
+                    log_dir=self.checkpoint_dir,
+                    write_images=False,
+                    # write_grads=True,
+                    histogram_freq=1,
+                ),
+                keras.callbacks.TerminateOnNaN()
+            ]
+        )
 
     def train_withGenerator(self, training_generator, validation_generator, epoch = 20):
+        """Not tested in 2024. Consider changing or removing."""
         self.model.fit_generator(generator=training_generator,
                             validation_data=validation_generator,
                             use_multiprocessing=True,
@@ -145,72 +136,60 @@ class HeadingPredictModelLSTM(object):
                                 ),
                                 keras.callbacks.TerminateOnNaN()
                 ],
-                            epochs= epoch)
-
-
-
+                            epochs=epoch)
 
     def CNN_LSTM(self):
-        """Builds a CNN + LSTM model with image as input and produces the heading."""
+        """Builds the CNN + LSTM model."""
 
         cnnLSTM = keras.models.Sequential()
 
-        # modified cnn lstm code
         cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=128,
-            kernel_size=(5, 5),         #TODO: Change kernel size? 3 x 3?
-            strides=(1, 1),
-            activation="relu",
-            padding="same",
-            data_format="channels_last",
+          filters=16,  # Reduced from 64
+          kernel_size=(3, 3),
+          strides=(1, 1),
+          activation="relu",
+          padding="same",
+          data_format="channels_last",
+        ), input_shape=[self.batch_size, self.image_size, self.image_size, 3]))
 
-        ), input_shape=[self.batch_size, self.image_size, self.image_size, 1]))            #arbitrary shape? # imgs, img h, img w, # channels
         cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same"
+          pool_size=(2, 2),
+          strides=(2, 2),
+          padding="same",
         )))
-        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
 
-        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=64,
-            kernel_size=(5, 5),
-            strides=(1, 1),
-            activation="relu",
-            padding="same"
-        )))
-        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same"
-        )))
-        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.2)))  # Reduced dropout rate
 
         cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Conv2D(
-            filters=32,
-            kernel_size=(5, 5),
-            strides=(1, 1),
-            activation="relu",
-            padding="same",
-            data_format="channels_last"
+          filters=8,  # Reduced from 32
+          kernel_size=(3, 3),
+          strides=(1, 1),
+          activation="relu",
+          padding="same",
+          data_format="channels_last"
         )))
+
         cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.MaxPooling2D(
-            pool_size=(2, 2),
-            strides=(2, 2),
-            padding="same",
+          pool_size=(2, 2),
+          strides=(2, 2),
+          padding="same",
         )))
-        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.4)))
+
+        cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Dropout(0.2)))  # Reduced dropout rate
 
         cnnLSTM.add(keras.layers.TimeDistributed(keras.layers.Flatten()))
-        cnnLSTM.add(keras.layers.LSTM(5, activation="relu"))          # change 10? what should memory be
+        cnnLSTM.add(keras.layers.LSTM(5, activation="relu"))  # Adjust LSTM units as needed
+
         cnnLSTM.add(keras.layers.Dense(units=self.outputSize, activation='sigmoid'))
         cnnLSTM.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         cnnLSTM.summary()
 
-        # ---OR--- (new cnn lstm method based on bleed ai example)
+        self.model = cnnLSTM
+
+        # ---YET TO TRY--- (new cnn lstm method based on bleed ai example)
         # cnnLSTM.add(keras.layers.ConvLSTM2D(
         #     filters=128,
-        #     kernel_size=(3, 3),         #TODO: Change kernel size?
+        #     kernel_size=(3, 3),
         #     strides=(1, 1),
         #     activation="relu",
         #     padding="same",
@@ -263,19 +242,8 @@ class HeadingPredictModelLSTM(object):
 
         return cnnLSTM
 
-    # def predictSingleImageAllData(self, image):
-    #     """Given an image, converts it to be suitable for the network, then runs the model and returns
-    #     the resulting prediction as tuples of index of prediction and list of predictions."""
-    #     cleanimage = self.cleanImage(image)
-    #     listed = np.array([cleanimage])
-    #     modelPredict = self.model.predict(listed)
-    #     maxIndex = np.argmax(modelPredict)
-    #     # print("Model predict shape:", modelPredict.shape, "Model predicts:", modelPredict)
-    #     # print("predict[0] shape:", modelPredict[0].shape, "predict[0]:", modelPredict[0])
-    #     return maxIndex, modelPredict[0]
-
     def predictSingleImageBatchAllData(self, images):
-        """Given an image, converts it to be suitable for the network, then runs the model and returns
+        """Given a batch of images, converts it to be suitable for the network, then runs the model and returns
         the resulting prediction as tuples of index of prediction and list of predictions."""
         cleanImages = []
         for image in images:
@@ -286,20 +254,22 @@ class HeadingPredictModelLSTM(object):
         maxIndex = np.argmax(modelPredict)
         return maxIndex, modelPredict[0]
 
-    def cleanImage(self, image, imageSize=224):
+    def cleanImage(self, image, image_size=224):
         """Process a single image into the correct input form for 2020 model, mainly used for testing."""
-        shrunkenIm = cv2.resize(image, (imageSize, imageSize))
+        shrunkenIm = cv2.resize(image, (image_size, image_size))
         recoloredIm = cv2.cvtColor(shrunkenIm, cv2.COLOR_BGR2RGB)
         processedIm = recoloredIm / 255.0
         return processedIm
 
-    def findTopX(self, x, numList):
+    # TODO: The methods below were not tested in 2024, they were just kept from the 2022 file. Consider editing or removing
+
+    def findTopX(self, x, num_list):
         """Given a number and a list of numbers, this finds the x largest values in the number list, and reports
         both the values, and their positions in the numList."""
         topVals = [0.0] * x
         topIndex = [None] * x
-        for i in range(len(numList)):
-            val = numList[i]
+        for i in range(len(num_list)):
+            val = num_list[i]
 
             for j in range(x):
                 if topIndex[j] is None or val > topVals[j]:
@@ -311,13 +281,13 @@ class HeadingPredictModelLSTM(object):
                 topVals.pop(-1)
         return topVals, topIndex
 
-    def findBottomX(self, x, numList):
+    def findBottomX(self, x, num_list):
         """Given a number and a list of numbers, this finds the x smallest values in the number list, and reports
         both the values, and their positions in the numList."""
         topVals = [1e8] * x
         topIndex = [None] * x
-        for i in range(len(numList)):
-            val = numList[i]
+        for i in range(len(num_list)):
+            val = num_list[i]
 
             for j in range(x):
                 if topIndex[j] is None or val < topVals[j]:
@@ -329,7 +299,7 @@ class HeadingPredictModelLSTM(object):
                 topVals.pop(-1)
         return topVals, topIndex
 
-    def test(self, n, randomChoose = True):
+    def test(self, n, random_choose=True):
         """This runs each of the random n images in the folder of frames through the cell-output network, reporting how
         often the correct cell was produced0, and how often the correct heading was in the top 3 and top 5.
         Or when setting randomChoose to be false, it tests the model on the n-th image."""
@@ -339,11 +309,11 @@ class HeadingPredictModelLSTM(object):
         countPerfect = 0
         countTop3 = 0
         countTop5 = 0
-        if randomChoose:
+        if random_choose:
             iterations = n
         else: iterations = 1
         for i in range(iterations):
-            if randomChoose:
+            if random_choose:
                 index = random.randrange(95000)-1
             else: index = n - 1
             print("===========", index+1)
@@ -357,7 +327,7 @@ class HeadingPredictModelLSTM(object):
             headingIndex = potentialHeadings.index(heading)
             if headingIndex is 8:  # the 0th index is 0 degree and is the same as the 8th index 360 degrees
                 headingIndex = 0
-            pred, output = self.predictSingleImageAllData(image)
+            pred, output = self.predictSingleImageBatchAllData(image)
             topThreePercs, topThreeHeadings = self.findTopX(3, output)
             topFivePercs, topFiveHeadings = self.findTopX(5, output)
             print("heading index =", headingIndex, "   pred =", pred)
@@ -377,7 +347,6 @@ class HeadingPredictModelLSTM(object):
         print("Count of perfect:", countPerfect)
         print("Count of top 3:", countTop3)
         print("Count of top 5:", countTop5)
-
 
     def testnImagesAllHeadings(self, n):
         """
@@ -403,9 +372,8 @@ class HeadingPredictModelLSTM(object):
             frameTop3PredProb.update(frameTop3PredProbHeading)
         headings, successRates = self.getAllSuccessRates(successMap, failedMap)
         self.plotSuccessRates(headings, successRates)
-        self.showImagesNWorstHeadings(headings, successRates, n_frames_map, successMap, failedMap, frameProbability, bottomN = 3)
+        self.showImagesNWorstHeadings(headings, successRates, n_frames_map, successMap, failedMap, frameProbability, bottom_n= 3)
         self.logNWorstHeadings("HeadingPredBottom3AllFrames", headings, successRates, n_frames_map, successMap, failedMap, frameProbability, frameTop3PredProb, bottomN = 3)
-
 
     def testnImagesOneCell(self, heading, n):
         """
@@ -450,7 +418,6 @@ class HeadingPredictModelLSTM(object):
             headings.append(self.potentialHeadings[i])
         return headings
 
-
     def convertHeadingListtoIndex(self, list):
         """
         Helper function to convert a list of heading numbers into heading indices
@@ -463,13 +430,13 @@ class HeadingPredictModelLSTM(object):
             headingIndices.append(self.potentialHeadings.index(i))
         return headingIndices
 
-    def testOneHeading(self, heading, framesList):
+    def testOneHeading(self, heading, frames_list):
         """ Tests the performance of the RGB heading model in predicting one given heading.
         Takes in a heading number and a list of frames corresponding to the heading, and returns
         dictionaries recording successful and unsuccessful frames, prediction probabilities per frame,
         and top three predictions/probabilities per frame
         :param heading: heading number (int)
-        :param framesList: List of frames corresponding to the heading to be tested
+        :param frames_list: List of frames corresponding to the heading to be tested
         :return:
             successMap: Map of perfectly predicted test cases, heading number as keys and list of perfectly predicted frames as values
             failedMap: Map of incorrectly predicted test cases, heading number as keys and list of lists containing incorrect predictions and frames as values
@@ -480,14 +447,14 @@ class HeadingPredictModelLSTM(object):
         failedMap = {}
         frameProbability = {}
         frameTop3PredProb = {}
-        for frame in framesList:
+        for frame in frames_list:
             imFile = makeFilename(self.frames, frame)
             print(imFile)
             image = cv2.imread(imFile)
             if image is None:
                 print(" image not found")
                 continue
-            pred, output = self.predictSingleImageAllData(image)
+            pred, output = self.predictSingleImageBatchAllData(image)
             pred = self.potentialHeadings[int(pred)]
             topThreePercs, topThreeHeadings = self.findTopX(3, output)
             topThreeHeadings = self.convertIndexListtoHeading(topThreeHeadings)
@@ -503,53 +470,50 @@ class HeadingPredictModelLSTM(object):
                 failedMap[heading] = prevFails
         return successMap, failedMap, frameProbability, frameTop3PredProb
 
-
-    def getHeadingSuccessRate(self, heading, successMap, failedMap):
+    def getHeadingSuccessRate(self, heading, success_map, failed_map):
         """
         Calculates the success rate of one heading. Returns the number of total predictions for that heading and the success rate
         using data from the success map and failed predictions map. If the heading is missing from the dataset (i.e. no predictions
         then it returns 0 and 0.0 for total predictions and success rate.
         :param heading: actual heading number
-        :param successMap: Map of perfectly predicted test cases, heading number as keys and list of perfectly predicted frames as values
-        :param failedMap: Map of incorrectly predicted test cases, heading number as keys and list of lists containing incorrect predictions and frames as values
+        :param success_map: Map of perfectly predicted test cases, heading number as keys and list of perfectly predicted frames as values
+        :param failed_map: Map of incorrectly predicted test cases, heading number as keys and list of lists containing incorrect predictions and frames as values
         """
         totalPred = 0
-        if heading in failedMap:
-            totalPred += len(failedMap[heading])
-        if heading in successMap:
-            totalPred += len(successMap[heading])
+        if heading in failed_map:
+            totalPred += len(failed_map[heading])
+        if heading in success_map:
+            totalPred += len(success_map[heading])
         if totalPred > 0:
-            successRate = len(successMap.get(heading, 0)) / float(totalPred)
+            successRate = len(success_map.get(heading, 0)) / float(totalPred)
             return totalPred, successRate
         return totalPred, 0.0
 
-
-    def getAllSuccessRates(self, successMap, failedMap, excludeMissing=True, excludePerfect=False):
+    def getAllSuccessRates(self, success_map, failed_map, exclude_missing=True, exclude_perfect=False):
         """
         Calculates the success rate per cell number category, with the option to
         exclude cells that have a 1.0 perfect success rate or cells that do not show up in the randomly
         generated test cases.
 
-        :param successMap: Map of perfectly predicted test cases, cell number as keys and list of perfectly predicted frames as values
-        :param failedMap: Map of incorrectly predicted test cases, cell number as keys and list of lists containing incorrect predictions and frames as values
-        :param nCells: Int number of cells to calculate success rates, set to output size (271 cells) by default, useful when getting metrics for one cell only
-        :param excludeMissing: boolean value deciding whether to include cells not tested
-        :param excludePerfect: boolean value deciding whether to include cells with 100% accuracy of prediction
+        :param success_map: Map of perfectly predicted test cases, cell number as keys and list of perfectly predicted frames as values
+        :param failed_map: Map of incorrectly predicted test cases, cell number as keys and list of lists containing incorrect predictions and frames as values
+        :param exclude_missing: boolean value deciding whether to include cells not tested
+        :param exclude_perfect: boolean value deciding whether to include cells with 100% accuracy of prediction
         :return: List of cells (str) and list of success rates (float) of the cell in the same index
         """
         successRates = []
         headings = []
         for head in self.potentialHeadings:
-            totalPred, successRate = self.getHeadingSuccessRate(head, successMap, failedMap)
+            totalPred, successRate = self.getHeadingSuccessRate(head, success_map, failed_map)
             if totalPred > 0:
-                successRate = len(successMap.get(head, 0)) / float(totalPred)
+                successRate = len(success_map.get(head, 0)) / float(totalPred)
                 if successRate == 1.0:
-                    if excludePerfect:
+                    if exclude_perfect:
                         continue
                 headings.append(str(head))
                 successRates.append(successRate)
             else:
-                if not excludeMissing:
+                if not exclude_missing:
                     successRates.append(-1)
                     headings.append(str(head))
                 continue
@@ -557,20 +521,20 @@ class HeadingPredictModelLSTM(object):
         print("Number of headings: ", len(headings), "Number of success rates: ", len(successRates))
         return headings, successRates
 
-    def plotSuccessRates(self, headings, successRates):
+    def plotSuccessRates(self, headings, success_rates):
         """
         Plots success rates against cell number using matplotlib.
         :param headings: List of cells, each entry MUST be a string and indices must be aligned with successRates
-        :param successRates: List of success rates per cell, indices must be aligned with cells
+        :param success_rates: List of success rates per cell, indices must be aligned with cells
         :return:
         """
-        plt.scatter(headings, successRates)
+        plt.scatter(headings, success_rates)
         plt.xlabel('Heading Number', fontsize=16)
         plt.ylabel('Success Rate %', fontsize=16)
         plt.title('Success Rate Per Heading', fontsize=16)
         plt.show()
 
-    def showImagesNWorstHeadings(self, headings, successRates, framesMap, successMap, failedMap, frameProbability, bottomN = 3):
+    def showImagesNWorstHeadings(self, headings, success_rates, frames_map, success_map, failed_map, frame_probability, bottom_n=3):
         """
         Displays the n photos used in testnImagesEachHeading of the bottomN number of headings with the lowest accuracies.
         Each image window displays whether the frame was successfully or unsuccessfully predicted, the
@@ -578,36 +542,35 @@ class HeadingPredictModelLSTM(object):
         and the probability of the model predicting the wrong cell (if the photo was unsuccessfully predicted).
         Method is meant to be called inside testnImagesAllHeadings
         :param headings: List of headings tested, indices align with successRates
-        :param successRates: List of success rates per heading, indices align with headings
-        :param framesMap: Map of n randomly selected frames per heading with headings for keys, list of frames as values
-        :param successMap: Map of successful frames predicted per heading with headings for keys, list of frames as values
-        :param failedMap: Map of unsuccessfully predicted frames per heading, with headings for keys, list of lists containing
+        :param success_rates: List of success rates per heading, indices align with headings
+        :param frames_map: Map of n randomly selected frames per heading with headings for keys, list of frames as values
+        :param success_map: Map of successful frames predicted per heading with headings for keys, list of frames as values
+        :param failed_map: Map of unsuccessfully predicted frames per heading, with headings for keys, list of lists containing
         failed predicted heading and frame number
-        :param frameProbability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities
+        :param frame_probability: Map of probabilities per frame, with frame numbers for keys, and list of probabilities
         for each heading generated by the model as values
-        :param bottomN: number of n lowest performing headings
+        :param bottom_n: number of n lowest performing headings
         :return:
         """
-        bottomNRate, bottomNCellID = self.findBottomX(bottomN, successRates)
+        bottomNRate, bottomNCellID = self.findBottomX(bottom_n, success_rates)
         print(bottomNRate)
         print(bottomNCellID)
-        for i in range(bottomN):
+        for i in range(bottom_n):
             worstSuccessRate = bottomNRate[i]
             indexOfWorstHeading = bottomNCellID[i]
             worstHeading = int(headings[indexOfWorstHeading])
 
             #get list of nested lists containing [list of failed frames], [list of failed predictions each frame]
-            listOfFramesFailedPred = failedMap.get(worstHeading, [])
+            listOfFramesFailedPred = failed_map.get(worstHeading, [])
 
             #create new map with failed frame number as keys, failed prediction per frame as values
             headingFailFramesMap ={list[0]:list[1] for list in listOfFramesFailedPred}
 
             print('Worst Performing Heading: ', worstHeading, " Success Rate: ", worstSuccessRate)
-            framesList = framesMap.get(worstHeading)
-            successFrames = successMap.get(worstHeading)
+            framesList = frames_map.get(worstHeading)
+            successFrames = success_map.get(worstHeading)
 
-            self.showImagesOneHeading(worstHeading, framesList, frameProbability, successFrames, headingFailFramesMap)
-
+            self.showImagesOneHeading(worstHeading, framesList, frame_probability, successFrames, headingFailFramesMap)
 
     def showImagesOneHeading(self, heading, framesList, frameProbability, successFrames, headingFailFramesMap):
         """
@@ -676,7 +639,6 @@ class HeadingPredictModelLSTM(object):
                     [frame, str(heading), str(predHeading), "F", str(headingSuccessRate), str(probActualHeading),
                      str(probForWrongPrediction), str(frameTop3PredHeading), str(frameTop3Prob)])
 
-
     def logNWorstHeadings(self, filename, headings, successRates, framesMap, successMap, failedMap, frameProbability,
                           frameTop3PredProb, bottomN=1):
         """
@@ -721,7 +683,6 @@ class HeadingPredictModelLSTM(object):
         csvLog.close()
 
 
-
 # def loading_bar(start,end, size = 20):
 #     # Useful when running a method that takes a long time
 #     loadstr = '\r'+str(start) + '/' + str(end)+' [' + int(size*(float(start)/end)-1)*'='+ '>' + int(size*(1-float(start)/end))*'.' + ']'
@@ -729,23 +690,18 @@ class HeadingPredictModelLSTM(object):
 #         print(loadstr)
 
 if __name__ == "__main__":
-    #check_data()
     headingPredictor = HeadingPredictModelLSTM(
-        data_name="FullData",
-        checkPointFolder=checkPts,
-        imagesFolder=frames,
-        labelMapFile=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
-        loaded_checkpoint="headingPredictorRGB100epochs.hdf5",
+        data_name="HeadingPredict224",
+        checkpoint_folder=checkPts,
+        images_folder=framesDataPath,
+        label_map_file=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
     )
 
     headingPredictor.buildNetwork()
 
-    #for training:
+    # For training:
+    # Call prepDatasets
+    # Call a train method
 
-    # headingPredictor.prepDatasets()
-    # headingPredictor.train_withGenerator(headingPredictor.train_ds, headingPredictor.val_ds, epoch = 20)
-
-    #for testing:
-
-    headingPredictor.testnImagesAllHeadings(100)
-    headingPredictor.testnImagesOneCell(315, 50)
+    # For testing:
+    # The testing methods have not been changed from the 2022 file
