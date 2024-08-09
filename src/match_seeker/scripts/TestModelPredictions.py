@@ -2,8 +2,9 @@
 Tests the model predictions on a set of frames from a data collection run. It displays the images from the
 robot alongside text stating the model's predictions on cell and heading. It also creates a file with the returned
 predictions of the model and the actual cell and headings of each frame.
-Currently works for the 2022 models.
+Currently works for the 2024 LSTM models.
 Works on Tensorflow and Keras 2.15.0 with Python 3.9, for reasons still unknown.
+Currently saves the txt files to the testing scripts folder.
 
 Created: Summer 2024
 Author: Oscar Reza B. and Elisa Avalos
@@ -11,11 +12,12 @@ Author: Oscar Reza B. and Elisa Avalos
 
 import os
 import cv2
+import sys
 
 from olri_classifier.cnnRunModel import ModelRunLSTM
 import OlinWorldMap
 
-# Set data path for Precision 5820  # TODO: Consider adding option to set path for other devices
+# Set data path for Precision 5820
 mainPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/DATA/"
 evalPath = mainPath + "Evaluation2024Data/"
 
@@ -33,6 +35,7 @@ olinMap = OlinWorldMap.WorldMap()
 
 # Read in the folder path
 framesFolderList = sorted(os.listdir(framesDataPath))
+print(f"{len(framesFolderList)} folders found!")
 
 folderN = ""
 folderName = ""
