@@ -10,6 +10,7 @@ untested, so they might need some tweaking for them to work with this new model.
 
 import cv2
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
 
@@ -682,6 +683,14 @@ class HeadingPredictModelLSTM(object):
                             frameProbability, frameTop3PredProb)
         csvLog.close()
 
+    def evaluateModel(self):
+        print("Evaluating with training data")
+        results_val = self.model.evaluate(self.train_ds)
+        print(results_val)
+        print("Evaluating with validation data")
+        results_val = self.model.evaluate(self.val_ds)
+        print(results_val)
+
 
 # def loading_bar(start,end, size = 20):
 #     # Useful when running a method that takes a long time
@@ -695,6 +704,7 @@ if __name__ == "__main__":
         checkpoint_folder=checkPts,
         images_folder=framesDataPath,
         label_map_file=DATA + "MASTER_CELL_LOC_FRAME_IDENTIFIER.txt",
+        loaded_checkpoint="2024HeadingPredict_checkpoint-0717241135/TestHeadingInCellPredAdam224Corrected-61-0.07.keras",
     )
 
     headingPredictor.buildNetwork()
@@ -702,6 +712,10 @@ if __name__ == "__main__":
     # For training:
     # Call prepDatasets
     # Call a train method
+
+    # For evaluation
+    headingPredictor.prepDatasets()
+    headingPredictor.evaluateModel()
 
     # For testing:
     # The testing methods have not been changed from the 2022 file
