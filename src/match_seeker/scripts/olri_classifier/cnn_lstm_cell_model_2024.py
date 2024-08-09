@@ -717,20 +717,33 @@ class CellPredictModelLSTM(object):
         plt.title('Confusion Matrix', fontsize=18)
         plt.show()
 
+    def evaluateModel(self):
+        # print("Evaluating with training data")
+        # results_val = self.model.evaluate(self.train_ds)
+        # print(results_val)
+        print("Evaluating with validation data")
+        results_val = self.model.evaluate(self.val_ds)
+        print(results_val)
+
 
 if __name__ == "__main__":
     cellPredictor = CellPredictModelLSTM(
         data_name="CellPredAdam224",
         images_folder=framesDataPath,
         batch_size=10,
-        check_point_folder=checkPts
+        check_point_folder=checkPts,
+        loaded_checkpoint="2024CellPredictLSTM_checkpoint-0802241319/CellPredAdam224-89-1.29.keras",
     )
 
     cellPredictor.buildNetwork()
 
-    # For training
+    # For evaluating model
     cellPredictor.prepDatasets()
-    cellPredictor.train(epochs = 100)
+    cellPredictor.evaluateModel()
+
+    # For training
+    # cellPredictor.prepDatasets()
+    # cellPredictor.train(epochs=100)
 
     # For testing
     # Testing methods were not used in 2024
