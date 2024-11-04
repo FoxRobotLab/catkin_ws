@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="dead_reckoning_seeker" type="matchPlanner.py" name="dead_reckoning_seeker" output="screen" />
+
+</launch>
