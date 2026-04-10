@@ -26,3 +26,5 @@ devel/
 build/
 src/match_seeker/scripts/olri_classifier/creatingMapBackUp.py
 .editorconfig
+
+src/collision_avoidance/res
