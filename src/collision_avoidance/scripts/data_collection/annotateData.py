@@ -60,7 +60,7 @@ def estimate_3d_position_from_bbox(x0, y0, x1, y1, img_w, real_height=1.75):
 
     bbox_cx = (x0 + x1) / 2
 
-    f = img_w
+    f = img_w #approximate focal length
     cx_img = img_w / 2
 
     #stabilize depth using bottom anchor assumption
@@ -136,7 +136,7 @@ def displayFrameWithAnnotations(framePath, labelPath):
     x0, y0, x1, y1 = map(float, attribs[2:6])
 
     #compute x and z from 2D bounding box 
-    cx, cz = estimate_3d_position_from_bbox(x0, y0, x1, y1, w_img, h_img)
+    cx, cz = estimate_3d_position_from_bbox(x0, y0, x1, y1, w_img)
 
     cy = 0   
 
