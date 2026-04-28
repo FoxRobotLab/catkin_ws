@@ -4,13 +4,9 @@ import math
 
 # Define paths, modify as needed
 BASE_PATH = "/home/ryan/catkin_ws"
-DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/mock_ds/")
-LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260416-0119frames")
-IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260416-0119frames")
-
-#output folder for annotated images
-OUTPUT_PATH = os.path.join(DATASET_PATH, "annotated_images")
-os.makedirs(OUTPUT_PATH, exist_ok=True)
+DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/data_collection_apr_23/")
+LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1543frames")
+IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1543frames")
 
 def getFramePaths(imagesPath: str):
     """Gets the list of paths for jpg files with frame images."""
@@ -49,12 +45,13 @@ def formatAttributes(personAttribs: list):
 
     return identifiers, boundingBox, realMeasures, distances
 
+
+
 #estimate 3D position from 2D bounding box
 def estimate_3d_position_from_bbox(x0, y0, x1, y1, img_w, real_height=1.75):
     """
     Takes in known dimensions and extrapilates into 3D bounding box
     """
-
     #use bottom of bbox as anchor reference
     bbox_h = max(1e-6, (y1 - y0))
 
@@ -119,7 +116,41 @@ def draw_3d_box(frame, corners_2d):
             cv2.line(frame, corners_2d[i], corners_2d[j], (0,255,0), 2)
 
 
-def displayFrameWithAnnotations(framePath, labelPath):
+def displayFrameWith2dAnnotations(framePath, labelPath):
+    frame = cv2.imread(framePath)
+
+    people = getAttributes(labelPath)
+
+    #handle empty label files (no people in frame)
+    if len(people) == 0:
+        return frame  # just return clean image with no annotations
+    
+
+    attribs = getAttributes(labelPath)[0]  # TODO: implement handling for more than one person
+    ids, box, measures, distances = formatAttributes(attribs)
+
+    # Draw the bounding box
+    cv2.rectangle(frame, (int(float(attribs[2])), int(float(attribs[3]))), (int(float(attribs[4])), int(float(attribs[5]))), (0, 0, 255), 3)
+
+    # Insert text
+    cv2.putText(frame, ids, (10, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+    cv2.putText(frame, box, (10, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+    cv2.putText(frame, measures, (10, 440), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+    cv2.putText(frame, distances, (10, 460), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+
+    # Display annotated frame
+    cv2.imshow("Annotated Frame", frame)
+
+    # Handle quit
+    key = cv2.waitKey()
+    ch = chr(key & 0xFF)
+
+    if ch == "q":
+      cv2.destroyAllWindows()
+
+
+
+def displayFrameWith3dAnnotations(framePath, labelPath):
     frame = cv2.imread(framePath)
     h_img, w_img = frame.shape[:2]
 
@@ -169,27 +200,6 @@ def displayFrameWithAnnotations(framePath, labelPath):
     return frame  
 
 
-#batch processing pipeline
-def runBatch():
-    framePaths = sorted(getFramePaths(IMAGES_PATH))
-
-    for framePath in framePaths:
-
-        labelPath = getMatchingLabelPath(framePath)
-
-        if not os.path.exists(labelPath):
-            print(f"Missing label for {framePath}, skipping")
-            continue
-
-        frame = displayFrameWithAnnotations(framePath, labelPath)
-
-        outName = os.path.basename(framePath)
-        outPath = os.path.join(OUTPUT_PATH, outName)
-
-        cv2.imwrite(outPath, frame)
-
-        print(f"Saved: {outPath}")
-
-
 if __name__ == "__main__":
-    runBatch()
+    displayFrameWith2dAnnotations(framePath="/home/ryan/catkin_ws/src/collision_avoidance/res/data_collection_apr_23/images/20260423-1543frames/frame20260423-154407.jpg",
+                                labelPath="/home/ryan/catkin_ws/src/collision_avoidance/res/data_collection_apr_23/labels/20260423-1543frames/frame20260423-154407.txt")
