@@ -17,8 +17,8 @@ import os
 # Define paths, modify as needed
 BASE_PATH = "/home/ryan/catkin_ws"
 DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/data_collection_apr_23/")
-LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1613frames")
-IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1613frames")
+LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1557frames")
+IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1557frames")
 
 OUTPUT_IMAGES_PATH = os.path.join(DATASET_PATH, "annotated_images")
 os.makedirs(OUTPUT_IMAGES_PATH, exist_ok=True)
@@ -146,8 +146,13 @@ def displayAndModify(framePath, labelPath):
         frame = cv2.imread(framePath).copy()
         attribs = getAttributes(labelPath)
 
+        colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]
+
+        #Need to default to a color for drawing bounding box if no people in the frame
+        color = colors[0]
+
         if len(attribs) != 0:
-            colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]
+            
 
             for i in range(0, len(attribs)):
                 person = attribs[i]
