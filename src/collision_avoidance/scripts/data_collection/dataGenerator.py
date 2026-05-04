@@ -155,9 +155,9 @@ val: valid/images
 
 names:
   0: 0
-  90: 90
-  180: 180
-  270: 270
+  1: 90
+  2: 180
+  3: 270
 """.strip()
 
     with open(os.path.join(outputDir, "data.yaml"), "w") as f:
