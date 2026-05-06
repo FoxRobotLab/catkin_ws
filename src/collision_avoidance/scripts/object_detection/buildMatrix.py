@@ -15,7 +15,7 @@ import os
 
 # Define paths, modify as needed
 BASE_PATH = "/home/ryan/catkin_ws"
-DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/20260429-18XXframes")
+DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/callibration_frames/")
 IMAGES_PATH = os.path.join(DATASET_PATH, "20260429-1833frames")
 
 OUTPUT_IMAGES_PATH = os.path.join(DATASET_PATH, "annotated_images")
@@ -62,7 +62,7 @@ def drawGrid(framePath):
 
 
 def buildStruct(framePath):
-    with open('points.txt', encoding="utf-8") as f:
+    with open('points2.txt', encoding="utf-8") as f:
         for line in f:
             points.append(line)
     drawGrid(framePath)
@@ -125,7 +125,7 @@ def displayAndModify(framePath):
 
                     print(f"Added Point: {x}, {y}")
                     points.append((x, y))
-                    with open("points.txt", "a") as f:
+                    with open("points2.txt", "a") as f:
                         new_line = f"{x},{y}\n"
                         f.write(new_line)
                     break
@@ -151,5 +151,5 @@ def runModifier(imagesPath):
 
 
 if __name__ == "__main__":
-    buildStruct("/home/ryan/catkin_ws/src/collision_avoidance/res/20260429-18XXframes/20260429-1811frames/frame20260429-181224.jpg")
-    #runModifier(IMAGES_PATH)
+    #buildStruct("/home/ryan/catkin_ws/src/collision_avoidance/res/callibration_frames/20260429-1811frames/frame20260429-181224.jpg")
+    runModifier(IMAGES_PATH)
