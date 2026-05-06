@@ -1,36 +1,45 @@
 """--------------------------------------------------------------------------------
-annotateData.py
-Author: Oscar Reza B. and Ryan Maule
+fixAnnotations.py
+Authors: Oscar Reza B. and Ryan Maule
+Spring 2026
 
 This program helps correct annotations for collected data with the purpose of
-training a 3d object detector.
+training a 3d object detector. It can handle multiple people in a single frame.
 
-To run this program, we must have a directory with images and labels subdirectories
-with the relevant jpg and txt files.
+To run this program, ensure all txt files have a new empty line at the end for the
+script to work properly.
 
-TODO: this program currently works only for frames with one person in it.
-    We must modify it to handle multiple people visible
+Usage: modify the paths to look into the desired folders. Then use the cv2 windows
+and the command line to modify the annotations as needed,
+
+TODO: add an assertion to check when there are no corresponding txt files for a
+    given image file. That is, throw a warning or exception if there are more
+    jpg files than txt files in a given directory, and viceversa.
 --------------------------------------------------------------------------------"""
 import cv2
 import os
+import numpy as np
 
 # Define paths, modify as needed
-BASE_PATH = "/home/ryan/catkin_ws"
-DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/data_collection_apr_23/")
-LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1557frames")
-IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1557frames")
+BASE_PATH = "/Users/oscarrezab/GitHub/macalester/catkin_ws"
+DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/annotated_data_apr_23/")
+LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-####frames")
+IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-####frames")
 
-OUTPUT_IMAGES_PATH = os.path.join(DATASET_PATH, "annotated_images")
-os.makedirs(OUTPUT_IMAGES_PATH, exist_ok=True)
+# Flag for saving annotated frames
+OUTPUT_FLAG = False  # set as desired
+if OUTPUT_FLAG:
+    OUTPUT_IMAGES_PATH = os.path.join(DATASET_PATH, "annotated_images")
+    os.makedirs(OUTPUT_IMAGES_PATH, exist_ok=True)
 
-#used fot manually drawing bounding box
+# Used fot manually drawing bounding box
 drawing = False
 ix, iy = -1, -1
 new_box = None
 
 def draw_bbox(event, x, y, tags, param):
-    """when yolo misses a person click b to draw a new bounding box, then enter to 
-    confirm the bounding box"""
+    """When YOLO misses a person, type b to draw a new bounding box, then hit enter to
+    confirm the bounding box."""
     global drawing, ix, iy, new_box
 
     if event == cv2.EVENT_LBUTTONDOWN:
@@ -47,7 +56,7 @@ def draw_bbox(event, x, y, tags, param):
 
 
 def addNewPerson(labelPath, boxCoords, personId):
-    """After confirming new bounding box for a person, add with default vals to labels file"""
+    """After confirming new bounding box for a person, add with default vals to labels file."""
     x0, y0, x1, y1 = boxCoords
     new_line = f"{personId} movementStatus {x0} {y0} {x1} {y1} theta 1.75 0.5 0.5 longDistInM latDistInM\n"
     with open(labelPath, "a") as f:
@@ -96,7 +105,7 @@ def formatAttributes(personAttribs: list):
     return identifiers, boundingBox, realMeasures, distances
 
 
-def updateAnnotations(labelPath, personIndex, movementStatus, boxCoords, movementDir, height, width, longitudinalDist, latitudinalDist):
+def updateAnnotations(labelPath, personIndex, movementStatus, boxCoords, movementDir, height, width, longitudinalDist="longitudinalDist", latitudinalDist="latitudinalDist"):
     """Grabs the first line and updates it with the given attributes."""
     with open(labelPath, 'r') as file:
         lines = file.readlines()
@@ -121,7 +130,7 @@ def updateAnnotations(labelPath, personIndex, movementStatus, boxCoords, movemen
             annotAttribs[4] = x1
             annotAttribs[5] = y1
 
-        newAnnot = f"{annotAttribs[0]} {annotAttribs[1]} {annotAttribs[2]} {annotAttribs[3]} {annotAttribs[4]} {annotAttribs[5]} {annotAttribs[6]} {annotAttribs[7]} {annotAttribs[8]} {annotAttribs[9]} {annotAttribs[10]} {annotAttribs[11]}"
+        newAnnot = f"{annotAttribs[0]} {annotAttribs[1]} {annotAttribs[2]} {annotAttribs[3]} {annotAttribs[4]} {annotAttribs[5]} {annotAttribs[6]} {annotAttribs[7]} {annotAttribs[8]} {annotAttribs[9]} {annotAttribs[10]} {annotAttribs[11]}\n"
         if len(lines) > 0:
             lines[personIndex] = newAnnot
         else:
@@ -145,14 +154,10 @@ def displayAndModify(framePath, labelPath):
     while True:
         frame = cv2.imread(framePath).copy()
         attribs = getAttributes(labelPath)
-
-        colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]
-
-        #Need to default to a color for drawing bounding box if no people in the frame
-        color = colors[0]
+        attribs_window = np.zeros((360, 640, 3), dtype=np.uint8)
 
         if len(attribs) != 0:
-            
+            colors = [(0, 0, 255), (0, 255, 255), (0, 255, 0), (255, 0, 0), (255, 0, 255), (255, 255, 0)]
 
             for i in range(0, len(attribs)):
                 person = attribs[i]
@@ -175,7 +180,13 @@ def displayAndModify(framePath, labelPath):
                             color,
                             2)
 
-            ids, box, measures, distances = formatAttributes(attribs[personIndex])
+                ids, box, measures, distances = formatAttributes(person)
+
+                cv2.putText(attribs_window, ids, (10, i*40 + 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+                cv2.putText(attribs_window, box, (320, i*40 + 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+                cv2.putText(attribs_window, measures, (10, i*40 + 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+                cv2.putText(attribs_window, distances, (320, i*40 + 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+
         else:
             ids, box, measures, distances = "No people", "", "", ""
 
@@ -183,20 +194,19 @@ def displayAndModify(framePath, labelPath):
             x0, y0, x1, y1 = new_box
             cv2.rectangle(frame, (x0, y0), (x1, y1), color, 2)
 
-        cv2.putText(frame, ids, (10, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-        cv2.putText(frame, box, (10, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-        cv2.putText(frame, measures, (10, 440), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-        cv2.putText(frame, distances, (10, 460), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
-        cv2.putText(frame,
+
+        cv2.putText(attribs_window,
                     "[n] next  [m] modify  [j/k] switch person  [b] add box  [q] quit",
                     (10, 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
         cv2.imshow("Annotated Frame", frame)
+        cv2.imshow("People information", attribs_window)
 
-        out_path = os.path.join(OUTPUT_IMAGES_PATH, os.path.basename(framePath))
-        cv2.imwrite(out_path, frame)
+        if OUTPUT_FLAG:
+            out_path = os.path.join(OUTPUT_IMAGES_PATH, os.path.basename(framePath))
+            cv2.imwrite(out_path, frame)
 
         key = cv2.waitKey(0)
 
@@ -231,8 +241,9 @@ def displayAndModify(framePath, labelPath):
             movementDir = input("direction (0/90/180/270): ")
             height = input("height: ")
             width = input("width: ")
-            longitudinalDist = input("long dist: ")
-            latitudinalDist = input("lat dist: ")
+            # longitudinalDist = input("long dist: ")
+            # latitudinalDist = input("lat dist: ")
+            print(f"\n\tdone with this image person {personIndex + 1}\n")
 
             updateAnnotations(labelPath,
                               personIndex,
@@ -241,8 +252,8 @@ def displayAndModify(framePath, labelPath):
                               movementDir,
                               height,
                               width,
-                              longitudinalDist,
-                              latitudinalDist)
+                              "longitudinalDist",
+                              "latitudinalDist")
 
         #Draw New bounding box
         elif key == ord('b'):
@@ -255,7 +266,7 @@ def displayAndModify(framePath, labelPath):
 
                 if new_box is not None:
                     x0, y0, x1, y1 = new_box
-                    cv2.rectangle(temp_frame, (x0, y0), (x1, y1), color, 2)
+                    cv2.rectangle(temp_frame, (x0, y0), (x1, y1), (0, 0, 255), 2)
 
                 cv2.imshow("Annotated Frame", temp_frame)
                 k = cv2.waitKey(1)
