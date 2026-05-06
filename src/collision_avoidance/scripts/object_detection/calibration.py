@@ -10,7 +10,7 @@ image_points = np.array([
     [80, 120]    # top-left
 ], dtype=np.float32)
 
-# Real-world coordinates using tiles(estimated)
+# Real-world coordinates using tiles(estimated from images)
 world_points = np.array([
     [0, 0],
     [2, 0],

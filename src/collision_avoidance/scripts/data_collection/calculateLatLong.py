@@ -9,6 +9,7 @@ def estimate(x0, y0, x1, y1, real_h, img_w=640):
     cx = (x0 + x1) / 2
     cx_img = img_w / 2
 
+
     z = (img_w * real_h) / bbox_h
     x = -((cx - cx_img) * z / img_w)
 
@@ -45,6 +46,7 @@ def process_file(path):
     # overwrite file
     with open(path, "w") as f:
         f.write("\n".join(new_lines))
+
 
 
 def run_batch():

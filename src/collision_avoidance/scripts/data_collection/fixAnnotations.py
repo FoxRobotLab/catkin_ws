@@ -21,10 +21,10 @@ import os
 import numpy as np
 
 # Define paths, modify as needed
-BASE_PATH = "/Users/oscarrezab/GitHub/macalester/catkin_ws"
-DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/annotated_data_apr_23/")
-LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-####frames")
-IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-####frames")
+BASE_PATH = "/home/ryan/catkin_ws"
+DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/data_collection_apr_23/")
+LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1557frames")
+IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1557frames")
 
 # Flag for saving annotated frames
 OUTPUT_FLAG = False  # set as desired
@@ -356,7 +356,47 @@ def renderFromLabels(imagesPath, labelsPath, outputPath):
 
         print("Rendered:", os.path.basename(imageFile))
 
+
+def get_base_names(folder, valid_exts):
+    """Return a set of filenames without extensions."""
+    return {
+        os.path.splitext(f)[0]
+        for f in os.listdir(folder)
+        if os.path.splitext(f)[1].lower() in valid_exts
+    }
+
+def find_unmatched(images_path, labels_path):
+    image_bases = get_base_names(images_path, {".jpg", ".jpeg", ".png"})
+    label_bases = get_base_names(labels_path, {".txt"})
+
+    missing_labels = sorted(image_bases - label_bases)
+    missing_images = sorted(label_bases - image_bases)
+
+    print("\n=== SUMMARY ===")
+    print(f"Images without labels: {len(missing_labels)}")
+    print(f"Labels without images: {len(missing_images)}")
+
+    print("\n=== IMAGES MISSING LABELS ===")
+    for name in missing_labels:
+        print(name)
+
+    print("\n=== LABELS MISSING IMAGES ===")
+    for name in missing_images:
+        print(name)
+
+    # Optional: write to files
+    with open("missing_labels.txt", "w") as f:
+        f.write("\n".join(missing_labels))
+
+    with open("missing_images.txt", "w") as f:
+        f.write("\n".join(missing_images))
+
+
+if __name__ == "__main__":
+    find_unmatched(IMAGES_PATH, LABELS_PATH)
 if __name__ == "__main__":
     # out_dir = os.path.join(DATASET_PATH, "rendered_from_labels")
     # renderFromLabels(IMAGES_PATH, LABELS_PATH, out_dir)
+    #createEmptyLabelFiles(LABELS_PATH)
     runModifier(IMAGES_PATH, LABELS_PATH)
+    #find_unmatched(IMAGES_PATH, LABELS_PATH)
