@@ -3,58 +3,90 @@ import os
 import numpy as np
 
 
-#Adjust as needed 
 BASE_PATH = "/home/ryan/catkin_ws"
 DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/may_3__annotated_data_apr_23/may_3__annotated_data_apr_23/annotated_data_apr_23")
 
 IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1613frames")
 LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1613frames")
 
+OUTPUT_PATH = os.path.join(DATASET_PATH, "risk_annotated_frames")
+os.makedirs(OUTPUT_PATH, exist_ok=True)
+
 H = np.load("homography.npy")
 
-
-
-#Basically assume when the robot is in position, the closest row of tiles will be 2 across
-#to fill up the image width
 X_MIN = 0.0
 X_MAX = 2.0
-robot_x = (X_MIN + X_MAX) / 2 
+robot_x = (X_MIN + X_MAX) / 2
 
-#Weird transfromation stuff from cv docs
+#Got this from documentatino, but maps x,y coords to real world points
+#based on homoegraphy file
 def pixel_to_world(x, y, H):
     point = np.array([[[x, y]]], dtype=np.float32)
     world_point = cv2.perspectiveTransform(point, H)
     return world_point[0][0]
 
+#Check rule table for assumptions and rule judgement
+def classify_risk(x, y, direction, movementStatus):
+
+    dx = x - robot_x
 
 
-def classify_risk(x, y):
+    #if person x is higher then robot x they are to the right 
+    right = dx > 0
 
-    dx = x - robot_x  
+    min_y = 3.75
+    max_y = 4.5
 
-    base_width = 0.2
-    scale = 0.15
-    allowed_dx = base_width + scale * y
+    #Create a function to bump up just one risk level
 
-    #normalize lateral distance
-    lateral_score = abs(dx) / allowed_dx
+    print("dx: ", abs(dx))
+    if y < min_y and abs(dx) < 0.6:
 
-    #arbitrary, chosen based off of observed pattersn in images
-    min_y = 4
-    max_y = 5
+        #This will be classified as high unless person is moving away from bot
+        if movementStatus.lower() == 'm':
+            
+            #If person is moving away from robot 
+            if right and direction == '270':
+                return "LOW"
+            
+            if not right and direction == '90':
+                return "LOW"
+            
+            #If person is moving away from robot longitudally
+            if direction == '0':
+                return "LOW"
 
-    #use combo of lateral dist and long dist, also kind of arbitrary
-    if y < min_y and lateral_score < 0.6:
         return "HIGH"
 
-    elif y < max_y and lateral_score < 1.2:
+    elif y < max_y:
+        #handle movement status
+        if movementStatus.lower() == 'm' and abs(dx) < 1.2:
+
+            #For medium if a person is facing the bot they could be classified as higher risk
+            if direction == '180':
+                return "HIGH"
+            
+            #If person is moving away from robot longitudally
+            if direction == '0':
+                return "LOW"
+
+            #If person is moving away from robot laterally
+            if right and direction == '270':
+                return "LOW"
+            
+            if not right and direction == '90':
+                return "LOW"
+
+
         return "MEDIUM"
 
     else:
+
+        #For now dont worry about movement status for low 
         return "LOW"
 
 
-def load_bboxes(label_path):
+def load_data(label_path):
     boxes = []
 
     if not os.path.exists(label_path):
@@ -63,8 +95,7 @@ def load_bboxes(label_path):
     with open(label_path, "r") as f:
         for line in f:
             parts = line.strip().split()
-            
-            #Only works if we have all 4 valid bbox coords
+
             if len(parts) < 6:
                 continue
 
@@ -72,33 +103,58 @@ def load_bboxes(label_path):
             y1 = float(parts[3])
             x2 = float(parts[4])
             y2 = float(parts[5])
+            direction = parts[6]
+            movementStatus = parts[1]
 
-            boxes.append((x1, y1, x2, y2))
+            boxes.append((x1, y1, x2, y2, direction, movementStatus))
 
     return boxes
 
-#Just draw on boxes
-def process_detections(bboxes, H):
+
+def process_detections(data, H):
     results = []
 
-    for (x1, y1, x2, y2) in bboxes:
-        foot_x = (x1 + x2) / 2
-        foot_y = y2
+    risk_priority = {
+        "LOW": 0,
+        "MEDIUM": 1,
+        "HIGH": 2
+    }
 
-        x, y = pixel_to_world(foot_x, foot_y, H)
 
-        risk = classify_risk(x, y)
+    for (x1, y1, x2, y2, direction, movementStatus) in data:
+
+        width = x2 - x1
+
+        sample_points = [
+            x1 + 0.15 * width,
+            (x1 + x2) / 2,
+            x2 - 0.15 * width
+        ]
+
+        highest_risk = "LOW"
+
+        center_x = (x1 + x2) / 2
+        best_world = pixel_to_world(center_x, y2, H)
+
+        for px in sample_points:
+
+            world_x, world_y = pixel_to_world(px, y2, H)
+
+            current_risk = classify_risk(world_x, world_y, direction, movementStatus)
+
+            if risk_priority[current_risk] > risk_priority[highest_risk]:
+                highest_risk = current_risk
+                best_world = (world_x, world_y)
 
         results.append({
             "bbox": (x1, y1, x2, y2),
-            "world": (float(x), float(y)),
-            "risk": risk
+            "world": (float(best_world[0]), float(best_world[1])),
+            "risk": highest_risk
         })
 
     return results
 
 
-#annotate image with classifications
 def draw_results(frame, results):
     for r in results:
         x1, y1, x2, y2 = r["bbox"]
@@ -118,15 +174,28 @@ def draw_results(frame, results):
                       color, 2)
 
         label = f"{risk} ({X:.2f},{Y:.2f})"
-        cv2.putText(frame, label,
+
+        cv2.putText(frame,
+                    label,
                     (int(x1), int(y1) - 10),
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, color, 2)
+                    0.5,
+                    color,
+                    2)
 
     return frame
 
 
-#-------File Processing and frame control stuff-------
+def save_annotated_frame(output_frame, image_path):
+
+    filename = os.path.basename(image_path)
+
+    out_path = os.path.join(OUTPUT_PATH, filename)
+
+    cv2.imwrite(out_path, output_frame)
+
+    print("Saved:", out_path)
+
 
 def get_frame_paths(images_path):
     return [os.path.join(images_path, f)
@@ -152,19 +221,23 @@ def run_viewer():
         print("Processing:", os.path.basename(image_path))
 
         frame = cv2.imread(image_path)
+
         if frame is None:
             print("Failed to load image")
             continue
 
         label_path = get_label_path(image_path)
-        bboxes = load_bboxes(label_path)
 
-        results = process_detections(bboxes, H)
+        data = load_data(label_path)
+
+        results = process_detections(data, H)
 
         for r in results:
             print("World:", r["world"], "Risk:", r["risk"])
 
         output = draw_results(frame.copy(), results)
+
+        save_annotated_frame(output, image_path)
 
         while True:
             cv2.imshow("Risk Viewer", output)
