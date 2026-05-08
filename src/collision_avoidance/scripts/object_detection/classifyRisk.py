@@ -1,258 +1,289 @@
+"""
+A class to classify risk of collision based on the predicted bounding box, movement status, and movement direction.
+
+To do this, we first compute the estimate real-world position of each pedestrian using the predicted bounding box,
+then we add the other attributes to determine the risk of collision.
+
+Authors: Ryan Maule and Oscar Reza B.
+Spring 2026
+"""
 import cv2
 import os
 import numpy as np
 
 
-BASE_PATH = "/home/ryan/catkin_ws"
-DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/may_3__annotated_data_apr_23/may_3__annotated_data_apr_23/annotated_data_apr_23")
+class RiskClassifier:
+    def __init__(self, base_path, save_flag=False, homography_path="homography.npy", verbose=False):
+        self.SAVE_FLAG = save_flag
+        self.BASE_PATH = base_path
+        self.DATASET_PATH = os.path.join(self.BASE_PATH, "src/collision_avoidance/res/train_data_annotated")
+        self.IMAGES_PATH = os.path.join(self.DATASET_PATH, "images/20260423-1613frames")
+        self.LABELS_PATH = os.path.join(self.DATASET_PATH, "labels/20260423-1613frames")
+        self.OUTPUT_PATH = os.path.join(self.DATASET_PATH, "risk_annotated_frames")
+        self.VERBOSE = verbose
 
-IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1613frames")
-LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1613frames")
+        os.makedirs(self.OUTPUT_PATH, exist_ok=True)
 
-OUTPUT_PATH = os.path.join(DATASET_PATH, "risk_annotated_frames")
-os.makedirs(OUTPUT_PATH, exist_ok=True)
+        self.H = np.load(homography_path)
 
-H = np.load("homography.npy")
+        self.X_MIN = 0.0
+        self.X_MAX = 2.0
+        self.robot_x = (self.X_MIN + self.X_MAX) / 2
 
-X_MIN = 0.0
-X_MAX = 2.0
-robot_x = (X_MIN + X_MAX) / 2
+        self.risk_priority = {
+            "LOW": 0,
+            "MEDIUM": 1,
+            "HIGH": 2
+        }
 
-#Got this from documentatino, but maps x,y coords to real world points
-#based on homoegraphy file
-def pixel_to_world(x, y, H):
-    point = np.array([[[x, y]]], dtype=np.float32)
-    world_point = cv2.perspectiveTransform(point, H)
-    return world_point[0][0]
+    def pixel_to_world(self, x, y):
+        """
+        Maps image pixel coordinates to real-world coordinates using the homography matrix.
+        """
+        point = np.array([[[x, y]]], dtype=np.float32)
+        world_point = cv2.perspectiveTransform(point, self.H)
 
-#Check rule table for assumptions and rule judgement
-def classify_risk(x, y, direction, movementStatus):
+        return world_point[0][0]
 
-    dx = x - robot_x
+    def classify_risk(self, x, y, direction, movement_status):
+        """
+        Rule-based risk classifier.
+        """
+        dx = x - self.robot_x
 
+        # If person x is higher than robot x they are to the right
+        right = dx > 0
 
-    #if person x is higher then robot x they are to the right 
-    right = dx > 0
+        min_y = 3.75
+        max_y = 4.5
 
-    min_y = 3.75
-    max_y = 4.5
+        if self.VERBOSE:
+            print("dx:", abs(dx))
 
-    #Create a function to bump up just one risk level
+        # HIGH RISK ZONE
+        if y < min_y and abs(dx) < 0.6:
+            if movement_status.lower() == 'm':
+                # Moving away laterally
+                if right and direction == '270':
+                    return "LOW"
 
-    print("dx: ", abs(dx))
-    if y < min_y and abs(dx) < 0.6:
+                if not right and direction == '90':
+                    return "LOW"
 
-        #This will be classified as high unless person is moving away from bot
-        if movementStatus.lower() == 'm':
-            
-            #If person is moving away from robot 
-            if right and direction == '270':
-                return "LOW"
-            
-            if not right and direction == '90':
-                return "LOW"
-            
-            #If person is moving away from robot longitudally
-            if direction == '0':
-                return "LOW"
+                # Moving away longitudinally
+                if direction == '0':
+                    return "LOW"
 
-        return "HIGH"
+            return "HIGH"
 
-    elif y < max_y:
-        #handle movement status
-        if movementStatus.lower() == 'm' and abs(dx) < 1.2:
+        # MEDIUM RISK ZONE
+        elif y < max_y:
+            if movement_status.lower() == 'm' and abs(dx) < 1.2:
+                # Facing robot
+                if direction == '180':
+                    return "HIGH"
 
-            #For medium if a person is facing the bot they could be classified as higher risk
-            if direction == '180':
-                return "HIGH"
-            
-            #If person is moving away from robot longitudally
-            if direction == '0':
-                return "LOW"
+                # Moving away longitudinally
+                if direction == '0':
+                    return "LOW"
 
-            #If person is moving away from robot laterally
-            if right and direction == '270':
-                return "LOW"
-            
-            if not right and direction == '90':
-                return "LOW"
+                # Moving away laterally
+                if right and direction == '270':
+                    return "LOW"
 
+                if not right and direction == '90':
+                    return "LOW"
 
-        return "MEDIUM"
+            return "MEDIUM"
 
-    else:
+        # LOW RISK ZONE
+        else:
+            return "LOW"
 
-        #For now dont worry about movement status for low 
-        return "LOW"
+    def load_data(self, label_path):
+        boxes = []
 
+        if not os.path.exists(label_path):
+            return boxes
 
-def load_data(label_path):
-    boxes = []
+        with open(label_path, "r") as f:
 
-    if not os.path.exists(label_path):
+            for line in f:
+
+                parts = line.strip().split()
+
+                if len(parts) < 7:
+                    continue
+
+                x1 = float(parts[2])
+                y1 = float(parts[3])
+                x2 = float(parts[4])
+                y2 = float(parts[5])
+
+                direction = parts[6]
+                movement_status = parts[1]
+
+                boxes.append((
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    direction,
+                    movement_status
+                ))
+
         return boxes
 
-    with open(label_path, "r") as f:
-        for line in f:
-            parts = line.strip().split()
+    def process_detections(self, data):
+        results = []
 
-            if len(parts) < 6:
-                continue
+        for (x1, y1, x2, y2, direction, movement_status) in data:
+            width = x2 - x1
+            sample_points = [
+                x1 + 0.15 * width,
+                (x1 + x2) / 2,
+                x2 - 0.15 * width
+            ]
+            highest_risk = "LOW"
 
-            x1 = float(parts[2])
-            y1 = float(parts[3])
-            x2 = float(parts[4])
-            y2 = float(parts[5])
-            direction = parts[6]
-            movementStatus = parts[1]
+            center_x = (x1 + x2) / 2
+            best_world = self.pixel_to_world(center_x, y2)
 
-            boxes.append((x1, y1, x2, y2, direction, movementStatus))
+            for px in sample_points:
+                world_x, world_y = self.pixel_to_world(px, y2)
 
-    return boxes
+                current_risk = self.classify_risk(
+                    world_x,
+                    world_y,
+                    direction,
+                    movement_status
+                )
 
+                if self.risk_priority[current_risk] > self.risk_priority[highest_risk]:
+                    highest_risk = current_risk
+                    best_world = (world_x, world_y)
 
-def process_detections(data, H):
-    results = []
+            results.append({
+                "bbox": (x1, y1, x2, y2),
+                "world": (
+                    float(best_world[0]),
+                    float(best_world[1])
+                ),
+                "risk": highest_risk
+            })
 
-    risk_priority = {
-        "LOW": 0,
-        "MEDIUM": 1,
-        "HIGH": 2
-    }
+        return results
 
+    def draw_results(self, frame, results):
+        for r in results:
+            x1, y1, x2, y2 = r["bbox"]
+            X, Y = r["world"]
+            risk = r["risk"]
 
-    for (x1, y1, x2, y2, direction, movementStatus) in data:
+            if risk == "HIGH":
+                color = (0, 0, 255)
 
-        width = x2 - x1
+            elif risk == "MEDIUM":
+                color = (0, 255, 255)
 
-        sample_points = [
-            x1 + 0.15 * width,
-            (x1 + x2) / 2,
-            x2 - 0.15 * width
+            else:
+                color = (0, 255, 0)
+
+            cv2.rectangle(
+                frame,
+                (int(x1), int(y1)),
+                (int(x2), int(y2)),
+                color,
+                2
+            )
+
+            label = f"{risk} ({X:.2f},{Y:.2f})"
+
+            cv2.putText(
+                frame,
+                label,
+                (int(x1), int(y1) - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                color,
+                2
+            )
+
+        return frame
+
+    def save_annotated_frame(self, output_frame, image_path):
+        filename = os.path.basename(image_path)
+        out_path = os.path.join(self.OUTPUT_PATH, filename)
+
+        cv2.imwrite(out_path, output_frame)
+        print("Saved:", out_path)
+
+    def get_frame_paths(self):
+        return [
+            os.path.join(self.IMAGES_PATH, f)
+            for f in sorted(os.listdir(self.IMAGES_PATH))
+            if f.endswith(".jpg")
         ]
 
-        highest_risk = "LOW"
+    def get_label_path(self, image_path):
+        filename = os.path.basename(image_path)
+        label_name = os.path.splitext(filename)[0] + ".txt"
 
-        center_x = (x1 + x2) / 2
-        best_world = pixel_to_world(center_x, y2, H)
+        return os.path.join(self.LABELS_PATH, label_name)
 
-        for px in sample_points:
+    def run_viewer(self):
 
-            world_x, world_y = pixel_to_world(px, y2, H)
+        print("\n=====================================")
+        print(" Viewing risk classifications")
+        print(" [n] next   [q] quit")
+        print("=====================================\n")
 
-            current_risk = classify_risk(world_x, world_y, direction, movementStatus)
+        image_files = self.get_frame_paths()
 
-            if risk_priority[current_risk] > risk_priority[highest_risk]:
-                highest_risk = current_risk
-                best_world = (world_x, world_y)
+        for image_path in image_files:
+            print("Processing:", os.path.basename(image_path))
 
-        results.append({
-            "bbox": (x1, y1, x2, y2),
-            "world": (float(best_world[0]), float(best_world[1])),
-            "risk": highest_risk
-        })
+            frame = cv2.imread(image_path)
+            if frame is None:
+                print("Failed to load image")
+                continue
 
-    return results
+            label_path = self.get_label_path(image_path)
+            data = self.load_data(label_path)
+            results = self.process_detections(data)
 
+            for r in results:
+                print(
+                    "World:",
+                    r["world"],
+                    "Risk:",
+                    r["risk"]
+                )
 
-def draw_results(frame, results):
-    for r in results:
-        x1, y1, x2, y2 = r["bbox"]
-        X, Y = r["world"]
-        risk = r["risk"]
+            output = self.draw_results(frame.copy(), results)
 
-        if risk == "HIGH":
-            color = (0, 0, 255)
-        elif risk == "MEDIUM":
-            color = (0, 255, 255)
-        else:
-            color = (0, 255, 0)
+            if self.SAVE_FLAG:
+                self.save_annotated_frame(output, image_path)
 
-        cv2.rectangle(frame,
-                      (int(x1), int(y1)),
-                      (int(x2), int(y2)),
-                      color, 2)
+            while True:
+                cv2.imshow("Risk Viewer", output)
 
-        label = f"{risk} ({X:.2f},{Y:.2f})"
+                key = cv2.waitKey(0)
+                if key == ord('q') or key == ord('Q'):
+                    cv2.destroyAllWindows()
+                    return
 
-        cv2.putText(frame,
-                    label,
-                    (int(x1), int(y1) - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    color,
-                    2)
+                elif key == ord('n') or key == ord('N'):
+                    break
 
-    return frame
-
-
-def save_annotated_frame(output_frame, image_path):
-
-    filename = os.path.basename(image_path)
-
-    out_path = os.path.join(OUTPUT_PATH, filename)
-
-    cv2.imwrite(out_path, output_frame)
-
-    print("Saved:", out_path)
-
-
-def get_frame_paths(images_path):
-    return [os.path.join(images_path, f)
-            for f in sorted(os.listdir(images_path))
-            if f.endswith(".jpg")]
-
-
-def get_label_path(image_path):
-    filename = os.path.basename(image_path)
-    label_name = os.path.splitext(filename)[0] + ".txt"
-    return os.path.join(LABELS_PATH, label_name)
-
-
-def run_viewer():
-    print("\n=====================================")
-    print(" Viewing risk classifications")
-    print(" [n] next   [q] quit")
-    print("=====================================\n")
-
-    image_files = get_frame_paths(IMAGES_PATH)
-
-    for image_path in image_files:
-        print("Processing:", os.path.basename(image_path))
-
-        frame = cv2.imread(image_path)
-
-        if frame is None:
-            print("Failed to load image")
-            continue
-
-        label_path = get_label_path(image_path)
-
-        data = load_data(label_path)
-
-        results = process_detections(data, H)
-
-        for r in results:
-            print("World:", r["world"], "Risk:", r["risk"])
-
-        output = draw_results(frame.copy(), results)
-
-        save_annotated_frame(output, image_path)
-
-        while True:
-            cv2.imshow("Risk Viewer", output)
-
-            key = cv2.waitKey(0)
-
-            if key == ord('q') or key == ord('Q'):
-                cv2.destroyAllWindows()
-                return
-
-            elif key == ord('n') or key == ord('N'):
-                break
-
-    cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    run_viewer()
+    classifier = RiskClassifier(
+        base_path="/Users/oscarrezab/GitHub/macalester/catkin_ws",
+        save_flag=False,
+        homography_path="homography.npy"
+    )
+
+    classifier.run_viewer()
