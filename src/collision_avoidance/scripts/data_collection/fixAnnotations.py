@@ -21,10 +21,10 @@ import os
 import numpy as np
 
 # Define paths, modify as needed
-BASE_PATH = "/home/ryan/catkin_ws"
-DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/data_collection_apr_23/")
-LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1557frames")
-IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1557frames")
+BASE_PATH = "/Users/oscarrezab/GitHub/macalester/catkin_ws"
+DATASET_PATH = os.path.join(BASE_PATH, "src/collision_avoidance/res/train_data_annotated/")
+LABELS_PATH = os.path.join(DATASET_PATH, "labels/20260423-1610frames")
+IMAGES_PATH = os.path.join(DATASET_PATH, "images/20260423-1610frames")
 
 # Flag for saving annotated frames
 OUTPUT_FLAG = False  # set as desired
@@ -96,6 +96,12 @@ def formatAttributes(personAttribs: list):
     movementDir = personAttribs[6]
     personHeight, personWidth, personLength = personAttribs[7], personAttribs[8], personAttribs[9]
     longDistance, latDistance = personAttribs[10], personAttribs[11]
+
+    # For debugging
+    if movementDir == "theta":
+        print("  ERROR: Missing direction annotation!!!")
+    if movementStatus == "movementStatus":
+        print("  ERROR: Missing status annotation!!!")
 
     identifiers = f"id: {personId}, movement: {movementStatus}, direction: {movementDir}"
     boundingBox = f"({x0}, {y0}), ({x1}, {y1})"

@@ -26,7 +26,7 @@ import numpy as np
 from ultralytics import YOLO
 
 # Load model
-model = YOLO("yolo26n.pt")  # lightweight model
+model = YOLO("/Users/oscarrezab/GitHub/macalester/catkin_ws/src/collision_avoidance/scripts/training/trained_models/05052026_all_Ep40_AdamW_LR0.01_Frz10/weights/best.pt")  # lightweight model
 
 # Setup ZeroMQ
 context = zmq.Context()
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
         # Run YOLO and display results
-        results = model.predict(source=frame, classes=[0], conf=0.75, verbose=False)[0]
+        results = model.predict(source=frame, conf=0.25, verbose=False, agnostic_nms=True)[0]
         annotated = results.plot()
         cv2.imshow("YOLO Detection", annotated)
 
