@@ -121,19 +121,21 @@ class ModelRunRGB(object):
 
 class ModelRunLSTM(object):
     """This builds the 2024 Lstm style of model"""
-
     def __init__(self):
+        LSTM_2024_CELL_CHECKPOINT = "2024CellPredictLSTM_checkpoint-0802241319/CellPredAdam224-74-1.26.keras"
+        LSTM_2024_HEADING_CHECKPOINT = "2024HeadingPredict_checkpoint-0717241135/TestHeadingInCellPredAdam224Corrected-61-0.07.keras"
+
         self.cellModel = CellPredictModelLSTM(
             check_point_folder=checkPts,
             # Change this as needed
-            loaded_checkpoint="2024CellPredictLSTM_checkpoint-0802241319/CellPredAdam224-74-1.26.keras"
+            loaded_checkpoint=LSTM_2024_CELL_CHECKPOINT
         )
         self.cellModel.buildNetwork()
 
         self.headingModel = HeadingPredictModelLSTM(
             checkpoint_folder=checkPts,
             # Change this as needed
-            loaded_checkpoint="2024HeadingPredict_checkpoint-0717241135/TestHeadingInCellPredAdam224Corrected-61-0.07.keras"
+            loaded_checkpoint=LSTM_2024_HEADING_CHECKPOINT
         )
         self.headingModel.buildNetwork()
 
