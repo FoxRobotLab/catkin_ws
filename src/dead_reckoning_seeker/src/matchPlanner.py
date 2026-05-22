@@ -25,6 +25,7 @@ import LocalizerStringConstants as loc_const
 import sys
 
 from std_msgs.msg import String
+from sensor_msgs.msg import Imu
 
 
 class MatchPlanner(object):
@@ -61,6 +62,9 @@ class MatchPlanner(object):
 
         self.pub = rospy.Publisher('chatter', String, queue_size=10)
 
+    def imu_callback(self, data):
+        rospy.loginfo("acceleration x %s",data.linear_acceleration.x)
+
     def run(self):
         """Runs the program for the duration of 'runtime'"""
 
@@ -79,6 +83,8 @@ class MatchPlanner(object):
             self.robot.unpauseMovement()
         else:
             ready = False
+
+        rospy.Subscriber("imu/data_raw", Imu, callback)
 
 
 
