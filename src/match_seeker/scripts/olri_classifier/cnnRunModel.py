@@ -131,7 +131,7 @@ class ModelRunLSTM(object):
 
 
     def getPrediction(self, images, mapGraph):
-        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315]
 
 
         lastHeading, headOutputPercs = self.headingModel.predictSingleImageBatchAllData(images)
