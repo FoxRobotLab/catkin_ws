@@ -21,11 +21,11 @@ import OlinWorldMap
 class TestModelPredictions:
     def __init__(self):
         # Set data path for Precision 5820
-        self.mainPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/DATA/"
+        self.mainPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/"
         self.evalPath = os.path.join(self.mainPath, "Evaluation2024Data/")
         self.framesDataPath = os.path.join(self.evalPath, "FrameData/")
 
-        # Set a directoru for saving the predictions text file
+        # Set a directory for saving the predictions text file
         self.outputDir = os.path.join(self.evalPath, "Predictions/")
 
         # Load the model and the building map
@@ -45,27 +45,54 @@ class TestModelPredictions:
         self.cell = None
         self.heading = None
 
+        # Read video path
+        self.videoName = ""
+        self.videoPath = ""
+        self.videoCapture = None
+        self.is_video = False
+
+
     def userSelectFolder(self):
         """
         Creates an interactive terminal for user to select the frames folder to go through
         """
-        self.folderName, self.folderPath = self._selectFolderFromList()
-        self.folderContents = sorted(os.listdir(self.folderPath))
+        filetype = input(f"Run test on .avi file or frames folder? (avi/frames): ")
+        if filetype.lower() == "frames":
+            self.is_video = False
+            self.folderName, self.folderPath = self._selectDatasetFromList()
+            self.folderContents = sorted(os.listdir(self.folderPath))
+        if filetype.lower() == "avi":
+            self.is_video = True
+            self.videoName, self.videoPath = self._selectDatasetFromList()
+            self.folderName = self.videoName.replace(".avi", "")
+            self.videoCapture = cv2.VideoCapture(self.videoPath)
 
-    def _selectFolderFromList(self):
+
+    def _selectDatasetFromList(self):
         """
-        Helper method to select a folder from the list.
+        Helper method to select a dataset (folder of frames/video file) from the list.
         """
         for folder in self.framesFolderList:
-            iterate = input(f"Frames folder: {folder}     Would you enter this folder? (y/n): ")
-            if iterate.lower() == "y" and folder.endswith("frames"):
-                print('folder: ' + folder)
-                return folder, os.path.join(self.framesDataPath, folder)
-            elif iterate.lower() == "n":
-                continue
-            else:
-                print("Please input y/n")
-                exit(0)
+            if folder.endswith("frames") and not self.is_video:
+                iterate = input(f"Frames folder: {folder}     Use this folder of frames? (y/n): ")
+                if iterate.lower() == "y":
+                    print('folder: ' + folder)
+                    return folder, os.path.join(self.framesDataPath, folder)
+                elif iterate.lower() == "n":
+                    continue
+                else:
+                    print("Please input y/n")
+                    exit(0)
+            elif self.is_video and folder.endswith("avi"):
+                iterate = input(f"Video: {folder}     Use this video? (y/n): ")
+                if iterate.lower() == "y":
+                    print('Video: ' + folder)
+                    return folder, os.path.join(self.framesDataPath, folder)
+                elif iterate.lower() == "n":
+                    continue
+                else:
+                    print("Please input y/n")
+                    exit(0)
         return "", ""
 
     def getFramesAndAnnotations(self):
@@ -84,7 +111,8 @@ class TestModelPredictions:
         annotFolder = os.path.join(self.evalPath, "AnnotData/")
         annotFolderList = sorted(os.listdir(annotFolder))
         for file in annotFolderList:
-            if file.endswith(self.folderName + ".txt"):
+            #if file.endswith(self.folderName + ".txt"):
+            if self.folderName in file and file.endswith(".txt"):
                 return self._parseAnnotationFile(os.path.join(annotFolder, file))
         return []
 
@@ -104,19 +132,59 @@ class TestModelPredictions:
         """
         Displays the predictions on the UI
         """
-        frameCounter = 9
-        for frame in self.folderContents:
-            image = cv2.imread(os.path.join(self.folderPath, frame))
-            self.imagesList.append(image)
+        # frameCounter = 9
+        # for frame in self.folderContents:
+        #     image = cv2.imread(os.path.join(self.folderPath, frame))
+        #     self.imagesList.append(image)
+        #
+        #     if len(self.imagesList) < 10:
+        #         self._displayFrameWithoutPrediction(image)
+        #         continue
+        #
+        #     self._processAndDisplayFrame(image, frame, frameCounter)
+        #     frameCounter += 1
+        #
+        # self.predictionFile.close()
 
+        frameCounter = 0
+        read_index = 0
+        while True:
+            image, frame_name = self._getNextFrame(read_index)
+            if image is None:
+                print("Finished processing frames")
+                break
+            self.imagesList.append(image)
             if len(self.imagesList) < 10:
                 self._displayFrameWithoutPrediction(image)
+                read_index += 1
                 continue
-
-            self._processAndDisplayFrame(image, frame, frameCounter)
+            self._processAndDisplayFrame(image, frame_name, frameCounter)
             frameCounter += 1
-
+            read_index += 1
         self.predictionFile.close()
+        if self.is_video and self.videoCapture is not None:
+            self.videoCapture.release()
+        cv2.destroyAllWindows()
+
+    def _getNextFrame(self, index):
+
+        """
+        Helper method to displayPredictions which returns the next image to display
+        """
+        if self.is_video:
+            for _ in range(6):
+                success, temp_image = self.videoCapture.read()
+                if not success:
+                    return None, None
+                image = temp_image
+            frame_name = f"video_frame_{index}.png"
+            return image, frame_name
+        if index < len(self.folderContents):
+            frame_name = self.folderContents[index]
+            image = cv2.imread(os.path.join(self.folderPath, frame_name))
+            return image, frame_name
+        else:
+            return None, None
 
     def _displayFrameWithoutPrediction(self, image):
         """
