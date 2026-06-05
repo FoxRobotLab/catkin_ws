@@ -9,23 +9,22 @@ Update 2019: only correct/necessary for map paths
 ======================================================================== """
 
 
+
+
 import os
 
 # base path on Susan's computer
-# basePath = "/Users/susan/PycharmProjects/catkin_ws/src/match_seeker/"
-
-#base path on Oscar's computer
-# basePath = "/Users/oscarrezab/PycharmProjects/catkin_ws/src/match_seeker/"
+# basePath = "/Users/susan/Desktop/ResearchStuff/Summer2016-2017/GithubRepositories/catkin_ws/src/match_seeker/"
 
 # base path on Enterprise
-basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
+# basePath = "/home/macalester/catkin_ws/src/match_seeker/"
 
 
 # base path on FoxVoyager (aka Speedy)
 # basePath = "/home/macalester/Desktop/githubRepositories/catkin_ws/src/match_seeker/"
 
 # base path on Precision
-# basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
+basePath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/"
 #
 turtleBase = 'kobuki' # os.environ["TURTLEBOT_BASE"]
 #
@@ -42,4 +41,3 @@ elif turtleBase == "kobuki":
 graphMapData = "res/map/cellGraph.txt"
 mapLineData = "res/map/olinNewMap.txt"
 cellMapData = "res/map/mapToCells.txt"
-# DATA = basePath + "res/"

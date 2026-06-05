@@ -1,34 +1,30 @@
 """---------------------------------------------------------------------------------------------------------------------
-A transformer model that takes as input feature vectors from DataGeneratorCNNTransformer.py, which uses a pretrained
-CNN for feature extraction.
+A transformer model for heading prediction that takes as input feature vectors from DataGeneratorCNNTransformer.py,
+which uses a pretrained CNN for feature extraction.
 The code was adapted from the Keras code example: https://keras.io/examples/vision/video_transformers/, with slight
 modifications made to fit our data generator.
 
 Created: Summer 2024
 ---------------------------------------------------------------------------------------------------------------------"""
 import os.path
-import sys
 
 import keras
 from keras import layers
 import tensorflow as tf
 import time
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+from src.match_seeker.scripts.olri_classifier.DataGeneratorCNNTransformer import DataGenerator
+from src.match_seeker.scripts.olri_classifier.paths import *
 
-sys.path.append('/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/scripts')
-from DataGeneratorCNNTransformer import DataGenerator
-from paths import *
-
-class CellPredictModelCNNTransformer(object):
+class HeadingPredictModelCNNTransformer(object):
   def __init__(self, checkpoint_folder=None, loaded_checkpoint=None, images_folder=None, data_name=None,
-               annot_path=None, output_size=271, image_size=100, seq_length=10, num_features = 1024):
+               annot_path=None, output_size=8, image_size=100, seq_length=10, num_features = 1024):
     """
     :param checkpoint_folder: Destination path for the checkpoints to be saved
     :param loaded_checkpoint: Name of the last checkpoint saved inside checkpoint_folder. To continue training or test
     :param images_folder: Path of the folder containing the 54 folders with frames
     :param data_name: Name for every saved checkpoint
-    :param output_size: The number of output categories, 271 cells
+    :param output_size: The number of output categories, 8 possible headings
     :param image_size: Target dimensions of images after resizing
     :param seq_length: Length of every sequence(batch) of images
     :param num_features: Number of features to extract in the frames
@@ -45,7 +41,7 @@ class CellPredictModelCNNTransformer(object):
     self.train_ds = None
     self.val_ds = None
 
-    self.checkpoint_dir = checkpoint_folder + "2024CellPredictCNNTransf_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
+    self.checkpoint_dir = checkpoint_folder + "2024HeadingPredictCNNTransf_checkpoint-{}/".format(time.strftime("%m%d%y%H%M"))
 
     if loaded_checkpoint is not None:
       self.loaded_checkpoint = os.path.join(checkpoint_folder, loaded_checkpoint)
@@ -53,8 +49,8 @@ class CellPredictModelCNNTransformer(object):
       self.loaded_checkpoint = loaded_checkpoint
 
   def prepDatasets(self):
-    self.train_ds = DataGenerator(generateForCellPred=True, framePath=self.images_folder, annotPath=self.annot_path)
-    self.val_ds = DataGenerator(generateForCellPred=True, framePath=self.images_folder, annotPath=self.annot_path, train=False)
+    self.train_ds = DataGenerator(generateForCellPred=False, framePath=self.images_folder, annotPath=self.annot_path)
+    self.val_ds = DataGenerator(generateForCellPred=False, framePath=self.images_folder, annotPath=self.annot_path, train=False)
     print(f"Total frame batches for training: {len(self.train_ds)}")
     print(f"Total frame batches for testing: {len(self.val_ds)}")
 
@@ -187,8 +183,8 @@ class TransformerEncoder(layers.Layer):
 
 
 if __name__ == "__main__":
-  cellPredictor = CellPredictModelCNNTransformer(
-    data_name="CellPredAdam100",
+  headingPredictor = HeadingPredictModelCNNTransformer(
+    data_name="HeadingPredAdam100",
     images_folder=framesDataPath,
     loaded_checkpoint=None,
     checkpoint_folder=checkPts,
@@ -196,7 +192,7 @@ if __name__ == "__main__":
   )
 
   # Prepare datasets
-  cellPredictor.prepDatasets()
+  headingPredictor.prepDatasets()
 
   # Start training
-  cellPredictor.train(epochs=100)
+  headingPredictor.train(epochs=100)

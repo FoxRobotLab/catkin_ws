@@ -5,27 +5,14 @@ It helps the robot to locate by the combination of image matching and MCL.
 It holds certain data that matchPlanner.py doesn't and decides on what
 the robot should do and passes it onto matchPlanner.py.
 
-SUMMER 2020:
-Some of this is messy and/or somewhat arbitrary. Start here to clean things
-up!
-
-self.LastKnownLoc will always duplicate one row of the odom table, either use it for
-something useful or get rid of it entirely.
+October 2024 - Stripped down to only use odometry
 
 ======================================================================== """
 
-# from espeak import espeak
 
-from DataPaths import basePath, imageDirectory, locData
-import ImageDataset
 import MonteCarloLocalize
 import math
-from olri_classifier.cnnRunModel import ModelRunRGB
 import LocalizerStringConstants as loc_const
-import cv2
-
-
-# from olin_test import OlinTest
 
 class Localizer(object):
 
@@ -48,14 +35,10 @@ class Localizer(object):
         self.mcl.initializeParticles(250, point=initPose)
 
         self.odomScore = 100.0
-        self.olin_tester = ModelRunRGB()
 
 
-    def findLocation(self, cameraIm):
-        """Given the current camera image, update the robot's estimated current location, the confidence associated
-        with that location. This method returns None if the robot is not at a "significant" location (one of the points
-         in the olin graph) with a high confidence. If the robot IS somewhere significant and confidence is high
-         enough, then the information about the location is returned so the planner can respond to it."""
+    def findLocation(self):
+        """Find location using mcl, currently only using odometry"""
         odomLoc = self.odometer()
         moveInfo = self.robot.getTravelDist()
 
@@ -71,17 +54,9 @@ class Localizer(object):
             self.logger.log(lklSt.format(x, y, h, self.confidence))
             self.gui.updateLastKnownList([x, y, h, self.confidence])
 
-        scores, matchLocs = self.olin_tester.getPrediction(cameraIm, self.olin)
 
-        # Handles out of range error
-        while len(matchLocs) < 3:
-            matchLocs.append((0.0, 0.0, 0.0))
-
-        self.gui.updatePicLocs(matchLocs[0], matchLocs[1], matchLocs[2])
-        self.gui.updatePicConf(scores)
-
-        mclData = {'matchPoses': matchLocs,
-                   'matchScores': scores,
+        mclData = {'matchPoses': [[0,0,0], [0,0,0], [0,0,0], [0,0,0]],
+                   'matchScores': [0.0, 0.0, 0.0],
                    'odomPose': odomLoc,
                    'odomScore': self.odomScore}
 
@@ -94,50 +69,28 @@ class Localizer(object):
         if self.odomScore < 1 and var < 3.0:
             self.gui.updateMessageText("Scattering points around MCL")
 
-        bestScore = scores[0]  # In range 0-100
-        bestX, bestY, bestHead = matchLocs[0]
 
         odoUpdateStr = "UPDATING ODOMETRY TO: ({0:4.2f}, {1:4.2f}, {2:4.2f})"
 
         # 70 was an arbitrary choice and it seems that the odometry remains accurate for longer than it takes to count
         # down to 70. Maybe do tests to find out how long odometry stays accurate enough and change the value from there
 
-        if self.odomScore > 70:
-            try:
-                cell, x, y, bestDist = self.olin.findClosestNode(self.robot.getOdomData())
-                if bestDist <= self.closeEnough and self.isClose(self.robot.getOdomData(), (x, y, 0)):   # TODO: Both parts seem to be calculating the same thing, maybe simplifyt!
-                    response = loc_const.at_node, (int(self.olin.convertLocToCell(self.robot.getOdomData())), self.robot.getOdomData())
-                else:
-                    response = loc_const.close, (int(self.olin.convertLocToCell(self.robot.getOdomData())), self.robot.getOdomData())
-            except TypeError: #robot is not in a valid location, so reset odometry to center of nearest cell
-                cell, x,  y, _ = self.olin.findClosestNode(self.robot.getOdomData())
-                # TODO: Update the confidence value for the odometry
-                inbounds_loc = self.closest_bound_pt(cell, self.robot.getOdomData()[0], self.robot.getOdomData()[1])
-                self.robot.updateOdomLocation(inbounds_loc[0], inbounds_loc[1], self.robot.getOdomData()[2])
-                response = loc_const.close, (cell, (inbounds_loc[0], inbounds_loc[1], self.robot.getOdomData()[2]))
-
-            self.lastKnownLoc = self.robot.getOdomData()
-        else:
-            # if odometry is bad and MCL variance is low, updates odometry to mcl com
-            if self.isClose(comPose, self.robot.getOdomData()) and var < 5.0:
-                self.logger.log(odoUpdateStr.format(centerX, centerY, 80.0))
-                self.gui.updateOdomList([centerX, centerY, centerHead, 80.0])
-                self.gui.updateMessageText("Updating Odometry with MCL.")
-                self.odomScore = 80
-                self.robot.updateOdomLocation(centerX, centerY, bestHead)  # was centerHead
-            # if odometry is bad, MCL var is high, and CNN match is very confident, updates odometry to CNN match
-            elif bestScore >= 90 and self.isClose(matchLocs[0], self.robot.getOdomData()) and var > 5:
-                self.logger.log(odoUpdateStr.format(bestX, bestY, bestHead))
-                self.gui.updateOdomList([bestX, bestY, bestHead, bestScore])
-                self.gui.updateMessageText("Updating Odometry with CNN")
-                self.odomScore = bestScore
-                self.robot.updateOdomLocation(bestX, bestY, bestHead)
-
-            # response determines behavior
-            if var < 5.0:
-                response = self.mclResponse(comPose, var)
+        #if self.odomScore > 70:
+        try:
+            cell, x, y, bestDist = self.olin.findClosestNode(self.robot.getOdomData())
+            if bestDist <= self.closeEnough and self.isClose(self.robot.getOdomData(), (x, y, 0)):   # TODO: Both parts seem to be calculating the same thing, maybe simplifyt!
+                response = loc_const.at_node, (int(self.olin.convertLocToCell(self.robot.getOdomData())), self.robot.getOdomData())
             else:
-                response = self.matchResponse(matchLocs, scores)
+                response = loc_const.close, (int(self.olin.convertLocToCell(self.robot.getOdomData())), self.robot.getOdomData())
+        except TypeError: #robot is not in a valid location, so reset odometry to center of nearest cell
+            cell, x,  y, _ = self.olin.findClosestNode(self.robot.getOdomData())
+            # TODO: Update the confidence value for the odometry
+            inbounds_loc = self.closest_bound_pt(cell, self.robot.getOdomData()[0], self.robot.getOdomData()[1])
+            self.robot.updateOdomLocation(inbounds_loc[0], inbounds_loc[1], self.robot.getOdomData()[2])
+            response = loc_const.close, (cell, (inbounds_loc[0], inbounds_loc[1], self.robot.getOdomData()[2]))
+
+        self.lastKnownLoc = self.robot.getOdomData()
+
 
         return response
 
@@ -173,56 +126,11 @@ class Localizer(object):
         else:
             return loc_const.close, mclInfo
 
-
-    def matchResponse(self, matchLocs, scores):
-        """a messy if statement chain that takes in match scores and locations and spits out arbitrary information that
-        manages behavior in matchPlanner"""
-
-        if self.navType != "CNN":
-            self.navType = "CNN"
-            self.gui.updateNavType(self.navType)
-
-        bestScore = scores[0]
-        bestLoc = matchLocs[0]
-
-        if bestScore < 5:  # TODO: What is the scale of the scores? I thought they were 0.0 to 1.0
-            self.logger.log("      I have no idea where I am.     Lost Count = " + str(self.lostCount))
-            self.gui.updateMatchStatus("no idea. Lost Count = " + str(self.lostCount))
-            self.lostCount += 1
-            if self.lostCount == 5:
-                self.setLocation(loc_const.conf_none, None)
-            elif self.lostCount >= 10:
-                return loc_const.look, None
-            return loc_const.temp_lost, None
-        else:
-            self.lostCount = 0
-            guess, conf = self._guessLocation(bestScore, bestLoc, matchLocs)
-            matchInfo = (guess, bestLoc)
-            self.setLocation(conf, bestLoc)
-
-            self.logger.log("      Nearest node: " + str(guess) + "  Confidence = " + str(conf))
-            self.gui.updateCNode(guess)
-            self.gui.updateMatchStatus(conf)
-
-            if (conf == loc_const.conf_close or conf == loc_const.conf_close_guessing) and self.isClose(
-                self.robot.getOdomData(), bestLoc):
-                print "MCL RESCATTER"
-                self.mcl.scatter(bestLoc)
-                self.gui.updateMessageText("Scatter around Image Match")
-                return loc_const.at_node, matchInfo
-            elif conf == loc_const.conf_far:
-                return loc_const.close, matchInfo
-            else:
-                # Guessing but not close...
-                return loc_const.keep_going, matchInfo
-
-
     def isClose(self, odomLoc, bestLoc):
         odomX, odomY, _ = odomLoc
         bestX, bestY, _ = bestLoc
         dist = math.hypot(odomX - bestX, odomY - bestY)
         return dist <= 1 #was 5
-
 
     def _guessLocation(self, bestScore, bestLoc, matchLocs):
         """
@@ -269,14 +177,6 @@ class Localizer(object):
         elif conf == loc_const.conf_none:
             self.lastKnownLoc = None
             self.confidence = 0.0
-
-
-
-
-
-
-
-
         else:
             self.confidence = 0.0
 

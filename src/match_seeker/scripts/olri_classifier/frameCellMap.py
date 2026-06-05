@@ -20,13 +20,9 @@ from datetime import datetime
 # from paths import DATA, DATA2022, pathToMatchSeeker
 
 #import paths from Precision 5820
-from paths import DATA, DATA2022
-
-from imageFileUtils import makeFilename
+from src.match_seeker.scripts.olri_classifier.paths import DATA, DATA2022
 
 # from DataPaths import cellMapData, basePath
-from paths import DATA
-
 
 class FrameCellMap(object):
 
@@ -607,7 +603,7 @@ def main():
                             # imageDir=DATA + "moreframes/",
     dataPath = DATA2022 + "FrameDataReviewed-20220708-11:06frames.txt"
     print("  dataPath:", dataPath)
-    cellPath = pathToMatchSeeker + "res/map/mapToCells.txt"
+    cellPath = "home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/map/mapToCells.txt"
     print("   cellPath:", cellPath)
     dataMap = FrameCellMap(dataFile=dataPath, cellFile=cellPath, format="new")
 

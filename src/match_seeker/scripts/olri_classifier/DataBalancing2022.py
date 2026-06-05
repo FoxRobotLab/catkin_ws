@@ -21,8 +21,8 @@ and data collection in 2022 to ensure that we collect enough frames per heading 
 
 --------------------------------------------------------------------------------"""
 
-from frameCellMap import FrameCellMap
-from paths import DATA, DATA2022, pathToMatchSeeker
+from src.match_seeker.scripts.olri_classifier.frameCellMap import FrameCellMap
+from src.match_seeker.scripts.olri_classifier.paths import DATA, DATA2022, pathToMatchSeeker
 # from paths import DATA, data2022
 import numpy as np
 import math
@@ -34,9 +34,9 @@ class DataBalancer(object):
     def __init__(self, dictFileName = None, mergeFrameCountFile = None):
         #File names and file paths for the text files to be read and counted, and text file for counts to merge
         self.dictFileName = dictFileName
-        self.dictFile = data2022 + str(dictFileName)
+        self.dictFile = DATA2022 + str(dictFileName)
         self.mergeFrameCountFileName = mergeFrameCountFile
-        self.mergeFrameCountFile = data2022 + str(mergeFrameCountFile)
+        self.mergeFrameCountFile = DATA2022 + str(mergeFrameCountFile)
 
         #Dictionaries for holding cell and heading counts from self.dictFileName
         self.headingData = {}
@@ -126,7 +126,7 @@ class DataBalancer(object):
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
         numCells = 271
         try:
-            logFile = open(data2022 + logName, 'w')
+            logFile = open(DATA2022 + logName, 'w')
         except:
             print("FAILED TO OPEN DATA FILE")
 
@@ -195,7 +195,7 @@ class DataBalancer(object):
         logName = "NewFrameCountMerged" + srcDictTimeStamp + "txt"
 
         try:
-            logFile = open(data2022 + logName, 'w')
+            logFile = open(DATA2022 + logName, 'w')
         except:
             print("FAILED TO OPEN DATA FILE")
 

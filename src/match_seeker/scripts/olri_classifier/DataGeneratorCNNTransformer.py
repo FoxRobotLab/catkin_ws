@@ -7,7 +7,7 @@ Authors: Susan Fox, Oscar Reza Bautista, Marcus Wallace, Elisa Avalos
 ---------------------------------------------------------------------------------------------------------------------"""
 
 import numpy as np
-from paths import framesDataPath, textDataPath
+from src.match_seeker.scripts.olri_classifier.paths import framesDataPath, textDataPath
 from tensorflow import keras
 from keras.applications.densenet import DenseNet121
 import cv2

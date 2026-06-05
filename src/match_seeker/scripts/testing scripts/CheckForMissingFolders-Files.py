@@ -4,8 +4,8 @@ import os
 import cv2
 import numpy as np
 
-# currentPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/"
-currentPath = "/Users/susan/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/"
+currentPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/"
+# currentPath = "/Users/susan/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/"
 frameDataPath = currentPath + "DATA/FrameData/"
 
 filepath = os.listdir(currentPath)
@@ -30,13 +30,14 @@ for file in filepath:
         with open(currentPath + file) as textFile:
             for line in textFile:
                 words = line.split(" ")
-                filename = words[0]
-                cell = int(words[3])
-                heading = int(words[4])
-                if (cell, heading) not in fileDict:
-                    fileDict[cell, heading] = [folderName + "/" + filename]
-                else:
-                    fileDict[cell, heading].append(folderName + "/" + filename)
+                if len(words) > 1:
+                  filename = words[0]
+                  cell = int(words[3])
+                  heading = int(words[4])
+                  if (cell, heading) not in fileDict:
+                      fileDict[cell, heading] = [folderName + "/" + filename]
+                  else:
+                      fileDict[cell, heading].append(folderName + "/" + filename)
 
 
 print(fileDict)

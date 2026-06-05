@@ -14,16 +14,12 @@ import cv2
 import math
 import re
 
-# Store the long path to access the data folders
-myPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/classifier2022Data/DATA/"
-textDataPath = myPath + "AnnotData/"
-framesDataPath = myPath + "FrameData/classifier2022Data/DATA/FrameData/"
-checkPts = myPath + "CHECKPOINTS/"
+from src.match_seeker.scripts.olri_classifier.paths import *
 
 
 class DataGeneratorLSTM(keras.utils.Sequence):
     def __init__(self, framePath, annotPath, skipSize = 3, seqLength = 5,
-                 batch_size=20, shuffle=True, randSeed=12342, train_perc=0.2,
+                 batch_size=20, shuffle=True, randSeed=12342, validation_perc=0.2,
                  img_size=224, train=True, generateForCellPred = True):
 
         self.batch_size = batch_size
@@ -40,7 +36,7 @@ class DataGeneratorLSTM(keras.utils.Sequence):
         self.allSequences = self._enumerateSequences()
         print(len(self.allSequences))
 
-        self.train_perc = train_perc
+        self.train_perc = validation_perc
         np.random.seed(randSeed)  # set random generator to
 
         self.trainSequences, self.valSequences = self.traintestsplit(self.allSequences, self.train_perc)
