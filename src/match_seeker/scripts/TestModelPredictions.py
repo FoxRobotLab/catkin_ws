@@ -12,7 +12,7 @@ Authors: Oscar Reza B. and Elisa Avalos
 
 import os
 import cv2
-import sys
+import pandas as pd
 
 from olri_classifier.cnnRunModel import ModelRunLSTM
 import OlinWorldMap
@@ -234,6 +234,22 @@ class TestModelPredictions:
             f"        Actual -- Cell: {self.linesList[frameCounter][3]}   Heading: {self.linesList[frameCounter][4]}\n"
         )
 
+    def _createPredictionDictionary(self):
+        """
+        TODO: Implement this +method to put all the information in a pandas dataframe for easy access
+        """
+        data_dictionary = pd.DataFrame(
+            {
+                "Frame": "",
+                "Cell Prediction": 0,
+                "Cell Actual": 0,
+                "Cell Correct": False,
+                "Heading Prediction": 0,
+                "Heading Actual": 0,
+                "Heading Correct": False,
+                "All Correct": False,
+            }
+        )
 
 if __name__ == "__main__":
     testPredictor = TestModelPredictions()
