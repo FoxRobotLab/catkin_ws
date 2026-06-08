@@ -1,21 +1,23 @@
 """ -------------------------------------------------------------------------------------------------------------------
-Tests the model predictions on a set of frames from a data collection run. It displays the images from the
+Tests the model predictions on a set of frames or a video from a data collection run, or a live run. It displays the images from the
 robot alongside text stating the model's predictions on cell and heading. It also creates a file with the returned
-predictions of the model and the actual cell and headings of each frame.
+predictions of the model and the actual cell and headings of each frame (currently, only for 'f' option)
 Currently works for the 2024 LSTM models.
 Works on Tensorflow and Keras 2.15.0 with Python 3.9, for reasons still unknown.
 Text files are saved to src/match_seeker/res/classifier2022Data/DATA/Evaluation2024Data/Predictions/
 
 Created: Summer 2024
 Authors: Oscar Reza B. and Elisa Avalos
+Edited: Summer 2026 by Jana Abu-Subha
 ------------------------------------------------------------------------------------------------------------------- """
 
 import os
 import cv2
-import pandas as pd
-
 from olri_classifier.cnnRunModel import ModelRunLSTM
 import OlinWorldMap
+import socket
+import struct
+import numpy as np
 
 
 class TestModelPredictions:
@@ -45,28 +47,36 @@ class TestModelPredictions:
         self.cell = None
         self.heading = None
 
-        # Read video path
         self.videoName = ""
         self.videoPath = ""
         self.videoCapture = None
         self.is_video = False
 
+        self.robot = None
+        self.is_live = False
+
+        self.SERVER_IP = '141.140.243.153'  # set to robot's ip
+        self.PORT = 5005
+
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def userSelectFolder(self):
         """
         Creates an interactive terminal for user to select the frames folder to go through
         """
-        filetype = input(f"Run test on .avi file or frames folder? (avi/frames): ")
-        if filetype.lower() == "frames":
-            self.is_video = False
+        filetype = input(f"Run test on .avi file, frames folder, or live robot run? (a/f/l): ")
+        if filetype.lower() == "f":
             self.folderName, self.folderPath = self._selectDatasetFromList()
             self.folderContents = sorted(os.listdir(self.folderPath))
-        if filetype.lower() == "avi":
+            self.getFramesAndAnnotations() # moved this call from main since currently this branch only applies to the folder of frames option
+        if filetype.lower() == "a":
             self.is_video = True
             self.videoName, self.videoPath = self._selectDatasetFromList()
             self.folderName = self.videoName.replace(".avi", "")
             self.videoCapture = cv2.VideoCapture(self.videoPath)
-
+        if filetype.lower() == "l":
+            self.is_live = True
+            self.client_socket.connect((self.SERVER_IP, self.PORT))
 
     def _selectDatasetFromList(self):
         """
@@ -105,7 +115,7 @@ class TestModelPredictions:
         self.linesList = self._loadAnnotations()
 
     def _loadAnnotations(self):
-        """
+        """Replace with server's actual IP if on another computer
         Helper method to load annotations from the corresponding text file.
         """
         annotFolder = os.path.join(self.evalPath, "AnnotData/")
@@ -132,21 +142,7 @@ class TestModelPredictions:
         """
         Displays the predictions on the UI
         """
-        # frameCounter = 9
-        # for frame in self.folderContents:
-        #     image = cv2.imread(os.path.join(self.folderPath, frame))
-        #     self.imagesList.append(image)
-        #
-        #     if len(self.imagesList) < 10:
-        #         self._displayFrameWithoutPrediction(image)
-        #         continue
-        #
-        #     self._processAndDisplayFrame(image, frame, frameCounter)
-        #     frameCounter += 1
-        #
-        # self.predictionFile.close()
-
-        frameCounter = 0
+        frameCounter = 9
         read_index = 0
         while True:
             image, frame_name = self._getNextFrame(read_index)
@@ -158,7 +154,7 @@ class TestModelPredictions:
                 self._displayFrameWithoutPrediction(image)
                 read_index += 1
                 continue
-            self._processAndDisplayFrame(image, frame_name, frameCounter)
+            self._processAndDisplayFrame(image, frame_name, read_index)
             frameCounter += 1
             read_index += 1
         self.predictionFile.close()
@@ -167,12 +163,29 @@ class TestModelPredictions:
         cv2.destroyAllWindows()
 
     def _getNextFrame(self, index):
-
         """
         Helper method to displayPredictions which returns the next image to display
         """
+        if self.is_live:
+            # 1. Explicitly ask the server for the next frame
+            self.client_socket.sendall(b"GET_FRAME")
+            # 2. Read the 4-byte header to know the image payload size
+            header = self.client_socket.recv(5) # hard coded for now, will need to be dynamic
+            image_size = int(header.decode().strip())
+            # 3. Receive the exact amount of image bytes (handles packet fragmentation)
+            image_data = b""
+            while len(image_data) < image_size:
+                packet = self.client_socket.recv(image_size - len(image_data))
+                if not packet:
+                    break
+                image_data += packet
+            # 4. Decode the JPEG binary data back into an OpenCV image array
+            nparr = np.frombuffer(image_data, np.uint8)
+            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            frame_name = f"live_frame_{index}.png"
+            return image, frame_name
         if self.is_video:
-            for _ in range(6):
+            for _ in range(60):
                 success, temp_image = self.videoCapture.read()
                 if not success:
                     return None, None
@@ -229,30 +242,30 @@ class TestModelPredictions:
         """
         Writes the predictions to the prediction file.
         """
-        self.predictionFile.write(
-            f"{frame}  Predictions -- Cell: {self.cell}   Heading: {self.heading}\n"
-            f"        Actual -- Cell: {self.linesList[frameCounter][3]}   Heading: {self.linesList[frameCounter][4]}\n"
-        )
+        if self.predictionFile: #.avi files and live turtle footage wont have a prediction file
+            self.predictionFile.write(
+                f"{frame}  Predictions -- Cell: {self.cell}   Heading: {self.heading}\n"
+                f"        Actual -- Cell: {self.linesList[frameCounter][3]}   Heading: {self.linesList[frameCounter][4]}\n"
+            )
 
-    def _createPredictionDictionary(self):
-        """
-        TODO: Implement this +method to put all the information in a pandas dataframe for easy access
-        """
-        data_dictionary = pd.DataFrame(
-            {
-                "Frame": "",
-                "Cell Prediction": 0,
-                "Cell Actual": 0,
-                "Cell Correct": False,
-                "Heading Prediction": 0,
-                "Heading Actual": 0,
-                "Heading Correct": False,
-                "All Correct": False,
-            }
-        )
+    # def _createPredictionDictionary(self):
+    #     """
+    #     TODO: Implement this +method to put all the information in a pandas dataframe for easy access
+    #     """
+    #     data_dictionary = pd.DataFrame(
+    #         {
+    #             "Frame": "",
+    #             "Cell Prediction": 0,
+    #             "Cell Actual": 0,
+    #             "Cell Correct": False,
+    #             "Heading Prediction": 0,
+    #             "Heading Actual": 0,
+    #             "Heading Correct": False,
+    #             "All Correct": False,
+    #         }
+    #     )
 
 if __name__ == "__main__":
     testPredictor = TestModelPredictions()
     testPredictor.userSelectFolder()
-    testPredictor.getFramesAndAnnotations()
     testPredictor.displayPredictions()

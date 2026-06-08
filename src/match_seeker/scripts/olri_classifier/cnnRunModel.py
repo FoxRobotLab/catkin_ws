@@ -10,7 +10,7 @@ model, and combines the results, providing the top three cell predictions.
 
 Updated: 2024. Added the CNN-LSTM and CNN-Transformer models
 --------------------------------------------------------------------------------"""
-from src.match_seeker.scripts.olri_classifier.paths import DATA, checkPts, textDataPath
+from olri_classifier.paths import DATA, checkPts, textDataPath
 
 from src.match_seeker.scripts.olri_classifier.cnn_cell_model_2019 import CellPredictModel2019
 from src.match_seeker.scripts.olri_classifier.cnn_heading_model_2019 import HeadingPredictModel
