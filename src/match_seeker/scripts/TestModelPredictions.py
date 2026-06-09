@@ -10,8 +10,10 @@ Created: Summer 2024
 Authors: Oscar Reza B. and Elisa Avalos
 Edited: Summer 2026 by Jana Abu-Subha
 ------------------------------------------------------------------------------------------------------------------- """
-
+import csv
 import os
+import time
+
 import cv2
 from olri_classifier.cnnRunModel import ModelRunLSTM
 import OlinWorldMap
@@ -29,6 +31,9 @@ class TestModelPredictions:
 
         # Set a directory for saving the predictions text file
         self.outputDir = os.path.join(self.evalPath, "Predictions/")
+
+        # Set a directory for saving live accuracy data csv file
+        self.csvPath = os.path.join(self.evalPath, "Accuracy/2026Data.csv")
 
         # Load the model and the building map
         self.modelTester = ModelRunLSTM()
@@ -60,12 +65,15 @@ class TestModelPredictions:
 
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        self.is_folder = False
+
     def userSelectFolder(self):
         """
         Creates an interactive terminal for user to select the frames folder to go through
         """
         filetype = input(f"Run test on .avi file, frames folder, or live robot run? (a/f/l): ")
         if filetype.lower() == "f":
+            self.is_folder = True
             self.folderName, self.folderPath = self._selectDatasetFromList()
             self.folderContents = sorted(os.listdir(self.folderPath))
             self.getFramesAndAnnotations() # moved this call from main since currently this branch only applies to the folder of frames option
@@ -76,6 +84,7 @@ class TestModelPredictions:
             self.videoCapture = cv2.VideoCapture(self.videoPath)
         if filetype.lower() == "l":
             self.is_live = True
+
             self.client_socket.connect((self.SERVER_IP, self.PORT))
 
     def _selectDatasetFromList(self):
@@ -109,10 +118,12 @@ class TestModelPredictions:
         """
         Loads the video frames and their corresponding annotated text file
         """
-        prediction_file_path = os.path.join(self.outputDir, self.folderName + "ModelPredictionsTest.txt")
-        self.predictionFile = open(prediction_file_path, "w")
-        print(self.predictionFile)
-        self.linesList = self._loadAnnotations()
+        if self.is_folder:
+            prediction_file_path = os.path.join(self.outputDir, self.folderName + "ModelPredictionsTest.txt")
+            self.predictionFile = open(prediction_file_path, "w")
+            # print(self.predictionFile)
+            self.linesList = self._loadAnnotations()
+
 
     def _loadAnnotations(self):
         """Replace with server's actual IP if on another computer
@@ -144,11 +155,18 @@ class TestModelPredictions:
         """
         frameCounter = 9
         read_index = 0
+        missed_frames = 0
         while True:
             image, frame_name = self._getNextFrame(read_index)
             if image is None:
-                print("Finished processing frames")
-                break
+                missed_frames += 1
+                print(f"Image not received. Retry {missed_frames}")
+                if missed_frames >= 100:
+                    print("100 consecutive frames not received, quitting program")
+                    break
+                time.sleep(0.1)
+                continue
+            missed_frames = 0
             self.imagesList.append(image)
             if len(self.imagesList) < 10:
                 self._displayFrameWithoutPrediction(image)
@@ -157,33 +175,43 @@ class TestModelPredictions:
             self._processAndDisplayFrame(image, frame_name, read_index)
             frameCounter += 1
             read_index += 1
-        self.predictionFile.close()
+        if self.is_folder:
+            self.predictionFile.close()
         if self.is_video and self.videoCapture is not None:
             self.videoCapture.release()
         cv2.destroyAllWindows()
+        print(f"Total processed frames: {frameCounter}")
 
     def _getNextFrame(self, index):
         """
         Helper method to displayPredictions which returns the next image to display
         """
         if self.is_live:
-            # 1. Explicitly ask the server for the next frame
-            self.client_socket.sendall(b"GET_FRAME")
-            # 2. Read the 4-byte header to know the image payload size
-            header = self.client_socket.recv(5) # hard coded for now, will need to be dynamic
-            image_size = int(header.decode().strip())
-            # 3. Receive the exact amount of image bytes (handles packet fragmentation)
-            image_data = b""
-            while len(image_data) < image_size:
-                packet = self.client_socket.recv(image_size - len(image_data))
-                if not packet:
-                    break
-                image_data += packet
-            # 4. Decode the JPEG binary data back into an OpenCV image array
-            nparr = np.frombuffer(image_data, np.uint8)
-            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            frame_name = f"live_frame_{index}.png"
-            return image, frame_name
+            try:
+                # 1. Explicitly ask the server for the next frame
+                self.client_socket.sendall(b"GET_FRAME")
+                # 2. Read the 4-byte header to know the image payload size
+                # header = self.client_socket.recv(5) # hard coded for now, will need to be dynamic
+                header = self.client_socket.recv(16)
+                if not header:
+                    return None, None
+                image_size = int(header.decode().strip())
+                # 3. Receive the exact amount of image bytes (handles packet fragmentation)
+                image_data = b""
+                while len(image_data) < image_size:
+                    packet = self.client_socket.recv(image_size - len(image_data))
+                    if not packet:
+                        break
+                    image_data += packet
+                # 4. Decode the JPEG binary data back into an OpenCV image array
+                nparr = np.frombuffer(image_data, np.uint8)
+                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                frame_name = f"live_frame_{index}.png"
+                return image, frame_name
+            except (UnicodeDecodeError, ValueError, socket.error) as e:
+                print(f"Network or data parsing error: {e}")
+                self._reconnectSocket()
+                return None, None
         if self.is_video:
             for _ in range(60):
                 success, temp_image = self.videoCapture.read()
@@ -199,12 +227,29 @@ class TestModelPredictions:
         else:
             return None, None
 
+    def _reconnectSocket(self):
+        """Closes the broken socket and attempts to establish a clean connection."""
+        print("Attempting to reconnect to robot server...")
+        try:
+            self.client_socket.close()
+        except Exception:
+            pass
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.client_socket.settimeout(2.0)
+            self.client_socket.connect((self.SERVER_IP, self.PORT))
+            print("Reconnection successful!")
+            return True
+        except socket.error as e:
+            print(f"Reconnection failed: {e}")
+            return False
+
     def _displayFrameWithoutPrediction(self, image):
         """
         Displays the frame without prediction information.
         """
-        print(f"Cell prediction: {self.cell}")
-        print(f"Heading prediction: {self.heading}")
+        # print(f"Cell prediction: {self.cell}")
+        # print(f"Heading prediction: {self.heading}")
         cv2.imshow("frame", image)
 
     def _processAndDisplayFrame(self, image, frame, frameCounter):
@@ -216,10 +261,35 @@ class TestModelPredictions:
         self.cell, self.heading = self._getPredictions(prediction)
 
         self._annotateImage(image)
-        self._writePredictionsToFile(frame, frameCounter)
-        cv2.imshow("frame", image)
-        cv2.waitKey(60)
-        self.imagesList.pop(0)
+        # For Folder of frames
+        if self.is_folder:
+            self._writePredictionsToFile(frame, frameCounter)
+            cv2.imshow("frame", image)
+            cv2.waitKey(60)
+            self.imagesList.pop(0)
+        if self.is_live:
+            cv2.imshow("frame", image)
+            record = cv2.waitKey(60)
+            dataNum = 0
+            if record>-1:
+                dataNum += 1
+                closeness = cv2.waitKey(0)
+                new_row = []
+                if chr(closeness).upper() == 'A':
+                    new_row = [dataNum, self.cell, 0]
+                elif chr(closeness).upper() == 'B':
+                    new_row = [dataNum, self.cell, 1]
+                elif chr(closeness).upper() == 'C':
+                    new_row = [dataNum, self.cell, 2]
+                elif chr(closeness).upper() == 'X':
+                    new_row = [dataNum, self.cell, -1]
+                else:
+                    print("Invalid key")
+
+                if new_row:
+                    with open(self.csvPath, mode='a', newline='', encoding='utf-8') as file:
+                        writer = csv.writer(file)
+                        writer.writerow(new_row)
 
     def _getPredictions(self, prediction):
         """
@@ -234,9 +304,9 @@ class TestModelPredictions:
         Annotates the image with the cell and heading predictions.
         """
         image = cv2.putText(image, f"Cell prediction: {self.cell}", (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 3)
-        print(f"Cell prediction: {self.cell}")
+        # print(f"Cell prediction: {self.cell}")
         image = cv2.putText(image, f"Heading prediction: {self.heading}", (0, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 3)
-        print(f"Heading prediction: {self.heading}")
+        # print(f"Heading prediction: {self.heading}")
 
     def _writePredictionsToFile(self, frame, frameCounter):
         """
