@@ -13,9 +13,10 @@ Edited: Summer 2026 by Jana Abu-Subha
 import csv
 import os
 import time
+from datetime import datetime
 
 import cv2
-from olri_classifier.cnnRunModel import ModelRunLSTM
+from olri_classifier.cnnRunModel import ModelRunRGB
 import OlinWorldMap
 import socket
 import struct
@@ -25,6 +26,7 @@ import numpy as np
 class TestModelPredictions:
     def __init__(self):
         # Set data path for Precision 5820
+        self.routename = None
         self.mainPath = "/home/macalester/PycharmProjects/catkin_ws/src/match_seeker/res/"
         self.evalPath = os.path.join(self.mainPath, "Evaluation2024Data/")
         self.framesDataPath = os.path.join(self.evalPath, "FrameData/")
@@ -33,10 +35,10 @@ class TestModelPredictions:
         self.outputDir = os.path.join(self.evalPath, "Predictions/")
 
         # Set a directory for saving live accuracy data csv file
-        self.csvPath = os.path.join(self.evalPath, "Accuracy/2026Data.csv")
+        self.csvPath = os.path.join(self.evalPath, "Accuracy/2026Data_RGBModel.csv") #change file according to model running
 
         # Load the model and the building map
-        self.modelTester = ModelRunLSTM()
+        self.modelTester = ModelRunRGB()
         self.olinMap = OlinWorldMap.WorldMap()
 
         # Read the folder path
@@ -83,8 +85,9 @@ class TestModelPredictions:
             self.folderName = self.videoName.replace(".avi", "")
             self.videoCapture = cv2.VideoCapture(self.videoPath)
         if filetype.lower() == "l":
+            self.routename = input("Specify route (1/2/3/4/5 or 1B/2B/3B/4B/5B)")
+            self.routename = self.routename.upper()
             self.is_live = True
-
             self.client_socket.connect((self.SERVER_IP, self.PORT))
 
     def _selectDatasetFromList(self):
@@ -257,12 +260,16 @@ class TestModelPredictions:
         Processes the frame to get predictions and displays the results.
         """
         scores, matchLocs = self.modelTester.getPrediction(self.imagesList, self.olinMap)
-        prediction = matchLocs[0]
-        self.cell, self.heading = self._getPredictions(prediction)
-
+        if not matchLocs:
+            print(f"Warning: No match locations returned for frame {frame}.")
+            self.cell = "None"
+            self.heading = "None"
+        else:
+            prediction = matchLocs[0]
+            self.cell, self.heading = self._getPredictions(prediction)
         self._annotateImage(image)
         # For Folder of frames
-        if self.is_folder:
+        if self.is_folder or self.is_video:
             self._writePredictionsToFile(frame, frameCounter)
             cv2.imshow("frame", image)
             cv2.waitKey(60)
@@ -270,19 +277,18 @@ class TestModelPredictions:
         if self.is_live:
             cv2.imshow("frame", image)
             record = cv2.waitKey(60)
-            dataNum = 0
-            if record>-1:
-                dataNum += 1
+            if record > -1 and chr(record).upper() == 'R':
                 closeness = cv2.waitKey(0)
                 new_row = []
+                now = datetime.now()
                 if chr(closeness).upper() == 'A':
-                    new_row = [dataNum, self.cell, 0]
+                    new_row = [self.routename, now, self.cell, 0]
                 elif chr(closeness).upper() == 'B':
-                    new_row = [dataNum, self.cell, 1]
+                    new_row = [self.routename, now, self.cell, 1]
                 elif chr(closeness).upper() == 'C':
-                    new_row = [dataNum, self.cell, 2]
+                    new_row = [self.routename, now, self.cell, 2]
                 elif chr(closeness).upper() == 'X':
-                    new_row = [dataNum, self.cell, -1]
+                    new_row = [self.routename, now, self.cell, -1]
                 else:
                     print("Invalid key")
 
@@ -290,6 +296,7 @@ class TestModelPredictions:
                     with open(self.csvPath, mode='a', newline='', encoding='utf-8') as file:
                         writer = csv.writer(file)
                         writer.writerow(new_row)
+            self.imagesList.pop(0)
 
     def _getPredictions(self, prediction):
         """

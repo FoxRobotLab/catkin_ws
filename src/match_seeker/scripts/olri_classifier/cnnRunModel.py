@@ -99,6 +99,8 @@ class ModelRunRGB(object):
     def getPrediction(self, image, mapGraph):
         potentialHeadings = [0, 45, 90, 135, 180, 225, 270, 315, 360]
 
+        if isinstance(image, list):
+            image = image[-1]
         lastHeading, headOutputPercs = self.headingModel.predictSingleImageAllData(image)
         bestHead = potentialHeadings[lastHeading]
         newCell, cellOutPercs = self.cellModel.predictSingleImageAllData(image)
